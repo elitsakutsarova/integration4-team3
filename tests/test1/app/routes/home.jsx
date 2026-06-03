@@ -1,12 +1,12 @@
-import { Welcome } from "../welcome/welcome";
+import MapView from '../components/MapView';
 
 export function meta() {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: 'MemoMe — Map' },
+    { name: 'description', content: 'Pin your memories on the map.' },
   ];
 }
 
 export default function Home() {
-  return <Welcome />;
+  return <MapView />;
 }
