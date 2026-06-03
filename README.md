@@ -14,3 +14,7 @@ Design: https://www.figma.com/design/EqHZaGIVXoGFLQ3pnyekZU/Integration4-Design?
 sth
 
 first commit
+
+## Test 1
+
+Add pins to the map with text. Try to add both memory pins and event pins. When you click on them, there should be text and maybe photos.
