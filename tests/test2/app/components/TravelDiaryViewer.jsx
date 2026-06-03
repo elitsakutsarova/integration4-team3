@@ -1,27 +1,24 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { TRAVEL_DIARY, MOCK_MEMORIES, STICKERS } from '../data/mockUser';
+import {
+  loadPageStickers,
+  savePageStickers,
+  createSticker,
+} from '../utils/stickerTracker';
+import DraggableSticker from './diary/DraggableSticker';
+import DiaryStickerTray from './diary/DiaryStickerTray';
+import ShareDiaryModal from './diary/ShareDiaryModal';
+import RecapSelectView, { RecapPreviewView } from './diary/RecapViews';
 
-function PlacedSticker({ sticker, onRemove }) {
-  return (
-    <div
-      className="diary-placed-sticker"
-      style={{ left: `${sticker.x}%`, top: `${sticker.y}%` }}
-      onDoubleClick={() => onRemove(sticker.uid)}
-      title="Double-click to remove"
-    >
-      {sticker.emoji}
-    </div>
-  );
-}
+const DIARY_ID = TRAVEL_DIARY.id;
+const MEMO_PAGE_OFFSET = 1; // page 0 = cover
 
-function CoverPage({ diary, pageStickers, onRemoveSticker }) {
+function CoverPage({ diary, children, dropZoneRef }) {
   return (
     <div className="diary-page diary-page--cover">
-      <div className="diary-page-inner">
-        {pageStickers.map(s => (
-          <PlacedSticker key={s.uid} sticker={s} onRemove={onRemoveSticker} />
-        ))}
+      <div className="diary-page-inner diary-drop-zone" ref={dropZoneRef}>
+        {children}
         <h2 className="diary-cover-title">{diary.title}</h2>
         <p className="diary-cover-dates">{diary.dateRange}</p>
         <p className="diary-cover-desc">{diary.description}</p>
@@ -31,14 +28,12 @@ function CoverPage({ diary, pageStickers, onRemoveSticker }) {
   );
 }
 
-function MemoPage({ memory, pageStickers, onRemoveSticker }) {
+function MemoPage({ memory, children, dropZoneRef }) {
   return (
     <div className="diary-page diary-page--memo">
       <div className="diary-page-spine" aria-hidden="true" />
-      <div className="diary-page-inner">
-        {pageStickers.map(s => (
-          <PlacedSticker key={s.uid} sticker={s} onRemove={onRemoveSticker} />
-        ))}
+      <div className="diary-page-inner diary-drop-zone" ref={dropZoneRef}>
+        {children}
         <p className="diary-memo-date">{memory.date}</p>
         <div className="diary-polaroid">
           <span className="diary-corner diary-corner--tl" aria-hidden="true" />
@@ -53,21 +48,32 @@ function MemoPage({ memory, pageStickers, onRemoveSticker }) {
   );
 }
 
-function EndPage({ pageStickers, onRemoveSticker }) {
+function EndPage({ children, onCreateRecap, dropZoneRef }) {
   return (
     <div className="diary-page diary-page--end">
-      <div className="diary-page-inner">
-        {pageStickers.map(s => (
-          <PlacedSticker key={s.uid} sticker={s} onRemove={onRemoveSticker} />
-        ))}
+      <div className="diary-page-inner diary-drop-zone" ref={dropZoneRef}>
+        {children}
         <p className="diary-end-script">The end.</p>
         <p className="diary-end-sub">That was a fun trip!</p>
         <p className="diary-end-hint">
           Want to relive and share your memos with a personalised recap?
         </p>
-        <button type="button" className="diary-recap-btn">Create recap of trip</button>
+        <button type="button" className="diary-recap-btn" onClick={onCreateRecap}>
+          Create recap of trip
+        </button>
       </div>
       <div className="diary-page-curl diary-page-curl--left" aria-hidden="true" />
+    </div>
+  );
+}
+
+function SuccessToast({ message, onClose }) {
+  if (!message) return null;
+  return (
+    <div className="share-success-backdrop" onClick={onClose}>
+      <div className="share-success-modal" onClick={e => e.stopPropagation()}>
+        <p>{message}</p>
+      </div>
     </div>
   );
 }
@@ -76,15 +82,34 @@ export default function TravelDiaryViewer() {
   const navigate = useNavigate();
   const diary = TRAVEL_DIARY;
   const memories = MOCK_MEMORIES.filter(m => diary.memoryIds.includes(m.id));
+  const totalPages = 1 + memories.length + 1;
 
-  const totalPages = 1 + memories.length + 1; // cover + memos + end
   const [pageIndex, setPageIndex] = useState(0);
   const [direction, setDirection] = useState('next');
   const [pageStickers, setPageStickers] = useState({});
-  const [draggingSticker, setDraggingSticker] = useState(null);
-  const [dragPos, setDragPos] = useState(null);
+  const [isDraggingSticker, setIsDraggingSticker] = useState(false);
+
+  const [view, setView] = useState('diary'); // diary | share | recap-select | recap-preview
+  const [recapSelectedIds, setRecapSelectedIds] = useState([]);
+  const [successMsg, setSuccessMsg] = useState(null);
+
   const pageRef = useRef(null);
+  const dropZoneRef = useRef(null);
+  const trayRef = useRef(null);
   const dragStartRef = useRef(null);
+
+  useEffect(() => {
+    const loaded = {};
+    for (let i = 0; i < totalPages; i++) {
+      loaded[i] = loadPageStickers(DIARY_ID, i);
+    }
+    setPageStickers(loaded);
+  }, [totalPages]);
+
+  const persistPage = useCallback((idx, stickers) => {
+    setPageStickers(prev => ({ ...prev, [idx]: stickers }));
+    savePageStickers(DIARY_ID, idx, stickers);
+  }, []);
 
   const goNext = useCallback(() => {
     if (pageIndex < totalPages - 1) {
@@ -100,43 +125,40 @@ export default function TravelDiaryViewer() {
     }
   }, [pageIndex]);
 
-  function getPageStickers(idx) {
-    return pageStickers[idx] ?? [];
+  function handleDropOnPage(stickerDef, x, y) {
+    const next = [...(pageStickers[pageIndex] ?? []), createSticker(stickerDef, x, y)];
+    persistPage(pageIndex, next);
   }
 
-  function addStickerToPage(pageIdx, sticker, x, y) {
-    setPageStickers(prev => ({
-      ...prev,
-      [pageIdx]: [...(prev[pageIdx] ?? []), { uid: Date.now(), emoji: sticker.emoji, x, y }],
-    }));
+  function handleMoveSticker(uid, x, y) {
+    const next = (pageStickers[pageIndex] ?? []).map(s =>
+      s.uid === uid ? { ...s, x, y } : s,
+    );
+    persistPage(pageIndex, next);
   }
 
-  function removeSticker(uid) {
-    setPageStickers(prev => {
-      const next = { ...prev };
-      for (const key of Object.keys(next)) {
-        next[key] = next[key].filter(s => s.uid !== uid);
-      }
-      return next;
-    });
+  function handleReturnToTray(uid) {
+    const next = (pageStickers[pageIndex] ?? []).filter(s => s.uid !== uid);
+    persistPage(pageIndex, next);
   }
 
   function handlePageClick(e) {
-    if (draggingSticker) return;
+    if (isDraggingSticker) return;
+    if (e.target.closest('.diary-placed-sticker')) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     if (x < rect.width * 0.3) goPrev();
     else if (x > rect.width * 0.7) goNext();
   }
 
-  /* Drag-to-flip */
   function handlePointerDown(e) {
-    if (draggingSticker) return;
+    if (isDraggingSticker) return;
+    if (e.target.closest('.diary-placed-sticker')) return;
     dragStartRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
   }
 
   function handlePointerUp(e) {
-    if (!dragStartRef.current || draggingSticker) return;
+    if (!dragStartRef.current || isDraggingSticker) return;
     const dx = e.clientX - dragStartRef.current.x;
     const dt = Date.now() - dragStartRef.current.t;
     dragStartRef.current = null;
@@ -146,57 +168,81 @@ export default function TravelDiaryViewer() {
     }
   }
 
-  /* Sticker drag from tray */
-  function startStickerDrag(sticker, e) {
-    e.preventDefault();
-    setDraggingSticker(sticker);
-    setDragPos({ x: e.clientX, y: e.clientY });
-  }
-
-  function moveStickerDrag(e) {
-    if (!draggingSticker) return;
-    setDragPos({ x: e.clientX, y: e.clientY });
-  }
-
-  function endStickerDrag(e) {
-    if (!draggingSticker || !pageRef.current) {
-      setDraggingSticker(null);
-      setDragPos(null);
-      return;
-    }
-    const rect = pageRef.current.getBoundingClientRect();
-    const cx = e.clientX;
-    const cy = e.clientY;
-    if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
-      const x = ((cx - rect.left) / rect.width) * 100;
-      const y = ((cy - rect.top) / rect.height) * 100;
-      addStickerToPage(pageIndex, draggingSticker, Math.max(5, Math.min(90, x)), Math.max(5, Math.min(90, y)));
-    }
-    setDraggingSticker(null);
-    setDragPos(null);
+  function renderStickers() {
+    return (pageStickers[pageIndex] ?? []).map(s => (
+      <DraggableSticker
+        key={s.uid}
+        sticker={s}
+        pageIndex={pageIndex}
+        dropZoneRef={dropZoneRef}
+        trayRef={trayRef}
+        onMove={handleMoveSticker}
+        onReturnToTray={handleReturnToTray}
+        onDragStart={() => setIsDraggingSticker(true)}
+        onDragEnd={() => setIsDraggingSticker(false)}
+      />
+    ));
   }
 
   function renderPage() {
-    const stickers = getPageStickers(pageIndex);
-    const onRemove = removeSticker;
-
+    const stickers = renderStickers();
     if (pageIndex === 0) {
-      return <CoverPage diary={diary} pageStickers={stickers} onRemoveSticker={onRemove} />;
+      return <CoverPage diary={diary} dropZoneRef={dropZoneRef}>{stickers}</CoverPage>;
     }
     if (pageIndex === totalPages - 1) {
-      return <EndPage pageStickers={stickers} onRemoveSticker={onRemove} />;
+      return (
+        <EndPage onCreateRecap={() => setView('recap-select')} dropZoneRef={dropZoneRef}>
+          {stickers}
+        </EndPage>
+      );
     }
-    const memory = memories[pageIndex - 1];
-    return <MemoPage memory={memory} pageStickers={stickers} onRemoveSticker={onRemove} />;
+    return (
+      <MemoPage memory={memories[pageIndex - 1]} dropZoneRef={dropZoneRef}>
+        {stickers}
+      </MemoPage>
+    );
+  }
+
+  if (view === 'recap-select') {
+    return (
+      <>
+        <RecapSelectView
+          diary={diary}
+          memories={memories}
+          diaryId={DIARY_ID}
+          pageOffset={MEMO_PAGE_OFFSET}
+          onBack={() => setView('diary')}
+          onPreview={ids => {
+            setRecapSelectedIds(ids);
+            setView('recap-preview');
+          }}
+          onShared={msg => setSuccessMsg(msg)}
+        />
+        <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />
+      </>
+    );
+  }
+
+  if (view === 'recap-preview') {
+    return (
+      <>
+        <RecapPreviewView
+          diary={diary}
+          memories={memories}
+          selectedIds={recapSelectedIds}
+          diaryId={DIARY_ID}
+          pageOffset={MEMO_PAGE_OFFSET}
+          onBack={() => setView('recap-select')}
+          onGoDiary={() => setView('diary')}
+          onShared={msg => setSuccessMsg(msg)}
+        />
+        <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />
+      </>
+    );
   }
 
   return (
-    <div
-      className="diary-viewer"
-      onPointerMove={moveStickerDrag}
-      onPointerUp={endStickerDrag}
-      onPointerLeave={endStickerDrag}
-    >
+    <div className="diary-viewer">
       <header className="diary-header">
         <button type="button" className="diary-back-btn" onClick={() => navigate('/profile')} aria-label="Back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -204,7 +250,12 @@ export default function TravelDiaryViewer() {
           </svg>
         </button>
         <h1 className="diary-header-title">{diary.title}</h1>
-        <button type="button" className="diary-share-btn" aria-label="Share">
+        <button
+          type="button"
+          className="diary-share-btn"
+          aria-label="Share"
+          onClick={() => setView('share')}
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="18" cy="5" r="3" />
             <circle cx="6" cy="12" r="3" />
@@ -225,8 +276,6 @@ export default function TravelDiaryViewer() {
         aria-label={`Diary page ${pageIndex + 1} of ${totalPages}`}
       >
         {renderPage()}
-        <div className="diary-flip-hint diary-flip-hint--left" aria-hidden="true" />
-        <div className="diary-flip-hint diary-flip-hint--right" aria-hidden="true" />
       </div>
 
       <div className="diary-pagination" role="tablist" aria-label="Page navigation">
@@ -246,32 +295,31 @@ export default function TravelDiaryViewer() {
         ))}
       </div>
 
-      <div className="diary-sticker-tray">
-        <p className="diary-sticker-label">Stickers — drag onto page</p>
-        <div className="diary-sticker-row">
-          {STICKERS.map(sticker => (
-            <button
-              key={sticker.id}
-              type="button"
-              className="diary-sticker-btn"
-              onPointerDown={e => startStickerDrag(sticker, e)}
-              aria-label={sticker.label}
-            >
-              {sticker.emoji}
-            </button>
-          ))}
-        </div>
-      </div>
+      <DiaryStickerTray
+        key={pageIndex}
+        stickers={STICKERS}
+        dropZoneRef={dropZoneRef}
+        trayRef={trayRef}
+        pageIndex={pageIndex}
+        onDropOnPage={handleDropOnPage}
+      />
 
-      {draggingSticker && dragPos && (
-        <div
-          className="diary-sticker-ghost"
-          style={{ left: dragPos.x, top: dragPos.y }}
-          aria-hidden="true"
-        >
-          {draggingSticker.emoji}
-        </div>
+      {view === 'share' && (
+        <ShareDiaryModal
+          diary={diary}
+          memories={memories}
+          diaryId={DIARY_ID}
+          pageOffset={MEMO_PAGE_OFFSET}
+          onClose={() => setView('diary')}
+          onCreateRecap={() => setView('recap-select')}
+          onShared={msg => {
+            setView('diary');
+            setSuccessMsg(msg);
+          }}
+        />
       )}
+
+      <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />
     </div>
   );
 }
