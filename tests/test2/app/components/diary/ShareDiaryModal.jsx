@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import MemoShareCard, { ShareWholeDiaryCard } from './MemoShareCard';
 import ShareSheet from './ShareSheet';
-import { exportShareLayout } from '../../utils/stickerTracker';
+import { buildMemoShareFiles, shareImageFiles, shareToInstagram } from '../../utils/shareImage';
 
 export default function ShareDiaryModal({
   diary,
@@ -14,6 +14,7 @@ export default function ShareDiaryModal({
 }) {
   const [selected, setSelected] = useState(new Set());
   const [showSheet, setShowSheet] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   const memoPages = memories.map((m, i) => ({ memory: m, pageIndex: pageOffset + i }));
 
@@ -33,32 +34,35 @@ export default function ShareDiaryModal({
   }
 
   async function handleShareApp(appId) {
-    const indices = [...selected];
-    const layout = exportShareLayout(diaryId, indices);
-    const payload = {
-      diary: diary.title,
-      pages: indices,
-      stickerLayout: layout,
-      sharedVia: appId,
-    };
+    if (sharing) return;
+    setSharing(true);
 
-    if (navigator.share && appId !== 'instagram') {
-      try {
-        await navigator.share({
+    try {
+      const indices = [...selected];
+      const files = await buildMemoShareFiles(diaryId, memories, indices, pageOffset);
+
+      let message;
+      if (appId === 'instagram') {
+        message = await shareToInstagram(files, {
+          title: diary.title,
+          text: `My ${diary.title} memories`,
+        });
+      } else {
+        const result = await shareImageFiles(files, {
           title: diary.title,
           text: `Check out my ${diary.title} travel diary!`,
-          url: `${window.location.origin}/diary/${diaryId}`,
         });
-      } catch { /* user cancelled */ }
-    }
+        message = result.message ?? 'The trip recap was successfully shared!';
+      }
 
-    setShowSheet(false);
-    onShared?.(
-      appId === 'instagram'
-        ? 'Ready to share on Instagram — sticker positions saved!'
-        : 'The trip recap was successfully shared!',
-      payload,
-    );
+      setShowSheet(false);
+      if (message) onShared?.(message);
+    } catch (err) {
+      console.error(err);
+      onShared?.('Could not share — try downloading the image instead.');
+    } finally {
+      setSharing(false);
+    }
   }
 
   const countLabel = selected.size === 0
@@ -102,10 +106,10 @@ export default function ShareDiaryModal({
           <button
             type="button"
             className={`share-modal-action${selected.size > 0 ? ' share-modal-action--active' : ''}`}
-            disabled={selected.size === 0}
+            disabled={selected.size === 0 || sharing}
             onClick={() => setShowSheet(true)}
           >
-            Share selected
+            {sharing ? 'Preparing…' : 'Share selected'}
           </button>
         </div>
       </div>
@@ -117,6 +121,7 @@ export default function ShareDiaryModal({
           onClose={() => setShowSheet(false)}
           onShareApp={handleShareApp}
           onShareContact={() => handleShareApp('messages')}
+          disabled={sharing}
         />
       )}
     </>

@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import ShareSheet from './ShareSheet';
-import { exportShareLayout } from '../../utils/stickerTracker';
+import {
+  buildMemoShareFiles,
+  renderRecapImage,
+  shareImageFiles,
+  shareToInstagram,
+} from '../../utils/shareImage';
 
 export default function RecapSelectView({ diary, memories, diaryId, pageOffset, onBack, onPreview, onShared }) {
   const [selected, setSelected] = useState(new Set(memories.map(m => m.id)));
@@ -78,33 +83,62 @@ export default function RecapSelectView({ diary, memories, diaryId, pageOffset, 
 
 export function RecapPreviewView({ diary, memories, selectedIds, diaryId, pageOffset, onBack, onGoDiary, onShared }) {
   const [showSheet, setShowSheet] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const selectedMemories = memories.filter(m => selectedIds.includes(m.id));
 
   async function handleShareApp(appId) {
-    const pageIndices = selectedMemories.map(m => pageOffset + memories.indexOf(m));
-    const layout = exportShareLayout(diaryId, pageIndices);
-    console.info('[Share recap]', { appId, stickerLayout: layout });
+    if (sharing) return;
+    setSharing(true);
 
-    if (navigator.share && appId !== 'instagram') {
-      try {
-        await navigator.share({
+    try {
+      const pageIndices = selectedMemories.map(m => pageOffset + memories.indexOf(m));
+      let files;
+
+      if (appId === 'instagram' && selectedMemories.length <= 10) {
+        // Instagram: share individual memo cards with stickers baked in
+        files = await buildMemoShareFiles(diaryId, memories, pageIndices, pageOffset);
+      } else {
+        // Recap collage for other apps or many memos
+        files = [await renderRecapImage(diary, selectedMemories, diaryId, pageOffset)];
+      }
+
+      let message;
+      if (appId === 'instagram') {
+        message = await shareToInstagram(files, {
           title: `${diary.title} — Trip Recap`,
           text: `My ${diary.title} recap!`,
-          url: window.location.href,
         });
-      } catch { /* cancelled */ }
-    }
+      } else {
+        const result = await shareImageFiles(files, {
+          title: `${diary.title} — Trip Recap`,
+          text: `My ${diary.title} recap!`,
+        });
+        message = result.message ?? 'The trip recap was successfully shared!';
+      }
 
-    setShowSheet(false);
-    onShared?.(
-      appId === 'instagram'
-        ? 'Ready to share on Instagram — sticker positions saved!'
-        : 'The trip recap was successfully shared!',
-    );
+      setShowSheet(false);
+      if (message) onShared?.(message);
+    } catch (err) {
+      console.error(err);
+      onShared?.('Could not share — try downloading the image instead.');
+    } finally {
+      setSharing(false);
+    }
   }
 
-  function handleDownload() {
-    onShared?.('Recap downloaded (mock)');
+  async function handleDownload() {
+    try {
+      const file = await renderRecapImage(diary, selectedMemories, diaryId, pageOffset);
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      a.click();
+      URL.revokeObjectURL(url);
+      onShared?.('Recap downloaded!');
+    } catch {
+      onShared?.('Download failed.');
+    }
   }
 
   return (
@@ -164,6 +198,7 @@ export function RecapPreviewView({ diary, memories, selectedIds, diaryId, pageOf
           onClose={() => setShowSheet(false)}
           onShareApp={handleShareApp}
           onShareContact={() => handleShareApp('messages')}
+          disabled={sharing}
         />
       )}
     </div>

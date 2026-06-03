@@ -12,7 +12,7 @@ const APPS = [
   { id: 'instagram', label: 'Instagram', bg: 'linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)', icon: '📷' },
 ];
 
-export default function ShareSheet({ title, countLabel, onClose, onShareApp, onShareContact }) {
+export default function ShareSheet({ title, countLabel, onClose, onShareApp, onShareContact, disabled }) {
   return (
     <div className="share-sheet-backdrop" onClick={onClose}>
       <div className="share-sheet" onClick={e => e.stopPropagation()}>
@@ -49,6 +49,7 @@ export default function ShareSheet({ title, countLabel, onClose, onShareApp, onS
               key={app.id}
               type="button"
               className="share-app"
+              disabled={disabled}
               onClick={() => onShareApp?.(app.id)}
             >
               <span

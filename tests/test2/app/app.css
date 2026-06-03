@@ -1145,6 +1145,7 @@ html, body {
 
 .diary-drop-zone {
   position: relative;
+  overflow: hidden;
 }
 
 .diary-page-spine {
