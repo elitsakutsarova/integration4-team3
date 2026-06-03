@@ -1,15 +1,528 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+/* ─── Tokens ───────────────────────────────── */
+:root {
+  --bg:     #F5F2EC;
+  --blue:   #3535FF;
+  --mint:   #00E87A;
+  --yellow: #FFE03A;
+  --pink:   #F9C0D9;
+  --dark:   #18181F;
+  --mid:    #9090A0;
+  --font:   'Space Grotesk', sans-serif;
+  --script: 'Playfair Display', serif;
+  --dash:   2px dashed var(--dark);
 }
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+html, body { background: var(--bg); font-family: var(--font); overflow: hidden; }
+
+/* ─── Subtle pixel-grid overlay ─────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9000;
+  background-image:
+    linear-gradient(rgba(24,24,31,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24,24,31,.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Desaturate + warm-tint the tile layer */
+.leaflet-layer { filter: saturate(0.25) brightness(1.06) sepia(0.12); }
+
+/* ─── Zoom controls ─────────────────────────────── */
+.leaflet-control-zoom {
+  border: var(--dash) !important;
+  border-radius: 0 !important;
+  overflow: hidden;
+}
+.leaflet-control-zoom a {
+  width: 34px !important; height: 34px !important;
+  line-height: 34px !important;
+  background: var(--bg) !important;
+  color: var(--dark) !important;
+  font-family: var(--font) !important;
+  font-weight: 700 !important;
+  font-size: 18px !important;
+  border: none !important;
+  border-bottom: 1px dashed var(--dark) !important;
+  transition: background .15s;
+}
+.leaflet-control-zoom a:last-child { border-bottom: none !important; }
+.leaflet-control-zoom a:hover { background: var(--yellow) !important; }
+
+/* ─── Scale bar ──────────────────────────────────── */
+.leaflet-control-scale-line {
+  background: var(--bg) !important;
+  border: 2px solid var(--dark) !important;
+  border-top: none !important;
+  font-family: var(--font) !important;
+  font-size: 10px !important;
+  color: var(--dark) !important;
+  padding: 2px 6px !important;
+}
+
+/* ─── Attribution ────────────────────────────────── */
+.leaflet-control-attribution {
+  background: transparent !important;
+  font-family: var(--font) !important;
+  font-size: 10px !important;
+  color: var(--mid) !important;
+}
+.leaflet-control-attribution a { color: var(--mid) !important; }
+
+/* ─── Popup ──────────────────────────────────────── */
+.leaflet-popup-content-wrapper {
+  background: var(--bg) !important;
+  border: var(--dash) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.leaflet-popup-tip-container { display: none; }
+.leaflet-popup-close-button {
+  color: var(--dark) !important;
+  font-size: 18px !important;
+  top: 6px !important; right: 8px !important;
+}
+.leaflet-popup-content { margin: 0 !important; }
+
+/* ─── Memory pin ─────────────────────────────────── */
+.pin-memory {
+  position: relative;
+  width: 36px;
+  height: 52px;
+  cursor: pointer;
+}
+
+.pin-memory-square {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  border: 2px solid var(--dark);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
+
+.pin-memory-drop {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 36px;
+  background: var(--dark);
+  border-radius: 50% 50% 50% 0;
+  transform: translateX(-50%) rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pin-memory-dot {
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+/* ─── Event / festival pin ───────────────────────── */
+.pin-event {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  width: 80px;
+}
+
+.pin-event-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 64px;
+  height: 64px;
+  background: rgba(53, 53, 255, 0.18);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.pin-event-circle {
+  position: relative;
+  z-index: 1;
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  border: 2px solid var(--dark);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pin-event-label {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dark);
+  white-space: nowrap;
+}
+
+/* ─── Event popup ────────────────────────────────── */
+.event-popup-wrapper .leaflet-popup-content-wrapper {
+  background: #fff !important;
+  border: 1px solid #e0e0e4 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,.1) !important;
+  padding: 0 !important;
+}
+
+.event-popup-wrapper .leaflet-popup-tip-container {
+  display: block !important;
+}
+
+.event-popup-wrapper .leaflet-popup-tip {
+  background: #fff !important;
+  border: 1px solid #e0e0e4 !important;
+  box-shadow: none !important;
+}
+
+.event-popup-wrapper .leaflet-popup-close-button {
+  display: none !important;
+}
+
+.event-popup {
+  padding: 14px;
+}
+
+.event-popup-body {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.event-popup-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-popup-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.event-popup-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.event-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b6b78;
+  background: #f0f0f2;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.event-popup-footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.event-popup-likes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #b0b0b8;
+}
+
+.event-popup-more {
+  font-size: 12px;
+  color: #6b6b78;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.event-popup-image-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 90px;
+  height: 90px;
+}
+
+.event-popup-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.event-popup-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #00c853;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* ─── Memory bottom sheet ────────────────────────── */
+.map-container {
+  width: 100vw;
+  height: 100vh;
+}
+
+.memory-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(24, 24, 31, 0.25);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: auto;
+  padding: 0 1rem; 
+}
+
+.memory-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 30px rgba(0,0,0,.12);
+  overflow: hidden;
+  animation: sheet-up .25s ease-out;
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.memory-sheet-image {
+  position: relative;
+  height: 200px;
+  background: #e8e8ec;
+}
+
+.memory-sheet-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.memory-sheet-heart {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+
+.memory-sheet-tags {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+}
+
+.memory-sheet-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dark);
+  background: rgba(255,255,255,.9);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.memory-sheet-content {
+  padding: 18px 20px 24px;
+}
+
+.memory-sheet-quote {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+  line-height: 1.35;
+  margin-bottom: 16px;
+}
+
+.memory-sheet-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.memory-sheet-location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #6b6b78;
+}
+
+.memory-sheet-location-name {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.memory-sheet-cta {
+  flex-shrink: 0;
+  background: var(--dark);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+
+.memory-sheet-cta:hover {
+  opacity: .85;
+}
+
+/* ─── Legend pin previews ────────────────────────── */
+.legend-pin-memory {
+  width: 14px;
+  height: 18px;
+  background: var(--dark);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.legend-pin-memory::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border: 1.5px solid var(--dark);
+  border-radius: 2px;
+}
+
+.legend-pin-event {
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border: 2px solid var(--dark);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.p-label {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  margin-bottom: 6px;
+}
+.p-title {
+  font-family: var(--script);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--dark);
+  line-height: 1.25;
+}
+.p-desc {
+  font-size: 11px;
+  color: var(--mid);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+/* ─── Branding pill (top-left) ───────────────────── */
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  background: var(--bg);
+  border: var(--dash);
+  padding: 9px 16px 9px 14px;
+  pointer-events: none;
+  user-select: none;
+}
+.brand-name {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -.4px;
+  text-transform: uppercase;
+  color: var(--dark);
+}
+.brand-script {
+  font-family: var(--script);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--blue);
+}
+
+/* ─── Legend chip (bottom-right) ────────────────── */
+.legend {
+  background: var(--bg);
+  border: var(--dash);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--dark);
+}
+.legend-dot {
+  width: 14px; height: 14px;
+  flex-shrink: 0;
+  border: 2px dashed var(--dark);
 }
