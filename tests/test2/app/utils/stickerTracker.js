@@ -17,16 +17,18 @@ function writeAll(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-export function loadPageStickers(diaryId, pageIndex) {
-  const all = readAll();
-  return all[diaryId]?.[pageIndex] ?? [];
-}
-
 export function savePageStickers(diaryId, pageIndex, stickers) {
   const all = readAll();
   if (!all[diaryId]) all[diaryId] = {};
-  all[diaryId][pageIndex] = stickers;
+  all[diaryId][String(pageIndex)] = stickers;
   writeAll(all);
+}
+
+export function loadPageStickers(diaryId, pageIndex) {
+  const all = readAll();
+  const pages = all[diaryId];
+  if (!pages) return [];
+  return pages[pageIndex] ?? pages[String(pageIndex)] ?? [];
 }
 
 export function getDiaryStickerLayout(diaryId) {
@@ -43,6 +45,7 @@ export function exportShareLayout(diaryId, pageIndices) {
       uid: s.uid,
       stickerId: s.stickerId,
       emoji: s.emoji,
+      src: s.src,
       x: s.x,
       y: s.y,
     }));
@@ -54,7 +57,8 @@ export function createSticker(stickerDef, x, y) {
   return {
     uid: `${stickerDef.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     stickerId: stickerDef.id,
-    emoji: stickerDef.emoji,
+    emoji: stickerDef.emoji ?? null,
+    src: stickerDef.src ?? null,
     x: clampPercent(x),
     y: clampPercent(y),
   };

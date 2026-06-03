@@ -5,9 +5,16 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "react-router";
 
 import "./app.css";
+import { StickerCatalogProvider } from "./context/StickerCatalogContext";
+import { loadStickersFromPublic } from "./utils/stickers.server";
+
+export async function loader() {
+  return { stickers: loadStickersFromPublic() };
+}
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -27,7 +34,7 @@ export function Layout({ children }) {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <Meta />
         <Links />
       </head>
@@ -41,7 +48,13 @@ export function Layout({ children }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  const data = useLoaderData();
+  const stickers = data?.stickers ?? [];
+  return (
+    <StickerCatalogProvider stickers={stickers}>
+      <Outlet />
+    </StickerCatalogProvider>
+  );
 }
 
 export function ErrorBoundary({ error }) {
@@ -65,7 +78,7 @@ export function ErrorBoundary({ error }) {
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
-        <pre style={{ width: '100%', padding: '1rem', overflowX: 'auto' }}>
+        <pre style={{ width: '100%', padding: '1rem', overflowX: 'auto', fontSize: '12px' }}>
           <code>{stack}</code>
         </pre>
       )}

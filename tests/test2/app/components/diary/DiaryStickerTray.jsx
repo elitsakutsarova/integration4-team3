@@ -1,124 +1,158 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { Draggable } from 'gsap/Draggable';
-import { createSticker, pixelToPercent } from '../../utils/stickerTracker';
+import { pixelToPercent } from '../../utils/stickerTracker';
+import StickerVisual, { createStickerCloneNode } from './StickerVisual';
+import { useStickers, useStickersLoading } from '../../context/StickerCatalogContext';
 
-gsap.registerPlugin(Draggable);
+function clearDragSession(dragRef) {
+  const session = dragRef.current;
+  if (!session) return;
 
-export default function DiaryStickerTray({ stickers, dropZoneRef, trayRef, pageIndex, onDropOnPage }) {
-  const rowRef = useRef(null);
+  const { btn, onMove, onEnd, clone, pointerId } = session;
+  if (btn) {
+    btn.removeEventListener('pointermove', onMove);
+    btn.removeEventListener('pointerup', onEnd);
+    btn.removeEventListener('pointercancel', onEnd);
+    if (pointerId != null) {
+      try {
+        btn.releasePointerCapture(pointerId);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  clone?.remove();
+  dragRef.current = null;
+}
 
-  useEffect(() => {
-    const row = rowRef.current;
-    const dropZone = dropZoneRef.current;
-    if (!row || !dropZone) return;
+export default function DiaryStickerTray({ stickers: stickersProp, dropZoneRef, trayRef, pageIndex, onDropOnPage }) {
+  const catalogStickers = useStickers();
+  const loading = useStickersLoading();
+  const stickers = stickersProp?.length ? stickersProp : catalogStickers;
+  const onDropRef = useRef(onDropOnPage);
+  onDropRef.current = onDropOnPage;
 
-    const instances = [];
+  const dragRef = useRef(null);
+  const lastStartRef = useRef(0);
 
-    const buttons = row.querySelectorAll('[data-sticker-source]');
-    buttons.forEach(btn => {
-      const stickerId = btn.dataset.stickerId;
-      const stickerDef = stickers.find(s => s.id === stickerId);
-      if (!stickerDef) return;
+  useEffect(() => () => clearDragSession(dragRef), [pageIndex]);
 
-      const d = Draggable.create(btn, {
-        type: 'x,y',
-        onDrag() {
-          gsap.set(btn, { x: 0, y: 0 });
+  const endDrag = useCallback((clientX, clientY) => {
+    const session = dragRef.current;
+    if (!session || session.settled) return;
+    session.settled = true;
+
+    const { clone, stickerDef, originPageIndex, originDropZone } = session;
+    clearDragSession(dragRef);
+
+    if (!clone || !originDropZone) {
+      clone?.remove();
+      return;
+    }
+
+    const zoneRect = originDropZone.getBoundingClientRect();
+    const onPage =
+      clientX >= zoneRect.left &&
+      clientX <= zoneRect.right &&
+      clientY >= zoneRect.top &&
+      clientY <= zoneRect.bottom;
+
+    if (onPage) {
+      const { x, y } = pixelToPercent(clientX, clientY, zoneRect);
+      onDropRef.current(stickerDef, x, y, originPageIndex);
+      gsap.fromTo(
+        clone,
+        { scale: 1.2 },
+        {
+          scale: 1,
+          duration: 0.2,
+          ease: 'power2.out',
+          onComplete: () => clone.remove(),
         },
-        onPress(e) {
-          e.stopPropagation();
-          const clone = document.createElement('div');
-          clone.className = 'diary-sticker-drag-clone';
-          clone.textContent = stickerDef.emoji;
-          clone.style.position = 'fixed';
-          clone.style.left = '0';
-          clone.style.top = '0';
-          clone.style.zIndex = '20000';
-          clone.style.pointerEvents = 'none';
-          document.body.appendChild(clone);
-          btn._clone = clone;
-
-          const moveClone = ev => {
-            gsap.set(clone, { x: ev.clientX, y: ev.clientY, xPercent: -50, yPercent: -50 });
-          };
-          moveClone(e);
-          btn._moveClone = moveClone;
-          window.addEventListener('pointermove', moveClone);
-        },
-        onDrag(e) {
-          if (btn._clone) {
-            gsap.set(btn._clone, { x: e.clientX, y: e.clientY, xPercent: -50, yPercent: -50 });
-          }
-        },
-        onDragEnd(e) {
-          window.removeEventListener('pointermove', btn._moveClone);
-          const clone = btn._clone;
-          btn._clone = null;
-
-          const zoneRect = dropZone.getBoundingClientRect();
-          const cx = e.clientX;
-          const cy = e.clientY;
-
-          const onPage =
-            cx >= zoneRect.left &&
-            cx <= zoneRect.right &&
-            cy >= zoneRect.top &&
-            cy <= zoneRect.bottom;
-
-          if (onPage && clone) {
-            const { x, y } = pixelToPercent(cx, cy, zoneRect);
-            onDropOnPage(stickerDef, x, y);
-            gsap.fromTo(
-              clone,
-              { scale: 1.2 },
-              {
-                scale: 1,
-                duration: 0.2,
-                ease: 'power2.out',
-                onComplete: () => clone.remove(),
-              },
-            );
-          } else if (clone) {
-            gsap.to(clone, {
-              scale: 0.5,
-              opacity: 0,
-              duration: 0.15,
-              onComplete: () => clone.remove(),
-            });
-          }
-
-          gsap.set(btn, { x: 0, y: 0 });
-        },
+      );
+    } else {
+      gsap.to(clone, {
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.15,
+        onComplete: () => clone.remove(),
       });
-      instances.push(d);
-    });
+    }
+  }, []);
 
-    return () => {
-      instances.forEach(d => d[0]?.kill());
-      buttons.forEach(btn => {
-        if (btn._clone) btn._clone.remove();
-        window.removeEventListener('pointermove', btn._moveClone);
-      });
+  const startDrag = useCallback((stickerDef, e) => {
+    const now = Date.now();
+    if (now - lastStartRef.current < 350) return;
+    lastStartRef.current = now;
+
+    if (dragRef.current) clearDragSession(dragRef);
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    e.stopPropagation();
+    if (e.cancelable) e.preventDefault();
+
+    const btn = e.currentTarget;
+    try {
+      btn.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+
+    const clone = createStickerCloneNode(stickerDef);
+    document.body.appendChild(clone);
+    gsap.set(clone, { x: e.clientX, y: e.clientY, xPercent: -50, yPercent: -50 });
+
+    const pointerId = e.pointerId;
+
+    const onMove = ev => {
+      if (ev.pointerId !== pointerId) return;
+      gsap.set(clone, { x: ev.clientX, y: ev.clientY, xPercent: -50, yPercent: -50 });
     };
-  }, [stickers, dropZoneRef, pageIndex, onDropOnPage]);
+
+    const onEnd = ev => {
+      if (ev.pointerId !== pointerId) return;
+      endDrag(ev.clientX, ev.clientY);
+    };
+
+    dragRef.current = {
+      stickerDef,
+      clone,
+      btn,
+      pointerId,
+      settled: false,
+      onMove,
+      onEnd,
+      originPageIndex: pageIndex,
+      originDropZone: dropZoneRef.current,
+    };
+
+    btn.addEventListener('pointermove', onMove, { passive: false });
+    btn.addEventListener('pointerup', onEnd);
+    btn.addEventListener('pointercancel', onEnd);
+  }, [endDrag, pageIndex, dropZoneRef]);
 
   return (
     <div ref={trayRef} className="diary-sticker-tray">
       <p className="diary-sticker-label">Stickers — drag onto page · drag back here to remove</p>
-      <div ref={rowRef} className="diary-sticker-row">
-        {stickers.map(sticker => (
-          <button
-            key={sticker.id}
-            type="button"
-            className="diary-sticker-btn"
-            data-sticker-source
-            data-sticker-id={sticker.id}
-            aria-label={sticker.label}
-          >
-            {sticker.emoji}
-          </button>
-        ))}
+      <div className="diary-sticker-row">
+        {loading ? (
+          <p className="diary-sticker-empty">Loading stickers…</p>
+        ) : stickers.length === 0 ? (
+          <p className="diary-sticker-empty">No stickers found</p>
+        ) : (
+          stickers.map(sticker => (
+            <button
+              key={sticker.id}
+              type="button"
+              className="diary-sticker-btn"
+              data-sticker-source
+              data-sticker-id={sticker.id}
+              aria-label={sticker.label}
+              onPointerDown={ev => startDrag(sticker, ev)}
+            >
+              <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
+            </button>
+          ))
+        )}
       </div>
     </div>
   );

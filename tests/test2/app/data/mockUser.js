@@ -7,7 +7,6 @@ export const USER = {
   collections: {
     memos: 12,
     faves: 128,
-    stickers: 10,
   },
 };
 
@@ -133,19 +132,6 @@ export const TRAVEL_DIARY = {
   memoryIds: MOCK_MEMORIES.map(m => m.id),
   createdAt: '2026-08-27',
 };
-
-export const STICKERS = [
-  { id: 'cloud', emoji: '☁️', label: 'Cloud' },
-  { id: 'sunflower', emoji: '🌻', label: 'Sunflower' },
-  { id: 'frog', emoji: '🐸', label: 'Frog' },
-  { id: 'duck', emoji: '🦆', label: 'Duck' },
-  { id: 'capybara', emoji: '🦫', label: 'Capybara' },
-  { id: 'pizza', emoji: '🍕', label: 'Pizza' },
-  { id: 'pigeon', emoji: '🐦', label: 'Pigeon' },
-  { id: 'snake', emoji: '🐍', label: 'Snake' },
-  { id: 'bun', emoji: '🥟', label: 'Bun' },
-  { id: 'mouse', emoji: '🐭', label: 'Mouse' },
-];
 
 export const INITIAL_EVENTS = [
   {

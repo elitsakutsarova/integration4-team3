@@ -14,6 +14,10 @@
   --script:      'Playfair Display', serif;
   --nav-h:       68px;
   --nav-h-safe:  calc(68px + env(safe-area-inset-bottom, 0px));
+  --diary-dock-h: 118px;
+  --diary-dock-h-mobile: 168px;
+  --sticker-tray-size: 44px;
+  --sticker-placed-size: calc(var(--sticker-tray-size) * 3);
 }
 
 /* ─── Base ────────────────────────────────────────── */
@@ -32,6 +36,7 @@ html, body {
   bottom: 0;
   width: 100%;
   height: 100%;
+  touch-action: auto;
 }
 
 /* Desaturate + warm-tint tile layer */
@@ -449,7 +454,9 @@ html, body {
   color: #a0a0a8;
   font-family: var(--font);
   position: relative;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
 }
 
 .nav-item--active { color: var(--dark); }
@@ -974,6 +981,11 @@ html, body {
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
   transition: transform .15s, box-shadow .15s;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .diary-card--existing:hover {
@@ -1031,21 +1043,31 @@ html, body {
 
 /* ─── Travel diary viewer ─────────────────────────── */
 .diary-viewer {
-  min-height: 100vh;
-  min-height: 100dvh;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100vh;
+  height: 100dvh;
+  height: 100svh;
+  max-height: 100vh;
+  max-height: 100dvh;
+  max-height: 100svh;
+  min-height: -webkit-fill-available;
   background: #fff;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
   position: relative;
-  user-select: none;
+  padding-bottom: calc(var(--diary-dock-h) + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  -webkit-touch-callout: none;
 }
 
 .diary-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: max(14px, env(safe-area-inset-top, 14px)) 16px 14px;
   border-bottom: 1px solid #f0f0f2;
   flex-shrink: 0;
 }
@@ -1063,6 +1085,9 @@ html, body {
   color: var(--dark);
   border-radius: 50%;
   transition: background .15s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
 }
 
 .diary-share-btn {
@@ -1085,12 +1110,18 @@ html, body {
 }
 
 .diary-stage {
-  flex: 1;
   position: relative;
-  margin: 16px;
+  margin: 12px 16px;
   min-height: 0;
+  overflow: hidden;
   cursor: pointer;
-  touch-action: pan-y;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.diary-page-shell {
+  height: 100%;
+  width: 100%;
 }
 
 .diary-stage--next .diary-page {
@@ -1204,6 +1235,7 @@ html, body {
   align-self: flex-start;
   max-width: 85%;
   margin-top: auto;
+  overflow-wrap: anywhere;
 }
 
 /* Memo page */
@@ -1308,20 +1340,77 @@ html, body {
 
 .diary-recap-btn:hover { opacity: .85; }
 
-/* Placed stickers */
+/* Placed stickers — 3× tray size when dropped on a page */
 .diary-placed-sticker {
   position: absolute;
-  font-size: 32px;
   z-index: 5;
   line-height: 1;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,.15));
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.18));
   touch-action: none;
+  font-size: calc(28px * 3);
+  cursor: grab;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sticker-img,
+.diary-sticker-btn .sticker-img {
+  width: var(--sticker-tray-size);
+  height: var(--sticker-tray-size);
+  min-width: var(--sticker-tray-size);
+  min-height: var(--sticker-tray-size);
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.diary-placed-sticker .sticker-img {
+  width: var(--sticker-placed-size);
+  height: var(--sticker-placed-size);
+  min-width: var(--sticker-placed-size);
+  min-height: var(--sticker-placed-size);
 }
 
 .diary-sticker-drag-clone {
-  font-size: 36px;
+  font-size: var(--sticker-placed-size);
   line-height: 1;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diary-sticker-drag-clone-img {
+  width: var(--sticker-placed-size);
+  height: var(--sticker-placed-size);
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.share-memo-sticker .sticker-img,
+.share-render-sticker .sticker-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+/* Pagination + sticker tray — fixed to bottom, matches diary column width */
+.diary-bottom-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #fff;
+  border-top: 1px solid #f0f0f2;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+  pointer-events: auto;
 }
 
 /* Pagination */
@@ -1329,11 +1418,17 @@ html, body {
   display: flex;
   justify-content: center;
   gap: 6px;
-  padding: 10px 16px;
+  padding: 8px 16px 6px;
   flex-shrink: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.diary-pagination::-webkit-scrollbar {
+  display: none;
 }
 
 .diary-dot {
@@ -1344,6 +1439,8 @@ html, body {
   border: none;
   padding: 0;
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: background .15s, transform .15s;
 }
 
@@ -1356,24 +1453,39 @@ html, body {
 .diary-sticker-tray {
   background: #f0f0f2;
   border-radius: 16px 16px 0 0;
-  padding: 12px 16px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  padding: 10px 16px 12px;
   flex-shrink: 0;
 }
 
 .diary-sticker-label {
   font-size: 11px;
   color: #9090a0;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   text-align: center;
 }
 
 .diary-sticker-row {
   display: flex;
   gap: 10px;
+  align-items: center;
+  min-height: 56px;
+  width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 4px;
+  padding: 0 2px 2px;
+  scrollbar-width: none;
+}
+
+.diary-sticker-empty {
+  font-size: 12px;
+  color: #9090a0;
+  padding: 12px 0;
+  width: 100%;
+  text-align: center;
+}
+
+.diary-sticker-row::-webkit-scrollbar {
+  display: none;
 }
 
 .diary-sticker-btn {
@@ -1388,30 +1500,39 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform .15s, box-shadow .15s;
+  transition: box-shadow .15s;
   touch-action: none;
+  transform: none;
+  -webkit-transform: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .diary-sticker-btn:hover {
-  transform: scale(1.08);
   box-shadow: 0 2px 8px rgba(0,0,0,.1);
 }
 
 .diary-sticker-btn:active { cursor: grabbing; }
 
-.diary-sticker-ghost {
-  position: fixed;
-  font-size: 36px;
-  pointer-events: none;
-  z-index: 20000;
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,.2));
+@media (max-width: 599px) {
+  .diary-viewer {
+    padding-bottom: calc(var(--diary-dock-h-mobile) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .diary-sticker-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
+    min-height: 112px;
+    gap: 8px;
+  }
+
+  .diary-sticker-btn {
+    flex: 0 0 52px;
+  }
 }
 
 @media (min-width: 600px) {
   .diary-viewer {
-    max-width: 480px;
-    margin: 0 auto;
     border-left: 1px solid #f0f0f2;
     border-right: 1px solid #f0f0f2;
   }
@@ -1554,9 +1675,10 @@ html, body {
 .share-memo-sticker,
 .share-render-sticker {
   position: absolute;
-  font-size: 22px;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  font-size: 22px;
+  line-height: 1;
 }
 
 .share-memo-quote {

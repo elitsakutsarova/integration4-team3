@@ -1,6 +1,26 @@
 import { loadPageStickers } from '../../utils/stickerTracker';
+import { getStickerDef } from '../../utils/stickers';
+import { useStickers } from '../../context/StickerCatalogContext';
+import StickerVisual from './StickerVisual';
+
+function PlacedStickerPreview({ sticker, stickerCatalog }) {
+  const def = getStickerDef(sticker.stickerId, stickerCatalog);
+  return (
+    <span
+      className="share-memo-sticker"
+      style={{ left: `${sticker.x}%`, top: `${sticker.y}%` }}
+    >
+      <StickerVisual
+        src={sticker.src ?? def?.src}
+        emoji={sticker.emoji ?? def?.emoji}
+        label={def?.label}
+      />
+    </span>
+  );
+}
 
 export default function MemoShareCard({ memory, pageIndex, diaryId, selected, onToggle, compact }) {
+  const stickerCatalog = useStickers();
   const stickers = typeof window !== 'undefined'
     ? loadPageStickers(diaryId, pageIndex)
     : [];
@@ -18,13 +38,7 @@ export default function MemoShareCard({ memory, pageIndex, diaryId, selected, on
         <span className="diary-corner diary-corner--br" aria-hidden="true" />
         <div className="share-memo-photo">
           {stickers.map(s => (
-            <span
-              key={s.uid}
-              className="share-memo-sticker"
-              style={{ left: `${s.x}%`, top: `${s.y}%` }}
-            >
-              {s.emoji}
-            </span>
+            <PlacedStickerPreview key={s.uid} sticker={s} stickerCatalog={stickerCatalog} />
           ))}
         </div>
       </div>
@@ -49,6 +63,7 @@ export function ShareWholeDiaryCard({ onCreateRecap, onCopyLink }) {
 }
 
 export function StickerOverlay({ pageIndex, diaryId }) {
+  const stickerCatalog = useStickers();
   const stickers = typeof window !== 'undefined'
     ? loadPageStickers(diaryId, pageIndex)
     : [];
@@ -56,16 +71,7 @@ export function StickerOverlay({ pageIndex, diaryId }) {
   return (
     <>
       {stickers.map(s => (
-        <span
-          key={s.uid}
-          className="share-render-sticker"
-          style={{ left: `${s.x}%`, top: `${s.y}%` }}
-          data-sticker-id={s.stickerId}
-          data-x={s.x}
-          data-y={s.y}
-        >
-          {s.emoji}
-        </span>
+        <PlacedStickerPreview key={s.uid} sticker={s} stickerCatalog={stickerCatalog} />
       ))}
     </>
   );

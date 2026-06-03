@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { TRAVEL_DIARY, MOCK_MEMORIES, STICKERS } from '../data/mockUser';
+import { Link } from 'react-router';
+import { TRAVEL_DIARY, MOCK_MEMORIES } from '../data/mockUser';
+import { useStickers } from '../context/StickerCatalogContext';
 import {
   loadPageStickers,
   savePageStickers,
@@ -79,7 +80,7 @@ function SuccessToast({ message, onClose }) {
 }
 
 export default function TravelDiaryViewer() {
-  const navigate = useNavigate();
+  const stickerCatalog = useStickers();
   const diary = TRAVEL_DIARY;
   const memories = MOCK_MEMORIES.filter(m => diary.memoryIds.includes(m.id));
   const totalPages = 1 + memories.length + 1;
@@ -97,6 +98,13 @@ export default function TravelDiaryViewer() {
   const dropZoneRef = useRef(null);
   const trayRef = useRef(null);
   const dragStartRef = useRef(null);
+  const isDraggingStickerRef = useRef(false);
+  const lastFlipRef = useRef(0);
+  const touchHandledRef = useRef(false);
+
+  useEffect(() => {
+    isDraggingStickerRef.current = isDraggingSticker;
+  }, [isDraggingSticker]);
 
   useEffect(() => {
     const loaded = {};
@@ -105,11 +113,6 @@ export default function TravelDiaryViewer() {
     }
     setPageStickers(loaded);
   }, [totalPages]);
-
-  const persistPage = useCallback((idx, stickers) => {
-    setPageStickers(prev => ({ ...prev, [idx]: stickers }));
-    savePageStickers(DIARY_ID, idx, stickers);
-  }, []);
 
   const goNext = useCallback(() => {
     if (pageIndex < totalPages - 1) {
@@ -125,79 +128,207 @@ export default function TravelDiaryViewer() {
     }
   }, [pageIndex]);
 
-  function handleDropOnPage(stickerDef, x, y) {
-    const next = [...(pageStickers[pageIndex] ?? []), createSticker(stickerDef, x, y)];
-    persistPage(pageIndex, next);
-  }
+  const lastDropAtRef = useRef(0);
 
-  function handleMoveSticker(uid, x, y) {
-    const next = (pageStickers[pageIndex] ?? []).map(s =>
-      s.uid === uid ? { ...s, x, y } : s,
-    );
-    persistPage(pageIndex, next);
-  }
+  const handleDropOnPage = useCallback((stickerDef, x, y, targetPageIndex) => {
+    const now = Date.now();
+    if (now - lastDropAtRef.current < 300) return;
+    lastDropAtRef.current = now;
 
-  function handleReturnToTray(uid) {
-    const next = (pageStickers[pageIndex] ?? []).filter(s => s.uid !== uid);
-    persistPage(pageIndex, next);
-  }
+    const newSticker = createSticker(stickerDef, x, y);
+    setPageStickers(prev => {
+      const next = [...(prev[targetPageIndex] ?? []), newSticker];
+      savePageStickers(DIARY_ID, targetPageIndex, next);
+      return { ...prev, [targetPageIndex]: next };
+    });
+  }, []);
 
-  function handlePageClick(e) {
-    if (isDraggingSticker) return;
-    if (e.target.closest('.diary-placed-sticker')) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    if (x < rect.width * 0.3) goPrev();
-    else if (x > rect.width * 0.7) goNext();
-  }
+  const handleMoveSticker = useCallback((targetPageIndex, uid, x, y) => {
+    setPageStickers(prev => {
+      const next = (prev[targetPageIndex] ?? []).map(s =>
+        s.uid === uid ? { ...s, x, y } : s,
+      );
+      savePageStickers(DIARY_ID, targetPageIndex, next);
+      return { ...prev, [targetPageIndex]: next };
+    });
+  }, []);
 
-  function handlePointerDown(e) {
-    if (isDraggingSticker) return;
-    if (e.target.closest('.diary-placed-sticker')) return;
-    dragStartRef.current = { x: e.clientX, y: e.clientY, t: Date.now() };
-  }
+  const handleReturnToTray = useCallback((targetPageIndex, uid) => {
+    setPageStickers(prev => {
+      const next = (prev[targetPageIndex] ?? []).filter(s => s.uid !== uid);
+      savePageStickers(DIARY_ID, targetPageIndex, next);
+      return { ...prev, [targetPageIndex]: next };
+    });
+  }, []);
 
-  function handlePointerUp(e) {
-    if (!dragStartRef.current || isDraggingSticker) return;
-    const dx = e.clientX - dragStartRef.current.x;
-    const dt = Date.now() - dragStartRef.current.t;
+  useEffect(() => {
+    setIsDraggingSticker(false);
+    isDraggingStickerRef.current = false;
     dragStartRef.current = null;
-    if (dt < 400 && Math.abs(dx) > 50) {
-      if (dx < 0) goNext();
-      else goPrev();
+  }, [pageIndex]);
+
+  const goNextRef = useRef(goNext);
+  const goPrevRef = useRef(goPrev);
+  goNextRef.current = goNext;
+  goPrevRef.current = goPrev;
+
+  function processStageGesture(startX, startY, endX, endY, startTime, target) {
+    if (isDraggingStickerRef.current) return;
+    if (target?.closest?.('.diary-placed-sticker')) return;
+    if (target?.closest?.('.diary-sticker-tray')) return;
+    if (target?.closest?.('.diary-recap-btn')) return;
+
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const dt = Date.now() - startTime;
+    const tap = Math.abs(dx) < 18 && Math.abs(dy) < 18;
+
+    if (!tap && dt < 500 && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      const now = Date.now();
+      if (now - lastFlipRef.current >= 400) {
+        lastFlipRef.current = now;
+        if (dx < 0) goNextRef.current();
+        else goPrevRef.current();
+      }
+      return;
     }
+
+    if (tap) handlePageTap(endX, endY, target);
   }
 
-  function renderStickers() {
-    return (pageStickers[pageIndex] ?? []).map(s => (
+  function handlePageTap(clientX, clientY, target) {
+    if (isDraggingStickerRef.current) return;
+    if (target?.closest?.('.diary-placed-sticker')) return;
+    if (target?.closest?.('.diary-sticker-tray')) return;
+    if (target?.closest?.('.diary-recap-btn')) return;
+
+    const now = Date.now();
+    if (now - lastFlipRef.current < 400) return;
+    lastFlipRef.current = now;
+
+    const stage = pageRef.current;
+    if (!stage) return;
+    const rect = stage.getBoundingClientRect();
+    const x = clientX - rect.left;
+    if (x < rect.width * 0.3) goPrevRef.current();
+    else if (x > rect.width * 0.7) goNextRef.current();
+  }
+
+  function handleStagePointerDown(e) {
+    if (e.pointerType === 'touch') return;
+    if (touchHandledRef.current) return;
+    if (isDraggingStickerRef.current) return;
+    if (e.target.closest('.diary-placed-sticker')) return;
+    if (e.target.closest('.diary-recap-btn')) return;
+
+    try {
+      pageRef.current?.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      t: Date.now(),
+      pointerId: e.pointerId,
+    };
+  }
+
+  function handleStagePointerUp(e) {
+    if (e.pointerType === 'touch') return;
+    if (touchHandledRef.current) return;
+    if (isDraggingStickerRef.current) return;
+
+    const start = dragStartRef.current;
+    if (!start || start.pointerId !== e.pointerId) return;
+    dragStartRef.current = null;
+
+    try {
+      pageRef.current?.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+
+    if (e.target.closest('.diary-placed-sticker')) return;
+    processStageGesture(start.x, start.y, e.clientX, e.clientY, start.t, e.target);
+  }
+
+  function handleStageTouchStart(e) {
+    if (e.touches.length !== 1) return;
+    if (isDraggingStickerRef.current) return;
+    const target = e.target;
+    if (target.closest('.diary-placed-sticker')) return;
+    if (target.closest('.diary-recap-btn')) return;
+
+    touchHandledRef.current = false;
+    const t = e.touches[0];
+    dragStartRef.current = {
+      x: t.clientX,
+      y: t.clientY,
+      t: Date.now(),
+      isTouch: true,
+    };
+  }
+
+  function handleStageTouchEnd(e) {
+    if (isDraggingStickerRef.current) return;
+
+    const start = dragStartRef.current;
+    if (!start?.isTouch) return;
+    dragStartRef.current = null;
+
+    const t = e.changedTouches[0];
+    if (!t) return;
+
+    touchHandledRef.current = true;
+    processStageGesture(start.x, start.y, t.clientX, t.clientY, start.t, e.target);
+    window.setTimeout(() => {
+      touchHandledRef.current = false;
+    }, 400);
+  }
+
+  function handleStageClick(e) {
+    if (touchHandledRef.current) return;
+    handlePageTap(e.clientX, e.clientY, e.target);
+  }
+
+  function renderStickers(forPageIndex) {
+    return (pageStickers[forPageIndex] ?? []).map(s => (
       <DraggableSticker
-        key={s.uid}
+        key={`${forPageIndex}-${s.uid}`}
         sticker={s}
-        pageIndex={pageIndex}
+        pageIndex={forPageIndex}
         dropZoneRef={dropZoneRef}
         trayRef={trayRef}
-        onMove={handleMoveSticker}
-        onReturnToTray={handleReturnToTray}
-        onDragStart={() => setIsDraggingSticker(true)}
-        onDragEnd={() => setIsDraggingSticker(false)}
+        onMove={(uid, x, y) => handleMoveSticker(forPageIndex, uid, x, y)}
+        onReturnToTray={uid => handleReturnToTray(forPageIndex, uid)}
+        onDragStart={() => {
+          isDraggingStickerRef.current = true;
+          setIsDraggingSticker(true);
+        }}
+        onDragEnd={() => {
+          isDraggingStickerRef.current = false;
+          setIsDraggingSticker(false);
+        }}
       />
     ));
   }
 
   function renderPage() {
-    const stickers = renderStickers();
+    const stickers = renderStickers(pageIndex);
     if (pageIndex === 0) {
-      return <CoverPage diary={diary} dropZoneRef={dropZoneRef}>{stickers}</CoverPage>;
+      return <CoverPage key="page-0" diary={diary} dropZoneRef={dropZoneRef}>{stickers}</CoverPage>;
     }
     if (pageIndex === totalPages - 1) {
       return (
-        <EndPage onCreateRecap={() => setView('recap-select')} dropZoneRef={dropZoneRef}>
+        <EndPage key={`page-${pageIndex}`} onCreateRecap={() => setView('recap-select')} dropZoneRef={dropZoneRef}>
           {stickers}
         </EndPage>
       );
     }
     return (
-      <MemoPage memory={memories[pageIndex - 1]} dropZoneRef={dropZoneRef}>
+      <MemoPage key={`page-${pageIndex}`} memory={memories[pageIndex - 1]} dropZoneRef={dropZoneRef}>
         {stickers}
       </MemoPage>
     );
@@ -244,11 +375,11 @@ export default function TravelDiaryViewer() {
   return (
     <div className="diary-viewer">
       <header className="diary-header">
-        <button type="button" className="diary-back-btn" onClick={() => navigate('/profile')} aria-label="Back">
+        <Link to="/profile" className="diary-back-btn" aria-label="Back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-        </button>
+        </Link>
         <h1 className="diary-header-title">{diary.title}</h1>
         <button
           type="button"
@@ -269,40 +400,46 @@ export default function TravelDiaryViewer() {
       <div
         ref={pageRef}
         className={`diary-stage diary-stage--${direction}`}
-        onClick={handlePageClick}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
+        onClick={handleStageClick}
+        onPointerDown={handleStagePointerDown}
+        onPointerUp={handleStagePointerUp}
+        onPointerCancel={() => { dragStartRef.current = null; }}
+        onTouchStart={handleStageTouchStart}
+        onTouchEnd={handleStageTouchEnd}
         role="region"
         aria-label={`Diary page ${pageIndex + 1} of ${totalPages}`}
       >
-        {renderPage()}
+        <div key={`page-shell-${pageIndex}`} className="diary-page-shell">
+          {renderPage()}
+        </div>
       </div>
 
-      <div className="diary-pagination" role="tablist" aria-label="Page navigation">
-        {Array.from({ length: totalPages }, (_, i) => (
-          <button
-            key={i}
-            type="button"
-            role="tab"
-            aria-selected={i === pageIndex}
-            className={`diary-dot${i === pageIndex ? ' diary-dot--active' : ''}`}
-            onClick={() => {
-              setDirection(i > pageIndex ? 'next' : 'prev');
-              setPageIndex(i);
-            }}
-            aria-label={`Page ${i + 1}`}
-          />
-        ))}
-      </div>
+      <div className="diary-bottom-dock">
+        <div className="diary-pagination" role="tablist" aria-label="Page navigation">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              role="tab"
+              aria-selected={i === pageIndex}
+              className={`diary-dot${i === pageIndex ? ' diary-dot--active' : ''}`}
+              onClick={() => {
+                setDirection(i > pageIndex ? 'next' : 'prev');
+                setPageIndex(i);
+              }}
+              aria-label={`Page ${i + 1}`}
+            />
+          ))}
+        </div>
 
-      <DiaryStickerTray
-        key={pageIndex}
-        stickers={STICKERS}
-        dropZoneRef={dropZoneRef}
-        trayRef={trayRef}
-        pageIndex={pageIndex}
-        onDropOnPage={handleDropOnPage}
-      />
+        <DiaryStickerTray
+          stickers={stickerCatalog}
+          dropZoneRef={dropZoneRef}
+          trayRef={trayRef}
+          pageIndex={pageIndex}
+          onDropOnPage={handleDropOnPage}
+        />
+      </div>
 
       {view === 'share' && (
         <ShareDiaryModal

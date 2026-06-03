@@ -1,6 +1,7 @@
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import BottomNav from '../components/BottomNav';
 import { USER, TRAVEL_DIARY } from '../data/mockUser';
+import { useStickers } from '../context/StickerCatalogContext';
 
 export function meta() {
   return [
@@ -10,7 +11,7 @@ export function meta() {
 }
 
 export default function Profile() {
-  const navigate = useNavigate();
+  const stickers = useStickers();
 
   return (
     <div className="profile-page">
@@ -57,7 +58,7 @@ export default function Profile() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
-            <span>{USER.collections.stickers} Stickers</span>
+            <span>{stickers.length} Stickers</span>
           </div>
         </div>
       </section>
@@ -86,11 +87,7 @@ export default function Profile() {
             <span className="diary-card-new-label">New Travel Diary</span>
           </button>
 
-          <button
-            type="button"
-            className="diary-card diary-card--existing"
-            onClick={() => navigate(`/diary/${TRAVEL_DIARY.id}`)}
-          >
+          <Link to={`/diary/${TRAVEL_DIARY.id}`} className="diary-card diary-card--existing">
             <div className="diary-card-cover">
               <span className="diary-cover-placeholder">COVER</span>
               <span className="diary-card-edit" aria-hidden="true">
@@ -104,7 +101,7 @@ export default function Profile() {
               <span className="diary-card-title">{TRAVEL_DIARY.title}</span>
               <span className="diary-card-date">{TRAVEL_DIARY.monthLabel}</span>
             </div>
-          </button>
+          </Link>
         </div>
       </section>
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import MemoShareCard, { ShareWholeDiaryCard } from './MemoShareCard';
 import ShareSheet from './ShareSheet';
 import { buildMemoShareFiles, shareImageFiles, shareToInstagram } from '../../utils/shareImage';
+import { useStickers } from '../../context/StickerCatalogContext';
 
 export default function ShareDiaryModal({
   diary,
@@ -15,6 +16,7 @@ export default function ShareDiaryModal({
   const [selected, setSelected] = useState(new Set());
   const [showSheet, setShowSheet] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const stickerCatalog = useStickers();
 
   const memoPages = memories.map((m, i) => ({ memory: m, pageIndex: pageOffset + i }));
 
@@ -39,7 +41,7 @@ export default function ShareDiaryModal({
 
     try {
       const indices = [...selected];
-      const files = await buildMemoShareFiles(diaryId, memories, indices, pageOffset);
+      const files = await buildMemoShareFiles(diaryId, memories, indices, pageOffset, stickerCatalog);
 
       let message;
       if (appId === 'instagram') {

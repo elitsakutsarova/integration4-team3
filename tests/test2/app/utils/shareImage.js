@@ -3,6 +3,7 @@
  */
 
 import { loadPageStickers } from './stickerTracker';
+import { getStickerDef } from './stickers';
 
 const CARD_W = 1080;
 const CARD_H = 1440;
@@ -39,21 +40,49 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   return cy;
 }
 
-function drawStickers(ctx, stickers, photoX, photoY, photoW, photoH) {
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  const fontSize = Math.round(photoW * 0.14);
-  ctx.font = `${fontSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function resolveStickerSrc(sticker, stickerCatalog) {
+  if (sticker.src) return sticker.src;
+  const def = getStickerDef(sticker.stickerId, stickerCatalog);
+  return def?.src ?? null;
+}
+
+async function drawStickers(ctx, stickers, photoX, photoY, photoW, photoH, stickerCatalog) {
+  const size = Math.round(photoW * 0.24);
 
   for (const s of stickers) {
     const sx = photoX + (s.x / 100) * photoW;
     const sy = photoY + (s.y / 100) * photoH;
-    ctx.fillText(s.emoji, sx, sy);
+    const src = resolveStickerSrc(s, stickerCatalog);
+
+    if (src) {
+      try {
+        const img = await loadImage(src.startsWith('/') ? `${window.location.origin}${src}` : src);
+        ctx.drawImage(img, sx - size / 2, sy - size / 2, size, size);
+      } catch {
+        /* skip failed image */
+      }
+    } else if (s.emoji) {
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const fontSize = Math.round(photoW * 0.14);
+      ctx.font = `${fontSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+      ctx.fillText(s.emoji, sx, sy);
+    }
   }
 }
 
 /** Render a single memo page card (polaroid style) */
-export async function renderMemoCardImage(memory, stickers = []) {
+export async function renderMemoCardImage(memory, stickers = [], stickerCatalog = []) {
   const canvas = document.createElement('canvas');
   canvas.width = CARD_W;
   canvas.height = CARD_H;
@@ -96,7 +125,7 @@ export async function renderMemoCardImage(memory, stickers = []) {
   ctx.fillStyle = '#d8d8dc';
   ctx.fillRect(photoX, photoY, photoW, photoH);
 
-  drawStickers(ctx, stickers, photoX, photoY, photoW, photoH);
+  await drawStickers(ctx, stickers, photoX, photoY, photoW, photoH, stickerCatalog);
 
   y = photoY + photoH + 100;
 
@@ -171,14 +200,14 @@ function canvasToFile(canvas, filename) {
 }
 
 /** Build share files for selected memo pages */
-export async function buildMemoShareFiles(diaryId, memories, pageIndices, pageOffset) {
+export async function buildMemoShareFiles(diaryId, memories, pageIndices, pageOffset, stickerCatalog = []) {
   const files = [];
   for (const pageIndex of pageIndices) {
     const memIdx = pageIndex - pageOffset;
     const memory = memories[memIdx];
     if (!memory) continue;
     const stickers = loadPageStickers(diaryId, pageIndex);
-    const file = await renderMemoCardImage(memory, stickers);
+    const file = await renderMemoCardImage(memory, stickers, stickerCatalog);
     files.push(file);
   }
   return files;
