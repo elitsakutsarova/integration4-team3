@@ -1,0 +1,10 @@
+[
+  {
+    "id": "demo-memome-spot",
+    "name": "MemMe Demo Spot — Antwerp",
+    "description": "Scan this QR at a physical MemMe sticker in Antwerp to unlock a digital collectible.",
+    "image": "/physicalStickers/physicalSticker.png",
+    "pool": ["digital-sticker-1", "digital-sticker-2", "digital-sticker-3"],
+    "active": true
+  }
+]

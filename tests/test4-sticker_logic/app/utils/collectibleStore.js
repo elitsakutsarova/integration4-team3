@@ -1,0 +1,223 @@
+import { getDeviceId } from './deviceId';
+import { pickStickerFromPool } from './stickerAssignment';
+import {
+  addPendingClaim,
+  clearPendingClaims,
+  getPendingClaims,
+  hasPendingLocation,
+} from './pendingStickers';
+import { getSupabaseBrowserClient, isSupabaseEnabled } from './supabase.client';
+
+async function loadDigitalCatalogClient() {
+  if (typeof window === 'undefined') return [];
+  try {
+    const res = await fetch('/digitalStickers/manifest.json', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+async function loadLocationsClient() {
+  if (typeof window === 'undefined') return [];
+  try {
+    const res = await fetch('/physicalStickers/locations.json', { cache: 'no-store' });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getLocation(locationId) {
+  const locations = await loadLocationsClient();
+  return locations.find(loc => loc.id === locationId && loc.active !== false) ?? null;
+}
+
+function stickerDefFromCatalog(catalog, stickerId) {
+  const row = catalog.find(s => s.id === stickerId);
+  if (!row) return null;
+  return { id: row.id, src: row.src, label: row.label };
+}
+
+/** Local fallback when Supabase RPC is unavailable (dev / SQL not run yet). */
+async function claimLocally(locationId, userKey) {
+  const location = await getLocation(locationId);
+  if (!location) return { error: 'unknown_location' };
+
+  if (hasPendingLocation(locationId)) {
+    const pending = getPendingClaims().find(c => c.locationId === locationId);
+    const catalog = await loadDigitalCatalogClient();
+    return {
+      alreadyClaimed: true,
+      sticker: stickerDefFromCatalog(catalog, pending.digitalStickerId),
+      locationId,
+      claimedAt: pending.claimedAt,
+    };
+  }
+
+  const stickerId = pickStickerFromPool(userKey, locationId, location.pool);
+  if (!stickerId) return { error: 'empty_pool' };
+
+  const claim = {
+    locationId,
+    digitalStickerId: stickerId,
+    claimedAt: new Date().toISOString(),
+  };
+  addPendingClaim(claim);
+
+  const catalog = await loadDigitalCatalogClient();
+  return {
+    alreadyClaimed: false,
+    sticker: stickerDefFromCatalog(catalog, stickerId),
+    locationId,
+    claimedAt: claim.claimedAt,
+  };
+}
+
+async function claimViaSupabase(locationId, deviceId, authUserId) {
+  const client = getSupabaseBrowserClient();
+  if (!client) return null;
+
+  const { data, error } = await client.rpc('claim_physical_sticker', {
+    p_location_id: locationId,
+    p_device_id: authUserId ? null : deviceId,
+  });
+
+  if (error) {
+    if (/claim_physical_sticker|function/i.test(error.message ?? '')) {
+      return null;
+    }
+    return { error: error.message };
+  }
+
+  const catalog = await loadDigitalCatalogClient();
+  const payload = data ?? {};
+
+  if (payload.error) return { error: payload.error };
+
+  return {
+    alreadyClaimed: Boolean(payload.alreadyClaimed),
+    sticker: stickerDefFromCatalog(catalog, payload.stickerId),
+    locationId: payload.locationId ?? locationId,
+    claimedAt: payload.claimedAt,
+  };
+}
+
+/**
+ * Claim a sticker at a physical location (guest or logged-in).
+ * @param {string} locationId
+ * @param {string | null} authUserId — Supabase auth uuid when logged in
+ */
+export async function claimPhysicalSticker(locationId, authUserId = null) {
+  const deviceId = getDeviceId();
+  const userKey = authUserId ?? deviceId;
+  if (!userKey) return { error: 'device_required' };
+
+  let result = null;
+  if (isSupabaseEnabled()) {
+    result = await claimViaSupabase(locationId, deviceId, authUserId);
+  }
+
+  if (!result) {
+    result = await claimLocally(locationId, userKey);
+  } else if (!authUserId && result.sticker && !result.error) {
+    addPendingClaim({
+      locationId,
+      digitalStickerId: result.sticker.id,
+      claimedAt: result.claimedAt ?? new Date().toISOString(),
+    });
+  }
+
+  return result;
+}
+
+/** Fetch collected stickers for logged-in user from DB + merge pending for guests. */
+export async function fetchCollectedStickers(authUserId) {
+  const catalog = await loadDigitalCatalogClient();
+  const byId = new Map();
+
+  function addSticker(stickerId, meta = {}) {
+    const def = stickerDefFromCatalog(catalog, stickerId);
+    if (def && !byId.has(def.id)) {
+      byId.set(def.id, { ...def, ...meta });
+    }
+  }
+
+  if (authUserId && isSupabaseEnabled()) {
+    const client = getSupabaseBrowserClient();
+    if (client) {
+      const { data, error } = await client
+        .from('user_collected_stickers')
+        .select('digital_sticker_id, location_id, claimed_at')
+        .eq('auth_id', authUserId);
+
+      if (!error && Array.isArray(data)) {
+        for (const row of data) {
+          addSticker(row.digital_sticker_id, {
+            locationId: row.location_id,
+            claimedAt: row.claimed_at,
+          });
+        }
+      }
+    }
+  }
+
+  for (const pending of getPendingClaims()) {
+    addSticker(pending.digitalStickerId, {
+      locationId: pending.locationId,
+      claimedAt: pending.claimedAt,
+      pending: !authUserId,
+    });
+  }
+
+  return [...byId.values()];
+}
+
+/** After login/signup: move guest DB rows + local pending into user account. */
+export async function mergeGuestStickersIntoAccount(authUserId) {
+  if (!authUserId) return { merged: 0 };
+
+  const deviceId = getDeviceId();
+  let merged = 0;
+
+  if (isSupabaseEnabled() && deviceId) {
+    const client = getSupabaseBrowserClient();
+    if (client) {
+      const { data, error } = await client.rpc('merge_guest_sticker_claims', {
+        p_device_id: deviceId,
+      });
+      if (!error && typeof data === 'number') merged += data;
+    }
+  }
+
+  const pending = getPendingClaims();
+  if (pending.length && isSupabaseEnabled()) {
+    const client = getSupabaseBrowserClient();
+    if (client) {
+      for (const claim of pending) {
+        const { error } = await client.from('user_collected_stickers').upsert(
+          {
+            auth_id: authUserId,
+            location_id: claim.locationId,
+            digital_sticker_id: claim.digitalStickerId,
+            claimed_at: claim.claimedAt,
+          },
+          { onConflict: 'auth_id,location_id', ignoreDuplicates: true },
+        );
+        if (!error) merged += 1;
+      }
+    }
+  }
+
+  clearPendingClaims();
+  return { merged };
+}
+
+export async function getCollectedCount(authUserId) {
+  const stickers = await fetchCollectedStickers(authUserId);
+  return stickers.length;
+}
