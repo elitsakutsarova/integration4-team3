@@ -203,6 +203,21 @@ async function trySignInAfterSignUpFailure(email, password) {
   return ensureProfile(data.user);
 }
 
+/** Supabase returns success with empty identities when the email is already registered — no mail is sent. */
+function isExistingUserSignUpResponse(user) {
+  return (user?.identities ?? []).length === 0;
+}
+
+async function sendSignupConfirmationEmail(email) {
+  const { error } = await getClient().auth.resend({
+    type: 'signup',
+    email: normalizeEmail(email),
+    options: { emailRedirectTo: appUrl('/auth/callback') },
+  });
+  if (error) return { error: mapSupabaseAuthError(error) };
+  return { ok: true };
+}
+
 /** null = unknown, auth_id = migrated schema, legacy = email-only rows */
 let profileLinkMode = null;
 
@@ -368,15 +383,25 @@ async function supabaseSignUp({ username, email, password, role }) {
 
     if (error) {
       const msg = error.message ?? '';
-      if (/rate limit|over_email_send_rate_limit|already registered|already exists/i.test(msg)) {
-        const user = await trySignInAfterSignUpFailure(cleanEmail, password);
-        if (user) return { user };
-        if (/rate limit|over_email_send_rate_limit/i.test(msg)) {
+      if (/already registered|already exists|already been registered|user already registered/i.test(msg)) {
+        const resend = await sendSignupConfirmationEmail(cleanEmail);
+        if (!resend.error) {
           return {
             pendingConfirmation: true,
-            message: 'Account may already exist. Check your email to confirm, then log in.',
+            message: 'This email is already registered. We sent a new confirmation link — check your inbox and spam folder.',
           };
         }
+        const user = await trySignInAfterSignUpFailure(cleanEmail, password);
+        if (user) return { user };
+        return { error: resend.error ?? mapSupabaseAuthError(error) };
+      }
+      if (/rate limit|over_email_send_rate_limit/i.test(msg)) {
+        const user = await trySignInAfterSignUpFailure(cleanEmail, password);
+        if (user) return { user };
+        return {
+          pendingConfirmation: true,
+          message: 'Too many emails were sent recently. Wait a few minutes, then try logging in or use “Resend confirmation email” on the login page.',
+        };
       }
       return { error: mapSupabaseAuthError(error) };
     }
@@ -387,6 +412,19 @@ async function supabaseSignUp({ username, email, password, role }) {
     if (data.session) {
       const user = await ensureProfile(data.user);
       return { user };
+    }
+
+    if (isExistingUserSignUpResponse(data.user)) {
+      const resend = await sendSignupConfirmationEmail(cleanEmail);
+      if (resend.error) {
+        const user = await trySignInAfterSignUpFailure(cleanEmail, password);
+        if (user) return { user };
+        return { error: resend.error };
+      }
+      return {
+        pendingConfirmation: true,
+        message: 'This email is already registered. We sent a new confirmation link — check your inbox and spam folder.',
+      };
     }
 
     return {
@@ -458,19 +496,55 @@ export async function syncSessionProfile() {
   const client = getClient();
   if (!client) return null;
 
-  const searchParams = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search)
-    : null;
-  const code = searchParams?.get('code');
-
-  if (code) {
-    const { error } = await client.auth.exchangeCodeForSession(code);
-    if (error) console.error('Auth callback code exchange failed:', error.message);
-  }
-
   const { data: { session } } = await client.auth.getSession();
   if (!session?.user) return null;
   return ensureProfile(session.user);
+}
+
+/** Exchange ?code= / token_hash from /auth/callback before syncing profile. */
+export async function completeAuthRedirect() {
+  const client = getClient();
+  if (!client) return { error: 'Supabase is not configured.' };
+
+  const params = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+
+  const authError =
+    params.get('error_description') ??
+    params.get('error') ??
+    hashParams.get('error_description') ??
+    hashParams.get('error');
+  if (authError) return { error: authError };
+
+  const { data: { session: existing } } = await client.auth.getSession();
+  if (existing?.user) return { ok: true };
+
+  const token_hash = params.get('token_hash');
+  const type = params.get('type');
+  if (token_hash && type) {
+    const { error } = await client.auth.verifyOtp({ token_hash, type });
+    if (error) return { error: error.message };
+    return { ok: true };
+  }
+
+  const code = params.get('code');
+  if (code) {
+    const { error } = await client.auth.exchangeCodeForSession(code);
+    if (error) {
+      const msg = /PKCE|code verifier/i.test(error.message ?? '')
+        ? 'Email confirmation could not finish in this tab. Log in with your email and password. If needed, use “Resend confirmation email”.'
+        : (error.message ?? 'Confirmation failed');
+      return { error: msg };
+    }
+    return { ok: true };
+  }
+
+  if (hashParams.get('access_token')) {
+    const { data: { session } } = await client.auth.getSession();
+    if (session?.user) return { ok: true };
+  }
+
+  return { error: 'Missing confirmation data. Try logging in instead.' };
 }
 
 /* ─── Public API ───────────────────────────────────────── */
@@ -519,6 +593,23 @@ export async function signOut() {
     profileLinkMode = null;
   }
   clearLocalSession();
+}
+
+/** Resend signup confirmation (e.g. after re-enabling “Confirm email” in Supabase). */
+export async function resendConfirmationEmail(email) {
+  if (!isSupabaseEnabled()) {
+    return { error: { field: 'form', message: 'Supabase is not configured.' } };
+  }
+  const cleanEmail = normalizeEmail(email);
+  if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+    return { error: { field: 'email', message: 'Enter a valid email address' } };
+  }
+  const result = await sendSignupConfirmationEmail(cleanEmail);
+  if (result.error) return { error: result.error };
+  return {
+    pendingConfirmation: true,
+    message: 'Confirmation email sent. Check your inbox and spam folder.',
+  };
 }
 
 export function subscribeToAuthChanges(callback) {

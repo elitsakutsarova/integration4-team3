@@ -70,6 +70,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
+  const [formSuccess, setFormSuccess] = useState('');
 
   const passwordChecks = getPasswordChecks(password);
   const canSubmit =
@@ -83,6 +84,7 @@ export default function Register() {
     e.preventDefault();
     setSubmitted(true);
     setFormError('');
+    setFormSuccess('');
     setErrors({});
 
     if (!role) return;
@@ -103,7 +105,7 @@ export default function Register() {
     if (result.pendingConfirmation) {
       setFormError('');
       setErrors({});
-      setFormError(result.message);
+      setFormSuccess(result.message);
       return;
     }
 
@@ -236,6 +238,12 @@ export default function Register() {
             {formError && (
               <div className="auth-banner auth-banner--warning" role="alert">
                 {formError}
+              </div>
+            )}
+
+            {formSuccess && (
+              <div className="auth-banner auth-banner--success" role="status">
+                {formSuccess}
               </div>
             )}
 

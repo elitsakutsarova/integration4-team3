@@ -33,8 +33,13 @@ export function AuthProvider({ children }) {
 
     initAuth();
 
+    const unsubscribe = authStore.subscribeToAuthChanges(nextUser => {
+      if (active) applyUserUpdate(setUser, nextUser);
+    });
+
     return () => {
       active = false;
+      unsubscribe();
     };
   }, []);
 
@@ -61,9 +66,13 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const resendConfirmationEmail = useCallback(async email => {
+    return authStore.resendConfirmationEmail(email);
+  }, []);
+
   const value = useMemo(
-    () => ({ user, loading, signUp, signIn, signInWithGoogle, signOut }),
-    [user, loading, signUp, signIn, signInWithGoogle, signOut],
+    () => ({ user, loading, signUp, signIn, signInWithGoogle, signOut, resendConfirmationEmail }),
+    [user, loading, signUp, signIn, signInWithGoogle, signOut, resendConfirmationEmail],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

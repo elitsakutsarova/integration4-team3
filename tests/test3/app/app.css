@@ -2472,6 +2472,12 @@ html, body {
   border: 1px solid #ffe082;
 }
 
+.auth-banner--success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
 .auth-btn {
   display: flex;
   align-items: center;
