@@ -1,6 +1,5 @@
 import { Link } from 'react-router';
 import BottomNav from '../components/BottomNav';
-import StickerVisual from '../components/diary/StickerVisual';
 import RequireAuth from '../components/auth/RequireAuth';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers } from '../context/CollectedStickersContext';
@@ -59,31 +58,13 @@ export default function Profile() {
               </svg>
               <span>{user?.collections?.faves ?? 0} Faves</span>
             </div>
-            <div className="collection-card">
+            <Link to="/stickers" className="collection-card collection-card--link">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
               <span>{collectedStickers.length} Stickers</span>
-            </div>
+            </Link>
           </div>
-        </section>
-
-        <section className="profile-section">
-          <h2 className="profile-section-label">Collected stickers</h2>
-          {collectedStickers.length === 0 ? (
-            <p className="profile-sticker-empty">
-              Scan a physical MemMe sticker in Antwerp to collect your first digital sticker.
-            </p>
-          ) : (
-            <div className="profile-sticker-grid">
-              {collectedStickers.map(sticker => (
-                <div key={sticker.id} className="profile-sticker-item">
-                  <StickerVisual src={sticker.src} label={sticker.label} />
-                  <span className="profile-sticker-item-label">{sticker.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </section>
 
         <section className="profile-section profile-diaries">

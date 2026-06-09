@@ -935,6 +935,22 @@ html, body {
 
 .collection-card svg { color: #6b6b78; }
 
+.collection-card--link {
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+
+.collection-card--link:hover {
+  border-color: #c8c8cc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.collection-card--link:active {
+  transform: translateY(0);
+}
+
 .profile-diaries { padding-bottom: 16px; }
 
 .profile-section-row {
@@ -2650,39 +2666,196 @@ html, body {
   margin-top: 8px;
 }
 
-.profile-sticker-empty {
+/* ─── Stickers gallery (/stickers) ──────────────────── */
+.stickers-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #fff;
+  padding-bottom: var(--nav-h-safe);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 520px) {
+  .stickers-page {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+}
+
+.stickers-header {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  padding: max(14px, env(safe-area-inset-top)) 12px 12px;
+}
+
+.stickers-back-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--dark);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background .15s;
+}
+
+.stickers-back-btn:hover {
+  background: #f0f0f2;
+}
+
+.stickers-title {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.stickers-header-spacer {
+  width: 44px;
+}
+
+.stickers-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid #ececef;
+  margin: 0 20px;
+}
+
+.stickers-tab {
+  position: relative;
+  padding: 14px 8px 12px;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--mid);
+  cursor: pointer;
+}
+
+.stickers-tab--active {
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.stickers-tab--active::after {
+  content: '';
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: 0;
+  height: 3px;
+  background: var(--dark);
+  border-radius: 2px 2px 0 0;
+}
+
+.stickers-content {
+  padding: 20px 20px 28px;
+}
+
+.stickers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.stickers-tile {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  background: #f0f0f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.stickers-tile--collection .sticker-img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+}
+
+.stickers-tile--collection span {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.stickers-tile--achievement {
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  padding: 0;
+}
+
+.stickers-tile-art {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 8px 4px;
+}
+
+.stickers-tile--achievement .sticker-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.stickers-tile--achievement span:not(.stickers-achievement-label) {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.stickers-achievement-label {
+  width: 100%;
+  padding: 8px 6px;
+  background: #3d4150;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.25;
+  border-radius: 0 0 14px 14px;
+}
+
+.stickers-tile--locked {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.stickers-tile--locked .stickers-achievement-label {
+  background: #9090a0;
+}
+
+.stickers-empty-block {
+  text-align: center;
+  padding: 48px 12px;
+}
+
+.stickers-empty {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.stickers-empty-hint {
   font-size: 14px;
   color: var(--mid);
   line-height: 1.5;
+  margin-bottom: 16px;
 }
 
-.profile-sticker-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.profile-sticker-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 6px;
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid #ececef;
-}
-
-.profile-sticker-item .diary-sticker-img,
-.profile-sticker-item .diary-sticker-emoji {
-  width: 56px;
-  height: 56px;
-}
-
-.profile-sticker-item-label {
-  font-size: 11px;
+.stickers-empty-link {
+  font-size: 14px;
   font-weight: 600;
-  color: var(--mid);
-  text-align: center;
-  line-height: 1.2;
+  color: var(--dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

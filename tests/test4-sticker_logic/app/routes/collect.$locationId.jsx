@@ -110,7 +110,7 @@ export default function CollectSticker() {
 
         <div className="collect-actions">
           {user ? (
-            <Link to="/profile" className="auth-btn auth-btn--primary">View my stickers</Link>
+            <Link to="/stickers" className="auth-btn auth-btn--primary">View my stickers</Link>
           ) : (
             <>
               <Link to="/register" className="auth-btn auth-btn--primary">Create account to save</Link>

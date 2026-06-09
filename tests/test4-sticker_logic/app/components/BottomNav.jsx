@@ -33,7 +33,7 @@ export default function BottomNav({ onAddClick }) {
   const { pathname } = useLocation();
 
   const active =
-    pathname.startsWith('/profile') ? 'profile'
+    pathname.startsWith('/profile') || pathname.startsWith('/stickers') ? 'profile'
     : pathname.startsWith('/diary') ? 'diary'
     : 'home';
 
