@@ -23,14 +23,29 @@ export function createOpenFreeMapLayer(L) {
 
 export function addBasemapControl(L, map, { defaultLayer = 'openfreemap' } = {}) {
   const osm = createOsmLayer(L);
-  const openFreeMap = createOpenFreeMapLayer(L);
+  let openFreeMap = null;
 
-  const baseLayers = {
-    'OpenFreeMap': openFreeMap,
-    'OpenStreetMap': osm,
-  };
+  try {
+    openFreeMap = createOpenFreeMapLayer(L);
+  } catch (err) {
+    console.warn('[MemMe] OpenFreeMap layer unavailable, using OSM.', err?.message);
+  }
 
-  (defaultLayer === 'osm' ? osm : openFreeMap).addTo(map);
+  const baseLayers = { OpenStreetMap: osm };
+  if (openFreeMap) baseLayers.OpenFreeMap = openFreeMap;
+
+  const activeLayer =
+    defaultLayer === 'osm' || !openFreeMap ? osm : openFreeMap;
+  activeLayer.addTo(map);
+
+  if (openFreeMap) {
+    openFreeMap.on?.('error', () => {
+      if (map.hasLayer(openFreeMap)) {
+        map.removeLayer(openFreeMap);
+        if (!map.hasLayer(osm)) osm.addTo(map);
+      }
+    });
+  }
 
   L.control
     .layers(baseLayers, null, {

@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "dev": "react-router dev --port 5173",
+    "certs:generate": "node scripts/generate-dev-certs.mjs",
+    "dev": "node scripts/generate-dev-certs.mjs --check && react-router dev --port 5173",
+    "dev:lan": "node scripts/generate-dev-certs.mjs --check && VITE_ALLOW_LAN=true react-router dev --port 5173",
     "start": "react-router-serve ./build/server/index.js"
   },
   "dependencies": {
@@ -26,6 +28,7 @@
     "@react-router/dev": "7.16.0",
     "@tailwindcss/vite": "^4.2.2",
     "tailwindcss": "^4.2.2",
-    "vite": "^8.0.3"
+    "vite": "^8.0.3",
+    "ws": "^8.18.3"
   }
 }

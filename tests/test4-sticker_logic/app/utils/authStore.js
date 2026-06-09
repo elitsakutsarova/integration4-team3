@@ -315,6 +315,18 @@ async function insertProfile({ authId, username, email, role }) {
     return;
   }
 
+  const { error: rpcError } = await getClient().rpc('upsert_own_profile', {
+    p_username: username,
+    p_email: email,
+    p_role: role,
+  });
+
+  if (!rpcError) return;
+
+  if (/Could not find the function|42883|PGRST202/i.test(rpcError.message ?? '')) {
+    console.warn('[MemMe] Run supabase/fix-users-rls.sql in Supabase SQL Editor, then retry.');
+  }
+
   const { error } = await getClient().from(USERS_TABLE).upsert(
     { auth_id: authId, username, email, role },
     { onConflict: 'auth_id' },
@@ -326,7 +338,7 @@ async function insertProfile({ authId, username, email, role }) {
     return insertProfile({ authId, username, email, role });
   }
 
-  if (error) throw error;
+  if (error) throw rpcError.code === '42501' ? rpcError : error;
 }
 
 /** Create public.users row once the auth session exists (after email confirm or login). */

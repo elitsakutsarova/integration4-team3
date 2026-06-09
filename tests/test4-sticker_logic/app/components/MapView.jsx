@@ -223,14 +223,25 @@ export default function MapView() {
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      MOCK_MEMORIES.forEach(pin => buildMemoryMarker(L, map, pin));
-      INITIAL_EVENTS.forEach(pin => buildEventMarker(L, map, pin));
+      MOCK_MEMORIES.forEach(pin => {
+        if (Array.isArray(pin.ll) && pin.ll.every(n => typeof n === 'number' && Number.isFinite(n))) {
+          buildMemoryMarker(L, map, pin);
+        }
+      });
+      INITIAL_EVENTS.forEach(pin => {
+        if (Array.isArray(pin.ll) && pin.ll.every(n => typeof n === 'number' && Number.isFinite(n))) {
+          buildEventMarker(L, map, pin);
+        }
+      });
 
       /* Any map click places / moves the pending "add" pin */
       map.on('click', e => {
         if (suppressClickRef.current) return;
+        if (!e.latlng || !Number.isFinite(e.latlng.lat) || !Number.isFinite(e.latlng.lng)) return;
         placePendingPin(L, map, e.latlng);
       });
+
+      requestAnimationFrame(() => map.invalidateSize());
     }
 
     init();
