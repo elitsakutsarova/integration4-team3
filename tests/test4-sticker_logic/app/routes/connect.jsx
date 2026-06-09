@@ -1,27 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import ConnectQr from '../components/ConnectQr';
-import { connectToRoom, getDeviceShareUrl } from '../utils/webrtc/peerConnection.js';
+import { useDevShareOrigin } from '../utils/devShareOrigin';
+import { connectToRoom } from '../utils/webrtc/peerConnection.js';
 
 function randomRoomCode() {
   return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
-function isLocalHost(hostname) {
-  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === 'memome.local';
-}
-
 export default function ConnectPage() {
+  const { shareOrigin, lanUrls, isOnLocalhost } = useDevShareOrigin();
   const [room, setRoom] = useState(() => randomRoomCode());
   const [status, setStatus] = useState('idle');
   const [connectionState, setConnectionState] = useState('');
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
-  const [shareOrigin, setShareOrigin] = useState('');
-  const [lanUrls, setLanUrls] = useState([]);
-  const [isOnLocalhost, setIsOnLocalhost] = useState(false);
   const sessionRef = useRef(null);
-
   const shareUrl = shareOrigin
     ? `${shareOrigin}/connect?room=${encodeURIComponent(room)}`
     : '';
@@ -30,37 +24,6 @@ export default function ConnectPage() {
     const params = new URLSearchParams(window.location.search);
     const fromQuery = params.get('room');
     if (fromQuery) setRoom(fromQuery.toUpperCase().slice(0, 64));
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    setIsOnLocalhost(isLocalHost(window.location.hostname));
-
-    async function resolveShareOrigin() {
-      const current = getDeviceShareUrl();
-      if (!isLocalHost(window.location.hostname)) {
-        if (!cancelled) setShareOrigin(current);
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/dev-network');
-        if (!res.ok) throw new Error('network info unavailable');
-        const data = await res.json();
-        const urls = Array.isArray(data.lanUrls) ? data.lanUrls : [];
-        if (!cancelled) {
-          setLanUrls(urls);
-          setShareOrigin(urls[0] ?? current);
-        }
-      } catch {
-        if (!cancelled) setShareOrigin(current);
-      }
-    }
-
-    resolveShareOrigin();
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   const disconnect = useCallback(() => {

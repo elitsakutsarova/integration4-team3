@@ -82,7 +82,11 @@ export default function CollectSticker() {
       <div className="collect-card">
         <p className="collect-eyebrow">Physical sticker scan</p>
         <h1 className="collect-title">
-          {location?.name ?? 'Collecting…'}
+          {status === 'done' && sticker && !alreadyClaimed
+            ? 'You get a sticker!'
+            : status === 'done' && alreadyClaimed
+              ? 'Already collected here'
+              : location?.name ?? 'Collecting…'}
         </h1>
 
         {location?.image && (
@@ -122,7 +126,7 @@ export default function CollectSticker() {
                 </ul>
               </div>
             )}
-            <div className="collect-reveal">
+            <div className={`collect-reveal${!alreadyClaimed ? ' collect-reveal--celebrate' : ''}`}>
               <p className="collect-reveal-label">Your digital collectible</p>
               <div className="collect-sticker-showcase">
                 <StickerVisual src={sticker.src} label={sticker.label} />

@@ -72,6 +72,18 @@ export default function Profile() {
               </svg>
               <span>Connect</span>
             </Link>
+            <Link to="/demo-stickers" className="collection-card collection-card--link">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="3" height="3" />
+                <rect x="18" y="14" width="3" height="3" />
+                <rect x="14" y="18" width="3" height="3" />
+                <rect x="18" y="18" width="3" height="3" />
+              </svg>
+              <span>Scan QRs</span>
+            </Link>
           </div>
         </section>
 

@@ -81,8 +81,8 @@ export default function StickersGallery() {
                   <p className="stickers-empty-hint">
                     Scan a physical MemMe sticker in Antwerp to add to your collection.
                   </p>
-                  <Link to="/collect/demo-memome-spot" className="stickers-empty-link">
-                    Try demo scan
+                  <Link to="/demo-stickers" className="stickers-empty-link">
+                    Open demo sticker QRs
                   </Link>
                 </div>
               ) : (
