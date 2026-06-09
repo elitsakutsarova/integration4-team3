@@ -1,11 +1,9 @@
-import { APP_ORIGIN, appUrl } from '../config';
-
 /** Client-side sticker loading — uses static manifest (works on mobile over LAN) */
 
 export async function loadStickersClient() {
   if (typeof window === 'undefined') return [];
 
-  const base = import.meta.env.DEV ? APP_ORIGIN : window.location.origin;
+  const base = window.location.origin;
   const sources = [
     `${base}/stickers/manifest.json`,
     `${base}/api/stickers`,

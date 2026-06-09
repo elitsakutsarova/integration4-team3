@@ -14,8 +14,9 @@ import { AuthProvider } from "./context/AuthContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { loadStickersFromPublic } from "./utils/stickers.server";
 
-export async function loader() {
-  return { stickers: loadStickersFromPublic() };
+export async function loader({ request }) {
+  const stickers = loadStickersFromPublic();
+  return { stickers };
 }
 
 export const links = () => [
