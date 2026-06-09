@@ -1,0 +1,17 @@
+[
+  {
+    "id": "digital-sticker-1",
+    "src": "/digitalStickers/digitalSticker1.png",
+    "label": "Antwerp Collectible I"
+  },
+  {
+    "id": "digital-sticker-2",
+    "src": "/digitalStickers/digitalSticker2.png",
+    "label": "Antwerp Collectible II"
+  },
+  {
+    "id": "digital-sticker-3",
+    "src": "/digitalStickers/digitalSticker3.png",
+    "label": "Antwerp Collectible III"
+  }
+]
