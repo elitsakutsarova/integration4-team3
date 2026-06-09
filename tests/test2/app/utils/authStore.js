@@ -113,7 +113,7 @@ export async function signUp({ username, email, password, role }) {
     return { error: { field: 'role', message: 'Please select Visitor or Local to continue' } };
   }
 
-  if (users.some(u => u.username === cleanUsername)) {
+  if (users.some(u => normalizeUsername(u.username) === cleanUsername)) {
     return { error: { field: 'username', message: 'Username already taken' } };
   }
   if (users.some(u => u.email === cleanEmail)) {
