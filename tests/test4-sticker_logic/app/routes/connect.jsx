@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
+import ConnectQr from '../components/ConnectQr';
 import { connectToRoom, getDeviceShareUrl } from '../utils/webrtc/peerConnection.js';
 
 function randomRoomCode() {
@@ -165,7 +166,9 @@ export default function ConnectPage() {
           </button>
         </div>
 
-        <p className="connect-share-label">Share link</p>
+        <ConnectQr url={shareUrl} room={room} />
+
+        <p className="connect-share-label">Or copy link</p>
         <div className="connect-share-row">
           <code className="connect-share-url">{shareUrl || '…'}</code>
           <button type="button" className="connect-secondary" onClick={copyShareUrl}>
