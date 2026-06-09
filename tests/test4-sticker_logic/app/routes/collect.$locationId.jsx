@@ -3,7 +3,11 @@ import { Link, useNavigate, useParams } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import { useRefreshCollectedStickers } from '../context/CollectedStickersContext';
-import { claimPhysicalSticker, getLocation } from '../utils/collectibleStore';
+import {
+  claimPhysicalSticker,
+  getLocation,
+  getUnclaimedLocations,
+} from '../utils/collectibleStore';
 
 export function meta() {
   return [{ title: 'MemMe — Collect sticker' }];
@@ -20,6 +24,7 @@ export default function CollectSticker() {
   const [message, setMessage] = useState('');
   const [sticker, setSticker] = useState(null);
   const [alreadyClaimed, setAlreadyClaimed] = useState(false);
+  const [otherSpots, setOtherSpots] = useState([]);
 
   useEffect(() => {
     let active = true;
@@ -54,11 +59,16 @@ export default function CollectSticker() {
       setStatus('done');
       setMessage(
         result.alreadyClaimed
-          ? 'You already collected a sticker from this spot.'
+          ? 'You already collected from this spot. Each physical MemMe sticker has its own QR — find another location to unlock a new collectible.'
           : user
             ? 'Sticker saved to your account!'
             : 'Sticker saved on this device. Create an account to keep it forever.',
       );
+
+      if (result.alreadyClaimed) {
+        const unclaimed = await getUnclaimedLocations(user?.id ?? null, locationId);
+        if (active) setOtherSpots(unclaimed);
+      }
 
       await refreshCollected();
     }
@@ -98,6 +108,20 @@ export default function CollectSticker() {
             <div className={`auth-banner ${alreadyClaimed ? 'auth-banner--warning' : 'auth-banner--success'}`} role="status">
               {message}
             </div>
+            {alreadyClaimed && otherSpots.length > 0 && (
+              <div className="collect-other-spots">
+                <p className="collect-other-spots-label">Try another demo spot</p>
+                <ul className="collect-other-spots-list">
+                  {otherSpots.map(spot => (
+                    <li key={spot.id}>
+                      <Link to={`/collect/${spot.id}`} className="collect-other-spots-link">
+                        {spot.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="collect-reveal">
               <p className="collect-reveal-label">Your digital collectible</p>
               <div className="collect-sticker-showcase">

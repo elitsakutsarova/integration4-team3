@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import gsap from 'gsap';
 import { pixelToPercent } from '../../utils/stickerTracker';
 import StickerVisual, { createStickerCloneNode } from './StickerVisual';
 import { useCollectedStickers, useCollectedStickersLoading } from '../../context/CollectedStickersContext';
+import { useStickers, useStickersLoading } from '../../context/StickerCatalogContext';
 
 function clearDragSession(dragRef) {
   const session = dragRef.current;
@@ -25,10 +26,20 @@ function clearDragSession(dragRef) {
   dragRef.current = null;
 }
 
-export default function DiaryStickerTray({ stickers: stickersProp, dropZoneRef, trayRef, pageIndex, onDropOnPage }) {
-  const catalogStickers = useCollectedStickers();
-  const loading = useCollectedStickersLoading();
-  const stickers = stickersProp?.length ? stickersProp : catalogStickers;
+export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDropOnPage }) {
+  const catalogStickers = useStickers();
+  const catalogLoading = useStickersLoading();
+  const collectedStickers = useCollectedStickers();
+  const collectedLoading = useCollectedStickersLoading();
+
+  const stickers = useMemo(() => {
+    const byId = new Map();
+    for (const sticker of catalogStickers) byId.set(sticker.id, sticker);
+    for (const sticker of collectedStickers) byId.set(sticker.id, sticker);
+    return [...byId.values()];
+  }, [catalogStickers, collectedStickers]);
+
+  const loading = catalogLoading || collectedLoading;
   const onDropRef = useRef(onDropOnPage);
   onDropRef.current = onDropOnPage;
 
@@ -132,12 +143,12 @@ export default function DiaryStickerTray({ stickers: stickersProp, dropZoneRef, 
 
   return (
     <div ref={trayRef} className="diary-sticker-tray">
-      <p className="diary-sticker-label">Your collected stickers — drag onto page</p>
+      <p className="diary-sticker-label">Stickers — drag onto page</p>
       <div className="diary-sticker-row">
         {loading ? (
           <p className="diary-sticker-empty">Loading stickers…</p>
         ) : stickers.length === 0 ? (
-          <p className="diary-sticker-empty">Scan a physical sticker in Antwerp to collect stickers for your diary</p>
+          <p className="diary-sticker-empty">No stickers available yet</p>
         ) : (
           stickers.map(sticker => (
             <button

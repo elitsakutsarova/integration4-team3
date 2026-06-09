@@ -2659,6 +2659,35 @@ html, body {
   color: var(--dark);
 }
 
+.collect-other-spots {
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #e8e8ec;
+  border-radius: 12px;
+}
+
+.collect-other-spots-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mid);
+  margin-bottom: 8px;
+}
+
+.collect-other-spots-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.collect-other-spots-link {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+  text-decoration: underline;
+}
+
 .collect-actions {
   display: flex;
   flex-direction: column;

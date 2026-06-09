@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Link } from 'react-router';
 import { TRAVEL_DIARY, MOCK_MEMORIES } from '../data/mockUser';
-import { useStickers } from '../context/StickerCatalogContext';
 import {
   loadPageStickers,
   savePageStickers,
+  syncDiaryLayoutToStorage,
   createSticker,
 } from '../utils/stickerTracker';
 import DraggableSticker from './diary/DraggableSticker';
@@ -80,7 +80,6 @@ function SuccessToast({ message, onClose }) {
 }
 
 export default function TravelDiaryViewer() {
-  const stickerCatalog = useStickers();
   const diary = TRAVEL_DIARY;
   const memories = MOCK_MEMORIES.filter(m => diary.memoryIds.includes(m.id));
   const totalPages = 1 + memories.length + 1;
@@ -299,6 +298,7 @@ export default function TravelDiaryViewer() {
         key={`${forPageIndex}-${s.uid}`}
         sticker={s}
         pageIndex={forPageIndex}
+        diaryId={DIARY_ID}
         dropZoneRef={dropZoneRef}
         trayRef={trayRef}
         onMove={(uid, x, y) => handleMoveSticker(forPageIndex, uid, x, y)}
@@ -344,6 +344,7 @@ export default function TravelDiaryViewer() {
           pageOffset={MEMO_PAGE_OFFSET}
           onBack={() => setView('diary')}
           onPreview={ids => {
+            syncDiaryLayoutToStorage(DIARY_ID, pageStickers);
             setRecapSelectedIds(ids);
             setView('recap-preview');
           }}
@@ -363,6 +364,7 @@ export default function TravelDiaryViewer() {
           selectedIds={recapSelectedIds}
           diaryId={DIARY_ID}
           pageOffset={MEMO_PAGE_OFFSET}
+          pageLayout={pageStickers}
           onBack={() => setView('recap-select')}
           onGoDiary={() => setView('diary')}
           onShared={msg => setSuccessMsg(msg)}
@@ -385,7 +387,10 @@ export default function TravelDiaryViewer() {
           type="button"
           className="diary-share-btn"
           aria-label="Share"
-          onClick={() => setView('share')}
+          onClick={() => {
+            syncDiaryLayoutToStorage(DIARY_ID, pageStickers);
+            setView('share');
+          }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="18" cy="5" r="3" />
@@ -433,7 +438,6 @@ export default function TravelDiaryViewer() {
         </div>
 
         <DiaryStickerTray
-          stickers={stickerCatalog}
           dropZoneRef={dropZoneRef}
           trayRef={trayRef}
           pageIndex={pageIndex}
@@ -447,6 +451,7 @@ export default function TravelDiaryViewer() {
           memories={memories}
           diaryId={DIARY_ID}
           pageOffset={MEMO_PAGE_OFFSET}
+          pageLayout={pageStickers}
           onClose={() => setView('diary')}
           onCreateRecap={() => setView('recap-select')}
           onShared={msg => {

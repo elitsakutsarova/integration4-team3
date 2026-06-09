@@ -33,8 +33,22 @@ on conflict (id) do update set label = excluded.label, src = excluded.src;
 insert into public.physical_locations (id, name, description, image, active) values
   (
     'demo-memome-spot',
-    'MemMe Demo Spot — Antwerp',
-    'Scan this QR at a physical MemMe sticker in Antwerp to unlock a digital collectible.',
+    'MemMe Demo Spot — Grote Markt',
+    'Scan at the Grote Markt MemMe sticker in Antwerp.',
+    '/physicalStickers/physicalSticker.png',
+    true
+  ),
+  (
+    'demo-memome-mas',
+    'MemMe Demo Spot — MAS Museum',
+    'Scan at the MAS Museum MemMe sticker in Antwerp.',
+    '/physicalStickers/physicalSticker.png',
+    true
+  ),
+  (
+    'demo-memome-station',
+    'MemMe Demo Spot — Central Station',
+    'Scan at the Central Station MemMe sticker in Antwerp.',
     '/physicalStickers/physicalSticker.png',
     true
   )
@@ -47,7 +61,13 @@ on conflict (id) do update set
 insert into public.location_sticker_pools (location_id, pool_index, digital_sticker_id) values
   ('demo-memome-spot', 0, 'digital-sticker-1'),
   ('demo-memome-spot', 1, 'digital-sticker-2'),
-  ('demo-memome-spot', 2, 'digital-sticker-3')
+  ('demo-memome-spot', 2, 'digital-sticker-3'),
+  ('demo-memome-mas', 0, 'digital-sticker-1'),
+  ('demo-memome-mas', 1, 'digital-sticker-2'),
+  ('demo-memome-mas', 2, 'digital-sticker-3'),
+  ('demo-memome-station', 0, 'digital-sticker-1'),
+  ('demo-memome-station', 1, 'digital-sticker-2'),
+  ('demo-memome-station', 2, 'digital-sticker-3')
 on conflict (location_id, pool_index) do update set digital_sticker_id = excluded.digital_sticker_id;
 
 -- ─── User collections ───

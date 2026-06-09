@@ -2,9 +2,9 @@ import { getDeviceId } from './deviceId';
 import { pickStickerFromPool } from './stickerAssignment';
 import {
   addPendingClaim,
-  clearPendingClaims,
   getPendingClaims,
   hasPendingLocation,
+  removePendingLocation,
 } from './pendingStickers';
 import { getSupabaseBrowserClient, isSupabaseEnabled } from './supabase.client';
 
@@ -35,6 +35,85 @@ async function loadLocationsClient() {
 export async function getLocation(locationId) {
   const locations = await loadLocationsClient();
   return locations.find(loc => loc.id === locationId && loc.active !== false) ?? null;
+}
+
+export async function getAllLocations() {
+  const locations = await loadLocationsClient();
+  return locations.filter(loc => loc.active !== false);
+}
+
+/** Location ids this user/device has already claimed. */
+export async function fetchClaimedLocationIds(authUserId) {
+  const ids = new Set();
+
+  for (const pending of getPendingClaims()) {
+    ids.add(pending.locationId);
+  }
+
+  if (authUserId && isSupabaseEnabled()) {
+    const client = getSupabaseBrowserClient();
+    if (client) {
+      const { data, error } = await client
+        .from('user_collected_stickers')
+        .select('location_id')
+        .eq('auth_id', authUserId);
+
+      if (!error && Array.isArray(data)) {
+        for (const row of data) ids.add(row.location_id);
+      }
+    }
+  }
+
+  return [...ids];
+}
+
+/** Other active spots the user has not claimed yet (for demo / re-scan UX). */
+export async function getUnclaimedLocations(authUserId, currentLocationId) {
+  const [locations, claimed] = await Promise.all([
+    getAllLocations(),
+    fetchClaimedLocationIds(authUserId),
+  ]);
+  const claimedSet = new Set(claimed);
+  return locations.filter(
+    loc => loc.id !== currentLocationId && !claimedSet.has(loc.id),
+  );
+}
+
+/** Try to write a claim to the logged-in user's Supabase collection. */
+async function persistUserClaim(authUserId, claim) {
+  if (!authUserId || !isSupabaseEnabled()) return false;
+
+  const client = getSupabaseBrowserClient();
+  if (!client) return false;
+
+  const { error } = await client.from('user_collected_stickers').upsert(
+    {
+      auth_id: authUserId,
+      location_id: claim.locationId,
+      digital_sticker_id: claim.digitalStickerId,
+      claimed_at: claim.claimedAt,
+    },
+    { onConflict: 'auth_id,location_id', ignoreDuplicates: true },
+  );
+
+  return !error;
+}
+
+async function syncClaimToStorage(authUserId, result, locationId) {
+  if (!result?.sticker || result.error || result.alreadyClaimed) return;
+
+  const claim = {
+    locationId: result.locationId ?? locationId,
+    digitalStickerId: result.sticker.id,
+    claimedAt: result.claimedAt ?? new Date().toISOString(),
+  };
+
+  addPendingClaim(claim);
+
+  if (authUserId) {
+    const persisted = await persistUserClaim(authUserId, claim);
+    if (persisted) removePendingLocation(claim.locationId);
+  }
 }
 
 function stickerDefFromCatalog(catalog, stickerId) {
@@ -122,15 +201,19 @@ export async function claimPhysicalSticker(locationId, authUserId = null) {
     result = await claimViaSupabase(locationId, deviceId, authUserId);
   }
 
+  // DB seed may lag behind public/physicalStickers/locations.json
+  if (result?.error === 'unknown_location') {
+    const localLoc = await getLocation(locationId);
+    if (localLoc) {
+      result = await claimLocally(locationId, userKey);
+    }
+  }
+
   if (!result) {
     result = await claimLocally(locationId, userKey);
-  } else if (!authUserId && result.sticker && !result.error) {
-    addPendingClaim({
-      locationId,
-      digitalStickerId: result.sticker.id,
-      claimedAt: result.claimedAt ?? new Date().toISOString(),
-    });
   }
+
+  await syncClaimToStorage(authUserId, result, locationId);
 
   return result;
 }
@@ -208,12 +291,14 @@ export async function mergeGuestStickersIntoAccount(authUserId) {
           },
           { onConflict: 'auth_id,location_id', ignoreDuplicates: true },
         );
-        if (!error) merged += 1;
+        if (!error) {
+          merged += 1;
+          removePendingLocation(claim.locationId);
+        }
       }
     }
   }
 
-  clearPendingClaims();
   return { merged };
 }
 

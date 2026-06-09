@@ -1,7 +1,8 @@
-import { loadPageStickers } from '../../utils/stickerTracker';
 import { getStickerDef } from '../../utils/stickers';
-import { useStickers } from '../../context/StickerCatalogContext';
+import { getStickersForPage, subscribeStickerLayouts } from '../../utils/stickerTracker';
+import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
 import StickerVisual from './StickerVisual';
+import { useEffect, useState } from 'react';
 
 function PlacedStickerPreview({ sticker, stickerCatalog }) {
   const def = getStickerDef(sticker.stickerId, stickerCatalog);
@@ -13,17 +14,37 @@ function PlacedStickerPreview({ sticker, stickerCatalog }) {
       <StickerVisual
         src={sticker.src ?? def?.src}
         emoji={sticker.emoji ?? def?.emoji}
-        label={def?.label}
+        label={def?.label ?? sticker.label}
       />
     </span>
   );
 }
 
-export default function MemoShareCard({ memory, pageIndex, diaryId, selected, onToggle, compact }) {
-  const stickerCatalog = useStickers();
-  const stickers = typeof window !== 'undefined'
-    ? loadPageStickers(diaryId, pageIndex)
-    : [];
+export default function MemoShareCard({
+  memory,
+  pageIndex,
+  diaryId,
+  selected,
+  onToggle,
+  compact,
+  pageLayout,
+}) {
+  const stickerCatalog = useDiaryStickerCatalog();
+  const [stickers, setStickers] = useState(() =>
+    getStickersForPage(diaryId, pageIndex, pageLayout),
+  );
+
+  useEffect(() => {
+    setStickers(getStickersForPage(diaryId, pageIndex, pageLayout));
+  }, [diaryId, pageIndex, pageLayout]);
+
+  useEffect(() => {
+    return subscribeStickerLayouts((changedDiaryId, changedPage) => {
+      if (changedDiaryId !== diaryId) return;
+      if (Number(changedPage) !== Number(pageIndex)) return;
+      setStickers(getStickersForPage(diaryId, pageIndex, pageLayout));
+    });
+  }, [diaryId, pageIndex, pageLayout]);
 
   return (
     <button
@@ -62,11 +83,9 @@ export function ShareWholeDiaryCard({ onCreateRecap, onCopyLink }) {
   );
 }
 
-export function StickerOverlay({ pageIndex, diaryId }) {
-  const stickerCatalog = useStickers();
-  const stickers = typeof window !== 'undefined'
-    ? loadPageStickers(diaryId, pageIndex)
-    : [];
+export function StickerOverlay({ pageIndex, diaryId, pageLayout }) {
+  const stickerCatalog = useDiaryStickerCatalog();
+  const stickers = getStickersForPage(diaryId, pageIndex, pageLayout);
   if (!stickers.length) return null;
   return (
     <>

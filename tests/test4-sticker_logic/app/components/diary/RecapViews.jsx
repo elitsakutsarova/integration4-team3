@@ -6,7 +6,7 @@ import {
   shareImageFiles,
   shareToInstagram,
 } from '../../utils/shareImage';
-import { useStickers } from '../../context/StickerCatalogContext';
+import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
 
 export default function RecapSelectView({ diary, memories, diaryId, pageOffset, onBack, onPreview, onShared }) {
   const [selected, setSelected] = useState(new Set(memories.map(m => m.id)));
@@ -82,10 +82,20 @@ export default function RecapSelectView({ diary, memories, diaryId, pageOffset, 
   );
 }
 
-export function RecapPreviewView({ diary, memories, selectedIds, diaryId, pageOffset, onBack, onGoDiary, onShared }) {
+export function RecapPreviewView({
+  diary,
+  memories,
+  selectedIds,
+  diaryId,
+  pageOffset,
+  pageLayout,
+  onBack,
+  onGoDiary,
+  onShared,
+}) {
   const [showSheet, setShowSheet] = useState(false);
   const [sharing, setSharing] = useState(false);
-  const stickerCatalog = useStickers();
+  const stickerCatalog = useDiaryStickerCatalog();
   const selectedMemories = memories.filter(m => selectedIds.includes(m.id));
 
   async function handleShareApp(appId) {
@@ -98,7 +108,14 @@ export function RecapPreviewView({ diary, memories, selectedIds, diaryId, pageOf
 
       if (appId === 'instagram' && selectedMemories.length <= 10) {
         // Instagram: share individual memo cards with stickers baked in
-        files = await buildMemoShareFiles(diaryId, memories, pageIndices, pageOffset, stickerCatalog);
+        files = await buildMemoShareFiles(
+          diaryId,
+          memories,
+          pageIndices,
+          pageOffset,
+          stickerCatalog,
+          pageLayout,
+        );
       } else {
         // Recap collage for other apps or many memos
         files = [await renderRecapImage(diary, selectedMemories, diaryId, pageOffset)];

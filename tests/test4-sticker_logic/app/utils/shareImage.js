@@ -2,7 +2,7 @@
  * Renders memo/diary pages to PNG blobs for real sharing (Instagram, etc.)
  */
 
-import { loadPageStickers } from './stickerTracker';
+import { getStickersForPage } from './stickerTracker';
 import { getStickerDef } from './stickers';
 
 const CARD_W = 1080;
@@ -200,13 +200,20 @@ function canvasToFile(canvas, filename) {
 }
 
 /** Build share files for selected memo pages */
-export async function buildMemoShareFiles(diaryId, memories, pageIndices, pageOffset, stickerCatalog = []) {
+export async function buildMemoShareFiles(
+  diaryId,
+  memories,
+  pageIndices,
+  pageOffset,
+  stickerCatalog = [],
+  pageLayout = null,
+) {
   const files = [];
   for (const pageIndex of pageIndices) {
     const memIdx = pageIndex - pageOffset;
     const memory = memories[memIdx];
     if (!memory) continue;
-    const stickers = loadPageStickers(diaryId, pageIndex);
+    const stickers = getStickersForPage(diaryId, pageIndex, pageLayout);
     const file = await renderMemoCardImage(memory, stickers, stickerCatalog);
     files.push(file);
   }

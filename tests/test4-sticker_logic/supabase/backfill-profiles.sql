@@ -13,3 +13,4 @@ on conflict (auth_id) do update set
   username = excluded.username,
   email = excluded.email,
   role = excluded.role;
+ 

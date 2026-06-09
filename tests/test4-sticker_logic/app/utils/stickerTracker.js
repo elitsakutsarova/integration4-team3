@@ -5,6 +5,20 @@
 
 const STORAGE_KEY = 'memome_sticker_layouts';
 
+const listeners = new Set();
+
+function notifyLayoutChange(diaryId, pageIndex) {
+  for (const fn of listeners) {
+    fn(diaryId, pageIndex);
+  }
+}
+
+/** Subscribe to layout saves (e.g. share preview refresh). */
+export function subscribeStickerLayouts(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
 function readAll() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
@@ -22,6 +36,33 @@ export function savePageStickers(diaryId, pageIndex, stickers) {
   if (!all[diaryId]) all[diaryId] = {};
   all[diaryId][String(pageIndex)] = stickers;
   writeAll(all);
+  notifyLayoutChange(diaryId, pageIndex);
+}
+
+/** Persist a single sticker move without replacing the whole page list. */
+export function updateStickerPosition(diaryId, pageIndex, uid, x, y) {
+  const page = loadPageStickers(diaryId, pageIndex);
+  const next = page.map(s =>
+    s.uid === uid ? { ...s, x: clampPercent(x), y: clampPercent(y) } : s,
+  );
+  savePageStickers(diaryId, pageIndex, next);
+  return next;
+}
+
+/** Write in-memory layout to storage (e.g. before opening share). */
+export function syncDiaryLayoutToStorage(diaryId, pageStickersByPage) {
+  if (!pageStickersByPage || typeof pageStickersByPage !== 'object') return;
+  for (const [pageIndex, stickers] of Object.entries(pageStickersByPage)) {
+    if (Array.isArray(stickers)) {
+      savePageStickers(diaryId, Number(pageIndex), stickers);
+    }
+  }
+}
+
+export function getStickersForPage(diaryId, pageIndex, pageLayout) {
+  const fromLayout = pageLayout?.[pageIndex] ?? pageLayout?.[String(pageIndex)];
+  if (Array.isArray(fromLayout)) return fromLayout;
+  return loadPageStickers(diaryId, pageIndex);
 }
 
 export function loadPageStickers(diaryId, pageIndex) {
@@ -41,7 +82,8 @@ export function exportShareLayout(diaryId, pageIndices) {
   const layout = getDiaryStickerLayout(diaryId);
   const exported = {};
   for (const idx of pageIndices) {
-    exported[idx] = (layout[idx] ?? []).map(s => ({
+    const key = String(idx);
+    exported[idx] = (layout[key] ?? layout[idx] ?? []).map(s => ({
       uid: s.uid,
       stickerId: s.stickerId,
       emoji: s.emoji,

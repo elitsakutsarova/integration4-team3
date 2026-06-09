@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { clampPercent } from '../../utils/stickerTracker';
+import { clampPercent, updateStickerPosition } from '../../utils/stickerTracker';
 import { getStickerDef } from '../../utils/stickers';
-import { useStickers } from '../../context/StickerCatalogContext';
+import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
 import StickerVisual from './StickerVisual';
 
 function isInsideRect(x, y, rect) {
@@ -14,13 +14,14 @@ export default function DraggableSticker({
   dropZoneRef,
   trayRef,
   pageIndex,
+  diaryId,
   onMove,
   onReturnToTray,
   onDragStart,
   onDragEnd,
 }) {
   const elRef = useRef(null);
-  const stickerCatalog = useStickers();
+  const stickerCatalog = useDiaryStickerCatalog();
   const stickerRef = useRef(sticker);
   const onMoveRef = useRef(onMove);
   const onReturnToTrayRef = useRef(onReturnToTray);
@@ -62,6 +63,11 @@ export default function DraggableSticker({
     const session = dragRef.current;
     if (!session || session.settled) return;
     session.settled = true;
+
+    if (session.persistTimer) {
+      clearTimeout(session.persistTimer);
+      session.persistTimer = null;
+    }
 
     const el = elRef.current;
     const dropZone = dropZoneRef.current;
@@ -172,6 +178,13 @@ export default function DraggableSticker({
         x: 0,
         y: 0,
       });
+
+      if (diaryId != null) {
+        if (session.persistTimer) clearTimeout(session.persistTimer);
+        session.persistTimer = setTimeout(() => {
+          updateStickerPosition(diaryId, pageIndex, stickerRef.current.uid, x, y);
+        }, 120);
+      }
     };
 
     const onEnd = ev => {
