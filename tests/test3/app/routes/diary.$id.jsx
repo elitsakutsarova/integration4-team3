@@ -1,5 +1,4 @@
 import TravelDiaryViewer from '../components/TravelDiaryViewer';
-import RequireAuth from '../components/auth/RequireAuth';
 import { TRAVEL_DIARY } from '../data/mockUser';
 
 export function meta() {
@@ -10,9 +9,5 @@ export function meta() {
 }
 
 export default function DiaryDetail() {
-  return (
-    <RequireAuth>
-      <TravelDiaryViewer />
-    </RequireAuth>
-  );
+  return <TravelDiaryViewer />;
 }
