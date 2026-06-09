@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { syncSessionProfile } from '../utils/authStore';
-import { getSupabaseBrowserClient } from '../utils/supabase.client';
+import { completeAuthRedirect, syncSessionProfile } from '../utils/authStore';
 
 export function meta() {
   return [{ title: 'MemMe — Signing in…' }];
@@ -13,18 +12,10 @@ export default function AuthCallback() {
 
   useEffect(() => {
     async function finish() {
-      const supabase = getSupabaseBrowserClient();
-      if (!supabase) {
-        navigate('/login', { replace: true });
+      const result = await completeAuthRedirect();
+      if (result.error) {
+        navigate('/login', { replace: true, state: { authError: result.error } });
         return;
-      }
-
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('code');
-
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) console.error('Auth callback failed:', error.message);
       }
 
       await syncSessionProfile();

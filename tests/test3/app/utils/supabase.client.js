@@ -1,4 +1,4 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import {
   getSupabaseKey,
   getSupabaseUrl,
@@ -14,11 +14,22 @@ export function isSupabaseEnabled() {
 
 let browserClient = null;
 
-/** Browser Supabase client — pairs with supabase.server.js for SSR cookie auth */
+/**
+ * Browser Supabase client — localStorage persistence so PKCE verifiers are
+ * available when the email-confirm link opens in another tab (same browser).
+ * supabase.server.js is kept for route loaders; auth UI uses this client.
+ */
 export function getSupabaseBrowserClient() {
   if (!isSupabaseConfigured()) return null;
   if (!browserClient) {
-    browserClient = createBrowserClient(getSupabaseUrl(), getSupabaseKey());
+    browserClient = createSupabaseClient(getSupabaseUrl(), getSupabaseKey(), {
+      auth: {
+        flowType: 'pkce',
+        detectSessionInUrl: true,
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    });
   }
   return browserClient;
 }
@@ -30,4 +41,3 @@ export function resetSupabaseBrowserClient() {
 
 /** @deprecated use getSupabaseBrowserClient() — kept for existing imports */
 export const supabase = getSupabaseBrowserClient();
-

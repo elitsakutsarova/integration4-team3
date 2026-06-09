@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import MemMeLogo from '../components/auth/MemMeLogo';
 import { EyeIcon, GoogleIcon, LockIcon, MailIcon } from '../components/auth/AuthIcons';
 import { AuthSwitchLink, RedirectIfAuthed } from '../components/auth/RequireAuth';
@@ -14,20 +14,25 @@ export function meta() {
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle } = useAuth();
+  const location = useLocation();
+  const { signIn, signInWithGoogle, resendConfirmationEmail } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [formError, setFormError] = useState('');
+  const [formError, setFormError] = useState(location.state?.authError ?? '');
+  const [formSuccess, setFormSuccess] = useState('');
 
   const canSubmit = email.trim().length > 0 && password.length > 0 && !loading;
+  const showResendConfirmation = /confirm/i.test(formError);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setFormError('');
+    setFormSuccess('');
     setErrors({});
     setLoading(true);
 
@@ -44,6 +49,20 @@ export default function Login() {
     }
 
     navigate('/', { replace: true });
+  }
+
+  async function handleResendConfirmation() {
+    setFormSuccess('');
+    setResendLoading(true);
+    const result = await resendConfirmationEmail(email);
+    setResendLoading(false);
+
+    if (result.error) {
+      setFormError(result.error.message);
+      return;
+    }
+    setFormError('');
+    setFormSuccess(result.message);
   }
 
   async function handleGoogle() {
@@ -112,6 +131,23 @@ export default function Login() {
               <div className="auth-banner auth-banner--warning" role="alert">
                 {formError}
               </div>
+            )}
+
+            {formSuccess && (
+              <div className="auth-banner auth-banner--success" role="status">
+                {formSuccess}
+              </div>
+            )}
+
+            {showResendConfirmation && (
+              <button
+                type="button"
+                className="auth-btn auth-btn--google"
+                disabled={!email.trim() || resendLoading}
+                onClick={handleResendConfirmation}
+              >
+                {resendLoading ? 'Sending…' : 'Resend confirmation email'}
+              </button>
             )}
 
             <button type="submit" className="auth-btn auth-btn--primary" disabled={!canSubmit}>
