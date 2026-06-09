@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import NewMemoForm from './NewMemoForm';
 import BottomNav from './BottomNav';
 import { MOCK_MEMORIES, INITIAL_EVENTS } from '../data/mockUser';
+import { addBasemapControl } from '../utils/mapLayers';
 
 const ANTWERP_CENTER = [51.2194, 4.4025];
 const ANTWERP_BOUNDS = [[51.05, 4.15], [51.40, 4.65]];
@@ -204,6 +205,8 @@ export default function MapView() {
     async function init() {
       const L = (await import('leaflet')).default;
       await import('leaflet/dist/leaflet.css');
+      await import('maplibre-gl/dist/maplibre-gl.css');
+      await import('@maplibre/maplibre-gl-leaflet');
       leafletRef.current = L;
 
       const map = L.map(containerRef.current, {
@@ -216,12 +219,7 @@ export default function MapView() {
       });
       mapRef.current = map;
 
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution:
-          '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20,
-      }).addTo(map);
+      addBasemapControl(L, map, { defaultLayer: 'openfreemap' });
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 

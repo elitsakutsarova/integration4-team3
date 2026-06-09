@@ -69,6 +69,44 @@ html, body {
 .leaflet-control-zoom a:last-child { border-bottom: none !important; }
 .leaflet-control-zoom a:hover { background: #FFE03A !important; }
 
+/* Basemap layer switcher */
+.leaflet-control-layers {
+  border: 2px dashed var(--dark) !important;
+  border-radius: 0 !important;
+  background: var(--bg) !important;
+  box-shadow: none !important;
+}
+
+.leaflet-control-layers-toggle {
+  width: 36px !important;
+  height: 36px !important;
+  background-color: var(--bg) !important;
+  background-size: 18px 18px !important;
+}
+
+.leaflet-control-layers-expanded {
+  padding: 8px 10px !important;
+  font-family: var(--font) !important;
+  font-size: 12px !important;
+  color: var(--dark) !important;
+}
+
+.leaflet-control-layers-list label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+
+.leaflet-control-layers-base label:last-child {
+  margin-bottom: 0;
+}
+
+.leaflet-control-layers-separator {
+  display: none;
+}
+
 /* ─── Attribution ─────────────────────────────────── */
 .leaflet-control-attribution {
   background: transparent !important;
