@@ -100,6 +100,13 @@ export default function Register() {
       return;
     }
 
+    if (result.pendingConfirmation) {
+      setFormError('');
+      setErrors({});
+      setFormError(result.message);
+      return;
+    }
+
     navigate('/', { replace: true });
   }
 

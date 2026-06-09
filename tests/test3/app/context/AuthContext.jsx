@@ -3,36 +3,56 @@ import * as authStore from '../utils/authStore';
 
 const AuthContext = createContext(null);
 
+function applyUserUpdate(setUser, nextUser) {
+  setUser(prev => (authStore.sameUser(prev, nextUser) ? prev : nextUser));
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
-    authStore.getSession().then(sessionUser => {
-      if (active) {
-        setUser(sessionUser);
-        setLoading(false);
+
+    async function initAuth() {
+      try {
+        let sessionUser = await authStore.getSession();
+        if (active && sessionUser) {
+          const profile = await authStore.syncSessionProfile();
+          if (profile) sessionUser = profile;
+          applyUserUpdate(setUser, sessionUser);
+        } else if (active) {
+          setUser(sessionUser);
+        }
+      } catch {
+        if (active) setUser(null);
+      } finally {
+        if (active) setLoading(false);
       }
-    });
-    return () => { active = false; };
+    }
+
+    initAuth();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const signUp = useCallback(async payload => {
     const result = await authStore.signUp(payload);
-    if (result.user) setUser(result.user);
+    if (result.user) applyUserUpdate(setUser, result.user);
     return result;
   }, []);
 
   const signIn = useCallback(async payload => {
     const result = await authStore.signIn(payload);
-    if (result.user) setUser(result.user);
+    if (result.user) applyUserUpdate(setUser, result.user);
     return result;
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
     const result = await authStore.signInWithGoogle();
-    if (result.user) setUser(result.user);
+    if (result.user) applyUserUpdate(setUser, result.user);
     return result;
   }, []);
 

@@ -25,3 +25,8 @@ Add pins to the map with text. Try to add both memory pins and event pins. When 
 - Create the Travel Diary
 - Create the Draggable stickers menu
 - Create the sharing functionality (the user can share the Travel Diary)
+
+## Test 3
+- Create a Supabase Users database
+- Connect React app to Supabase
+- Use Authentification

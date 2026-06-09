@@ -1,21 +1,30 @@
-import { Link, Navigate, useLocation, useNavigate } from 'react-router';
+import { useLayoutEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import MemMeLogo from './MemMeLogo';
+
+function AuthLoading() {
+  return (
+    <div className="auth-loading">
+      <div className="auth-loading-dot" />
+    </div>
+  );
+}
 
 export default function RequireAuth({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const redirectingRef = useRef(false);
 
-  if (loading) {
-    return (
-      <div className="auth-loading">
-        <div className="auth-loading-dot" />
-      </div>
-    );
-  }
+  useLayoutEffect(() => {
+    if (loading || user || redirectingRef.current) return;
+    redirectingRef.current = true;
+    navigate('/login', { replace: true, state: { from: location.pathname } });
+  }, [loading, user, location.pathname]); // navigate intentionally omitted — stable in RR7 but omit to avoid effect loops
 
-  if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (loading || !user) {
+    return <AuthLoading />;
   }
 
   return children;
@@ -54,14 +63,7 @@ function AlreadySignedIn() {
 export function RedirectIfAuthed({ children }) {
   const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="auth-loading">
-        <div className="auth-loading-dot" />
-      </div>
-    );
-  }
-
+  if (loading) return <AuthLoading />;
   if (user) return <AlreadySignedIn />;
   return children;
 }
