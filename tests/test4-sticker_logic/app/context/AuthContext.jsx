@@ -1,11 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import * as authStore from '../utils/authStore';
-import { mergeGuestStickersIntoAccount } from '../utils/collectibleStore';
+import { mergeGuestStickersIntoAccount, clearGuestStickerCache } from '../utils/collectibleStore';
 
 const AuthContext = createContext(null);
 
 function applyUserUpdate(setUser, nextUser) {
   setUser(prev => (authStore.sameUser(prev, nextUser) ? prev : nextUser));
+}
+
+async function attachAccountStickers(userId) {
+  await mergeGuestStickersIntoAccount(userId);
+  clearGuestStickerCache();
 }
 
 export function AuthProvider({ children }) {
@@ -21,7 +26,7 @@ export function AuthProvider({ children }) {
         if (active && sessionUser) {
           const profile = await authStore.syncSessionProfile();
           if (profile) sessionUser = profile;
-          await mergeGuestStickersIntoAccount(sessionUser.id);
+          await attachAccountStickers(sessionUser.id);
           applyUserUpdate(setUser, sessionUser);
         } else if (active) {
           setUser(sessionUser);
@@ -35,7 +40,10 @@ export function AuthProvider({ children }) {
 
     initAuth();
 
-    const unsubscribe = authStore.subscribeToAuthChanges(nextUser => {
+    const unsubscribe = authStore.subscribeToAuthChanges(async nextUser => {
+      if (active && nextUser?.id) {
+        await attachAccountStickers(nextUser.id);
+      }
       if (active) applyUserUpdate(setUser, nextUser);
     });
 
@@ -48,7 +56,7 @@ export function AuthProvider({ children }) {
   const signUp = useCallback(async payload => {
     const result = await authStore.signUp(payload);
     if (result.user) {
-      await mergeGuestStickersIntoAccount(result.user.id);
+      await attachAccountStickers(result.user.id);
       applyUserUpdate(setUser, result.user);
     }
     return result;
@@ -57,7 +65,7 @@ export function AuthProvider({ children }) {
   const signIn = useCallback(async payload => {
     const result = await authStore.signIn(payload);
     if (result.user) {
-      await mergeGuestStickersIntoAccount(result.user.id);
+      await attachAccountStickers(result.user.id);
       applyUserUpdate(setUser, result.user);
     }
     return result;
@@ -65,7 +73,10 @@ export function AuthProvider({ children }) {
 
   const signInWithGoogle = useCallback(async () => {
     const result = await authStore.signInWithGoogle();
-    if (result.user) applyUserUpdate(setUser, result.user);
+    if (result.user) {
+      await attachAccountStickers(result.user.id);
+      applyUserUpdate(setUser, result.user);
+    }
     return result;
   }, []);
 

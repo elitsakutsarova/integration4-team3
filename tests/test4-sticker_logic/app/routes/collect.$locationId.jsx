@@ -16,7 +16,7 @@ export function meta() {
 export default function CollectSticker() {
   const { locationId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const refreshCollected = useRefreshCollectedStickers();
 
   const [location, setLocation] = useState(null);
@@ -27,6 +27,8 @@ export default function CollectSticker() {
   const [otherSpots, setOtherSpots] = useState([]);
 
   useEffect(() => {
+    if (authLoading) return;
+
     let active = true;
 
     async function run() {
@@ -49,7 +51,9 @@ export default function CollectSticker() {
         setMessage(
           result.error === 'unknown_location'
             ? 'Unknown sticker location.'
-            : 'Could not claim sticker. Try again.',
+            : typeof result.error === 'string'
+              ? result.error
+              : 'Could not claim sticker. Try again.',
         );
         return;
       }
@@ -75,7 +79,7 @@ export default function CollectSticker() {
 
     run();
     return () => { active = false; };
-  }, [locationId, user?.id, refreshCollected]);
+  }, [locationId, user?.id, authLoading, refreshCollected]);
 
   return (
     <div className="collect-page">
@@ -98,6 +102,9 @@ export default function CollectSticker() {
         {status === 'loading' && (
           <div className="auth-loading collect-loading">
             <div className="auth-loading-dot" />
+            <p className="collect-loading-label">
+              {authLoading ? 'Checking your account…' : 'Collecting your sticker…'}
+            </p>
           </div>
         )}
 

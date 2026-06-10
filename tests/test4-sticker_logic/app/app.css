@@ -2624,6 +2624,13 @@ html, body {
   background: transparent;
 }
 
+.collect-loading-label {
+  text-align: center;
+  font-size: 13px;
+  color: var(--mid);
+  margin-top: 12px;
+}
+
 .collect-reveal {
   display: flex;
   flex-direction: column;

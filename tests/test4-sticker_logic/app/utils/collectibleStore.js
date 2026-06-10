@@ -2,6 +2,7 @@ import { getDeviceId } from './deviceId';
 import { pickStickerFromPool } from './stickerAssignment';
 import {
   addPendingClaim,
+  clearPendingClaims,
   getPendingClaims,
   hasPendingLocation,
   removePendingLocation,
@@ -45,18 +46,22 @@ export async function getAllLocations() {
 /** Location ids this user/device has already claimed. */
 export async function fetchClaimedLocationIds(authUserId) {
   const ids = new Set();
+  const accountId = await resolveAccountAuthId(authUserId);
 
-  for (const pending of getPendingClaims()) {
-    ids.add(pending.locationId);
+  if (!accountId) {
+    for (const pending of getPendingClaims()) {
+      ids.add(pending.locationId);
+    }
+    return [...ids];
   }
 
-  if (authUserId && isSupabaseEnabled()) {
+  if (isSupabaseEnabled()) {
     const client = getSupabaseBrowserClient();
     if (client) {
       const { data, error } = await client
         .from('user_collected_stickers')
         .select('location_id')
-        .eq('auth_id', authUserId);
+        .eq('auth_id', accountId);
 
       if (!error && Array.isArray(data)) {
         for (const row of data) ids.add(row.location_id);
@@ -100,7 +105,7 @@ async function persistUserClaim(authUserId, claim) {
 }
 
 async function syncClaimToStorage(authUserId, result, locationId) {
-  if (!result?.sticker || result.error || result.alreadyClaimed) return;
+  if (!result?.sticker || result.error || result.alreadyClaimed) return true;
 
   const claim = {
     locationId: result.locationId ?? locationId,
@@ -108,12 +113,23 @@ async function syncClaimToStorage(authUserId, result, locationId) {
     claimedAt: result.claimedAt ?? new Date().toISOString(),
   };
 
-  addPendingClaim(claim);
-
   if (authUserId) {
-    const persisted = await persistUserClaim(authUserId, claim);
-    if (persisted) removePendingLocation(claim.locationId);
+    return persistUserClaim(authUserId, claim);
   }
+
+  addPendingClaim(claim);
+  return true;
+}
+
+/** Prefer Supabase session uuid so RPC auth.uid() matches the account row. */
+async function resolveAccountAuthId(hintAuthUserId) {
+  if (!isSupabaseEnabled()) return hintAuthUserId ?? null;
+
+  const client = getSupabaseBrowserClient();
+  if (!client) return hintAuthUserId ?? null;
+
+  const { data: { session } } = await client.auth.getSession();
+  return session?.user?.id ?? hintAuthUserId ?? null;
 }
 
 function stickerDefFromCatalog(catalog, stickerId) {
@@ -122,12 +138,40 @@ function stickerDefFromCatalog(catalog, stickerId) {
   return { id: row.id, src: row.src, label: row.label };
 }
 
-/** Local fallback when Supabase RPC is unavailable (dev / SQL not run yet). */
-async function claimLocally(locationId, userKey) {
+async function fetchUserClaimAtLocation(authUserId, locationId) {
+  if (!authUserId || !isSupabaseEnabled()) return null;
+
+  const client = getSupabaseBrowserClient();
+  if (!client) return null;
+
+  const { data, error } = await client
+    .from('user_collected_stickers')
+    .select('digital_sticker_id, location_id, claimed_at')
+    .eq('auth_id', authUserId)
+    .eq('location_id', locationId)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return data;
+}
+
+/** Local fallback for guests, or when Supabase location seed is missing. */
+async function claimLocally(locationId, userKey, authUserId = null) {
   const location = await getLocation(locationId);
   if (!location) return { error: 'unknown_location' };
 
-  if (hasPendingLocation(locationId)) {
+  if (authUserId) {
+    const existing = await fetchUserClaimAtLocation(authUserId, locationId);
+    if (existing) {
+      const catalog = await loadDigitalCatalogClient();
+      return {
+        alreadyClaimed: true,
+        sticker: stickerDefFromCatalog(catalog, existing.digital_sticker_id),
+        locationId,
+        claimedAt: existing.claimed_at,
+      };
+    }
+  } else if (hasPendingLocation(locationId)) {
     const pending = getPendingClaims().find(c => c.locationId === locationId);
     const catalog = await loadDigitalCatalogClient();
     return {
@@ -138,7 +182,12 @@ async function claimLocally(locationId, userKey) {
     };
   }
 
-  const stickerId = pickStickerFromPool(userKey, locationId, location.pool);
+  const stickerId = pickStickerFromPool(
+    userKey,
+    locationId,
+    location.pool,
+    await getOwnedStickerIds(authUserId ?? null),
+  );
   if (!stickerId) return { error: 'empty_pool' };
 
   const claim = {
@@ -146,7 +195,10 @@ async function claimLocally(locationId, userKey) {
     digitalStickerId: stickerId,
     claimedAt: new Date().toISOString(),
   };
-  addPendingClaim(claim);
+
+  if (!authUserId) {
+    addPendingClaim(claim);
+  }
 
   const catalog = await loadDigitalCatalogClient();
   return {
@@ -160,6 +212,11 @@ async function claimLocally(locationId, userKey) {
 async function claimViaSupabase(locationId, deviceId, authUserId) {
   const client = getSupabaseBrowserClient();
   if (!client) return null;
+
+  if (authUserId) {
+    const { data: { session } } = await client.auth.getSession();
+    if (!session?.user?.id) return null;
+  }
 
   const { data, error } = await client.rpc('claim_physical_sticker', {
     p_location_id: locationId,
@@ -193,35 +250,66 @@ async function claimViaSupabase(locationId, deviceId, authUserId) {
  */
 export async function claimPhysicalSticker(locationId, authUserId = null) {
   const deviceId = getDeviceId();
-  const userKey = authUserId ?? deviceId;
+  const accountId = await resolveAccountAuthId(authUserId);
+  const userKey = accountId ?? deviceId;
   if (!userKey) return { error: 'device_required' };
 
   let result = null;
   if (isSupabaseEnabled()) {
-    result = await claimViaSupabase(locationId, deviceId, authUserId);
+    result = await claimViaSupabase(locationId, deviceId, accountId);
   }
 
-  // DB seed may lag behind public/physicalStickers/locations.json
+  // Logged-in users: account collection lives in Supabase only.
+  if (accountId && isSupabaseEnabled()) {
+    if (!result || result.error === 'unknown_location') {
+      const localLoc = await getLocation(locationId);
+      if (localLoc) {
+        result = await claimLocally(locationId, userKey, accountId);
+      }
+    }
+
+    if (!result || result.error) {
+      return result ?? { error: 'Could not claim sticker. Check your connection and try again.' };
+    }
+
+    if (!result.alreadyClaimed) {
+      const persisted = await syncClaimToStorage(accountId, result, locationId);
+      if (!persisted) {
+        return { error: 'Could not save sticker to your account. Try again.' };
+      }
+    }
+
+    return result;
+  }
+
+  // Guest path: localStorage when Supabase RPC/seed is unavailable.
   if (result?.error === 'unknown_location') {
     const localLoc = await getLocation(locationId);
     if (localLoc) {
-      result = await claimLocally(locationId, userKey);
+      result = await claimLocally(locationId, userKey, null);
     }
   }
 
   if (!result) {
-    result = await claimLocally(locationId, userKey);
+    result = await claimLocally(locationId, userKey, null);
   }
 
-  await syncClaimToStorage(authUserId, result, locationId);
+  await syncClaimToStorage(null, result, locationId);
 
   return result;
 }
 
-/** Fetch collected stickers for logged-in user from DB + merge pending for guests. */
+/** Sticker ids this user/device already owns (for no-repeat assignment). */
+export async function getOwnedStickerIds(authUserId) {
+  const stickers = await fetchCollectedStickers(authUserId);
+  return stickers.map(sticker => sticker.id);
+}
+
+/** Fetch collected stickers — Supabase for accounts, localStorage for guests only. */
 export async function fetchCollectedStickers(authUserId) {
   const catalog = await loadDigitalCatalogClient();
   const byId = new Map();
+  const accountId = await resolveAccountAuthId(authUserId);
 
   function addSticker(stickerId, meta = {}) {
     const def = stickerDefFromCatalog(catalog, stickerId);
@@ -230,13 +318,13 @@ export async function fetchCollectedStickers(authUserId) {
     }
   }
 
-  if (authUserId && isSupabaseEnabled()) {
+  if (accountId && isSupabaseEnabled()) {
     const client = getSupabaseBrowserClient();
     if (client) {
       const { data, error } = await client
         .from('user_collected_stickers')
         .select('digital_sticker_id, location_id, claimed_at')
-        .eq('auth_id', authUserId);
+        .eq('auth_id', accountId);
 
       if (!error && Array.isArray(data)) {
         for (const row of data) {
@@ -247,13 +335,15 @@ export async function fetchCollectedStickers(authUserId) {
         }
       }
     }
+
+    return [...byId.values()];
   }
 
   for (const pending of getPendingClaims()) {
     addSticker(pending.digitalStickerId, {
       locationId: pending.locationId,
       claimedAt: pending.claimedAt,
-      pending: !authUserId,
+      pending: true,
     });
   }
 
@@ -300,6 +390,11 @@ export async function mergeGuestStickersIntoAccount(authUserId) {
   }
 
   return { merged };
+}
+
+/** Drop device-local guest queue once stickers belong to an account. */
+export function clearGuestStickerCache() {
+  clearPendingClaims();
 }
 
 export async function getCollectedCount(authUserId) {

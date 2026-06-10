@@ -1,13 +1,18 @@
 /**
  * Deterministic sticker pick from a location pool.
  * Same userKey + location always yields the same sticker (stable for localStorage → DB merge).
- * Different users/locations get different picks across the pool.
+ * Skips stickers the user already owns until the full catalog is collected.
  */
-export function pickStickerFromPool(userKey, locationId, pool) {
+export function pickStickerFromPool(userKey, locationId, pool, ownedStickerIds = []) {
   if (!pool?.length) return null;
+
+  const owned = new Set(ownedStickerIds ?? []);
+  let eligible = pool.filter(id => !owned.has(id));
+  if (eligible.length === 0) eligible = [...pool];
+
   const hash = fnv1a(`${userKey}:${locationId}`);
-  const index = hash % pool.length;
-  return pool[index];
+  const index = hash % eligible.length;
+  return eligible[index];
 }
 
 function fnv1a(str) {
