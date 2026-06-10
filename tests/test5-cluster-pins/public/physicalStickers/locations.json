@@ -1,0 +1,26 @@
+[
+  {
+    "id": "demo-memome-spot",
+    "name": "MemMe Demo Spot — Grote Markt",
+    "description": "Scan at the Grote Markt MemMe sticker in Antwerp.",
+    "image": "/physicalStickers/physicalSticker.svg",
+    "pool": ["digital-sticker-1"],
+    "active": true
+  },
+  {
+    "id": "demo-memome-mas",
+    "name": "MemMe Demo Spot — MAS Museum",
+    "description": "Scan at the MAS Museum MemMe sticker in Antwerp.",
+    "image": "/physicalStickers/physicalSticker.svg",
+    "pool": ["digital-sticker-2"],
+    "active": true
+  },
+  {
+    "id": "demo-memome-station",
+    "name": "MemMe Demo Spot — Central Station",
+    "description": "Scan at the Central Station MemMe sticker in Antwerp.",
+    "image": "/physicalStickers/physicalSticker.svg",
+    "pool": ["digital-sticker-3"],
+    "active": true
+  }
+]

@@ -196,7 +196,7 @@ export default function MapView() {
       suppressClickRef.current = true;
       setTimeout(() => { suppressClickRef.current = false; }, 60);
       const bounds = L.latLngBounds(pins.map(p => p.ll));
-      map.fitBounds(bounds.pad(0.15), { maxZoom: 16, animate: true });
+      map.fitBounds(bounds.pad(0.15), { maxZoom: 17, animate: true });
     });
     layer.addLayer(marker);
     return marker;
