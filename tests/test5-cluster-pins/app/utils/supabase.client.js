@@ -12,32 +12,35 @@ export function isSupabaseEnabled() {
   return isSupabaseConfigured();
 }
 
-let browserClient = null;
+const GLOBAL_CLIENT_KEY = '__memome_supabase_browser__';
 
-/**
- * Browser Supabase client — localStorage persistence so PKCE verifiers are
- * available when the email-confirm link opens in another tab (same browser).
- * supabase.server.js is kept for route loaders; auth UI uses this client.
- */
+function readCachedClient() {
+  if (typeof globalThis === 'undefined') return null;
+  return globalThis[GLOBAL_CLIENT_KEY] ?? null;
+}
+
+function writeCachedClient(client) {
+  if (typeof globalThis !== 'undefined') {
+    globalThis[GLOBAL_CLIENT_KEY] = client;
+  }
+}
+
+/** Single browser Supabase client — survives Vite HMR without duplicating GoTrue. */
 export function getSupabaseBrowserClient() {
   if (!isSupabaseConfigured()) return null;
-  if (!browserClient) {
-    browserClient = createSupabaseClient(getSupabaseUrl(), getSupabaseKey(), {
-      auth: {
-        flowType: 'pkce',
-        detectSessionInUrl: true,
-        persistSession: true,
-        autoRefreshToken: true,
-      },
-    });
-  }
-  return browserClient;
-}
 
-/** Drop cached client after sign-out so the next sign-in starts fresh */
-export function resetSupabaseBrowserClient() {
-  browserClient = null;
-}
+  const cached = readCachedClient();
+  if (cached) return cached;
 
-/** @deprecated use getSupabaseBrowserClient() — kept for existing imports */
-export const supabase = getSupabaseBrowserClient();
+  const client = createSupabaseClient(getSupabaseUrl(), getSupabaseKey(), {
+    auth: {
+      flowType: 'pkce',
+      detectSessionInUrl: true,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  });
+
+  writeCachedClient(client);
+  return client;
+}

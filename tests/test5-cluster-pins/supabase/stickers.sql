@@ -21,24 +21,7 @@ create index if not exists user_collected_stickers_auth_idx
 insert into public.digital_stickers (id, label, src) values
   ('digital-sticker-01', 'Antwerp Collectible I', '/digitalStickers/digitalSticker1.png'),
   ('digital-sticker-02', 'Antwerp Collectible II', '/digitalStickers/digitalSticker2.png'),
-  ('digital-sticker-03', 'Antwerp Collectible III', '/digitalStickers/digitalSticker3.png'),
-  ('digital-sticker-04', 'Antwerp Collectible IV', '/digitalStickers/digitalSticker1.png'),
-  ('digital-sticker-05', 'Antwerp Collectible V', '/digitalStickers/digitalSticker2.png'),
-  ('digital-sticker-06', 'Antwerp Collectible VI', '/digitalStickers/digitalSticker3.png'),
-  ('digital-sticker-07', 'Antwerp Collectible VII', '/digitalStickers/digitalSticker1.png'),
-  ('digital-sticker-08', 'Antwerp Collectible VIII', '/digitalStickers/digitalSticker2.png'),
-  ('digital-sticker-09', 'Antwerp Collectible IX', '/digitalStickers/digitalSticker3.png'),
-  ('digital-sticker-10', 'Antwerp Collectible X', '/digitalStickers/digitalSticker1.png'),
-  ('digital-sticker-11', 'Antwerp Collectible XI', '/digitalStickers/digitalSticker2.png'),
-  ('digital-sticker-12', 'Antwerp Collectible XII', '/digitalStickers/digitalSticker3.png'),
-  ('digital-sticker-13', 'Antwerp Collectible XIII', '/digitalStickers/digitalSticker1.png'),
-  ('digital-sticker-14', 'Antwerp Collectible XIV', '/digitalStickers/digitalSticker2.png'),
-  ('digital-sticker-15', 'Antwerp Collectible XV', '/digitalStickers/digitalSticker3.png'),
-  ('digital-sticker-16', 'Antwerp Collectible XVI', '/digitalStickers/digitalSticker1.png'),
-  ('digital-sticker-17', 'Antwerp Collectible XVII', '/digitalStickers/digitalSticker2.png'),
-  ('digital-sticker-18', 'Antwerp Collectible XVIII', '/digitalStickers/digitalSticker3.png'),
-  ('digital-sticker-19', 'Antwerp Collectible XIX', '/digitalStickers/digitalSticker1.png'),
-  ('digital-sticker-20', 'Antwerp Collectible XX', '/digitalStickers/digitalSticker2.png')
+  ('digital-sticker-03', 'Antwerp Collectible III', '/digitalStickers/digitalSticker3.png')
 on conflict (id) do update set label = excluded.label, src = excluded.src;
 
 -- Pick a random sticker the user does not own yet (Option B)

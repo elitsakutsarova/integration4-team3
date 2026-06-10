@@ -1,3 +1,5 @@
+// localStorage helper for collected stickers 
+
 const STORAGE_KEY = 'memome_collected_stickers';
 
 /** @typedef {{ digitalStickerId: string, claimedAt: string }} LocalCollectedEntry */
@@ -28,14 +30,10 @@ export function getLocalOwnedStickerIds() {
 /** @returns {LocalCollectedEntry | null} */
 export function addLocalCollected(digitalStickerId) {
   const entries = readAll();
-  if (entries.some(entry => entry.digitalStickerId === digitalStickerId)) {
-    return entries.find(entry => entry.digitalStickerId === digitalStickerId) ?? null;
-  }
+  const existing = entries.find(e => e.digitalStickerId === digitalStickerId);
+  if (existing) return existing;
 
-  const entry = {
-    digitalStickerId,
-    claimedAt: new Date().toISOString(),
-  };
+  const entry = { digitalStickerId, claimedAt: new Date().toISOString() };
   entries.push(entry);
   writeAll(entries);
   return entry;

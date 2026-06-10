@@ -74,7 +74,7 @@ export default function DemoStickersPage() {
           </div>
           <h2 className="demo-physical-sticker-name">MemMe Collect</h2>
           <p className="demo-physical-sticker-desc">
-            Each scan gives one random sticker you do not own yet — up to 20 in the collection.
+            Each scan gives one random sticker you do not own yet — up to 3 in the collection.
           </p>
           <div className="demo-physical-sticker-actions">
             <a

@@ -1,3 +1,7 @@
+// small sessionStorage cache utility
+// purpose: user scans QR code -> collection result is stored in sessionStorage
+// user refreshes page -> result can be restored without re-processing
+
 const PREFIX = 'memome_collect:';
 
 export function getScanKey(request) {

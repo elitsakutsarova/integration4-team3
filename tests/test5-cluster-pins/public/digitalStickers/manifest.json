@@ -1,22 +1,5 @@
 [
   { "id": "digital-sticker-01", "src": "/digitalStickers/digitalSticker1.png", "label": "Antwerp Collectible I" },
   { "id": "digital-sticker-02", "src": "/digitalStickers/digitalSticker2.png", "label": "Antwerp Collectible II" },
-  { "id": "digital-sticker-03", "src": "/digitalStickers/digitalSticker3.png", "label": "Antwerp Collectible III" },
-  { "id": "digital-sticker-04", "src": "/digitalStickers/digitalSticker1.png", "label": "Antwerp Collectible IV" },
-  { "id": "digital-sticker-05", "src": "/digitalStickers/digitalSticker2.png", "label": "Antwerp Collectible V" },
-  { "id": "digital-sticker-06", "src": "/digitalStickers/digitalSticker3.png", "label": "Antwerp Collectible VI" },
-  { "id": "digital-sticker-07", "src": "/digitalStickers/digitalSticker1.png", "label": "Antwerp Collectible VII" },
-  { "id": "digital-sticker-08", "src": "/digitalStickers/digitalSticker2.png", "label": "Antwerp Collectible VIII" },
-  { "id": "digital-sticker-09", "src": "/digitalStickers/digitalSticker3.png", "label": "Antwerp Collectible IX" },
-  { "id": "digital-sticker-10", "src": "/digitalStickers/digitalSticker1.png", "label": "Antwerp Collectible X" },
-  { "id": "digital-sticker-11", "src": "/digitalStickers/digitalSticker2.png", "label": "Antwerp Collectible XI" },
-  { "id": "digital-sticker-12", "src": "/digitalStickers/digitalSticker3.png", "label": "Antwerp Collectible XII" },
-  { "id": "digital-sticker-13", "src": "/digitalStickers/digitalSticker1.png", "label": "Antwerp Collectible XIII" },
-  { "id": "digital-sticker-14", "src": "/digitalStickers/digitalSticker2.png", "label": "Antwerp Collectible XIV" },
-  { "id": "digital-sticker-15", "src": "/digitalStickers/digitalSticker3.png", "label": "Antwerp Collectible XV" },
-  { "id": "digital-sticker-16", "src": "/digitalStickers/digitalSticker1.png", "label": "Antwerp Collectible XVI" },
-  { "id": "digital-sticker-17", "src": "/digitalStickers/digitalSticker2.png", "label": "Antwerp Collectible XVII" },
-  { "id": "digital-sticker-18", "src": "/digitalStickers/digitalSticker3.png", "label": "Antwerp Collectible XVIII" },
-  { "id": "digital-sticker-19", "src": "/digitalStickers/digitalSticker1.png", "label": "Antwerp Collectible XIX" },
-  { "id": "digital-sticker-20", "src": "/digitalStickers/digitalSticker2.png", "label": "Antwerp Collectible XX" }
+  { "id": "digital-sticker-03", "src": "/digitalStickers/digitalSticker3.png", "label": "Antwerp Collectible III" }
 ]

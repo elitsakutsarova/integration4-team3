@@ -1,6 +1,6 @@
 // auth engine - logic layer
 
-import { isSupabaseEnabled, getSupabaseBrowserClient, resetSupabaseBrowserClient, USERS_TABLE } from './supabase.client';
+import { isSupabaseEnabled, getSupabaseBrowserClient, USERS_TABLE } from './supabase.client';
 
 function getClient() {
   return getSupabaseBrowserClient();
@@ -491,7 +491,6 @@ export async function signOut() {
     if (client) {
       await client.auth.signOut({ scope: 'local' });
     }
-    resetSupabaseBrowserClient();
     profileLinkMode = null;
   }
   clearLocalSession();

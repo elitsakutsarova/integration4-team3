@@ -8,6 +8,7 @@ import { getSupabaseBrowserClient, isSupabaseEnabled } from './supabase.client';
 
 const COLLECTION_COMPLETE = 'collection_complete';
 
+// fetches the list of all possible stickers from manifest.json
 async function loadDigitalCatalogClient() {
   if (typeof window === 'undefined') return [];
   try {
@@ -52,6 +53,7 @@ function normalizeClaimError(errorCode) {
   return errorCode;
 }
 
+// logged-in user calls claimViaSupabase() which asks the database for a random sticker the user doesn’t own yet
 async function claimViaSupabase() {
   const client = getSupabaseBrowserClient();
   if (!client) return null;
@@ -75,6 +77,7 @@ async function claimViaSupabase() {
   };
 }
 
+// for guests
 async function claimRandomStickerGuest() {
   const catalog = await loadDigitalCatalogClient();
   const owned = new Set(getLocalOwnedStickerIds());
@@ -113,6 +116,8 @@ export async function claimRandomSticker(sessionUser = null) {
   return claimRandomStickerGuest();
 }
 
+// returns a list of sticker objects; if logged in: fetches from Supabase
+// if guest -> reads from localStorafe
 export async function fetchCollectedStickers(authUserId) {
   const catalog = await loadDigitalCatalogClient();
   const byId = new Map();
@@ -162,21 +167,21 @@ export async function mergeLocalStickersIntoAccount(authUserId) {
   const client = getSupabaseBrowserClient();
   if (!isSupabaseEnabled() || !client) return { merged: 0 };
 
-  let merged = 0;
-  for (const entry of localEntries) {
-    const { error } = await client.from('user_collected_stickers').upsert(
-      {
-        auth_id: authUserId,
-        digital_sticker_id: entry.digitalStickerId,
-        claimed_at: entry.claimedAt,
-      },
-      { onConflict: 'auth_id,digital_sticker_id', ignoreDuplicates: true },
-    );
-    if (!error) merged += 1;
-  }
+  const rows = localEntries.map(entry => ({
+    auth_id: authUserId,
+    digital_sticker_id: entry.digitalStickerId,
+    claimed_at: entry.claimedAt,
+  }));
+
+  const { error } = await client.from('user_collected_stickers').upsert(rows, {
+    onConflict: 'auth_id,digital_sticker_id',
+    ignoreDuplicates: true,
+  });
+
+  if (error) return { merged: 0 };
 
   clearLocalCollected();
-  return { merged };
+  return { merged: localEntries.length };
 }
 
 export function clearGuestStickerCache() {
