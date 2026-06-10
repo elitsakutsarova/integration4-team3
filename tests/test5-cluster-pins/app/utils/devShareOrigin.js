@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { getDeviceShareUrl } from './webrtc/peerConnection.js';
 
 export function isLocalHost(hostname) {
@@ -6,41 +5,25 @@ export function isLocalHost(hostname) {
 }
 
 /** Resolve HTTPS origin for QR / share links (LAN IP when dev server runs with dev:lan). */
-export function useDevShareOrigin() {
-  const [shareOrigin, setShareOrigin] = useState('');
-  const [lanUrls, setLanUrls] = useState([]);
-  const [isOnLocalhost, setIsOnLocalhost] = useState(false);
+export async function loadDevShareOrigin() {
+  if (typeof window === 'undefined') {
+    return { shareOrigin: '', lanUrls: [], isOnLocalhost: false };
+  }
 
-  useEffect(() => {
-    let cancelled = false;
-    setIsOnLocalhost(isLocalHost(window.location.hostname));
+  const isOnLocalhost = isLocalHost(window.location.hostname);
+  const current = getDeviceShareUrl();
 
-    async function resolve() {
-      const current = getDeviceShareUrl();
-      if (!isLocalHost(window.location.hostname)) {
-        if (!cancelled) setShareOrigin(current);
-        return;
-      }
+  if (!isOnLocalhost) {
+    return { shareOrigin: current, lanUrls: [], isOnLocalhost };
+  }
 
-      try {
-        const res = await fetch('/api/dev-network');
-        if (!res.ok) throw new Error('network info unavailable');
-        const data = await res.json();
-        const urls = Array.isArray(data.lanUrls) ? data.lanUrls : [];
-        if (!cancelled) {
-          setLanUrls(urls);
-          setShareOrigin(urls[0] ?? current);
-        }
-      } catch {
-        if (!cancelled) setShareOrigin(current);
-      }
-    }
-
-    resolve();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { shareOrigin, lanUrls, isOnLocalhost, ready: Boolean(shareOrigin) };
+  try {
+    const res = await fetch('/api/dev-network');
+    if (!res.ok) throw new Error('network info unavailable');
+    const data = await res.json();
+    const lanUrls = Array.isArray(data.lanUrls) ? data.lanUrls : [];
+    return { shareOrigin: lanUrls[0] ?? current, lanUrls, isOnLocalhost };
+  } catch {
+    return { shareOrigin: current, lanUrls: [], isOnLocalhost };
+  }
 }

@@ -1,37 +1,45 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { useCallback, useRef, useState } from 'react';
+import { Link, useLoaderData } from 'react-router';
 import ConnectQr from '../components/ConnectQr';
-import { useDevShareOrigin } from '../utils/devShareOrigin';
+import { loadDevShareOrigin } from '../utils/devShareOrigin';
 import { connectToRoom } from '../utils/webrtc/peerConnection.js';
 
 function randomRoomCode() {
   return Math.random().toString(36).slice(2, 8).toUpperCase();
 }
 
+export async function clientLoader({ request }) {
+  const url = new URL(request.url);
+  const initialRoom = url.searchParams.get('room')?.toUpperCase().slice(0, 64) ?? null;
+  return {
+    initialRoom,
+    devShare: await loadDevShareOrigin(),
+  };
+}
+
+clientLoader.hydrate = true;
+
 export default function ConnectPage() {
-  const { shareOrigin, lanUrls, isOnLocalhost } = useDevShareOrigin();
-  const [room, setRoom] = useState(() => randomRoomCode());
+  const { initialRoom, devShare } = useLoaderData();
+  const { shareOrigin, lanUrls, isOnLocalhost } = devShare;
+
+  const [room, setRoom] = useState(() => initialRoom ?? randomRoomCode());
   const [status, setStatus] = useState('idle');
   const [connectionState, setConnectionState] = useState('');
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
   const sessionRef = useRef(null);
+
   const shareUrl = shareOrigin
     ? `${shareOrigin}/connect?room=${encodeURIComponent(room)}`
     : '';
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const fromQuery = params.get('room');
-    if (fromQuery) setRoom(fromQuery.toUpperCase().slice(0, 64));
-  }, []);
 
   const disconnect = useCallback(() => {
     sessionRef.current?.disconnect();
     sessionRef.current = null;
     setStatus('idle');
     setConnectionState('');
-  }, []);
+  }, [sessionRef]);
 
   const connect = useCallback(async () => {
     disconnect();
@@ -61,7 +69,9 @@ export default function ConnectPage() {
     }
   }, [disconnect, room]);
 
-  useEffect(() => () => disconnect(), [disconnect]);
+  function leavePage() {
+    disconnect();
+  }
 
   function sendMessage(event) {
     event.preventDefault();
@@ -87,7 +97,7 @@ export default function ConnectPage() {
   return (
     <main className="connect-page">
       <header className="connect-header">
-        <Link to="/profile" className="connect-back" aria-label="Back to profile">
+        <Link to="/profile" className="connect-back" aria-label="Back to profile" onClick={leavePage}>
           ←
         </Link>
         <h1 className="connect-title">Connect devices</h1>

@@ -1,92 +1,66 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+} from 'react';
+import { useRevalidator } from 'react-router';
 import * as authStore from '../utils/authStore';
 import {
-  clearGuestStickerCache,
-  mergeLocalStickersIntoAccount,
-} from '../utils/collectibleStore';
+  applySignedInUser,
+  getAuthServerSnapshot,
+  getAuthSnapshot,
+  setAuthUser,
+  subscribeAuth,
+} from '../utils/authSession';
 
 const AuthContext = createContext(null);
 
-function applyUserUpdate(setUser, nextUser) {
-  setUser(prev => (authStore.sameUser(prev, nextUser) ? prev : nextUser));
-}
-
-async function attachAccountStickers(userId) {
-  await mergeLocalStickersIntoAccount(userId);
-  clearGuestStickerCache();
-}
-
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const revalidator = useRevalidator();
+  const { user, loading } = useSyncExternalStore(
+    subscribeAuth,
+    getAuthSnapshot,
+    getAuthServerSnapshot,
+  );
 
-  useEffect(() => {
-    let active = true;
-
-    async function initAuth() {
-      try {
-        let sessionUser = await authStore.getSession();
-        if (active && sessionUser) {
-          const profile = await authStore.syncSessionProfile();
-          if (profile) sessionUser = profile;
-          await attachAccountStickers(sessionUser.id);
-          applyUserUpdate(setUser, sessionUser);
-        } else if (active) {
-          setUser(sessionUser);
-        }
-      } catch {
-        if (active) setUser(null);
-      } finally {
-        if (active) setLoading(false);
-      }
-    }
-
-    initAuth();
-
-    const unsubscribe = authStore.subscribeToAuthChanges(async nextUser => {
-      if (active && nextUser?.id) {
-        await attachAccountStickers(nextUser.id);
-      }
-      if (active) applyUserUpdate(setUser, nextUser);
-    });
-
-    return () => {
-      active = false;
-      unsubscribe();
-    };
-  }, []);
+  const revalidateApp = useCallback(() => {
+    revalidator.revalidate();
+  }, [revalidator]);
 
   const signUp = useCallback(async payload => {
     const result = await authStore.signUp(payload);
     if (result.user) {
-      await attachAccountStickers(result.user.id);
-      applyUserUpdate(setUser, result.user);
+      await applySignedInUser(result.user);
+      revalidateApp();
     }
     return result;
-  }, []);
+  }, [revalidateApp]);
 
   const signIn = useCallback(async payload => {
     const result = await authStore.signIn(payload);
     if (result.user) {
-      await attachAccountStickers(result.user.id);
-      applyUserUpdate(setUser, result.user);
+      await applySignedInUser(result.user);
+      revalidateApp();
     }
     return result;
-  }, []);
+  }, [revalidateApp]);
 
   const signInWithGoogle = useCallback(async () => {
     const result = await authStore.signInWithGoogle();
     if (result.user) {
-      await attachAccountStickers(result.user.id);
-      applyUserUpdate(setUser, result.user);
+      await applySignedInUser(result.user);
+      revalidateApp();
     }
     return result;
-  }, []);
+  }, [revalidateApp]);
 
   const signOut = useCallback(async () => {
     await authStore.signOut();
-    setUser(null);
-  }, []);
+    setAuthUser(null);
+    revalidateApp();
+  }, [revalidateApp]);
 
   const resendConfirmationEmail = useCallback(async email => {
     return authStore.resendConfirmationEmail(email);

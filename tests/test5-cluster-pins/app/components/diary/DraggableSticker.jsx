@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import gsap from 'gsap';
 import { clampPercent, updateStickerPosition } from '../../utils/stickerTracker';
 import { getStickerDef } from '../../utils/stickers';
@@ -53,11 +53,15 @@ export default function DraggableSticker({
     dragRef.current = null;
   };
 
-  useEffect(() => () => {
-    const session = dragRef.current;
-    if (session?.dragging) onDragEndRef.current?.();
-    clearSession(session);
-  }, [sticker.uid, pageIndex]);
+  const attachRef = useCallback((node) => {
+    if (!node) {
+      const session = dragRef.current;
+      if (session?.dragging) onDragEndRef.current?.();
+      clearSession(session);
+      return;
+    }
+    elRef.current = node;
+  }, [sticker.uid]);
 
   const finishDrag = (clientX, clientY) => {
     const session = dragRef.current;
@@ -209,7 +213,7 @@ export default function DraggableSticker({
 
   return (
     <div
-      ref={elRef}
+      ref={attachRef}
       className="diary-placed-sticker"
       style={{ left: `${sticker.x}%`, top: `${sticker.y}%` }}
       onPointerDown={handlePointerDown}

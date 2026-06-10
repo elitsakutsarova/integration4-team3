@@ -1,4 +1,4 @@
-/** When true, dev server listens on LAN and AppOriginGuard does not force localhost. */
+/** When true, dev server listens on LAN and root clientLoader does not force localhost. */
 export const ALLOW_LAN = import.meta.env.VITE_ALLOW_LAN === 'true';
 
 /** Canonical app origin for auth redirects (localhost in dev). */

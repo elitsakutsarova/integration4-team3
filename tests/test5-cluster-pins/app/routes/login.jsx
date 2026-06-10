@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router';
 import MemMeLogo from '../components/auth/MemMeLogo';
 import { EyeIcon, GoogleIcon, LockIcon, MailIcon } from '../components/auth/AuthIcons';
 import { AuthSwitchLink, RedirectIfAuthed } from '../components/auth/RequireAuth';
@@ -15,6 +15,7 @@ export function meta() {
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { signIn, signInWithGoogle, resendConfirmationEmail } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -23,7 +24,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [formError, setFormError] = useState(location.state?.authError ?? '');
+  const [formError, setFormError] = useState(
+    () => searchParams.get('authError') ?? location.state?.authError ?? '',
+  );
   const [formSuccess, setFormSuccess] = useState('');
 
   const canSubmit = email.trim().length > 0 && password.length > 0 && !loading;

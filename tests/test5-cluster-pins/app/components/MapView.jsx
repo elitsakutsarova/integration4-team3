@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import NewMemoForm from './NewMemoForm';
 import BottomNav from './BottomNav';
 import { MOCK_MEMORIES, INITIAL_EVENTS } from '../data/mockUser';
@@ -138,7 +138,7 @@ function MemorySheet({ pin, onClose }) {
 
 /* ─── Main component ──────────────────────────────── */
 export default function MapView() {
-  const containerRef = useRef(null);
+  const initTokenRef = useRef(0);
   const mapRef = useRef(null);
   const leafletRef = useRef(null);
   const pendingMarkerRef = useRef(null);
@@ -265,18 +265,35 @@ export default function MapView() {
     pendingMarkerRef.current = marker;
   }
 
-  /* ── Leaflet init (runs once) ──────────────────── */
-  useEffect(() => {
+  const attachMapContainer = useCallback((node) => {
+    if (!node) {
+      initTokenRef.current += 1;
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+        leafletRef.current = null;
+        pendingMarkerRef.current = null;
+        memoryLayerRef.current = null;
+        refreshMemoryLayersRef.current = null;
+      }
+      return;
+    }
     if (mapRef.current) return;
+
+    const token = initTokenRef.current;
 
     async function init() {
       const L = (await import('leaflet')).default;
+      if (token !== initTokenRef.current || mapRef.current) return;
+
       await import('leaflet/dist/leaflet.css');
       await import('maplibre-gl/dist/maplibre-gl.css');
       await import('@maplibre/maplibre-gl-leaflet');
+      if (token !== initTokenRef.current || mapRef.current) return;
+
       leafletRef.current = L;
 
-      const map = L.map(containerRef.current, {
+      const map = L.map(node, {
         center: ANTWERP_CENTER,
         zoom: 13,
         zoomControl: false,
@@ -287,7 +304,6 @@ export default function MapView() {
       mapRef.current = map;
 
       addBasemapControl(L, map, { defaultLayer: 'openfreemap' });
-
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
       syncMemoryLayers(L, map);
@@ -299,7 +315,6 @@ export default function MapView() {
         }
       });
 
-      /* Any map click places / moves the pending "add" pin */
       map.on('click', e => {
         if (suppressClickRef.current) return;
         if (!e.latlng || !Number.isFinite(e.latlng.lat) || !Number.isFinite(e.latlng.lng)) return;
@@ -309,18 +324,7 @@ export default function MapView() {
       requestAnimationFrame(() => map.invalidateSize());
     }
 
-    init();
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-        leafletRef.current = null;
-        pendingMarkerRef.current = null;
-        memoryLayerRef.current = null;
-        refreshMemoryLayersRef.current = null;
-      }
-    };
+    void init();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Nav "+" button → pin at map center ──────── */
@@ -365,9 +369,9 @@ export default function MapView() {
 
   return (
     <>
-      <div ref={containerRef} className="map-container" />
+      <div ref={attachMapContainer} className="map-container" />
 
-      <BottomNav active="home" onAddClick={handleAddBtnClick} />
+      <BottomNav onAddClick={handleAddBtnClick} />
 
       {selectedMemory && (
         <MemorySheet pin={selectedMemory} onClose={() => setSelectedMemory(null)} />

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router';
 import { TRAVEL_DIARY, MOCK_MEMORIES } from '../data/mockUser';
 import {
@@ -14,6 +14,14 @@ import RecapSelectView, { RecapPreviewView } from './diary/RecapViews';
 
 const DIARY_ID = TRAVEL_DIARY.id;
 const MEMO_PAGE_OFFSET = 1; // page 0 = cover
+
+function loadAllPageStickers(diaryId, totalPages) {
+  const loaded = {};
+  for (let i = 0; i < totalPages; i += 1) {
+    loaded[i] = loadPageStickers(diaryId, i);
+  }
+  return loaded;
+}
 
 function CoverPage({ diary, children, dropZoneRef }) {
   return (
@@ -86,8 +94,7 @@ export default function TravelDiaryViewer() {
 
   const [pageIndex, setPageIndex] = useState(0);
   const [direction, setDirection] = useState('next');
-  const [pageStickers, setPageStickers] = useState({});
-  const [isDraggingSticker, setIsDraggingSticker] = useState(false);
+  const [pageStickers, setPageStickers] = useState(() => loadAllPageStickers(DIARY_ID, totalPages));
 
   const [view, setView] = useState('diary'); // diary | share | recap-select | recap-preview
   const [recapSelectedIds, setRecapSelectedIds] = useState([]);
@@ -101,20 +108,14 @@ export default function TravelDiaryViewer() {
   const lastFlipRef = useRef(0);
   const touchHandledRef = useRef(false);
 
-  useEffect(() => {
-    isDraggingStickerRef.current = isDraggingSticker;
-  }, [isDraggingSticker]);
-
-  useEffect(() => {
-    const loaded = {};
-    for (let i = 0; i < totalPages; i++) {
-      loaded[i] = loadPageStickers(DIARY_ID, i);
-    }
-    setPageStickers(loaded);
-  }, [totalPages]);
+  function resetDragState() {
+    isDraggingStickerRef.current = false;
+    dragStartRef.current = null;
+  }
 
   const goNext = useCallback(() => {
     if (pageIndex < totalPages - 1) {
+      resetDragState();
       setDirection('next');
       setPageIndex(i => i + 1);
     }
@@ -122,6 +123,7 @@ export default function TravelDiaryViewer() {
 
   const goPrev = useCallback(() => {
     if (pageIndex > 0) {
+      resetDragState();
       setDirection('prev');
       setPageIndex(i => i - 1);
     }
@@ -159,12 +161,6 @@ export default function TravelDiaryViewer() {
       return { ...prev, [targetPageIndex]: next };
     });
   }, []);
-
-  useEffect(() => {
-    setIsDraggingSticker(false);
-    isDraggingStickerRef.current = false;
-    dragStartRef.current = null;
-  }, [pageIndex]);
 
   const goNextRef = useRef(goNext);
   const goPrevRef = useRef(goPrev);
@@ -305,11 +301,9 @@ export default function TravelDiaryViewer() {
         onReturnToTray={uid => handleReturnToTray(forPageIndex, uid)}
         onDragStart={() => {
           isDraggingStickerRef.current = true;
-          setIsDraggingSticker(true);
         }}
         onDragEnd={() => {
           isDraggingStickerRef.current = false;
-          setIsDraggingSticker(false);
         }}
       />
     ));
@@ -429,6 +423,7 @@ export default function TravelDiaryViewer() {
               aria-selected={i === pageIndex}
               className={`diary-dot${i === pageIndex ? ' diary-dot--active' : ''}`}
               onClick={() => {
+                resetDragState();
                 setDirection(i > pageIndex ? 'next' : 'prev');
                 setPageIndex(i);
               }}
@@ -438,6 +433,7 @@ export default function TravelDiaryViewer() {
         </div>
 
         <DiaryStickerTray
+          key={pageIndex}
           dropZoneRef={dropZoneRef}
           trayRef={trayRef}
           pageIndex={pageIndex}

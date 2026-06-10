@@ -1,87 +1,66 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { href, Link, useLoaderData } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
-import { useRefreshCollectedStickers } from '../context/CollectedStickersContext';
 import {
   COLLECTION_COMPLETE,
   claimRandomSticker,
 } from '../utils/collectibleStore';
+import { revalidateRoot } from '../utils/revalidateRoot';
 
 export function meta() {
   return [{ title: 'MemMe — Collect sticker' }];
 }
 
+export async function clientLoader() {
+  const result = await claimRandomSticker(null);
+  if (!result.error || result.error === COLLECTION_COMPLETE) {
+    revalidateRoot();
+  }
+  return { result };
+}
+
+clientLoader.hydrate = true;
+
+function claimStatus(result) {
+  if (result.error === COLLECTION_COMPLETE) return 'complete';
+  if (result.error) return 'error';
+  if (result.sticker) return 'done';
+  return 'error';
+}
+
+function claimMessage(result, isLoggedIn) {
+  if (result.error === COLLECTION_COMPLETE) {
+    return 'You collected all available stickers!';
+  }
+  if (result.error) {
+    return typeof result.error === 'string'
+      ? result.error
+      : 'Could not claim sticker. Try again.';
+  }
+  return isLoggedIn
+    ? 'Sticker saved to your account!'
+    : 'Sticker saved on this device. Create an account to keep it forever.';
+}
+
+function claimTitle(status, sticker) {
+  if (status === 'done' && sticker) return 'You get a sticker!';
+  if (status === 'complete') return 'Collection complete';
+  return 'Collect failed';
+}
+
 export default function CollectSticker() {
-  const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const refreshCollected = useRefreshCollectedStickers();
+  const { result } = useLoaderData();
+  const { user } = useAuth();
 
-  const [status, setStatus] = useState('loading');
-  const [message, setMessage] = useState('');
-  const [sticker, setSticker] = useState(null);
-
-  useEffect(() => {
-    if (authLoading) return;
-
-    let active = true;
-
-    async function run() {
-      const result = await claimRandomSticker(user?.id ?? null);
-      if (!active) return;
-
-      if (result.error) {
-        if (result.error === COLLECTION_COMPLETE) {
-          setStatus('complete');
-          setMessage('You collected all available stickers!');
-          await refreshCollected();
-          return;
-        }
-
-        setStatus('error');
-        setMessage(
-          typeof result.error === 'string'
-            ? result.error
-            : 'Could not claim sticker. Try again.',
-        );
-        return;
-      }
-
-      setSticker(result.sticker);
-      setStatus('done');
-      setMessage(
-        user
-          ? 'Sticker saved to your account!'
-          : 'Sticker saved on this device. Create an account to keep it forever.',
-      );
-
-      await refreshCollected();
-    }
-
-    run();
-    return () => { active = false; };
-  }, [user?.id, authLoading, refreshCollected]);
+  const status = claimStatus(result);
+  const message = claimMessage(result, Boolean(user));
+  const sticker = result.sticker ?? null;
 
   return (
     <div className="collect-page">
       <div className="collect-card">
         <p className="collect-eyebrow">MemMe sticker scan</p>
-        <h1 className="collect-title">
-          {status === 'done' && sticker
-            ? 'You get a sticker!'
-            : status === 'complete'
-              ? 'Collection complete'
-              : 'Collecting…'}
-        </h1>
-
-        {status === 'loading' && (
-          <div className="auth-loading collect-loading">
-            <div className="auth-loading-dot" />
-            <p className="collect-loading-label">
-              {authLoading ? 'Checking your account…' : 'Pulling your sticker…'}
-            </p>
-          </div>
-        )}
+        <h1 className="collect-title">{claimTitle(status, sticker)}</h1>
 
         {status === 'error' && (
           <div className="auth-banner auth-banner--warning" role="alert">
@@ -120,11 +99,9 @@ export default function CollectSticker() {
             </>
           )}
           {status === 'done' && (
-            <Link to="/collect" className="auth-btn auth-btn--google">Scan again</Link>
+            <Link to={href('/collect')} className="auth-btn auth-btn--google">Scan again</Link>
           )}
-          <button type="button" className="auth-btn auth-btn--google" onClick={() => navigate('/')}>
-            Back to map
-          </button>
+          <Link to="/" className="auth-btn auth-btn--google">Back to map</Link>
         </div>
       </div>
     </div>

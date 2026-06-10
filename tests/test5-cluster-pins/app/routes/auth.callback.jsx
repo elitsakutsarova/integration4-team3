@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { redirect } from 'react-router';
 import { completeAuthRedirect, syncSessionProfile } from '../utils/authStore';
 
 export function meta() {
@@ -7,24 +6,20 @@ export function meta() {
 }
 
 /** Handles OAuth redirect and email-confirm links; saves profile to public.users. */
+export async function clientLoader() {
+  const result = await completeAuthRedirect();
+  if (result.error) {
+    const params = new URLSearchParams({ authError: result.error });
+    return redirect(`/login?${params.toString()}`);
+  }
+
+  await syncSessionProfile();
+  return redirect('/');
+}
+
+clientLoader.hydrate = true;
+
 export default function AuthCallback() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    async function finish() {
-      const result = await completeAuthRedirect();
-      if (result.error) {
-        navigate('/login', { replace: true, state: { authError: result.error } });
-        return;
-      }
-
-      await syncSessionProfile();
-      navigate('/', { replace: true });
-    }
-
-    finish();
-  }, [navigate]);
-
   return (
     <div className="auth-loading">
       <div className="auth-loading-dot" />

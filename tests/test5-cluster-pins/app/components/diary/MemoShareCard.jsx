@@ -1,8 +1,8 @@
+import { useCallback, useSyncExternalStore } from 'react';
 import { getStickerDef } from '../../utils/stickers';
 import { getStickersForPage, subscribeStickerLayouts } from '../../utils/stickerTracker';
 import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
 import StickerVisual from './StickerVisual';
-import { useEffect, useState } from 'react';
 
 function PlacedStickerPreview({ sticker, stickerCatalog }) {
   const def = getStickerDef(sticker.stickerId, stickerCatalog);
@@ -20,6 +20,24 @@ function PlacedStickerPreview({ sticker, stickerCatalog }) {
   );
 }
 
+function usePageStickers(diaryId, pageIndex, pageLayout) {
+  const subscribe = useCallback(
+    onStoreChange => subscribeStickerLayouts((changedDiaryId, changedPage) => {
+      if (changedDiaryId !== diaryId) return;
+      if (Number(changedPage) !== Number(pageIndex)) return;
+      onStoreChange();
+    }),
+    [diaryId, pageIndex],
+  );
+
+  const getSnapshot = useCallback(
+    () => getStickersForPage(diaryId, pageIndex, pageLayout),
+    [diaryId, pageIndex, pageLayout],
+  );
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
 export default function MemoShareCard({
   memory,
   pageIndex,
@@ -30,21 +48,7 @@ export default function MemoShareCard({
   pageLayout,
 }) {
   const stickerCatalog = useDiaryStickerCatalog();
-  const [stickers, setStickers] = useState(() =>
-    getStickersForPage(diaryId, pageIndex, pageLayout),
-  );
-
-  useEffect(() => {
-    setStickers(getStickersForPage(diaryId, pageIndex, pageLayout));
-  }, [diaryId, pageIndex, pageLayout]);
-
-  useEffect(() => {
-    return subscribeStickerLayouts((changedDiaryId, changedPage) => {
-      if (changedDiaryId !== diaryId) return;
-      if (Number(changedPage) !== Number(pageIndex)) return;
-      setStickers(getStickersForPage(diaryId, pageIndex, pageLayout));
-    });
-  }, [diaryId, pageIndex, pageLayout]);
+  const stickers = usePageStickers(diaryId, pageIndex, pageLayout);
 
   return (
     <button

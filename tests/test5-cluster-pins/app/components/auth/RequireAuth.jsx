@@ -1,5 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, Navigate, useLocation } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import MemMeLogo from './MemMeLogo';
 
@@ -14,17 +13,10 @@ function AuthLoading() {
 export default function RequireAuth({ children }) {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
-  const redirectingRef = useRef(false);
 
-  useLayoutEffect(() => {
-    if (loading || user || redirectingRef.current) return;
-    redirectingRef.current = true;
-    navigate('/login', { replace: true, state: { from: location.pathname } });
-  }, [loading, user, location.pathname]); // navigate intentionally omitted — stable in RR7 but omit to avoid effect loops
-
-  if (loading || !user) {
-    return <AuthLoading />;
+  if (loading) return <AuthLoading />;
+  if (!user) {
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   return children;
@@ -32,11 +24,9 @@ export default function RequireAuth({ children }) {
 
 function AlreadySignedIn() {
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
 
   async function handleLogout() {
     await signOut();
-    navigate('/login', { replace: true });
   }
 
   return (

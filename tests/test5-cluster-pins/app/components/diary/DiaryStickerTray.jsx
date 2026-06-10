@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import gsap from 'gsap';
 import { pixelToPercent } from '../../utils/stickerTracker';
 import StickerVisual, { createStickerCloneNode } from './StickerVisual';
@@ -46,7 +46,10 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
   const dragRef = useRef(null);
   const lastStartRef = useRef(0);
 
-  useEffect(() => () => clearDragSession(dragRef), [pageIndex]);
+  const attachTrayRef = useCallback((node) => {
+    if (trayRef) trayRef.current = node;
+    if (!node) clearDragSession(dragRef);
+  }, [trayRef]);
 
   const endDrag = useCallback((clientX, clientY) => {
     const session = dragRef.current;
@@ -142,7 +145,7 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
   }, [endDrag, pageIndex, dropZoneRef]);
 
   return (
-    <div ref={trayRef} className="diary-sticker-tray">
+    <div ref={attachTrayRef} className="diary-sticker-tray">
       <p className="diary-sticker-label">Stickers — drag onto page</p>
       <div className="diary-sticker-row">
         {loading ? (

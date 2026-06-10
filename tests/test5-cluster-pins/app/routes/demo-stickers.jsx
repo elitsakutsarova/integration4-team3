@@ -1,9 +1,8 @@
 import { useCallback, useState } from 'react';
-import { Link } from 'react-router';
+import { href, Link, useLoaderData } from 'react-router';
 import QrCode from '../components/QrCode';
-import { useDevShareOrigin } from '../utils/devShareOrigin';
+import { loadDevShareOrigin } from '../utils/devShareOrigin';
 
-const COLLECT_PATH = '/collect';
 const STICKER_ART = '/physicalStickers/physicalSticker.svg';
 
 export function meta() {
@@ -13,12 +12,19 @@ export function meta() {
   ];
 }
 
-export default function DemoStickersPage() {
-  const { shareOrigin, lanUrls, isOnLocalhost, ready } = useDevShareOrigin();
-  const [copied, setCopied] = useState(false);
-  const collectUrl = shareOrigin ? `${shareOrigin}${COLLECT_PATH}` : '';
+export async function clientLoader() {
+  return { devShare: await loadDevShareOrigin() };
+}
 
-  const copyLink = useCallback(async () => {
+clientLoader.hydrate = true;
+
+export default function DemoStickersPage() {
+  const { devShare } = useLoaderData();
+  const { shareOrigin, lanUrls, isOnLocalhost } = devShare;
+  const [copied, setCopied] = useState(false);
+  const collectUrl = shareOrigin ? `${shareOrigin}${href('/collect')}` : '';
+
+  async function copyLink() {
     if (!collectUrl) return;
     try {
       await navigator.clipboard.writeText(collectUrl);
@@ -27,7 +33,7 @@ export default function DemoStickersPage() {
     } catch {
       /* ignore */
     }
-  }, [collectUrl]);
+  }
 
   return (
     <div className="demo-stickers-page">
@@ -50,7 +56,7 @@ export default function DemoStickersPage() {
         </div>
       )}
 
-      {!ready && (
+      {!shareOrigin && (
         <p className="demo-stickers-loading">Resolving network URL for QR codes…</p>
       )}
 

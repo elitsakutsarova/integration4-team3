@@ -1,37 +1,15 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useAuth } from './AuthContext';
-import {
-  fetchCollectedStickers,
-} from '../utils/collectibleStore';
+import { createContext, useContext, useMemo } from 'react';
 
 const CollectedStickersContext = createContext({
   collectedStickers: [],
-  loading: true,
-  refreshCollected: async () => {},
+  loading: false,
 });
 
-export function CollectedStickersProvider({ children }) {
-  const { user } = useAuth();
-  const [collectedStickers, setCollectedStickers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const refreshCollected = useCallback(async () => {
-    setLoading(true);
-    try {
-      const list = await fetchCollectedStickers(user?.id ?? null);
-      setCollectedStickers(list);
-    } finally {
-      setLoading(false);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
-    refreshCollected();
-  }, [refreshCollected]);
-
+/** Stickers come from the root loader — no client fetch or useEffect. */
+export function CollectedStickersProvider({ collectedStickers = [], children }) {
   const value = useMemo(
-    () => ({ collectedStickers, loading, refreshCollected }),
-    [collectedStickers, loading, refreshCollected],
+    () => ({ collectedStickers, loading: false }),
+    [collectedStickers],
   );
 
   return (
@@ -47,8 +25,4 @@ export function useCollectedStickers() {
 
 export function useCollectedStickersLoading() {
   return useContext(CollectedStickersContext).loading;
-}
-
-export function useRefreshCollectedStickers() {
-  return useContext(CollectedStickersContext).refreshCollected;
 }
