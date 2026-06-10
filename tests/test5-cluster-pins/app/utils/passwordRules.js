@@ -1,3 +1,5 @@
+// rules for the password strength
+
 export function getPasswordChecks(password) {
   const hasMinLength = password.length >= 8;
   const hasMixedCase = /[a-z]/.test(password) && /[A-Z]/.test(password);

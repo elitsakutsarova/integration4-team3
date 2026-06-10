@@ -1,4 +1,4 @@
-// thisfile is the registration (sign-up) page for the web app
+// this file is the registration (sign-up) page for the web app
 
 import { useState } from 'react';
 import {

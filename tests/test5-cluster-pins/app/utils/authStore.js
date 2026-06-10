@@ -457,7 +457,7 @@ async function supabaseGetSession() {
   return userFromAuthSession(session.user);
 }
 
-/** Call after auth redirect to persist profile row. */
+/** Ensure public.users profile row exists for the current session. */
 export async function syncSessionProfile() {
   if (!isSupabaseEnabled()) return null;
   const client = getClient();
@@ -466,52 +466,6 @@ export async function syncSessionProfile() {
   const { data: { session } } = await client.auth.getSession();
   if (!session?.user) return null;
   return ensureProfile(session.user);
-}
-
-/** Exchange ?code= / token_hash from /auth/callback before syncing profile. */
-export async function completeAuthRedirect() {
-  const client = getClient();
-  if (!client) return { error: 'Supabase is not configured.' };
-
-  const params = new URLSearchParams(window.location.search);
-  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-
-  const authError =
-    params.get('error_description') ??
-    params.get('error') ??
-    hashParams.get('error_description') ??
-    hashParams.get('error');
-  if (authError) return { error: authError };
-
-  const { data: { session: existing } } = await client.auth.getSession();
-  if (existing?.user) return { ok: true };
-
-  const token_hash = params.get('token_hash');
-  const type = params.get('type');
-  if (token_hash && type) {
-    const { error } = await client.auth.verifyOtp({ token_hash, type });
-    if (error) return { error: error.message };
-    return { ok: true };
-  }
-
-  const code = params.get('code');
-  if (code) {
-    const { error } = await client.auth.exchangeCodeForSession(code);
-    if (error) {
-      const msg = /PKCE|code verifier/i.test(error.message ?? '')
-        ? 'Sign-in could not finish in this tab. Log in with your email and password.'
-        : (error.message ?? 'Sign-in failed');
-      return { error: msg };
-    }
-    return { ok: true };
-  }
-
-  if (hashParams.get('access_token')) {
-    const { data: { session } } = await client.auth.getSession();
-    if (session?.user) return { ok: true };
-  }
-
-  return { error: 'Missing sign-in data. Try logging in instead.' };
 }
 
 /* ─── Public API ───────────────────────────────────────── */

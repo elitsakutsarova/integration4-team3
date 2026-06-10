@@ -4,7 +4,6 @@ export default [
   index("routes/home.jsx"),
   route("login", "routes/login.jsx"),
   route("register", "routes/register.jsx"),
-  route("auth/callback", "routes/auth.callback.jsx"),
   route("collect", "routes/collect.jsx"),
   route("profile", "routes/profile.jsx"),
   route("stickers", "routes/stickers.jsx"),
