@@ -40,3 +40,6 @@ Notes on Sticker system:
 - All stickers at the same spot share one **locationId**. The “randomness” happens per user when they scan, not per printed sheet.
 - All the digital stickers we create should be in the table **digital_stickers** with its id, label, src (path to image in our app). We also need matching entries in public/digitalStickers/manifest.json (UI / diary tray), the actual png/svg files under public/digitalStickers/
 - The table is a catalog of possible awards. It does not mean every user gets all 20 — it means the system knows what each ID looks like when assigned.
+
+## Test 5 (Cluster pins at Zoom out)
+- Create a cluster functionality - once the pins are over a certain number and too close to each other as a location/on the map, when the user zooms out, they should be clustered into 1 big pin
