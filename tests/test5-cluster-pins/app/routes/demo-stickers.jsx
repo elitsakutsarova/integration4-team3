@@ -1,5 +1,9 @@
-import { useCallback, useState } from 'react';
+// QR code generator and testing page for the sticker collection feature
+
+import { useState } from 'react';
 import { href, Link, useLoaderData } from 'react-router';
+
+//displays the QR component
 import QrCode from '../components/QrCode';
 import { loadDevShareOrigin } from '../utils/devShareOrigin';
 
