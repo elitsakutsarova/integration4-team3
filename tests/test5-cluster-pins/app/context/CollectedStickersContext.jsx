@@ -5,7 +5,7 @@ const CollectedStickersContext = createContext({
   loading: false,
 });
 
-/** Stickers come from the root loader — no client fetch or useEffect. */
+/** Stickers come from the root loader **/
 export function CollectedStickersProvider({ collectedStickers = [], children }) {
   const value = useMemo(
     () => ({ collectedStickers, loading: false }),

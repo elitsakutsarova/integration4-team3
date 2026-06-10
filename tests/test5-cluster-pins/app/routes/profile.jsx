@@ -2,7 +2,10 @@ import { Link } from 'react-router';
 import BottomNav from '../components/BottomNav';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers } from '../context/CollectedStickersContext';
+
+// mock-data
 import { TRAVEL_DIARY } from '../data/mockUser';
+
 import { requireAuthInLoader } from '../utils/requireAuthLoader';
 
 export function meta() {

@@ -1,10 +1,13 @@
-import { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+// this page is a protected digital sticker album where users can browse the stickers they've collected 
+import { Link, useSearchParams } from 'react-router';
 import BottomNav from '../components/BottomNav';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
+
+// mock-data
 import { getAchievementStates } from '../data/achievementStickers';
+
 import { requireAuthInLoader } from '../utils/requireAuthLoader';
 
 export function meta() {
@@ -30,10 +33,8 @@ function BackIcon() {
 }
 
 export default function StickersGallery() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const tabParam = searchParams.get('tab');
-  const [tab, setTab] = useState(tabParam === 'achievements' ? 'achievements' : 'collection');
+  const tab = searchParams.get('tab') === 'achievements' ? 'achievements' : 'collection';
 
   const { user } = useAuth();
   const collected = useCollectedStickers();
@@ -41,16 +42,15 @@ export default function StickersGallery() {
   const achievements = getAchievementStates(user, collected.length);
 
   function switchTab(next) {
-    setTab(next);
     setSearchParams(next === 'achievements' ? { tab: 'achievements' } : {}, { replace: true });
   }
 
   return (
     <div className="stickers-page">
         <header className="stickers-header">
-          <button type="button" className="stickers-back-btn" aria-label="Back to profile" onClick={() => navigate('/profile')}>
+          <Link to="/profile" className="stickers-back-btn" aria-label="Back to profile">
             <BackIcon />
-          </button>
+          </Link>
           <h1 className="stickers-title">Stickers</h1>
           <span className="stickers-header-spacer" aria-hidden="true" />
         </header>
