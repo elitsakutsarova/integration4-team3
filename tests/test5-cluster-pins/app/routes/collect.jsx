@@ -1,23 +1,48 @@
-import { href, Link, useLoaderData } from 'react-router';
+// collect a sticker page
+// when the user scans a sticker QR code, it automatically gives them a random digital sticker and show them the result
+
+import { Link, useLoaderData, useNavigate } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import {
   COLLECTION_COMPLETE,
   claimRandomSticker,
 } from '../utils/collectibleStore';
+import {
+  getScanKey,
+  readCollectCache,
+  writeCollectCache,
+} from '../utils/collectClaimCache';
+import { revalidateApp } from '../utils/revalidateApp';
+import * as authStore from '../utils/authStore';
 
 export function meta() {
   return [{ title: 'MemMe — Collect sticker' }];
 }
 
-export async function clientLoader() {
-  const result = await claimRandomSticker(null);
-  return { result };
+// Open page → claim once per ?scan= key (cached in sessionStorage so refresh does not re-claim).
+export async function clientLoader({ request }) {
+  const session = await authStore.getSession();
+
+  const scan = getScanKey(request);
+  const cached = readCollectCache(scan);
+  if (cached) return { scan, result: cached };
+
+  const result = await claimRandomSticker(session);
+  writeCollectCache(scan, result);
+  if (result.sticker) revalidateApp();
+
+  return { scan, result };
 }
 
 clientLoader.hydrate = true;
 
-/** Skip re-claim when only the root loader revalidates (avoids infinite loop). */
+/**
+ * Only re-run the claim when this route's URL changes (e.g. ?scan= for rescan).
+ * Root loader revalidation (login, sticker sync) must not re-claim here — that
+ * caused an infinite revalidation loop and would duplicate claims on revisit.
+ * Login while on this page is rare; navigating away and back re-runs the loader.
+ */
 export function shouldRevalidate({ currentUrl, nextUrl }) {
   return (
     currentUrl.pathname !== nextUrl.pathname
@@ -25,70 +50,78 @@ export function shouldRevalidate({ currentUrl, nextUrl }) {
   );
 }
 
-function claimStatus(result) {
-  if (result.error === COLLECTION_COMPLETE) return 'complete';
-  if (result.error) return 'error';
-  if (result.sticker) return 'done';
-  return 'error';
-}
-
-function claimMessage(result, isLoggedIn) {
+function resolveClaimDisplay(result, isLoggedIn) {
   if (result.error === COLLECTION_COMPLETE) {
-    return 'You collected all available stickers!';
+    return {
+      status: 'complete',
+      title: 'Collection complete',
+      message: 'You collected all available stickers!',
+    };
   }
   if (result.error) {
-    return typeof result.error === 'string'
-      ? result.error
-      : 'Could not claim sticker. Try again.';
+    return {
+      status: 'error',
+      title: 'Collect failed',
+      message: typeof result.error === 'string'
+        ? result.error
+        : 'Could not claim sticker. Try again.',
+    };
   }
-  return isLoggedIn
-    ? 'Sticker saved to your account!'
-    : 'Sticker saved on this device. Create an account to keep it forever.';
-}
-
-function claimTitle(status, sticker) {
-  if (status === 'done' && sticker) return 'You get a sticker!';
-  if (status === 'complete') return 'Collection complete';
-  return 'Collect failed';
+  if (result.sticker) {
+    return {
+      status: 'done',
+      title: 'You get a sticker!',
+      message: isLoggedIn
+        ? 'Sticker saved to your account!'
+        : 'Sticker saved on this device. Create an account to keep it forever.',
+    };
+  }
+  return {
+    status: 'error',
+    title: 'Collect failed',
+    message: 'Could not claim sticker. Try again.',
+  };
 }
 
 export default function CollectSticker() {
   const { result } = useLoaderData();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const display = resolveClaimDisplay(result, Boolean(user));
 
-  const status = claimStatus(result);
-  const message = claimMessage(result, Boolean(user));
-  const sticker = result.sticker ?? null;
+  function handleScanAgain() {
+    navigate(`/collect?scan=${Date.now()}`);
+  }
 
   return (
     <div className="collect-page">
       <div className="collect-card">
         <p className="collect-eyebrow">MemMe sticker scan</p>
-        <h1 className="collect-title">{claimTitle(status, sticker)}</h1>
+        <h1 className="collect-title">{display.title}</h1>
 
-        {status === 'error' && (
+        {display.status === 'error' && (
           <div className="auth-banner auth-banner--warning" role="alert">
-            {message}
+            {display.message}
           </div>
         )}
 
-        {status === 'complete' && (
+        {display.status === 'complete' && (
           <div className="auth-banner auth-banner--success" role="status">
-            {message}
+            {display.message}
           </div>
         )}
 
-        {status === 'done' && sticker && (
+        {display.status === 'done' && (
           <>
             <div className="auth-banner auth-banner--success" role="status">
-              {message}
+              {display.message}
             </div>
             <div className="collect-reveal collect-reveal--celebrate">
               <p className="collect-reveal-label">Your digital collectible</p>
               <div className="collect-sticker-showcase">
-                <StickerVisual src={sticker.src} label={sticker.label} />
+                <StickerVisual src={result.sticker.src} label={result.sticker.label} />
               </div>
-              <p className="collect-sticker-name">{sticker.label}</p>
+              <p className="collect-sticker-name">{result.sticker.label}</p>
             </div>
           </>
         )}
@@ -102,13 +135,14 @@ export default function CollectSticker() {
               <Link to="/login" className="auth-btn auth-btn--google">Log in</Link>
             </>
           )}
-          {status === 'done' && (
-            <Link
-              to={`${href('/collect')}?scan=${Date.now()}`}
+          {display.status === 'done' && (
+            <button
+              type="button"
               className="auth-btn auth-btn--google"
+              onClick={handleScanAgain}
             >
               Scan again
-            </Link>
+            </button>
           )}
           <Link to="/" className="auth-btn auth-btn--google">Back to map</Link>
         </div>

@@ -52,7 +52,8 @@ declare
   v_auth_id uuid := auth.uid();
   v_owned text[];
   v_eligible text[];
-  v_sticker_id text;
+  v_pick text;
+  v_inserted text;
   v_idx int;
 begin
   if v_auth_id is null then
@@ -74,18 +75,21 @@ begin
   end if;
 
   v_idx := 1 + floor(random() * array_length(v_eligible, 1))::int;
-  v_sticker_id := v_eligible[v_idx];
+  v_pick := v_eligible[v_idx];
 
   insert into public.user_collected_stickers (auth_id, digital_sticker_id)
-  values (v_auth_id, v_sticker_id);
+  values (v_auth_id, v_pick)
+  on conflict (auth_id, digital_sticker_id) do nothing
+  returning digital_sticker_id into v_inserted;
+
+  if v_inserted is null then
+    return jsonb_build_object('error', 'already_owned');
+  end if;
 
   return jsonb_build_object(
-    'stickerId', v_sticker_id,
+    'stickerId', v_inserted,
     'claimedAt', now()
   );
-exception
-  when unique_violation then
-    return jsonb_build_object('error', 'collection_complete');
 end;
 $$;
 

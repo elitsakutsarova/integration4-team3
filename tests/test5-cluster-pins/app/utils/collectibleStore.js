@@ -42,6 +42,16 @@ async function resolveAccountAuthId(hintAuthUserId) {
   return session?.user?.id ?? hintAuthUserId ?? null;
 }
 
+function normalizeClaimError(errorCode) {
+  if (errorCode === COLLECTION_COMPLETE || errorCode === 'collection_complete') {
+    return COLLECTION_COMPLETE;
+  }
+  if (errorCode === 'already_owned') {
+    return COLLECTION_COMPLETE;
+  }
+  return errorCode;
+}
+
 async function claimViaSupabase() {
   const client = getSupabaseBrowserClient();
   if (!client) return null;
@@ -56,7 +66,7 @@ async function claimViaSupabase() {
   }
 
   const payload = data ?? {};
-  if (payload.error) return { error: payload.error };
+  if (payload.error) return { error: normalizeClaimError(payload.error) };
 
   const catalog = await loadDigitalCatalogClient();
   return {
@@ -84,14 +94,16 @@ async function claimRandomStickerGuest() {
 
 /**
  * Claim one random sticker the user does not own yet.
+ * Pass the user from authStore.getSession() so guest vs account is explicit.
  * Logged-in: Supabase RPC. Guest: localStorage only.
  */
-export async function claimRandomSticker(authUserId = null) {
-  const accountId = await resolveAccountAuthId(authUserId);
+export async function claimRandomSticker(sessionUser = null) {
+  const accountId = sessionUser?.id ?? null;
 
   if (accountId && isSupabaseEnabled()) {
     const result = await claimViaSupabase();
     if (result) return result;
+    return { error: 'Could not claim sticker. Check your connection and try again.' };
   }
 
   if (accountId) {

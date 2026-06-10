@@ -22,7 +22,7 @@ export default function DemoStickersPage() {
   const { devShare } = useLoaderData();
   const { shareOrigin, lanUrls, isOnLocalhost } = devShare;
   const [copied, setCopied] = useState(false);
-  const collectUrl = shareOrigin ? `${shareOrigin}${href('/collect')}` : '';
+  const collectUrl = shareOrigin ? `${shareOrigin}${href('/collect')}?scan=memme-collect` : '';
 
   async function copyLink() {
     if (!collectUrl) return;
