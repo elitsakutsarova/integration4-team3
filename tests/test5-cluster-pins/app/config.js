@@ -14,17 +14,36 @@ export function appUrl(path = '/') {
   return `${APP_ORIGIN}${normalized}`;
 }
 
+const DEV_HOSTNAMES = new Set(['localhost', '127.0.0.1', 'memome.local']);
+
+function isDevLocalOrigin(origin) {
+  try {
+    const url = new URL(origin);
+    if (url.port && url.port !== '5173') return false;
+    return DEV_HOSTNAMES.has(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 export function isAllowedDevOrigin(origin) {
   if (!import.meta.env.DEV) return origin === APP_ORIGIN;
+
+  if (isDevLocalOrigin(origin)) return true;
+
   if (ALLOW_LAN) {
     try {
       const url = new URL(origin);
       if (url.port && url.port !== '5173') return false;
-      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') return true;
       return /^\d{1,3}(\.\d{1,3}){3}$/.test(url.hostname);
     } catch {
       return false;
     }
   }
-  return origin === APP_ORIGIN || origin === 'http://localhost:5173';
+
+  return (
+    origin === APP_ORIGIN
+    || origin === 'http://localhost:5173'
+    || origin === 'https://localhost:5173'
+  );
 }

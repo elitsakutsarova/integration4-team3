@@ -1,5 +1,5 @@
 import MapView from '../components/MapView';
-import RequireAuth from '../components/auth/RequireAuth';
+import { requireAuthInLoader } from '../utils/requireAuthLoader';
 
 export function meta() {
   return [
@@ -8,10 +8,13 @@ export function meta() {
   ];
 }
 
+export async function clientLoader() {
+  await requireAuthInLoader();
+  return null;
+}
+
+clientLoader.hydrate = true;
+
 export default function Home() {
-  return (
-    <RequireAuth>
-      <MapView />
-    </RequireAuth>
-  );
+  return <MapView />;
 }

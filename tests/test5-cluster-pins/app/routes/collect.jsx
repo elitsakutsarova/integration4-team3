@@ -5,7 +5,6 @@ import {
   COLLECTION_COMPLETE,
   claimRandomSticker,
 } from '../utils/collectibleStore';
-import { revalidateRoot } from '../utils/revalidateRoot';
 
 export function meta() {
   return [{ title: 'MemMe — Collect sticker' }];
@@ -13,13 +12,18 @@ export function meta() {
 
 export async function clientLoader() {
   const result = await claimRandomSticker(null);
-  if (!result.error || result.error === COLLECTION_COMPLETE) {
-    revalidateRoot();
-  }
   return { result };
 }
 
 clientLoader.hydrate = true;
+
+/** Skip re-claim when only the root loader revalidates (avoids infinite loop). */
+export function shouldRevalidate({ currentUrl, nextUrl }) {
+  return (
+    currentUrl.pathname !== nextUrl.pathname
+    || currentUrl.search !== nextUrl.search
+  );
+}
 
 function claimStatus(result) {
   if (result.error === COLLECTION_COMPLETE) return 'complete';
@@ -99,7 +103,12 @@ export default function CollectSticker() {
             </>
           )}
           {status === 'done' && (
-            <Link to={href('/collect')} className="auth-btn auth-btn--google">Scan again</Link>
+            <Link
+              to={`${href('/collect')}?scan=${Date.now()}`}
+              className="auth-btn auth-btn--google"
+            >
+              Scan again
+            </Link>
           )}
           <Link to="/" className="auth-btn auth-btn--google">Back to map</Link>
         </div>

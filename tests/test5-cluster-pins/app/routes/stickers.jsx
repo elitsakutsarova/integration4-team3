@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import BottomNav from '../components/BottomNav';
 import StickerVisual from '../components/diary/StickerVisual';
-import RequireAuth from '../components/auth/RequireAuth';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
 import { getAchievementStates } from '../data/achievementStickers';
+import { requireAuthInLoader } from '../utils/requireAuthLoader';
 
 export function meta() {
   return [
@@ -13,6 +13,13 @@ export function meta() {
     { name: 'description', content: 'Your sticker collection and achievements.' },
   ];
 }
+
+export async function clientLoader() {
+  await requireAuthInLoader();
+  return null;
+}
+
+clientLoader.hydrate = true;
 
 function BackIcon() {
   return (
@@ -39,8 +46,7 @@ export default function StickersGallery() {
   }
 
   return (
-    <RequireAuth>
-      <div className="stickers-page">
+    <div className="stickers-page">
         <header className="stickers-header">
           <button type="button" className="stickers-back-btn" aria-label="Back to profile" onClick={() => navigate('/profile')}>
             <BackIcon />
@@ -116,6 +122,5 @@ export default function StickersGallery() {
 
         <BottomNav />
       </div>
-    </RequireAuth>
   );
 }

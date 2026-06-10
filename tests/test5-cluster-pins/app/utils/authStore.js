@@ -1,3 +1,5 @@
+// auth engine - logic layer
+
 import { APP_ORIGIN, appUrl } from '../config';
 import { isSupabaseEnabled, getSupabaseBrowserClient, resetSupabaseBrowserClient, USERS_TABLE } from './supabase.client';
 

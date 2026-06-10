@@ -1,9 +1,9 @@
 import { Link } from 'react-router';
 import BottomNav from '../components/BottomNav';
-import RequireAuth from '../components/auth/RequireAuth';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers } from '../context/CollectedStickersContext';
 import { TRAVEL_DIARY } from '../data/mockUser';
+import { requireAuthInLoader } from '../utils/requireAuthLoader';
 
 export function meta() {
   return [
@@ -12,13 +12,27 @@ export function meta() {
   ];
 }
 
+export async function clientLoader() {
+  await requireAuthInLoader();
+  return null;
+}
+
+clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return (
+    <div className="auth-loading">
+      <div className="auth-loading-dot" />
+    </div>
+  );
+}
+
 export default function Profile() {
   const collectedStickers = useCollectedStickers();
   const { user, signOut } = useAuth();
 
   return (
-    <RequireAuth>
-      <div className="profile-page">
+    <div className="profile-page">
         <header className="profile-header">
           <button type="button" className="profile-settings-btn" aria-label="Log out" onClick={() => signOut()}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -131,6 +145,5 @@ export default function Profile() {
 
         <BottomNav />
       </div>
-    </RequireAuth>
   );
 }

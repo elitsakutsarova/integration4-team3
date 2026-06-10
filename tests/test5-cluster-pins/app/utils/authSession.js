@@ -36,6 +36,7 @@ async function attachAccountStickers(userId) {
 
 export function setAuthUser(user) {
   const next = authStore.sameUser(snapshot.user, user) ? snapshot.user : user;
+  if (snapshot.user === next && snapshot.loading === false) return;
   snapshot = { user: next, loading: false };
   emit();
 }
@@ -45,9 +46,6 @@ export async function bootstrapAuthSession() {
   if (bootstrapPromise) return bootstrapPromise;
 
   bootstrapPromise = (async () => {
-    snapshot = { user: snapshot.user, loading: true };
-    emit();
-
     try {
       let user = await authStore.getSession();
       if (user?.id) {

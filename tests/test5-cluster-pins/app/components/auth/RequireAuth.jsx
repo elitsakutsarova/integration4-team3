@@ -1,7 +1,9 @@
-import { Link, Navigate, useLocation } from 'react-router';
+import { Link } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import MemMeLogo from './MemMeLogo';
 
+
+// Shows a loading indicator while checking Supabase session/user is still undefined
 function AuthLoading() {
   return (
     <div className="auth-loading">
@@ -10,14 +12,11 @@ function AuthLoading() {
   );
 }
 
+// Fallback wrapper — protected routes should use requireAuthInLoader() instead.
 export default function RequireAuth({ children }) {
   const { user, loading } = useAuth();
-  const location = useLocation();
 
-  if (loading) return <AuthLoading />;
-  if (!user) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  }
+  if (loading || !user) return <AuthLoading />;
 
   return children;
 }
@@ -58,6 +57,8 @@ export function RedirectIfAuthed({ children }) {
   return children;
 }
 
+
+// reusable component to switch between login and register
 export function AuthSwitchLink({ to, children }) {
   return (
     <p className="auth-switch">

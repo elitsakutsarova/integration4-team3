@@ -9,15 +9,16 @@ import {
   useRevalidator,
   redirect,
 } from "react-router";
+import { useLayoutEffect } from "react";
 
 import "./app.css";
 import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
 import { AuthProvider } from "./context/AuthContext";
-import { RevalidateProvider } from "./context/RevalidateContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { bootstrapAuthSession } from "./utils/authSession";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
+import { registerAppRevalidate } from "./utils/revalidateApp";
 import { loadStickersFromPublic } from "./utils/stickers.server";
 
 // loads stickers from public/stickers (server-side)
@@ -29,9 +30,12 @@ export async function loader() {
 
 export async function clientLoader({ serverLoader }) {
   if (import.meta.env.DEV && typeof window !== 'undefined') {
-    if (!isAllowedDevOrigin(window.location.origin)) {
-      const target = `${APP_ORIGIN}${window.location.pathname}${window.location.search}${window.location.hash}`;
-      throw redirect(target);
+    const { origin, pathname, search, hash } = window.location;
+    if (!isAllowedDevOrigin(origin)) {
+      const target = new URL(`${pathname}${search}${hash}`, APP_ORIGIN).href;
+      if (new URL(target).origin !== origin) {
+        throw redirect(target);
+      }
     }
   }
 
@@ -73,9 +77,11 @@ export function Layout({ children }) {
         <Links />
       </head>
       <body>
-        {children}
-        <ScrollRestoration /> 
-        <Scripts /> 
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );
@@ -85,16 +91,16 @@ export default function App() {
   const { stickers, collectedStickers } = useLoaderData();
   const { revalidate } = useRevalidator();
 
+  useLayoutEffect(() => {
+    registerAppRevalidate(revalidate);
+  }, [revalidate]);
+
   return (
-    <RevalidateProvider revalidate={revalidate}>
-      <AuthProvider>
-        <CollectedStickersProvider collectedStickers={collectedStickers}>
-          <StickerCatalogProvider stickers={stickers}>
-            <Outlet />
-          </StickerCatalogProvider>
-        </CollectedStickersProvider>
-      </AuthProvider>
-    </RevalidateProvider>
+    <CollectedStickersProvider collectedStickers={collectedStickers}>
+      <StickerCatalogProvider stickers={stickers}>
+        <Outlet />
+      </StickerCatalogProvider>
+    </CollectedStickersProvider>
   );
 }
 
