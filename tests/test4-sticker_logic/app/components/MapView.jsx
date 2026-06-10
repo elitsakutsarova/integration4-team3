@@ -46,11 +46,12 @@ function memoryPinHtml() {
 
 function memoryClusterPinHtml(count) {
   return `<div class="pin-memory-cluster" aria-label="${count} memories">
-    <div class="pin-memory-cluster-ring"></div>
-    <div class="pin-memory-cluster-core">
+    <div class="pin-memory-cluster-glow"></div>
+    <div class="pin-memory-cluster-head">
       <span class="pin-memory-cluster-count">${count}</span>
       <span class="pin-memory-cluster-label">memories</span>
     </div>
+    <div class="pin-memory-cluster-drop"><div class="pin-memory-cluster-dot"></div></div>
   </div>`;
 }
 
@@ -188,8 +189,8 @@ export default function MapView() {
     const icon = L.divIcon({
       className: '',
       html: memoryClusterPinHtml(count),
-      iconSize: [64, 64],
-      iconAnchor: [32, 32],
+      iconSize: [52, 76],
+      iconAnchor: [26, 76],
     });
     const marker = L.marker(center, { icon, zIndexOffset: 500 });
     marker.on('click', () => {

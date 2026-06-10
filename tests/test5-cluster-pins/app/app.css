@@ -193,52 +193,86 @@ html, body {
 /* ─── Memory pin cluster (31+ pins within ~800 m) ─── */
 .pin-memory-cluster {
   position: relative;
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 76px;
   cursor: pointer;
 }
 
-.pin-memory-cluster-ring {
+.pin-memory-cluster-glow {
   position: absolute;
-  inset: 0;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  background: rgba(53, 53, 255, 0.16);
   border-radius: 50%;
-  background: rgba(53, 53, 255, 0.18);
-  border: 2px dashed var(--dark);
+  pointer-events: none;
   animation: cluster-pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes cluster-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.06); opacity: 0.88; }
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  50% { transform: translateX(-50%) scale(1.08); opacity: 0.82; }
 }
 
-.pin-memory-cluster-core {
+.pin-memory-cluster-head {
   position: absolute;
-  inset: 10px;
-  border-radius: 50%;
-  background: var(--dark);
-  color: #fff;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  min-height: 38px;
+  padding: 5px 4px 4px;
+  background: #fff;
+  color: var(--dark);
+  border: 2px solid var(--dark);
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+}
+
+.pin-memory-cluster-drop {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--dark);
+  border-radius: 50% 50% 50% 0;
+  transform: translateX(-50%) rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.pin-memory-cluster-dot {
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-radius: 50%;
+  transform: rotate(45deg);
 }
 
 .pin-memory-cluster-count {
   font-family: var(--font);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   line-height: 1;
 }
 
 .pin-memory-cluster-label {
   font-family: var(--font);
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  opacity: 0.85;
+  color: #6b6b78;
   margin-top: 2px;
 }
 
