@@ -1,5 +1,7 @@
-/** Basemap layer helpers for Leaflet */
+// a Leaflet basemap manager
+// lets the map switch between different map tile providers (OpenStreetMap vs OpenFreeMap) and handle fallbacks safely
 
+//defines how OpenFreeMap looks (colors, roads, typography)
 export const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
 export const OSM_ATTRIBUTION =
@@ -8,20 +10,25 @@ export const OSM_ATTRIBUTION =
 export const OPENFREEMAP_ATTRIBUTION =
   '&copy; <a href="https://openfreemap.org/">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
+// OpenStreetMap layer
 export function createOsmLayer(L) {
+  // raster map tiles
   return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: OSM_ATTRIBUTION,
     maxZoom: 19,
   });
 }
 
+// OpenFreeMap layer (vector style) -> uses Maplibre GL to render vector tiles
 export function createOpenFreeMapLayer(L) {
   return L.maplibreGL({
     style: OPENFREEMAP_STYLE,
   });
 }
 
+// L -> Leaflet instance, map -> actual map object, defaultLayer -> which map starts first
 export function addBasemapControl(L, map, { defaultLayer = 'openfreemap' } = {}) {
+  // fallback layer
   const osm = createOsmLayer(L);
   let openFreeMap = null;
 

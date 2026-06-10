@@ -1,4 +1,4 @@
-/** Distance + grouping for dense memory-pin clusters on the map. */
+// distance + grouping for dense memory-pin clusters on the map
 
 export const CLUSTER_RADIUS_M = 800;
 export const CLUSTER_MIN_COUNT = 31;
