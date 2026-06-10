@@ -5,7 +5,6 @@ import {
   BackpackIcon,
   CheckIcon,
   EyeIcon,
-  GoogleIcon,
   HouseIcon,
   LockIcon,
   MailIcon,
@@ -59,7 +58,7 @@ export function meta() {
 
 export default function Register() {
   const navigate = useNavigate();
-  const { signUp, signInWithGoogle } = useAuth();
+  const { signUp } = useAuth();
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -70,7 +69,6 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState('');
-  const [formSuccess, setFormSuccess] = useState('');
 
   const passwordChecks = getPasswordChecks(password);
   const canSubmit =
@@ -84,7 +82,6 @@ export default function Register() {
     e.preventDefault();
     setSubmitted(true);
     setFormError('');
-    setFormSuccess('');
     setErrors({});
 
     if (!role) return;
@@ -102,21 +99,7 @@ export default function Register() {
       return;
     }
 
-    if (result.pendingConfirmation) {
-      setFormError('');
-      setErrors({});
-      setFormSuccess(result.message);
-      return;
-    }
-
     navigate('/', { replace: true });
-  }
-
-  async function handleGoogle() {
-    setFormError('');
-    const result = await signInWithGoogle();
-    if (result.error) setFormError(result.error.message);
-    if (result.user) navigate('/', { replace: true });
   }
 
   const usernameError = errors.username;
@@ -241,21 +224,8 @@ export default function Register() {
               </div>
             )}
 
-            {formSuccess && (
-              <div className="auth-banner auth-banner--success" role="status">
-                {formSuccess}
-              </div>
-            )}
-
             <button type="submit" className="auth-btn auth-btn--primary" disabled={!canSubmit}>
               {loading ? 'Creating account…' : 'Create account'}
-            </button>
-
-            <div className="auth-divider"><span>or</span></div>
-
-            <button type="button" className="auth-btn auth-btn--google" onClick={handleGoogle}>
-              <GoogleIcon />
-              Continue with Google
             </button>
           </form>
 

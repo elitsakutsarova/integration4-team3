@@ -1,6 +1,5 @@
 // auth engine - logic layer
 
-import { APP_ORIGIN, appUrl } from '../config';
 import { isSupabaseEnabled, getSupabaseBrowserClient, resetSupabaseBrowserClient, USERS_TABLE } from './supabase.client';
 
 function getClient() {
@@ -170,22 +169,16 @@ function mapSupabaseAuthError(error, fallbackField = 'form') {
   const msg = error?.message ?? 'Something went wrong';
   const code = error?.code ?? '';
 
-  if (code === 'email_not_confirmed' || /email.*confirm|not confirmed/i.test(msg)) {
-    return {
-      field: 'form',
-      message: 'Confirm your email first, then log in.',
-    };
-  }
   if (code === 'invalid_credentials' || /invalid login credentials/i.test(msg)) {
     return {
       field: 'form',
-      message: 'Incorrect email or password. If you just signed up, confirm your email first.',
+      message: 'Incorrect email or password.',
     };
   }
   if (/rate limit|over_email_send_rate_limit/i.test(msg)) {
     return {
       field: 'form',
-      message: 'Too many emails were sent. Wait a few minutes, then try logging in.',
+      message: 'Too many attempts. Wait a few minutes, then try again.',
     };
   }
   if (/already registered|already exists|duplicate/i.test(msg)) {
@@ -205,19 +198,9 @@ async function trySignInAfterSignUpFailure(email, password) {
   return ensureProfile(data.user);
 }
 
-/** Supabase returns success with empty identities when the email is already registered — no mail is sent. */
+/** Supabase returns success with empty identities when the email is already registered. */
 function isExistingUserSignUpResponse(user) {
   return (user?.identities ?? []).length === 0;
-}
-
-async function sendSignupConfirmationEmail(email) {
-  const { error } = await getClient().auth.resend({
-    type: 'signup',
-    email: normalizeEmail(email),
-    options: { emailRedirectTo: appUrl('/auth/callback') },
-  });
-  if (error) return { error: mapSupabaseAuthError(error) };
-  return { ok: true };
 }
 
 /** null = unknown, auth_id = migrated schema, legacy = email-only rows */
@@ -389,62 +372,32 @@ async function supabaseSignUp({ username, email, password, role }) {
     const { data, error } = await getClient().auth.signUp({
       email: cleanEmail,
       password,
-      options: {
-        data: { username: displayUsername, role },
-        emailRedirectTo: appUrl('/auth/callback'),
-      },
+      options: { data: { username: displayUsername, role } },
     });
 
     if (error) {
       const msg = error.message ?? '';
       if (/already registered|already exists|already been registered|user already registered/i.test(msg)) {
-        const resend = await sendSignupConfirmationEmail(cleanEmail);
-        if (!resend.error) {
-          return {
-            pendingConfirmation: true,
-            message: 'This email is already registered. We sent a new confirmation link — check your inbox and spam folder.',
-          };
-        }
         const user = await trySignInAfterSignUpFailure(cleanEmail, password);
         if (user) return { user };
-        return { error: resend.error ?? mapSupabaseAuthError(error) };
-      }
-      if (/rate limit|over_email_send_rate_limit/i.test(msg)) {
-        const user = await trySignInAfterSignUpFailure(cleanEmail, password);
-        if (user) return { user };
-        return {
-          pendingConfirmation: true,
-          message: 'Too many emails were sent recently. Wait a few minutes, then try logging in or use “Resend confirmation email” on the login page.',
-        };
+        return { error: mapSupabaseAuthError(error) };
       }
       return { error: mapSupabaseAuthError(error) };
     }
     if (!data.user) return { error: { field: 'form', message: 'Sign up failed' } };
 
-    // Profile insert needs an active session (RLS). With email confirmation,
-    // that happens after the user clicks the link — ensureProfile runs then.
     if (data.session) {
       const user = await ensureProfile(data.user);
       return { user };
     }
 
     if (isExistingUserSignUpResponse(data.user)) {
-      const resend = await sendSignupConfirmationEmail(cleanEmail);
-      if (resend.error) {
-        const user = await trySignInAfterSignUpFailure(cleanEmail, password);
-        if (user) return { user };
-        return { error: resend.error };
-      }
-      return {
-        pendingConfirmation: true,
-        message: 'This email is already registered. We sent a new confirmation link — check your inbox and spam folder.',
-      };
+      const user = await trySignInAfterSignUpFailure(cleanEmail, password);
+      if (user) return { user };
+      return { error: { field: 'email', message: 'Email already taken' } };
     }
 
-    return {
-      pendingConfirmation: true,
-      message: 'Check your email to confirm your account, then log in.',
-    };
+    return { error: { field: 'form', message: 'Sign up failed — please try logging in.' } };
   } catch (err) {
     return { error: mapSupabaseAuthError(err) };
   }
@@ -504,7 +457,7 @@ async function supabaseGetSession() {
   return userFromAuthSession(session.user);
 }
 
-/** Call after OAuth / email-confirm redirect to persist profile row. */
+/** Call after auth redirect to persist profile row. */
 export async function syncSessionProfile() {
   if (!isSupabaseEnabled()) return null;
   const client = getClient();
@@ -546,8 +499,8 @@ export async function completeAuthRedirect() {
     const { error } = await client.auth.exchangeCodeForSession(code);
     if (error) {
       const msg = /PKCE|code verifier/i.test(error.message ?? '')
-        ? 'Email confirmation could not finish in this tab. Log in with your email and password. If needed, use “Resend confirmation email”.'
-        : (error.message ?? 'Confirmation failed');
+        ? 'Sign-in could not finish in this tab. Log in with your email and password.'
+        : (error.message ?? 'Sign-in failed');
       return { error: msg };
     }
     return { ok: true };
@@ -558,7 +511,7 @@ export async function completeAuthRedirect() {
     if (session?.user) return { ok: true };
   }
 
-  return { error: 'Missing confirmation data. Try logging in instead.' };
+  return { error: 'Missing sign-in data. Try logging in instead.' };
 }
 
 /* ─── Public API ───────────────────────────────────────── */
@@ -578,25 +531,6 @@ export async function signIn(payload) {
   return localSignIn(payload);
 }
 
-export async function signInWithGoogle() {
-  if (!isSupabaseEnabled()) {
-    return {
-      error: {
-        field: 'form',
-        message: `Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env first. Redirect URL: ${APP_ORIGIN}`,
-      },
-    };
-  }
-
-  const { error } = await getClient().auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: appUrl('/auth/callback') },
-  });
-
-  if (error) return { error: mapSupabaseAuthError(error) };
-  return {};
-}
-
 export async function signOut() {
   if (isSupabaseEnabled()) {
     const client = getClient();
@@ -607,23 +541,6 @@ export async function signOut() {
     profileLinkMode = null;
   }
   clearLocalSession();
-}
-
-/** Resend signup confirmation (e.g. after re-enabling “Confirm email” in Supabase). */
-export async function resendConfirmationEmail(email) {
-  if (!isSupabaseEnabled()) {
-    return { error: { field: 'form', message: 'Supabase is not configured.' } };
-  }
-  const cleanEmail = normalizeEmail(email);
-  if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-    return { error: { field: 'email', message: 'Enter a valid email address' } };
-  }
-  const result = await sendSignupConfirmationEmail(cleanEmail);
-  if (result.error) return { error: result.error };
-  return {
-    pendingConfirmation: true,
-    message: 'Confirmation email sent. Check your inbox and spam folder.',
-  };
 }
 
 export function subscribeToAuthChanges(callback) {

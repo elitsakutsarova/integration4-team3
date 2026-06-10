@@ -1,5 +1,5 @@
 //authentication state manager
-//exposes auth actions sign up, sign in, Google sign in, sign out
+//exposes auth actions sign up, sign in, sign out
 // triggers root revalidation when auth changes, updates global session store
 // acts as a bridge between Supabase/auth API (authStore), our internal session system (authSession) andReact UI (context)
 
@@ -18,6 +18,7 @@ import {
   setAuthUser,
   subscribeAuth,
 } from '../utils/authSession';
+import { signInAccount } from '../utils/authActions';
 import { revalidateApp } from '../utils/revalidateApp';
 
 const AuthContext = createContext(null);
@@ -38,23 +39,7 @@ export function AuthProvider({ children }) {
     return result;
   }, []);
 
-  const signIn = useCallback(async payload => {
-    const result = await authStore.signIn(payload);
-    if (result.user) {
-      await applySignedInUser(result.user);
-      revalidateApp();
-    }
-    return result;
-  }, []);
-
-  const signInWithGoogle = useCallback(async () => {
-    const result = await authStore.signInWithGoogle();
-    if (result.user) {
-      await applySignedInUser(result.user);
-      revalidateApp();
-    }
-    return result;
-  }, []);
+  const signIn = useCallback(payload => signInAccount(payload), []);
 
   const signOut = useCallback(async () => {
     await authStore.signOut();
@@ -63,8 +48,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const value = useMemo(
-    () => ({ user, loading, signUp, signIn, signInWithGoogle, signOut, resendConfirmationEmail: authStore.resendConfirmationEmail }),
-    [user, loading, signUp, signIn, signInWithGoogle, signOut],
+    () => ({ user, loading, signUp, signIn, signOut }),
+    [user, loading, signUp, signIn, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

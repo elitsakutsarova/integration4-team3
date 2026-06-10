@@ -9,3 +9,12 @@ export async function requireAuthInLoader() {
     throw redirect('/login');
   }
 }
+
+/** Guest-only routes (login/register) — redirect signed-in users to the map. */
+export async function redirectIfAuthedInLoader() {
+  await bootstrapAuthSession();
+  const { user } = getAuthSnapshot();
+  if (user) {
+    throw redirect('/');
+  }
+}

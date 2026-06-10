@@ -5,7 +5,7 @@ export function meta() {
   return [{ title: 'MemMe — Signing in…' }];
 }
 
-/** Handles OAuth redirect and email-confirm links; saves profile to public.users. */
+/** Handles auth redirect links; saves profile to public.users. */
 export async function clientLoader() {
   const result = await completeAuthRedirect();
   if (result.error) {
