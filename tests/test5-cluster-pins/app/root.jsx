@@ -7,17 +7,17 @@ import {
   ScrollRestoration,
   useLoaderData,
   useRevalidator,
+  redirect,
 } from "react-router";
 
 import "./app.css";
 import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
 import { AuthProvider } from "./context/AuthContext";
+import { RevalidateProvider } from "./context/RevalidateContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { bootstrapAuthSession } from "./utils/authSession";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
-import { loadStickersClient } from "./utils/loadStickersClient";
-import { registerRootRevalidator } from "./utils/revalidateRoot";
 import { loadStickersFromPublic } from "./utils/stickers.server";
 
 // loads stickers from public/stickers (server-side)
@@ -27,35 +27,21 @@ export async function loader() {
 }
 
 
-// extra client-side setup
 export async function clientLoader({ serverLoader }) {
-  // checks if we are in the development environment or in a browser
   if (import.meta.env.DEV && typeof window !== 'undefined') {
-    // if the current URL isn't allowed:
     if (!isAllowedDevOrigin(window.location.origin)) {
-     // redirects to:
       const target = `${APP_ORIGIN}${window.location.pathname}${window.location.search}${window.location.hash}`;
-      window.location.replace(target);
+      throw redirect(target);
     }
-    //example: current: http://127.0.0.1:5173, redirect to: http://localhost:5173
   }
 
-  // get server data
   const serverData = await serverLoader();
-  // if server already provided stickers, use them, otherwise load them in browser as fallback
-  const stickers = serverData.stickers?.length
-    ? serverData.stickers
-    : (await loadStickersClient());
-
-    // check Supabase authentification, restore login state and return current user
 
   const user = await bootstrapAuthSession();
-  // load collected stickers for the current user if the user exiss and the id is not null
   const collectedStickers = await fetchCollectedStickers(user?.id ?? null);
 
-  //return all data
   return {
-    stickers: stickers.length ? stickers : serverData.stickers,
+    stickers: serverData.stickers,
     collectedStickers,
   };
 }
@@ -95,25 +81,20 @@ export function Layout({ children }) {
   );
 }
 
-// root component
-// any page can access user, stickers and collected stickers without prop "drilling"
 export default function App() {
-  // get loader data
   const { stickers, collectedStickers } = useLoaderData();
-  // allow manual refresh of loader data
-  const revalidator = useRevalidator();
-  // store globally
-  registerRootRevalidator(() => revalidator.revalidate());
+  const { revalidate } = useRevalidator();
 
-  // provides authentication state to the whole app
   return (
-    <AuthProvider>
-      <CollectedStickersProvider collectedStickers={collectedStickers}>
-        <StickerCatalogProvider stickers={stickers}>
-          <Outlet />
-        </StickerCatalogProvider>
-      </CollectedStickersProvider>
-    </AuthProvider>
+    <RevalidateProvider revalidate={revalidate}>
+      <AuthProvider>
+        <CollectedStickersProvider collectedStickers={collectedStickers}>
+          <StickerCatalogProvider stickers={stickers}>
+            <Outlet />
+          </StickerCatalogProvider>
+        </CollectedStickersProvider>
+      </AuthProvider>
+    </RevalidateProvider>
   );
 }
 
