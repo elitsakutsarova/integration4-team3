@@ -30,3 +30,39 @@ Add pins to the map with text. Try to add both memory pins and event pins. When 
 - Create a Supabase Users database
 - Connect React app to Supabase
 - Use Authentification
+
+## Test 4 (Sticker logic)
+Figure out the sticker system (users scan the physical QR code stickers and receive a random collectible digital sticker) -> save it in the localStorage if the user doesn't have a profile, and then add it to the table once they create an account
+a user shouldn't get a repeating sticker until they've collected all the available stickers
+Notes on Sticker system:
+
+One QR per place/location, not per digital sticker -> so it can be actually randomized
+All stickers at the same spot share one locationId. The “randomness” happens per user when they scan, not per printed sheet.
+All the digital stickers we create should be in the table digital_stickers with its id, label, src (path to image in our app). We also need matching entries in public/digitalStickers/manifest.json (UI / diary tray), the actual png/svg files under public/digitalStickers/
+The table is a catalog of possible awards. It does not mean every user gets all 20 — it means the system knows what each ID looks like when assigned.
+
+## Test 5 (Cluster pins at Zoom out)
+Create a cluster functionality - once the pins are over a certain number and too close to each other as a location/on the map, when the user zooms out, they should be clustered into 1 big pin
+
+## Optimization + changes -> 10/06/2026
+
+After our consult, I changed a lot of things in test5 like:
+- removed unnecessary database tables to simplify the sticker logic -> now there are only three tables; users, digital_stickers and user_collected_stickers. 
+- updated all routes to use loaders and actions, and to be generally optimized to the standards of react router v7
+- optimized root.jsx
+- optimized home.jsx and everything connected to it
+- added explanation comments for the map logic
+- optimized login.jsx 
+- removed confirmation email logic and the option to register with google from login.jsx
+- added explanation comments to login.jsx
+- optimized register.jsx
+- removed auth.callback.jsx since I removed the option to sign in with Google account
+- in collect.jsx: replaced claimStatus, claimMessage, and claimTitle with a single call returning status, title and message
+- added explanation comments to collect.js
+- added duplication check for the collectible stickers
+- removed unused resetSupabaseBrowserClient function and added comments for clarity in various utility files tied to collect.jsx
+- simplified the upsert logic in collectibleStore.js and added sessionStorage caching utility for scanned stickers
+- cleaned up the digital stickers manifest.js and SQL insert statements by removing redundant entries
+- refactored comments and imports in CollectedStickersContext, profile, and stickers routes for clarity and organization
+- simplified state management in StickersGallery by removing unused state and replacing button with Link for navigation
+- removed unused useCallback from demo-stickers.jsx
