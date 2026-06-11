@@ -1,17 +1,24 @@
-import { useNavigate } from 'react-router';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import BottomNav from './BottomNav';
+import { fetchPhotonPlaceDetail, resolvePhotonPoiAt } from '../utils/locationPhoton';
+import { fetchPlaceImageUrl } from '../utils/placeImage';
+import { parsePhotonPlaceId } from '../utils/placeId';
 
-function HeroMedia({ memos }) {
-  const memoWithMedia = memos.find(m => m.mediaPreview?.url);
-  if (memoWithMedia?.mediaPreview) {
-    const { url, isVideo } = memoWithMedia.mediaPreview;
-    return isVideo
-      ? <video src={url} className="loc-detail-hero-img" controls playsInline />
-      : <img src={url} alt="" className="loc-detail-hero-img" />;
+function HeroMedia({ imageUrl, placeName, categoryLabel }) {
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={placeName ? `${placeName} exterior` : 'Venue photo'}
+        className="loc-detail-hero-img"
+      />
+    );
   }
 
   return (
     <div className="loc-detail-hero-placeholder" aria-hidden="true">
+      <span className="loc-detail-hero-placeholder-label">{categoryLabel || 'Place'}</span>
       <svg width="100%" height="100%" viewBox="0 0 400 400" preserveAspectRatio="none">
         <line x1="0" y1="0" x2="400" y2="400" stroke="#d0d0d8" strokeWidth="2" />
         <line x1="400" y1="0" x2="0" y2="400" stroke="#d0d0d8" strokeWidth="2" />
@@ -45,9 +52,60 @@ function FeaturedMemoCard({ memo }) {
   );
 }
 
-export default function LocationDetail({ place, featuredMemos }) {
+export default function LocationDetail({ place: initialPlace, featuredMemos }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [place, setPlace] = useState(initialPlace);
+  const [imageUrl, setImageUrl] = useState(null);
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+
+  useEffect(() => {
+    setPlace(initialPlace);
+    setImageUrl(null);
+  }, [initialPlace]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const photonPromise = initialPlace.id
+      ? fetchPhotonPlaceDetail({
+        lat: initialPlace.lat,
+        lng: initialPlace.lng,
+        placeId: initialPlace.id,
+      })
+      : resolvePhotonPoiAt({
+        lat: initialPlace.lat,
+        lng: initialPlace.lng,
+        name: initialPlace.name,
+      });
+
+    void photonPromise.then(enriched => {
+      if (!cancelled && enriched) setPlace(enriched);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialPlace.id, initialPlace.lat, initialPlace.lng, initialPlace.name]);
+
+  useEffect(() => {
+    const parsed = parsePhotonPlaceId(place.id);
+    if (!parsed) return undefined;
+
+    let cancelled = false;
+    void fetchPlaceImageUrl(parsed).then(url => {
+      if (!cancelled && url) setImageUrl(url);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [place.id]);
+
+  function handleBack() {
+    const returnTo = location.state?.returnTo;
+    navigate(typeof returnTo === 'string' && returnTo.length > 0 ? returnTo : '/');
+  }
 
   function handleShare() {
     const shareData = {
@@ -66,8 +124,12 @@ export default function LocationDetail({ place, featuredMemos }) {
     <div className="loc-detail-page">
       <div className="loc-detail-scroll">
         <div className="loc-detail-hero">
-          <HeroMedia memos={featuredMemos} />
-          <button type="button" className="loc-detail-icon-btn loc-detail-back" onClick={() => navigate(-1)} aria-label="Back">
+          <HeroMedia
+            imageUrl={imageUrl}
+            placeName={place.name}
+            categoryLabel={place.categoryLabel}
+          />
+          <button type="button" className="loc-detail-icon-btn loc-detail-back" onClick={handleBack} aria-label="Back">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6" />
             </svg>

@@ -50,34 +50,33 @@ export async function fetchMemosAtPlace(
   if (!client) return [];
 
   const merged = new Map();
+  const tasks = [];
 
   if (placeId) {
-    const { data, error } = await queryMemos(client, columns =>
+    tasks.push(queryMemos(client, columns =>
       client
         .from('memos')
         .select(columns)
         .eq('place_id', placeId)
         .order('created_at', { ascending: false })
         .limit(SAME_SPOT_QUERY_LIMIT),
-    );
-    if (!error) absorbRows(merged, data);
+    ));
   }
 
   if (locationName) {
-    const { data, error } = await queryMemos(client, columns =>
+    tasks.push(queryMemos(client, columns =>
       client
         .from('memos')
         .select(columns)
         .eq('location', locationName)
         .order('created_at', { ascending: false })
         .limit(SAME_SPOT_QUERY_LIMIT),
-    );
-    if (!error) absorbRows(merged, data);
+    ));
   }
 
   if (Number.isFinite(lat) && Number.isFinite(lng)) {
     const delta = LOCATION_MATCH_KM / 111;
-    const { data, error } = await queryMemos(client, columns =>
+    tasks.push(queryMemos(client, columns =>
       client
         .from('memos')
         .select(columns)
@@ -87,7 +86,11 @@ export async function fetchMemosAtPlace(
         .lte('lng', lng + delta)
         .order('created_at', { ascending: false })
         .limit(SAME_SPOT_QUERY_LIMIT),
-    );
+    ));
+  }
+
+  const results = await Promise.all(tasks);
+  for (const { data, error } of results) {
     if (!error) absorbRows(merged, data);
   }
 

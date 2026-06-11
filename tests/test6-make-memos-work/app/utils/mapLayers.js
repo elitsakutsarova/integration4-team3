@@ -21,10 +21,48 @@ export function createOsmLayer(L) {
 
 // OpenFreeMap layer (vector style) -> uses Maplibre GL to render vector tiles
 export function createOpenFreeMapLayer(L) {
-  return L.maplibreGL({
+  const layer = L.maplibreGL({
     style: OPENFREEMAP_STYLE,
   });
+
+  layer.on('add', () => {
+    attachMissingStyleImageFallback(layer.getMaplibreMap?.());
+  });
+
+  return layer;
 }
+
+/** OpenFreeMap styles reference POI icons missing from their sprite sheet. */
+function attachMissingStyleImageFallback(glMap) {
+  if (!glMap || glMap.__memmeMissingImagePatch) return;
+  glMap.__memmeMissingImagePatch = true;
+
+  const transparentPixel = new Uint8Array(4);
+  const placeholder = { width: 1, height: 1, data: transparentPixel };
+
+  const addPlaceholder = id => {
+    if (!id || glMap.hasImage(id)) return;
+    glMap.addImage(id, placeholder);
+  };
+
+  glMap.on('styleimagemissing', ({ id }) => addPlaceholder(id));
+
+  const preloadKnownMissing = () => {
+    for (const id of OPENFREEMAP_MISSING_SPRITE_IDS) addPlaceholder(id);
+  };
+
+  if (glMap.isStyleLoaded?.()) preloadKnownMissing();
+  else glMap.once('load', preloadKnownMissing);
+}
+
+const OPENFREEMAP_MISSING_SPRITE_IDS = [
+  'gate',
+  'recycling',
+  'brownfield',
+  'ferry_terminal',
+  'sailing',
+  'toll_booth',
+];
 
 // L -> Leaflet instance, map -> actual map object, defaultLayer -> which map starts first
 export function addBasemapControl(L, map, { defaultLayer = 'openfreemap' } = {}) {

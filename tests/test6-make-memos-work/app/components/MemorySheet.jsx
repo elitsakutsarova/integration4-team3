@@ -1,4 +1,4 @@
-import { href, useNavigate } from 'react-router';
+import { href, useLocation, useNavigate } from 'react-router';
 import { isNamedVenueLocation } from '../utils/locationHelpers';
 import { isPhotonPlaceId, parsePhotonPlaceId } from '../utils/placeId';
 
@@ -12,7 +12,10 @@ function locationDetailHref(pin) {
   if (isPhotonPlaceId(pin.placeId)) {
     const parsed = parsePhotonPlaceId(pin.placeId);
     if (parsed) {
-      return `${href('/location/:osmType/:osmId', parsed)}?lat=${latQ}&lng=${lngQ}`;
+      const nameQ = pin.location
+        ? `&name=${encodeURIComponent(pin.location)}`
+        : '';
+      return `${href('/location/:osmType/:osmId', parsed)}?lat=${latQ}&lng=${lngQ}${nameQ}`;
     }
   }
 
@@ -25,6 +28,7 @@ function locationDetailHref(pin) {
 
 export default function MemorySheet({ pin, onClose }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (!pin) return null;
 
@@ -35,7 +39,9 @@ export default function MemorySheet({ pin, onClose }) {
     event.stopPropagation();
     if (!detailHref) return;
     onClose();
-    navigate(detailHref);
+    navigate(detailHref, {
+      state: { returnTo: `${location.pathname}${location.search}` },
+    });
   }
 
   return (

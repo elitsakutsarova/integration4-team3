@@ -583,12 +583,29 @@ html, body {
   height: 100%;
   object-fit: cover;
   display: block;
+  pointer-events: none;
 }
 
 .loc-detail-hero-placeholder {
   width: 100%;
   height: 100%;
   background: #ececf0;
+  position: relative;
+  pointer-events: none;
+}
+
+.loc-detail-hero-placeholder-label {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9a9aa8;
 }
 
 .loc-detail-icon-btn {
@@ -605,6 +622,8 @@ html, body {
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 5;
+  pointer-events: auto;
 }
 
 .loc-detail-back { left: 16px; }
