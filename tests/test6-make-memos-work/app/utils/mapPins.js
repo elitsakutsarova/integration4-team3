@@ -2,8 +2,11 @@
 
 import {
   clusterCentroid,
+  groupPinsBySpot,
   partitionMemoryPins,
   shouldShowClusters,
+  shouldShowSpotClusters,
+  spreadPinPosition,
 } from './memoryPinCluster';
 
 const SQUARE_ICON_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#18181F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -82,7 +85,8 @@ function suppressNextMapClick(suppressClickRef) {
   setTimeout(() => { suppressClickRef.current = false; }, 60);
 }
 
-export function buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef) {
+export function buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef, displayLl) {
+  const ll = displayLl ?? pin.ll;
   const icon = L.divIcon({
     className: '',
     html: memoryPinHtml(),
@@ -90,7 +94,7 @@ export function buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryR
     iconAnchor: [18, 52],
     popupAnchor: [0, -56],
   });
-  const marker = L.marker(pin.ll, { icon });
+  const marker = L.marker(ll, { icon });
   marker.on('click', () => {
     suppressNextMapClick(suppressClickRef);
     selectMemoryRef.current(pin);
@@ -125,17 +129,49 @@ export function syncMemoryLayers(L, map, memoryPinsRef, memoryLayerRef, suppress
   const layer = memoryLayerRef.current;
   layer.clearLayers();
 
-  const { denseGroups, standalonePins } = partitionMemoryPins(memoryPinsRef.current);
-  const clustered = shouldShowClusters(map.getZoom());
+  const allPins = memoryPinsRef.current;
+  const zoom = map.getZoom();
+  const spotGroups = groupPinsBySpot(allPins);
+  const spotHandledIds = new Set();
 
-  standalonePins.forEach(pin => buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef));
+  for (const group of spotGroups.values()) {
+    if (group.length < 2) continue;
+
+    group.forEach(pin => spotHandledIds.add(pin.id));
+
+    if (shouldShowSpotClusters(zoom)) {
+      buildMemoryClusterMarker(L, map, layer, group, suppressClickRef);
+      continue;
+    }
+
+    const center = clusterCentroid(group);
+    group.forEach((pin, index) => {
+      const ll = spreadPinPosition(center, index, group.length);
+      buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef, ll);
+    });
+  }
+
+  const remaining = allPins.filter(pin => !spotHandledIds.has(pin.id));
+  const { denseGroups, standalonePins } = partitionMemoryPins(remaining);
+  const areaClustered = shouldShowClusters(zoom);
+
+  standalonePins.forEach(pin =>
+    buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef),
+  );
 
   denseGroups.forEach(group => {
-    if (clustered) {
+    if (areaClustered) {
       buildMemoryClusterMarker(L, map, layer, group, suppressClickRef);
-    } else {
-      group.forEach(pin => buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef));
+      return;
     }
+
+    const center = clusterCentroid(group);
+    group.forEach((pin, index) => {
+      const ll = group.length > 1
+        ? spreadPinPosition(center, index, group.length)
+        : pin.ll;
+      buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef, ll);
+    });
   });
 }
 

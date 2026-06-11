@@ -1,4 +1,5 @@
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
+import { isPhotonPlaceId } from './placeId';
 import { getSupabaseBrowserClient, isSupabaseEnabled } from './supabase.client';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -8,8 +9,22 @@ export const MEMO_MAX_MEDIA_BYTES = 10 * 1024 * 1024;
 const MEMO_MEDIA_BUCKET = 'memo-media';
 const DEFAULT_LOCATION = 'My spot';
 
-const MEMO_COLUMNS =
+const MEMO_COLUMNS_BASE =
   'id, quote, lat, lng, location, tags, media_url, media_type, created_at';
+const MEMO_COLUMNS = `${MEMO_COLUMNS_BASE}, place_id`;
+
+function isMissingPlaceIdColumn(error) {
+  const msg = String(error?.message ?? error?.details ?? '').toLowerCase();
+  return msg.includes('place_id');
+}
+
+async function queryMemos(client, buildQuery) {
+  let result = await buildQuery(MEMO_COLUMNS);
+  if (result.error && isMissingPlaceIdColumn(result.error)) {
+    result = await buildQuery(MEMO_COLUMNS_BASE);
+  }
+  return result;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -88,6 +103,7 @@ export function mapMemoRowToPin(row) {
     ll: [row.lat, row.lng],
     quote: row.quote,
     location: row.location ?? DEFAULT_LOCATION,
+    placeId: row.place_id ?? null,
     tags: toArray(row.tags),
     date: formatMemoDate(row.created_at),
     mediaPreview: row.media_url
@@ -106,10 +122,9 @@ export async function fetchMemos() {
   const client = getSupabaseBrowserClient();
   if (!client) return [];
 
-  const { data, error } = await client
-    .from('memos')
-    .select(MEMO_COLUMNS)
-    .order('created_at', { ascending: false });
+  const { data, error } = await queryMemos(client, columns =>
+    client.from('memos').select(columns).order('created_at', { ascending: false }),
+  );
 
   if (error || !Array.isArray(data)) return [];
   return data.map(mapMemoRowToPin);
@@ -118,7 +133,15 @@ export async function fetchMemos() {
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
 /** Persist a new memo for the signed-in user. */
-export async function createMemo({ quote, lat, lng, tags, location = DEFAULT_LOCATION, media = null }) {
+export async function createMemo({
+  quote,
+  lat,
+  lng,
+  tags,
+  location = DEFAULT_LOCATION,
+  placeId = null,
+  media = null,
+}) {
   if (!isSupabaseEnabled()) {
     return { error: 'Supabase is not configured.' };
   }
@@ -156,20 +179,48 @@ export async function createMemo({ quote, lat, lng, tags, location = DEFAULT_LOC
     media_type = uploadResult.media_type ?? null;
   }
 
-  const { data, error } = await client
+  const normalizedPlaceId = isPhotonPlaceId(placeId) ? placeId : null;
+  const locationLabel = String(location).trim() || DEFAULT_LOCATION;
+
+  const { countMemosAtSpot, MAX_MEMOS_PER_SPOT } = await import('./memoQueries');
+  const spotCount = await countMemosAtSpot(client, {
+    placeId: normalizedPlaceId,
+    lat: latitude,
+    lng: longitude,
+    locationName: locationLabel,
+  });
+
+  if (spotCount >= MAX_MEMOS_PER_SPOT) {
+    return { error: `This spot already has ${MAX_MEMOS_PER_SPOT} memos.` };
+  }
+
+  const row = {
+    auth_id: userId,
+    quote: trimmedQuote,
+    lat: latitude,
+    lng: longitude,
+    location: locationLabel,
+    tags: normalizedTags,
+    media_url,
+    media_type,
+  };
+
+  if (normalizedPlaceId) row.place_id = normalizedPlaceId;
+
+  let { data, error } = await client
     .from('memos')
-    .insert({
-      auth_id: userId,
-      quote: trimmedQuote,
-      lat: latitude,
-      lng: longitude,
-      location: String(location).trim() || DEFAULT_LOCATION,
-      tags: normalizedTags,
-      media_url,
-      media_type,
-    })
+    .insert(row)
     .select(MEMO_COLUMNS)
     .single();
+
+  if (error && isMissingPlaceIdColumn(error)) {
+    delete row.place_id;
+    ({ data, error } = await client
+      .from('memos')
+      .insert(row)
+      .select(MEMO_COLUMNS_BASE)
+      .single());
+  }
 
   if (error) return { error: error.message };
   return { memo: mapMemoRowToPin(data) };

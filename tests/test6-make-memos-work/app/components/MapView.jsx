@@ -1,7 +1,7 @@
 // orchestration layer -> connects React with the Leaflet map engine
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFetcher, useSearchParams } from 'react-router';
+import { useFetcher, useRevalidator, useSearchParams } from 'react-router';
 import NewMemoForm from './NewMemoForm';
 import MemoLocationPicker from './MemoLocationPicker';
 import BottomNav from './BottomNav';
@@ -26,14 +26,31 @@ const ANTWERP_BOUNDS = ANTWERP_BOUNDS_LEAFLET;
 
 function mergeMapMemories(savedMemos) {
   const demoIds = new Set(DEMO_MEMORIES.map(pin => pin.id));
-  const dbMemos = (savedMemos ?? []).filter(pin => !demoIds.has(pin.id));
+  const seen = new Set(demoIds);
+  const dbMemos = [];
+
+  for (const pin of savedMemos ?? []) {
+    if (seen.has(pin.id)) continue;
+    seen.add(pin.id);
+    dbMemos.push(pin);
+  }
+
   return [...DEMO_MEMORIES, ...dbMemos];
+}
+
+function dbMemoFingerprint(savedMemos) {
+  return (savedMemos ?? [])
+    .filter(m => m.fromDb)
+    .map(m => m.id)
+    .join(',');
 }
 
 export default function MapView({ savedMemos = [] }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const draftMemo = readDraftMemo(searchParams);
   const fetcher = useFetcher({ key: 'create-memo' });
+  const revalidator = useRevalidator();
+  const handledPublishRef = useRef(false);
   const initTokenRef = useRef(0);
   const mapRef = useRef(null);
   const leafletRef = useRef(null);
@@ -41,6 +58,7 @@ export default function MapView({ savedMemos = [] }) {
   const suppressClickRef = useRef(false);
   const memoryPinsRef = useRef(mergeMapMemories(savedMemos));
   const memoryLayerRef = useRef(null);
+  const pendingMemoRef = useRef(null);
   const prevDbMemoCountRef = useRef(null);
   // Holds the latest layer-sync fn so Leaflet zoomend handlers never capture a stale closure.
   const refreshMemoryLayersRef = useRef(null);
@@ -62,14 +80,35 @@ export default function MapView({ savedMemos = [] }) {
   const selectMemoryRef = useRef(null);
   selectMemoryRef.current = setSelectedMemory;
 
-  // Keep pin data in sync with loader output (ref write only — safe during render).
-  memoryPinsRef.current = mergeMapMemories(savedMemos);
-
-  useEffect(() => {
+  const syncMapPins = useCallback(() => {
     const L = leafletRef.current;
     const map = mapRef.current;
     if (L && map) refreshMemoryLayersRef.current?.(L, map);
-  }, [savedMemos]);
+  }, []);
+
+  // Keep pin data in sync with loader output (ref write only — safe during render).
+  const pendingMemo = pendingMemoRef.current;
+  const mergedMemos = pendingMemo ? [pendingMemo, ...savedMemos] : savedMemos;
+  memoryPinsRef.current = mergeMapMemories(mergedMemos);
+
+  const memoFingerprint = dbMemoFingerprint(mergedMemos);
+
+  useEffect(() => {
+    if (!pendingMemoRef.current) return;
+    if (savedMemos.some(m => m.id === pendingMemoRef.current.id)) {
+      pendingMemoRef.current = null;
+    }
+  }, [savedMemos, memoFingerprint]);
+
+  useEffect(() => {
+    syncMapPins();
+  }, [memoFingerprint, syncMapPins]);
+
+  useEffect(() => {
+    if (revalidator.state === 'idle') {
+      syncMapPins();
+    }
+  }, [revalidator.state, memoFingerprint, syncMapPins]);
 
   useEffect(() => {
     const dbMemos = (savedMemos ?? []).filter(m => m.fromDb);
@@ -93,6 +132,27 @@ export default function MapView({ savedMemos = [] }) {
     pendingMarkerRef.current.remove();
     pendingMarkerRef.current = null;
   }, [draftMemo]);
+
+  useEffect(() => {
+    if (fetcher.state === 'submitting') {
+      handledPublishRef.current = false;
+      return;
+    }
+    if (fetcher.state !== 'idle' || handledPublishRef.current) return;
+
+    if (fetcher.data?.success) {
+      handledPublishRef.current = true;
+
+      if (fetcher.data.memo) {
+        pendingMemoRef.current = fetcher.data.memo;
+        memoryPinsRef.current = mergeMapMemories([fetcher.data.memo, ...savedMemos]);
+        syncMapPins();
+      }
+
+      setSearchParams({}, { replace: true });
+      revalidator.revalidate();
+    }
+  }, [fetcher.state, fetcher.data, revalidator, savedMemos, setSearchParams, syncMapPins]);
 
   const attachMapContainer = useCallback((node) => {
     if (!node) {
@@ -195,13 +255,21 @@ export default function MapView({ savedMemos = [] }) {
     );
   }
 
-  function handleLocationConfirm({ name, lat, lng }) {
+  function handleLocationConfirm({ name, lat, lng, placeId = '' }) {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (L && map && Number.isFinite(lat) && Number.isFinite(lng)) {
+      placePendingPin(L, map, { lat, lng }, pendingMarkerRef, suppressClickRef, openFormRef);
+    }
+
     setSearchParams(
       prev => {
         const next = new URLSearchParams(prev);
         next.set('lat', String(lat));
         next.set('lng', String(lng));
         next.set('locationName', name);
+        if (placeId) next.set('placeId', placeId);
+        else next.delete('placeId');
         next.delete('step');
         return next;
       },

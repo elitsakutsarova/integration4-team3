@@ -1,9 +1,42 @@
-// UI modal component - displays a memory's details
+import { href, useNavigate } from 'react-router';
+import { isNamedVenueLocation } from '../utils/locationHelpers';
+import { isPhotonPlaceId, parsePhotonPlaceId } from '../utils/placeId';
+
+function locationDetailHref(pin) {
+  if (!Array.isArray(pin.ll) || pin.ll.length < 2) return null;
+
+  const [lat, lng] = pin.ll;
+  const latQ = encodeURIComponent(lat);
+  const lngQ = encodeURIComponent(lng);
+
+  if (isPhotonPlaceId(pin.placeId)) {
+    const parsed = parsePhotonPlaceId(pin.placeId);
+    if (parsed) {
+      return `${href('/location/:osmType/:osmId', parsed)}?lat=${latQ}&lng=${lngQ}`;
+    }
+  }
+
+  if (isNamedVenueLocation(pin.location)) {
+    return `/location?lat=${latQ}&lng=${lngQ}&name=${encodeURIComponent(pin.location)}`;
+  }
+
+  return null;
+}
 
 export default function MemorySheet({ pin, onClose }) {
+  const navigate = useNavigate();
+
   if (!pin) return null;
 
   const hasMedia = Boolean(pin.mediaPreview?.url);
+  const detailHref = locationDetailHref(pin);
+
+  function handleLocationClick(event) {
+    event.stopPropagation();
+    if (!detailHref) return;
+    onClose();
+    navigate(detailHref);
+  }
 
   return (
     <div className="memory-sheet-backdrop" onClick={onClose}>
@@ -41,9 +74,25 @@ export default function MemorySheet({ pin, onClose }) {
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <span className="memory-sheet-location-name">{pin.location}</span>
+              {detailHref ? (
+                <button type="button" className="memory-sheet-location-name" onClick={handleLocationClick}>
+                  {pin.location}
+                </button>
+              ) : (
+                <span className="memory-sheet-location-name memory-sheet-location-name--plain">
+                  {pin.location}
+                </span>
+              )}
             </span>
-            <button type="button" className="memory-sheet-cta">Take me there</button>
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${pin.ll[0]},${pin.ll[1]}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="memory-sheet-cta"
+              onClick={e => e.stopPropagation()}
+            >
+              Take me there
+            </a>
           </div>
         </div>
       </div>

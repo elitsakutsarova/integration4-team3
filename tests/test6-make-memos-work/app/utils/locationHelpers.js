@@ -47,3 +47,17 @@ export function filterPlaces(places, query, limit = 15) {
 export function placesForMapPins(places, query, limit = 30) {
   return filterPlaces(places, query, limit);
 }
+
+const COORD_LABEL_RE = /^-?\d+\.\d+,\s*-?\d+\.\d+$/;
+
+/** True for map pins / "My spot" — not a searchable venue name. */
+export function isCustomLocationLabel(location) {
+  const label = String(location ?? '').trim();
+  if (!label || label === 'My spot') return true;
+  return COORD_LABEL_RE.test(label);
+}
+
+export function isNamedVenueLocation(location) {
+  return !isCustomLocationLabel(location);
+}
+

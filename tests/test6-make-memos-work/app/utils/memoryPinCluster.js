@@ -4,6 +4,13 @@ export const CLUSTER_RADIUS_M = 800;
 export const CLUSTER_MIN_COUNT = 31;
 export const CLUSTER_MAX_ZOOM = 15;
 
+export const SAME_SPOT_COORD_PRECISION = 5;
+export const SAME_SPOT_RADIUS_M = 50;
+export const SPOT_PIN_SPACING_M = 1.2;
+export const SPOT_CLUSTER_MAX_ZOOM = 16;
+
+const GENERIC_LOCATION = 'my spot';
+
 const EARTH_RADIUS_M = 6_371_000;
 
 export function haversineMeters(a, b) {
@@ -103,4 +110,105 @@ export function clusterCentroid(pins) {
 
 export function shouldShowClusters(zoom) {
   return zoom <= CLUSTER_MAX_ZOOM;
+}
+
+function normalizeLocationName(name) {
+  const label = String(name ?? '').trim().toLowerCase();
+  return label && label !== GENERIC_LOCATION ? label : '';
+}
+
+function coordBucketKey(pin) {
+  const [lat, lng] = pin.ll;
+  return `${lat.toFixed(SAME_SPOT_COORD_PRECISION)},${lng.toFixed(SAME_SPOT_COORD_PRECISION)}`;
+}
+
+function createUnionFind(size) {
+  const parent = Array.from({ length: size }, (_, i) => i);
+  const find = i => {
+    if (parent[i] !== i) parent[i] = find(parent[i]);
+    return parent[i];
+  };
+  const union = (a, b) => {
+    const rootA = find(a);
+    const rootB = find(b);
+    if (rootA !== rootB) parent[rootB] = rootA;
+  };
+  return { find, union };
+}
+
+function unionBySharedKey(uf, index, key, keyToIndex) {
+  if (keyToIndex.has(key)) uf.union(index, keyToIndex.get(key));
+  else keyToIndex.set(key, index);
+}
+
+function unionByLocationAndProximity(uf, pins) {
+  const count = pins.length;
+  for (let i = 0; i < count; i += 1) {
+    const location = normalizeLocationName(pins[i].location);
+    if (!location) continue;
+
+    for (let j = i + 1; j < count; j += 1) {
+      if (location !== normalizeLocationName(pins[j].location)) continue;
+      if (haversineMeters(pins[i].ll, pins[j].ll) <= SAME_SPOT_RADIUS_M) {
+        uf.union(i, j);
+      }
+    }
+  }
+}
+
+/** Group pins at the same venue — matches memo spot limits (place_id, coords, location). */
+export function groupPinsBySpot(pins) {
+  const valid = pins.filter(
+    p => Array.isArray(p.ll) && p.ll.every(n => typeof n === 'number' && Number.isFinite(n)),
+  );
+  const count = valid.length;
+  if (count === 0) return new Map();
+
+  const uf = createUnionFind(count);
+  const placeIndex = new Map();
+  const coordIndex = new Map();
+
+  for (let i = 0; i < count; i += 1) {
+    const pin = valid[i];
+    if (pin.placeId) unionBySharedKey(uf, i, pin.placeId, placeIndex);
+    unionBySharedKey(uf, i, coordBucketKey(pin), coordIndex);
+  }
+
+  unionByLocationAndProximity(uf, valid);
+
+  const groups = new Map();
+  for (let i = 0; i < count; i += 1) {
+    const root = uf.find(i);
+    if (!groups.has(root)) groups.set(root, []);
+    groups.get(root).push(valid[i]);
+  }
+
+  return groups;
+}
+
+export function shouldShowSpotClusters(zoom) {
+  return zoom <= SPOT_CLUSTER_MAX_ZOOM;
+}
+
+function offsetMeters(lat, lng, eastM, northM) {
+  const dLat = northM / 111_111;
+  const dLng = eastM / (111_111 * Math.cos((lat * Math.PI) / 180));
+  return [lat + dLat, lng + dLng];
+}
+
+/** Spread co-located pins ~1m apart so they remain clickable when zoomed in. */
+export function spreadPinPosition(center, index, total) {
+  const [lat, lng] = center;
+  if (total <= 1) return center;
+
+  const spacingM = SPOT_PIN_SPACING_M;
+
+  if (total <= 12) {
+    const angle = (2 * Math.PI * index) / total;
+    return offsetMeters(lat, lng, spacingM * Math.cos(angle), spacingM * Math.sin(angle));
+  }
+
+  const angle = index * 2.399963;
+  const radiusM = spacingM * (1 + Math.sqrt(index) * 0.85);
+  return offsetMeters(lat, lng, radiusM * Math.cos(angle), radiusM * Math.sin(angle));
 }

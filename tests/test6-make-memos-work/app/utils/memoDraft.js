@@ -15,6 +15,7 @@ export function readDraftMemo(searchParams) {
   const pinLng = Number(pinLngRaw);
 
   const locationName = searchParams.get('locationName') ?? '';
+  const placeId = searchParams.get('placeId') ?? '';
   const pickLocation = searchParams.get('step') === 'location';
 
   return {
@@ -23,6 +24,7 @@ export function readDraftMemo(searchParams) {
     pinLat: Number.isFinite(pinLat) ? pinLat : lat,
     pinLng: Number.isFinite(pinLng) ? pinLng : lng,
     locationName,
+    placeId,
     pickLocation,
   };
 }

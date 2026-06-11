@@ -10,24 +10,11 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
   const [selectedTags, setSelectedTags] = useState([]);
   const [quote, setQuote] = useState('');
   const [quoteTouched, setQuoteTouched] = useState(false);
-  const [coords, setCoords] = useState(() => ({
-    lat: draft?.lat ?? '',
-    lng: draft?.lng ?? '',
-    location: draft?.locationName?.trim() || 'My spot',
-  }));
   const fileRef = useRef(null);
 
-  useEffect(() => {
-    setCoords({
-      lat: draft?.lat ?? '',
-      lng: draft?.lng ?? '',
-      location: draft?.locationName?.trim() || 'My spot',
-    });
-  }, [draft?.lat, draft?.lng, draft?.locationName]);
-
   const mediaState = mediaPreview ? 'preview' : showUploadZone ? 'zone' : 'idle';
-  const hasLocationName = Boolean(coords.location && coords.location !== 'My spot');
-  const locationLabel = hasLocationName ? coords.location : 'Choose Location';
+  const locationLabel = draft?.locationName?.trim() || 'Choose Location';
+  const hasLocationName = Boolean(draft?.locationName?.trim());
 
   const isSubmitting = fetcher.state !== 'idle';
   const actionError = fetcher.state === 'idle' ? fetcher.data?.error : undefined;
@@ -115,9 +102,10 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
       aria-label="New Memo"
     >
       <input type="hidden" name="intent" value="create-memo" />
-      <input type="hidden" name="lat" value={coords.lat} />
-      <input type="hidden" name="lng" value={coords.lng} />
-      <input type="hidden" name="location" value={coords.location} />
+      <input type="hidden" name="lat" value={draft?.lat ?? ''} />
+      <input type="hidden" name="lng" value={draft?.lng ?? ''} />
+      <input type="hidden" name="location" value={draft?.locationName?.trim() || 'My spot'} />
+      <input type="hidden" name="placeId" value={draft?.placeId ?? ''} />
       {selectedTags.map(tag => (
         <input key={tag} type="hidden" name="tags" value={tag} />
       ))}

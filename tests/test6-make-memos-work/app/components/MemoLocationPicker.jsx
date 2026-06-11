@@ -217,7 +217,12 @@ export default function MemoLocationPicker({
       setGeoError('This location is outside Antwerp. Pick a spot within the city.');
       return;
     }
-    onConfirm({ name: selected.name, lat: selected.lat, lng: selected.lng });
+    onConfirm({
+      name: selected.name,
+      lat: selected.lat,
+      lng: selected.lng,
+      placeId: selected.id?.startsWith('photon/') ? selected.id : '',
+    });
   }
 
   return (

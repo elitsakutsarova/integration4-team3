@@ -1,4 +1,4 @@
-import { redirect, useLoaderData } from 'react-router';
+import { useLoaderData } from 'react-router';
 import MapView from '../components/MapView';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { createMemo, fetchMemos } from '../utils/memoStore';
@@ -18,6 +18,10 @@ export async function clientLoader() {
 
 clientLoader.hydrate = true;
 
+export function shouldRevalidate() {
+  return true;
+}
+
 export async function clientAction({ request }) {
   await bootstrapAuthSession();
 
@@ -35,13 +39,14 @@ export async function clientAction({ request }) {
     lat: formData.get('lat'),
     lng: formData.get('lng'),
     location: formData.get('location'),
+    placeId: formData.get('placeId'),
     tags,
     media: media instanceof File ? media : null,
   });
 
   if (result.error) return { error: result.error };
 
-  return redirect('/');
+  return { success: true, memo: result.memo };
 }
 
 export default function Home() {
