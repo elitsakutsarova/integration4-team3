@@ -3,36 +3,37 @@
 export default function MemorySheet({ pin, onClose }) {
   if (!pin) return null;
 
+  const hasMedia = Boolean(pin.mediaPreview?.url);
+
   return (
     <div className="memory-sheet-backdrop" onClick={onClose}>
-      <div className="memory-sheet" onClick={e => e.stopPropagation()}>
+      <div className={`memory-sheet${hasMedia ? '' : ' memory-sheet--text-only'}`} onClick={e => e.stopPropagation()}>
 
-        <div className="memory-sheet-image">
-          {pin.mediaPreview?.url
-            ? (pin.mediaPreview.isVideo
-                ? <video src={pin.mediaPreview.url} className="memory-sheet-preview-img" controls playsInline />
-                : <img src={pin.mediaPreview.url} alt="Memory" className="memory-sheet-preview-img" />)
-            : <div className="memory-sheet-img-placeholder">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b0b0b8" strokeWidth="1.5">
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" fill="#b0b0b8" stroke="none" />
-                  <path d="M21 15l-5-5L5 21" />
-                </svg>
+        {hasMedia && (
+          <div className="memory-sheet-image">
+            {pin.mediaPreview.isVideo
+              ? <video src={pin.mediaPreview.url} className="memory-sheet-preview-img" controls playsInline />
+              : <img src={pin.mediaPreview.url} alt="Memory" className="memory-sheet-preview-img" />
+            }
+            <button type="button" className="memory-sheet-heart" aria-label="Save">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181F" strokeWidth="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </button>
+            {(pin.tags ?? []).length > 0 && (
+              <div className="memory-sheet-tags">
+                {(pin.tags ?? []).map(t => <span key={t} className="memory-sheet-tag">{t}</span>)}
               </div>
-          }
-          <button type="button" className="memory-sheet-heart" aria-label="Save">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#18181F" strokeWidth="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </button>
-          {(pin.tags ?? []).length > 0 && (
-            <div className="memory-sheet-tags">
+            )}
+          </div>
+        )}
+
+        <div className="memory-sheet-content">
+          {!hasMedia && (pin.tags ?? []).length > 0 && (
+            <div className="memory-sheet-tags memory-sheet-tags--inline">
               {(pin.tags ?? []).map(t => <span key={t} className="memory-sheet-tag">{t}</span>)}
             </div>
           )}
-        </div>
-
-        <div className="memory-sheet-content">
           <p className="memory-sheet-quote">&ldquo;{pin.quote}&rdquo;</p>
           <div className="memory-sheet-actions">
             <span className="memory-sheet-location">

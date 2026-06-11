@@ -10,23 +10,10 @@ export function meta() {
   ];
 }
 
-function readDraftMemo(request) {
-  const url = new URL(request.url);
-  const latRaw = url.searchParams.get('lat');
-  const lngRaw = url.searchParams.get('lng');
-  if (latRaw == null || lngRaw == null || latRaw === '' || lngRaw === '') return null;
-
-  const lat = Number(latRaw);
-  const lng = Number(lngRaw);
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
-  return { lat, lng };
-}
-
-export async function clientLoader({ request }) {
+export async function clientLoader() {
   await bootstrapAuthSession();
   const memos = await fetchMemos();
-  return { memos, draftMemo: readDraftMemo(request) };
+  return { memos };
 }
 
 clientLoader.hydrate = true;
@@ -58,6 +45,6 @@ export async function clientAction({ request }) {
 }
 
 export default function Home() {
-  const { memos, draftMemo } = useLoaderData();
-  return <MapView savedMemos={memos} draftMemo={draftMemo} />;
+  const { memos } = useLoaderData();
+  return <MapView savedMemos={memos} />;
 }

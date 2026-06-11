@@ -3,12 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher, useSearchParams } from 'react-router';
 import NewMemoForm from './NewMemoForm';
+import MemoLocationPicker from './MemoLocationPicker';
 import BottomNav from './BottomNav';
 import MemorySheet from './MemorySheet';
 
 import { MOCK_MEMORIES, INITIAL_EVENTS } from '../data/mockUser';
 import { GROTE_MARKT_CLUSTER_MEMORIES } from '../data/groteMarktClusterMemories';
 
+import { readDraftMemo } from '../utils/memoDraft';
+import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
 import { addBasemapControl } from '../utils/mapLayers';
 import {
   buildEventMarker,
@@ -19,7 +22,7 @@ import {
 const DEMO_MEMORIES = [...MOCK_MEMORIES, ...GROTE_MARKT_CLUSTER_MEMORIES];
 
 const ANTWERP_CENTER = [51.2194, 4.4025];
-const ANTWERP_BOUNDS = [[51.05, 4.15], [51.40, 4.65]];
+const ANTWERP_BOUNDS = ANTWERP_BOUNDS_LEAFLET;
 
 function mergeMapMemories(savedMemos) {
   const demoIds = new Set(DEMO_MEMORIES.map(pin => pin.id));
@@ -27,8 +30,9 @@ function mergeMapMemories(savedMemos) {
   return [...DEMO_MEMORIES, ...dbMemos];
 }
 
-export default function MapView({ savedMemos = [], draftMemo = null }) {
-  const [, setSearchParams] = useSearchParams();
+export default function MapView({ savedMemos = [] }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const draftMemo = readDraftMemo(searchParams);
   const fetcher = useFetcher({ key: 'create-memo' });
   const initTokenRef = useRef(0);
   const mapRef = useRef(null);
@@ -37,6 +41,7 @@ export default function MapView({ savedMemos = [], draftMemo = null }) {
   const suppressClickRef = useRef(false);
   const memoryPinsRef = useRef(mergeMapMemories(savedMemos));
   const memoryLayerRef = useRef(null);
+  const prevDbMemoCountRef = useRef(null);
   // Holds the latest layer-sync fn so Leaflet zoomend handlers never capture a stale closure.
   const refreshMemoryLayersRef = useRef(null);
 
@@ -46,7 +51,12 @@ export default function MapView({ savedMemos = [], draftMemo = null }) {
   // current navigate/setState logic without re-binding listeners on every render.
   const openFormRef = useRef(null);
   openFormRef.current = (latlng) => {
-    setSearchParams({ lat: String(latlng.lat), lng: String(latlng.lng) }, { replace: true });
+    setSearchParams({
+      lat: String(latlng.lat),
+      lng: String(latlng.lng),
+      pinLat: String(latlng.lat),
+      pinLng: String(latlng.lng),
+    }, { replace: true });
   };
 
   const selectMemoryRef = useRef(null);
@@ -59,6 +69,22 @@ export default function MapView({ savedMemos = [], draftMemo = null }) {
     const L = leafletRef.current;
     const map = mapRef.current;
     if (L && map) refreshMemoryLayersRef.current?.(L, map);
+  }, [savedMemos]);
+
+  useEffect(() => {
+    const dbMemos = (savedMemos ?? []).filter(m => m.fromDb);
+    const count = dbMemos.length;
+
+    if (prevDbMemoCountRef.current === null) {
+      prevDbMemoCountRef.current = count;
+      return;
+    }
+
+    const map = mapRef.current;
+    if (map && count > prevDbMemoCountRef.current && dbMemos[0]?.ll) {
+      map.setView(dbMemos[0].ll, Math.max(map.getZoom(), 15), { animate: true });
+    }
+    prevDbMemoCountRef.current = count;
   }, [savedMemos]);
 
   useEffect(() => {
@@ -147,6 +173,42 @@ export default function MapView({ savedMemos = [], draftMemo = null }) {
     setSearchParams({}, { replace: true });
   }
 
+  function handleOpenLocationPicker() {
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.set('step', 'location');
+        return next;
+      },
+      { replace: true },
+    );
+  }
+
+  function handleLocationBack() {
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.delete('step');
+        return next;
+      },
+      { replace: true },
+    );
+  }
+
+  function handleLocationConfirm({ name, lat, lng }) {
+    setSearchParams(
+      prev => {
+        const next = new URLSearchParams(prev);
+        next.set('lat', String(lat));
+        next.set('lng', String(lng));
+        next.set('locationName', name);
+        next.delete('step');
+        return next;
+      },
+      { replace: true },
+    );
+  }
+
   return (
     <>
       <div ref={attachMapContainer} className="map-container" />
@@ -157,11 +219,25 @@ export default function MapView({ savedMemos = [], draftMemo = null }) {
         <MemorySheet pin={selectedMemory} onClose={() => setSelectedMemory(null)} />
       )}
 
+      {draftMemo?.pickLocation && (
+        <MemoLocationPicker
+          initialLat={draftMemo.lat}
+          initialLng={draftMemo.lng}
+          initialName={draftMemo.locationName}
+          mapPinLat={draftMemo.pinLat}
+          mapPinLng={draftMemo.pinLng}
+          onBack={handleLocationBack}
+          onConfirm={handleLocationConfirm}
+        />
+      )}
+
       {draftMemo && (
         <NewMemoForm
-          latlng={draftMemo}
+          draft={draftMemo}
           fetcher={fetcher}
+          hidden={draftMemo.pickLocation}
           onClose={handleFormClose}
+          onChooseLocation={handleOpenLocationPicker}
         />
       )}
     </>

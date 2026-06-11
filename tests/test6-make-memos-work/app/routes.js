@@ -11,4 +11,5 @@ export default [
   route("connect", "routes/connect.jsx"),
   route("diary/:id", "routes/diary.$id.jsx"),
   route("api/stickers", "routes/api.stickers.js"),
+  route("api/location-search", "routes/api.location-search.js"),
 ];
