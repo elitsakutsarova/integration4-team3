@@ -15,18 +15,18 @@ sth
 
 first commit
 
-## Test 1
+## Test 1 (Make map, add pins to the map)
 
 Add pins to the map with text. Try to add both memory pins and event pins. When you click on them, there should be text and maybe photos.
 
-## Test 2
+## Test 2 (Profile page, Travel Diary, Draggable stickers, Sharing feature)
 
 - Create the profile page. 
 - Create the Travel Diary
 - Create the Draggable stickers menu
 - Create the sharing functionality (the user can share the Travel Diary)
 
-## Test 3
+## Test 3 (Supabase setup)
 - Create a Supabase Users database
 - Connect React app to Supabase
 - Use Authentification
@@ -66,3 +66,9 @@ After our consult, I changed a lot of things in test5 like:
 - refactored comments and imports in CollectedStickersContext, profile, and stickers routes for clarity and organization
 - simplified state management in StickersGallery by removing unused state and replacing button with Link for navigation
 - removed unused useCallback from demo-stickers.jsx
+
+
+## Test 6 (Add a memory)
+- create a feature that lets the user add memos, and the memos should be saved across different logged user accounts, as well as inside the database
+- let users upload media to the memos - photos and videos with 10MB upload constraint
+- use OSM (Open Street Map) and  Photon (open Source geocoder for name and address search) built for OSM to let the users pick real spots on the map
