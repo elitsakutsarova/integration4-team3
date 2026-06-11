@@ -66,3 +66,8 @@ After our consult, I changed a lot of things in test5 like:
 - refactored comments and imports in CollectedStickersContext, profile, and stickers routes for clarity and organization
 - simplified state management in StickersGallery by removing unused state and replacing button with Link for navigation
 - removed unused useCallback from demo-stickers.jsx
+
+
+## Test 6 (Cluster pins at Zoom out)
+- create a feature that lets the user add memos, and the memos should be saved across different logged user accounts, as well as inside the database
+- let users upload media to the memos - photos and videos with 10MB upload constraint

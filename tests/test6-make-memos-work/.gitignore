@@ -2,6 +2,8 @@
 .env
 /certs/
 /node_modules/
+.env.local
+.env.example
 
 # React Router
 /.react-router/

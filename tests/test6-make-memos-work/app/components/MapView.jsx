@@ -1,11 +1,11 @@
 // orchestration layer -> connects React with the Leaflet map engine
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFetcher, useSearchParams } from 'react-router';
 import NewMemoForm from './NewMemoForm';
 import BottomNav from './BottomNav';
 import MemorySheet from './MemorySheet';
 
-//delete later - mock data
 import { MOCK_MEMORIES, INITIAL_EVENTS } from '../data/mockUser';
 import { GROTE_MARKT_CLUSTER_MEMORIES } from '../data/groteMarktClusterMemories';
 
@@ -16,33 +16,57 @@ import {
   syncMemoryLayers,
 } from '../utils/mapPins';
 
-const ALL_INITIAL_MEMORIES = [...MOCK_MEMORIES, ...GROTE_MARKT_CLUSTER_MEMORIES];
+const DEMO_MEMORIES = [...MOCK_MEMORIES, ...GROTE_MARKT_CLUSTER_MEMORIES];
 
 const ANTWERP_CENTER = [51.2194, 4.4025];
 const ANTWERP_BOUNDS = [[51.05, 4.15], [51.40, 4.65]];
 
-export default function MapView() {
+function mergeMapMemories(savedMemos) {
+  const demoIds = new Set(DEMO_MEMORIES.map(pin => pin.id));
+  const dbMemos = (savedMemos ?? []).filter(pin => !demoIds.has(pin.id));
+  return [...DEMO_MEMORIES, ...dbMemos];
+}
+
+export default function MapView({ savedMemos = [], draftMemo = null }) {
+  const [, setSearchParams] = useSearchParams();
+  const fetcher = useFetcher({ key: 'create-memo' });
   const initTokenRef = useRef(0);
   const mapRef = useRef(null);
   const leafletRef = useRef(null);
   const pendingMarkerRef = useRef(null);
   const suppressClickRef = useRef(false);
-  const memoryPinsRef = useRef([...ALL_INITIAL_MEMORIES]);
+  const memoryPinsRef = useRef(mergeMapMemories(savedMemos));
   const memoryLayerRef = useRef(null);
+  // Holds the latest layer-sync fn so Leaflet zoomend handlers never capture a stale closure.
   const refreshMemoryLayersRef = useRef(null);
 
   const [selectedMemory, setSelectedMemory] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [formLatlng, setFormLatlng] = useState(null);
 
+  // Live refs: Leaflet registers event handlers once at init — these always point at the
+  // current navigate/setState logic without re-binding listeners on every render.
   const openFormRef = useRef(null);
   openFormRef.current = (latlng) => {
-    setFormLatlng(latlng);
-    setShowForm(true);
+    setSearchParams({ lat: String(latlng.lat), lng: String(latlng.lng) }, { replace: true });
   };
 
   const selectMemoryRef = useRef(null);
   selectMemoryRef.current = setSelectedMemory;
+
+  // Keep pin data in sync with loader output (ref write only — safe during render).
+  memoryPinsRef.current = mergeMapMemories(savedMemos);
+
+  useEffect(() => {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (L && map) refreshMemoryLayersRef.current?.(L, map);
+  }, [savedMemos]);
+
+  useEffect(() => {
+    if (draftMemo) return;
+    if (!pendingMarkerRef.current) return;
+    pendingMarkerRef.current.remove();
+    pendingMarkerRef.current = null;
+  }, [draftMemo]);
 
   const attachMapContainer = useCallback((node) => {
     if (!node) {
@@ -101,6 +125,7 @@ export default function MapView() {
         if (suppressClickRef.current) return;
         if (!e.latlng || !Number.isFinite(e.latlng.lat) || !Number.isFinite(e.latlng.lng)) return;
         placePendingPin(L, map, e.latlng, pendingMarkerRef, suppressClickRef, openFormRef);
+        openFormRef.current(e.latlng);
       });
 
       requestAnimationFrame(() => map.invalidateSize());
@@ -113,36 +138,13 @@ export default function MapView() {
     const L = leafletRef.current;
     const map = mapRef.current;
     if (!L || !map) return;
-    placePendingPin(L, map, map.getCenter(), pendingMarkerRef, suppressClickRef, openFormRef);
+    const center = map.getCenter();
+    placePendingPin(L, map, center, pendingMarkerRef, suppressClickRef, openFormRef);
+    openFormRef.current(center);
   }
 
   function handleFormClose() {
-    setShowForm(false);
-    setFormLatlng(null);
-  }
-
-  function handlePublish({ latlng, quote, mediaPreview }) {
-    const L = leafletRef.current;
-    const map = mapRef.current;
-    if (!L || !map) return;
-
-    if (pendingMarkerRef.current) {
-      pendingMarkerRef.current.remove();
-      pendingMarkerRef.current = null;
-    }
-
-    memoryPinsRef.current.push({
-      id: Date.now(),
-      ll: [latlng.lat, latlng.lng],
-      quote,
-      location: 'My spot',
-      tags: ['Personal'],
-      mediaPreview,
-    });
-
-    refreshMemoryLayersRef.current?.(L, map);
-    setShowForm(false);
-    setFormLatlng(null);
+    setSearchParams({}, { replace: true });
   }
 
   return (
@@ -155,11 +157,11 @@ export default function MapView() {
         <MemorySheet pin={selectedMemory} onClose={() => setSelectedMemory(null)} />
       )}
 
-      {showForm && (
+      {draftMemo && (
         <NewMemoForm
-          latlng={formLatlng}
+          latlng={draftMemo}
+          fetcher={fetcher}
           onClose={handleFormClose}
-          onPublish={handlePublish}
         />
       )}
     </>

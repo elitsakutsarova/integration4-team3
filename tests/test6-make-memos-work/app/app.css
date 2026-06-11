@@ -864,6 +864,35 @@ html, body {
 }
 
 /* Location row */
+.form-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.form-tag-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #e4e4e8;
+  background: #fff;
+  color: #18181F;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.form-tag-chip:hover {
+  border-color: #c8c8d0;
+}
+
+.form-tag-chip--selected {
+  background: #18181F;
+  border-color: #18181F;
+  color: #fff;
+}
+
 .form-location-row {
   display: flex;
   align-items: center;
