@@ -1,0 +1,52 @@
+[
+  {
+    "id": "barbenheimer",
+    "src": "/stickers/barbenheimer.png",
+    "label": "Barbenheimer"
+  },
+  {
+    "id": "eli",
+    "src": "/stickers/eli.png",
+    "label": "Eli"
+  },
+  {
+    "id": "fish1",
+    "src": "/stickers/fish1.png",
+    "label": "Fish1"
+  },
+  {
+    "id": "ganyu",
+    "src": "/stickers/Ganyu.png",
+    "label": "Ganyu"
+  },
+  {
+    "id": "ghost",
+    "src": "/stickers/Ghost.png",
+    "label": "Ghost"
+  },
+  {
+    "id": "iri",
+    "src": "/stickers/iri.png",
+    "label": "Iri"
+  },
+  {
+    "id": "ken",
+    "src": "/stickers/Ken.png",
+    "label": "Ken"
+  },
+  {
+    "id": "lain",
+    "src": "/stickers/Lain.png",
+    "label": "Lain"
+  },
+  {
+    "id": "lulu",
+    "src": "/stickers/lulu.png",
+    "label": "Lulu"
+  },
+  {
+    "id": "reni",
+    "src": "/stickers/reni.png",
+    "label": "Reni"
+  }
+]
