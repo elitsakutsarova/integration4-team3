@@ -34,7 +34,7 @@ export default function BottomNav({ onAddClick }) {
 
   const active =
     pathname.startsWith('/profile') || pathname.startsWith('/stickers') ? 'profile'
-    : pathname.startsWith('/diary') ? 'diary'
+    : pathname.startsWith('/diary') ? 'journal'
     : pathname.startsWith('/location') ? 'discover'
     : 'home';
 
@@ -42,9 +42,8 @@ export default function BottomNav({ onAddClick }) {
     <nav className="bottom-nav" aria-label="Main navigation">
       <NavItem id="home" label="Home" active={active} to="/">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="3 6 9 3 15 6 21 3 21 20 15 23 9 20 3 23" />
-          <line x1="9" y1="3" x2="9" y2="20" />
-          <line x1="15" y1="6" x2="15" y2="23" />
+          <path d="M3 6l9-4 9 4v14a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V6z" />
+          <path d="M9 3v6M15 7v6" />
         </svg>
       </NavItem>
 
@@ -61,16 +60,16 @@ export default function BottomNav({ onAddClick }) {
         onClick={onAddClick}
         aria-label="Add memo"
       >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
+        <svg className="nav-add-pixel" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+          <rect x="11" y="4" width="6" height="20" fill="white" />
+          <rect x="4" y="11" width="20" height="6" fill="white" />
         </svg>
       </button>
 
-      <NavItem id="alerts" label="Alerts" active={active} to="/">
+      <NavItem id="journal" label="Journal" active={active} to="/diary/summer-in-antwerp">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
         </svg>
       </NavItem>
 

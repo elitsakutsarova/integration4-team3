@@ -137,12 +137,12 @@ export const INITIAL_EVENTS = [
   {
     id: 101,
     ll: [51.2165, 4.4080],
-    label: 'De Nor',
+    label: 'Traum',
     title: 'Bruismelk Festival',
     tags: ['Festival', 'Music'],
     likes: 268,
     badge: 'Now',
-    image: 'https://images.unsplash.com/photo-1459749411175-04bf5294ceeb?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1459749411175-04bf5294ceeb?w=400&h=400&fit=crop',
   },
   {
     id: 102,

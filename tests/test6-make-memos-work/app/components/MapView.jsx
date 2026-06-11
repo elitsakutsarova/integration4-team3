@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher, useRevalidator, useSearchParams } from 'react-router';
 import NewMemoForm from './NewMemoForm';
 import MemoLocationPicker from './MemoLocationPicker';
+import MapHomeChrome from './MapHomeChrome';
 import BottomNav from './BottomNav';
 import MemorySheet from './MemorySheet';
 
@@ -12,6 +13,7 @@ import { GROTE_MARKT_CLUSTER_MEMORIES } from '../data/groteMarktClusterMemories'
 
 import { readDraftMemo } from '../utils/memoDraft';
 import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
+import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
 import {
   buildEventMarker,
@@ -58,12 +60,17 @@ export default function MapView({ savedMemos = [] }) {
   const suppressClickRef = useRef(false);
   const memoryPinsRef = useRef(mergeMapMemories(savedMemos));
   const memoryLayerRef = useRef(null);
+  const eventMarkersRef = useRef([]);
   const pendingMemoRef = useRef(null);
   const prevDbMemoCountRef = useRef(null);
   // Holds the latest layer-sync fn so Leaflet zoomend handlers never capture a stale closure.
   const refreshMemoryLayersRef = useRef(null);
 
   const [selectedMemory, setSelectedMemory] = useState(null);
+  const [activeCategory, setActiveCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filterOptions = { category: activeCategory, query: searchQuery };
 
   // Live refs: Leaflet registers event handlers once at init — these always point at the
   // current navigate/setState logic without re-binding listeners on every render.
@@ -89,9 +96,11 @@ export default function MapView({ savedMemos = [] }) {
   // Keep pin data in sync with loader output (ref write only — safe during render).
   const pendingMemo = pendingMemoRef.current;
   const mergedMemos = pendingMemo ? [pendingMemo, ...savedMemos] : savedMemos;
-  memoryPinsRef.current = mergeMapMemories(mergedMemos);
+  const allMemos = mergeMapMemories(mergedMemos);
+  memoryPinsRef.current = filterMapMemories(allMemos, filterOptions);
 
   const memoFingerprint = dbMemoFingerprint(mergedMemos);
+  const filterFingerprint = `${memoFingerprint}|${activeCategory}|${searchQuery}`;
 
   useEffect(() => {
     if (!pendingMemoRef.current) return;
@@ -102,13 +111,34 @@ export default function MapView({ savedMemos = [] }) {
 
   useEffect(() => {
     syncMapPins();
-  }, [memoFingerprint, syncMapPins]);
+  }, [filterFingerprint, syncMapPins]);
 
   useEffect(() => {
     if (revalidator.state === 'idle') {
       syncMapPins();
     }
-  }, [revalidator.state, memoFingerprint, syncMapPins]);
+  }, [revalidator.state, filterFingerprint, syncMapPins]);
+
+  useEffect(() => {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    for (const marker of eventMarkersRef.current) {
+      marker.remove();
+    }
+
+    const visibleEvents = filterMapEvents(INITIAL_EVENTS, filterOptions);
+    eventMarkersRef.current = visibleEvents.map(pin => {
+      if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
+      return buildEventMarker(L, map, pin);
+    }).filter(Boolean);
+
+    const featured = eventMarkersRef.current[0];
+    if (featured && activeCategory === 'All' && !searchQuery.trim()) {
+      featured.openPopup();
+    }
+  }, [activeCategory, searchQuery]);
 
   useEffect(() => {
     const dbMemos = (savedMemos ?? []).filter(m => m.fromDb);
@@ -193,7 +223,6 @@ export default function MapView({ savedMemos = [] }) {
       mapRef.current = map;
 
       addBasemapControl(L, map, { defaultLayer: 'openfreemap' });
-      L.control.zoom({ position: 'bottomright' }).addTo(map);
 
       refreshMemoryLayersRef.current = (l, m) =>
         syncMemoryLayers(l, m, memoryPinsRef, memoryLayerRef, suppressClickRef, selectMemoryRef);
@@ -201,11 +230,15 @@ export default function MapView({ savedMemos = [] }) {
       refreshMemoryLayersRef.current(L, map);
       map.on('zoomend', () => refreshMemoryLayersRef.current?.(L, map));
 
-      INITIAL_EVENTS.forEach(pin => {
-        if (Array.isArray(pin.ll) && pin.ll.every(n => typeof n === 'number' && Number.isFinite(n))) {
-          buildEventMarker(L, map, pin);
-        }
-      });
+      const visibleEvents = filterMapEvents(INITIAL_EVENTS, { category: 'All', query: '' });
+      eventMarkersRef.current = visibleEvents.map(pin => {
+        if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
+        return buildEventMarker(L, map, pin);
+      }).filter(Boolean);
+
+      if (eventMarkersRef.current[0]) {
+        eventMarkersRef.current[0].openPopup();
+      }
 
       map.on('click', e => {
         if (suppressClickRef.current) return;
@@ -278,8 +311,15 @@ export default function MapView({ savedMemos = [] }) {
   }
 
   return (
-    <>
+    <div className="map-page">
       <div ref={attachMapContainer} className="map-container" />
+
+      <MapHomeChrome
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+      />
 
       <BottomNav onAddClick={handleAddBtnClick} />
 
@@ -308,6 +348,6 @@ export default function MapView({ savedMemos = [] }) {
           onChooseLocation={handleOpenLocationPicker}
         />
       )}
-    </>
+    </div>
   );
 }

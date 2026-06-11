@@ -47,11 +47,10 @@ export function memoryClusterPinHtml(count) {
   </div>`;
 }
 
-export function eventPinHtml(label) {
+export function eventPinHtml() {
   return `<div class="pin-event">
     <div class="pin-event-glow"></div>
     <div class="pin-event-circle">${MUSIC_ICON_SVG}</div>
-    <span class="pin-event-label">${label}</span>
   </div>`;
 }
 
@@ -60,21 +59,21 @@ export function eventPopupHtml(pin) {
   return `<div class="event-popup">
     <div class="event-popup-body">
       <div class="event-popup-text">
-        <h3 class="event-popup-title">${pin.title}</h3>
+        <h3 class="event-popup-title"><span class="event-popup-title-highlight">${pin.title}</span></h3>
         <div class="event-popup-tags">${tags}</div>
-        <div class="event-popup-footer">
-          <span class="event-popup-likes">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            ${pin.likes}
-          </span>
-          <a class="event-popup-more" href="#">See more</a>
-        </div>
+        <p class="event-popup-location">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          ${pin.label}
+        </p>
+        <a class="event-popup-cta" href="#">Learn more</a>
       </div>
       <div class="event-popup-image-wrap">
+        <div class="event-popup-image-shadow" aria-hidden="true"></div>
         <img class="event-popup-image" src="${pin.image}" alt="${pin.title}" />
-        <span class="event-popup-badge">${pin.badge}</span>
+        <span class="event-popup-badge"><span class="event-popup-badge-dot"></span> Now</span>
       </div>
     </div>
   </div>`;
@@ -178,10 +177,10 @@ export function syncMemoryLayers(L, map, memoryPinsRef, memoryLayerRef, suppress
 export function buildEventMarker(L, map, pin) {
   const icon = L.divIcon({
     className: '',
-    html: eventPinHtml(pin.label),
-    iconSize: [80, 72],
-    iconAnchor: [40, 40],
-    popupAnchor: [0, -44],
+    html: eventPinHtml(),
+    iconSize: [64, 64],
+    iconAnchor: [32, 32],
+    popupAnchor: [0, -36],
   });
   const marker = L.marker(pin.ll, { icon }).addTo(map);
   marker.bindPopup(eventPopupHtml(pin), {
