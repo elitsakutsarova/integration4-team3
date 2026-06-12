@@ -72,3 +72,13 @@ After our consult, I changed a lot of things in test5 like:
 - create a feature that lets the user add memos, and the memos should be saved across different logged user accounts, as well as inside the database
 - let users upload media to the memos - photos and videos with 10MB upload constraint
 - use OSM (Open Street Map) and  Photon (open Source geocoder for name and address search) built for OSM to let the users pick real spots on the map
+
+## Test 7 (Discover page)
+
+- add discover section -> search, category filters, and sections for Happening Now, Upcoming, and Places, plus “View all” list pages and event/place detail screens
+- save / favourites — working heart buttons on map memos and discover items + saved data (Supabase + local guest storage) for memos, events, and places for the user(s)
+- profile collections — split into Created Memos (/profile/memos) and Favourites (/profile/favourites/memos, /spots, /events) with tag/category filters and a live count
+- persistent map shell — map stays mounted in a main-shell layout while you browse Discover and Profile, so switching tabs does not remount the map
+- memo archive at spots — event/place/location detail pages show featured memos and a “View more” link to a full memo archive per location
+- map + location safety — event pins on the map tied to discover; memory popup anchored to the clicked pin; location links validated via Photon so only real, in-bounds spots are navigable and users can't create non-existent locations through the url
+- auth & routing polish — client auth middleware, protected-route redirects, type-safe path helpers, and a dedicated /api/memos endpoint for publishing (instead of posting to home)
