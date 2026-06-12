@@ -1,17 +1,23 @@
-import { data } from 'react-router';
+import { redirect } from 'react-router';
 import { buildPhotonPlaceId } from './placeId';
+import { fallbackPathFromRequest, isValidOsmRouteParams } from './safeRouteFallbacks';
 
 /** Shared param/query parsing for /location/:osmType/:osmId routes. */
 export function parseLocationRoute({ params, request }) {
+  if (!isValidOsmRouteParams(params.osmType, params.osmId)) {
+    throw redirect(fallbackPathFromRequest(request));
+  }
+
   const url = new URL(request.url);
   const lat = Number(url.searchParams.get('lat'));
   const lng = Number(url.searchParams.get('lng'));
   const locationName = url.searchParams.get('name') ?? '';
   const spotTitle = url.searchParams.get('title') ?? locationName;
-  const placeId = buildPhotonPlaceId(params.osmType, params.osmId);
+  const osmType = String(params.osmType).toUpperCase();
+  const placeId = buildPhotonPlaceId(osmType, params.osmId);
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    throw data('Missing map coordinates for this place.', { status: 400 });
+    throw redirect(fallbackPathFromRequest(request));
   }
 
   return { placeId, lat, lng, locationName, spotTitle };

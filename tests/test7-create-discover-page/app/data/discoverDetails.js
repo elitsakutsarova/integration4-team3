@@ -3,6 +3,7 @@
 import {
   HAPPENING_NOW,
   HAPPENING_NOW_ALL,
+  PLACES_WORTH_MEMO,
   PLACES_WORTH_MEMO_ALL,
   UPCOMING_ALL,
 } from './discoverContent';
@@ -236,10 +237,49 @@ export function buildInitialMapEvents() {
   });
 }
 
+function findDiscoverPlaceItem(id, baseId) {
+  const pools = [PLACES_WORTH_MEMO, PLACES_WORTH_MEMO_ALL];
+
+  for (const pool of pools) {
+    const exact = pool.find(entry => entry.id === id);
+    if (exact) return exact;
+
+    const byBase = pool.find(entry => entry.id === baseId);
+    if (byBase) return byBase;
+
+    const byPrefix = pool.find(entry => resolvePlaceBaseId(entry.id) === baseId);
+    if (byPrefix) return byPrefix;
+  }
+
+  return null;
+}
+
+function syntheticPlaceFromDetails(baseId, detail) {
+  const titleFromId = baseId
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+  return {
+    id: baseId,
+    title: titleFromId,
+    location: detail.mapsQuery?.split(',')[0]?.trim() ?? 'Antwerp',
+    tags: [detail.categoryBadge ?? 'Food'],
+    categories: [detail.categoryBadge ?? 'Food'],
+    image: detail.collage?.[0] ?? '/discover/caffe-mundi.jpg',
+  };
+}
+
 export function getDiscoverPlaceById(id) {
-  const item = getAllDiscoverPlaces().find(entry => entry.id === id);
-  if (!item) return null;
   const baseId = resolvePlaceBaseId(id);
-  const detail = PLACE_DETAILS[baseId] ?? defaultPlaceDetail(item);
-  return { ...item, ...detail };
+  const staticDetail = PLACE_DETAILS[baseId];
+
+  let item = findDiscoverPlaceItem(id, baseId);
+  if (!item && staticDetail) {
+    item = syntheticPlaceFromDetails(baseId, staticDetail);
+  }
+  if (!item) return null;
+
+  const detail = staticDetail ?? defaultPlaceDetail(item);
+  return { ...item, id: baseId, ...detail };
 }

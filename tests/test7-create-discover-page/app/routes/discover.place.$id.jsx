@@ -1,9 +1,11 @@
 // route for the place/location detail page in the discover
 
-import { data, useLoaderData } from 'react-router';
+import { redirect, useLoaderData } from 'react-router';
 import PlaceDetailPage from '../components/discover/PlaceDetailPage';
 import { getDiscoverPlaceById } from '../data/discoverDetails';
 import { loadSpotMemos } from '../utils/loadSpotMemos';
+import { resolveDiscoverPlaceSpot } from '../utils/resolveDiscoverPlaceSpot';
+import { FALLBACK_DISCOVER } from '../utils/safeRouteFallbacks';
 
 export function meta({ data: loaderData }) {
   const title = loaderData?.place?.title ?? 'Place';
@@ -16,17 +18,19 @@ export function meta({ data: loaderData }) {
 export async function clientLoader({ params }) {
   const place = getDiscoverPlaceById(params.id);
   if (!place) {
-    throw data('Place not found', { status: 404 });
+    throw redirect(FALLBACK_DISCOVER);
   }
 
+  const resolvedPlace = await resolveDiscoverPlaceSpot(place);
+
   const { featuredMemos, totalMemoCount } = await loadSpotMemos({
-    placeId: place.placeId,
-    lat: place.ll?.[0],
-    lng: place.ll?.[1],
-    locationName: place.title ?? place.location,
+    placeId: resolvedPlace.placeId,
+    lat: resolvedPlace.ll?.[0],
+    lng: resolvedPlace.ll?.[1],
+    locationName: resolvedPlace.title ?? resolvedPlace.location,
   });
 
-  return { place, featuredMemos, totalMemoCount };
+  return { place: resolvedPlace, featuredMemos, totalMemoCount };
 }
 
 clientLoader.hydrate = true;

@@ -2,11 +2,14 @@ import {
   isRouteErrorResponse,
   Links,
   Meta,
+  Navigate,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useLocation,
   useRevalidator,
+  useRouteError,
   redirect,
 } from "react-router";
 import { useLayoutEffect } from "react";
@@ -22,6 +25,7 @@ import { bootstrapAuthSession } from "./utils/authSession";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
 import { registerAppRevalidate } from "./utils/revalidateApp";
 import { loadStickersFromPublic } from "./utils/stickers.server";
+import { getSafeFallbackPath } from "./utils/safeRouteFallbacks";
 
 // loads stickers from public/stickers (server-side)
 export async function loader() {
@@ -110,18 +114,22 @@ export default function App() {
   );
 }
 
-// catches crashes
-export function ErrorBoundary({ error }) {
+// Redirect invalid URLs to sensible defaults instead of showing error pages.
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const { pathname } = useLocation();
+
+  if (isRouteErrorResponse(error) && (error.status === 404 || error.status === 400)) {
+    return <Navigate to={getSafeFallbackPath(pathname)} replace />;
+  }
+
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
-    details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
+    message = "Error";
+    details = error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;

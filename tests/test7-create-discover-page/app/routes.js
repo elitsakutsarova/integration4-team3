@@ -20,4 +20,5 @@ export default [
   route("location/:osmType/:osmId", "routes/location.$osmType.$osmId.jsx"),
   route("api/stickers", "routes/api.stickers.js"),
   route("api/location-search", "routes/api.location-search.js"),
+  route("*", "routes/catchall.jsx"),
 ];
