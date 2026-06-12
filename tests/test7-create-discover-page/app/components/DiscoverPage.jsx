@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, href } from 'react-router';
 import BottomNav from './BottomNav';
+import DiscoverSavedModal from './discover/DiscoverSavedModal';
 import { CategoryIcon, EventCard, PlaceCard } from './discover/DiscoverCards';
 import {
   DISCOVER_CATEGORIES,
@@ -160,6 +161,7 @@ export default function DiscoverPage() {
       </section>
 
       <BottomNav />
+      <DiscoverSavedModal />
     </div>
   );
 }

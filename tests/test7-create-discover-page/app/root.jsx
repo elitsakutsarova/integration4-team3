@@ -15,6 +15,7 @@ import "./app.css";
 import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
 import { AuthProvider } from "./context/AuthContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
+import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { bootstrapAuthSession } from "./utils/authSession";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
@@ -97,9 +98,11 @@ export default function App() {
 
   return (
     <CollectedStickersProvider collectedStickers={collectedStickers}>
-      <StickerCatalogProvider stickers={stickers}>
-        <Outlet />
-      </StickerCatalogProvider>
+      <DiscoverFavesProvider>
+        <StickerCatalogProvider stickers={stickers}>
+          <Outlet />
+        </StickerCatalogProvider>
+      </DiscoverFavesProvider>
     </CollectedStickersProvider>
   );
 }

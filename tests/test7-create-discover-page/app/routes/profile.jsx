@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import BottomNav from '../components/BottomNav';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers } from '../context/CollectedStickersContext';
+import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 
 // mock-data
 import { TRAVEL_DIARY } from '../data/mockUser';
@@ -32,6 +33,7 @@ export function HydrateFallback() {
 
 export default function Profile() {
   const collectedStickers = useCollectedStickers();
+  const { favesCount } = useDiscoverFaves();
   const { user, signOut } = useAuth();
 
   return (
@@ -73,7 +75,7 @@ export default function Profile() {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-              <span>{user?.collections?.faves ?? 0} Faves</span>
+              <span>{favesCount} Faves</span>
             </div>
             <Link to="/stickers" className="collection-card collection-card--link">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

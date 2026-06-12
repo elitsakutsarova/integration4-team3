@@ -41,6 +41,18 @@ export function setAuthUser(user) {
   emit();
 }
 
+export function patchAuthUserCollections(collections) {
+  if (!snapshot.user) return;
+  snapshot = {
+    user: {
+      ...snapshot.user,
+      collections: { ...snapshot.user.collections, ...collections },
+    },
+    loading: false,
+  };
+  emit();
+}
+
 /** Call from root clientLoader — hydrates session before the app renders. */
 export async function bootstrapAuthSession() {
   if (bootstrapPromise) return bootstrapPromise;

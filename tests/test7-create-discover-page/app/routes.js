@@ -8,6 +8,8 @@ export default [
   route("discover/happening-now", "routes/discover.happening-now.jsx"),
   route("discover/upcoming", "routes/discover.upcoming.jsx"),
   route("discover/places", "routes/discover.places.jsx"),
+  route("discover/event/:id", "routes/discover.event.$id.jsx"),
+  route("discover/place/:id", "routes/discover.place.$id.jsx"),
   route("collect", "routes/collect.jsx"),
   route("profile", "routes/profile.jsx"),
   route("stickers", "routes/stickers.jsx"),

@@ -1,3 +1,6 @@
+import { Link, href } from 'react-router';
+import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
+
 export function CategoryIcon({ name }) {
   if (name === 'food') {
     return (
@@ -48,20 +51,6 @@ export function CategoryIcon({ name }) {
   );
 }
 
-export function FavoriteButton({ label }) {
-  return (
-    <button type="button" className="discover-fave-btn" aria-label={`Save ${label} to favorites`}>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-          stroke="#1952ff"
-          strokeWidth="1.8"
-        />
-      </svg>
-    </button>
-  );
-}
-
 export function EventCard({ item, layout = 'carousel' }) {
   const cardClass = layout === 'list'
     ? 'discover-event-card discover-event-card--list'
@@ -80,7 +69,7 @@ export function EventCard({ item, layout = 'carousel' }) {
             Live event
           </span>
         )}
-        <FavoriteButton label={item.title} />
+        <DiscoverFavoriteButton type="event" itemId={item.id} label={item.title} />
         <div className="discover-event-card-tags">
           {item.tags.map(tag => (
             <span key={tag} className="discover-tag">{tag}</span>
@@ -103,7 +92,9 @@ export function EventCard({ item, layout = 'carousel' }) {
           </svg>
           <span className="discover-location-link">{item.location}</span>
         </p>
-        <button type="button" className="discover-learn-more">Learn more</button>
+        <Link to={href('/discover/event/:id', { id: item.id })} className="discover-learn-more">
+          Learn more
+        </Link>
       </div>
     </article>
   );
@@ -121,7 +112,7 @@ export function PlaceCard({ item, layout = 'carousel' }) {
         <span className="discover-tag discover-tag--on-image">{item.tags[0]}</span>
       </div>
       <div className="discover-place-card-body">
-        <FavoriteButton label={item.title} />
+        <DiscoverFavoriteButton type="place" itemId={item.id} label={item.title} />
         <h3 className="discover-place-card-title">{item.title}</h3>
         <p className="discover-event-card-meta">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -130,7 +121,9 @@ export function PlaceCard({ item, layout = 'carousel' }) {
           </svg>
           <span className="discover-location-link">{item.location}</span>
         </p>
-        <button type="button" className="discover-learn-more">Learn more</button>
+        <Link to={href('/discover/place/:id', { id: item.id })} className="discover-learn-more">
+          Learn more
+        </Link>
       </div>
     </article>
   );
