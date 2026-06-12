@@ -5324,3 +5324,278 @@ html, body {
   justify-content: center;
   gap: 8px;
 }
+
+/* ─── Featured memos (shared detail sections) ─────── */
+.featured-memos-section {
+  margin-bottom: 24px;
+}
+
+.featured-memos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.featured-memos-title {
+  position: relative;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.featured-memos-highlight {
+  width: 160px;
+}
+
+.featured-memos-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.featured-memos-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.featured-memos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.featured-memos-empty {
+  margin: 0;
+  font-size: 14px;
+  color: #9090a0;
+}
+
+.featured-memo-card {
+  flex: 0 0 220px;
+}
+
+.featured-memo-card--compact {
+  min-width: 0;
+}
+
+.featured-memo-media {
+  position: relative;
+  height: 160px;
+  border: 3px solid #00b26f;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ececf0;
+}
+
+.featured-memo-media--text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.featured-memo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.featured-memo-text-only {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: center;
+  color: #1e1e1e;
+}
+
+.featured-memo-heart {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.featured-memo-quote {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: #1e1e1e;
+}
+
+.featured-memo-quote-highlight {
+  background: #f9ff75;
+  padding: 2px 4px;
+  box-decoration-break: clone;
+}
+
+.featured-memo-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #a4a2a2;
+}
+
+.featured-memo-location span {
+  text-decoration: underline;
+}
+
+/* ─── Memo Archive page (Figma 392-48844) ─────────── */
+.memo-archive-page {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+  padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+}
+
+.memo-archive-header {
+  position: relative;
+  min-height: 150px;
+  overflow: hidden;
+}
+
+.memo-archive-header-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(196deg, rgba(209, 220, 255, 0.95) 2%, rgba(209, 220, 255, 0) 52%),
+    repeating-linear-gradient(0deg, rgba(25, 82, 255, 0.06) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, rgba(25, 82, 255, 0.06) 0 1px, transparent 1px 24px);
+}
+
+.memo-archive-header-wave {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 120px;
+  height: 80px;
+  border: 2px dashed #1952ff;
+  border-radius: 999px 999px 0 0;
+  transform: rotate(8deg);
+  opacity: 0.55;
+}
+
+.memo-archive-back {
+  position: absolute;
+  top: 95px;
+  left: 16px;
+  z-index: 2;
+  width: 53px;
+  height: 49px;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.memo-archive-title-banner {
+  position: absolute;
+  top: 86px;
+  left: 0;
+  width: min(100%, 319px);
+  padding: 23px 16px 23px 87px;
+  background: #f9ff75;
+}
+
+.memo-archive-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0.7px;
+  color: #1e1e1e;
+}
+
+.memo-archive-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px 20px;
+}
+
+.memo-archive-spot-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #000;
+}
+
+.memo-archive-spot-highlight {
+  background: #d1dcff;
+  padding: 2px 6px;
+  box-decoration-break: clone;
+}
+
+.memo-archive-count {
+  margin: 8px 0 0;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 300;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.memo-archive-scroll {
+  padding: 0 16px 24px;
+}
+
+.memo-archive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.memory-sheet--archive {
+  width: 100%;
+  max-width: none;
+  animation: none;
+}
+
+.memory-sheet--archive::after {
+  display: none;
+}
+
+.memo-archive-empty {
+  margin: 0;
+  padding: 24px 0 40px;
+  font-size: 15px;
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .featured-memos-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .memo-archive-page {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+

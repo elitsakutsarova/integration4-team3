@@ -1,3 +1,5 @@
+// mock data for the discover page
+
 import {
   HAPPENING_NOW,
   HAPPENING_NOW_ALL,
@@ -124,6 +126,8 @@ const EVENT_DETAILS = {
 const PLACE_DETAILS = {
   'caffe-mundi': {
     about: 'Caffe Mundi is a cosy café in the heart of Antwerp, perfect for a slow morning coffee or an afternoon break.',
+    placeId: 'photon/N/5123359322',
+    ll: [51.2218334, 4.4007729],
     facts: [
       { emoji: '☕', text: 'Coffee and pastries' },
       { emoji: '📍', text: 'Steps from the historic exchange' },
@@ -135,6 +139,8 @@ const PLACE_DETAILS = {
   },
   'rush-rush': {
     about: 'Rush Rush Caffee serves specialty coffee with a creative twist in a bright, welcoming space.',
+    placeId: 'photon/N/7235177737',
+    ll: [51.2067289, 4.4326251],
     facts: [
       { emoji: '☕', text: 'Specialty coffee and light bites' },
       { emoji: '📍', text: 'Near the cathedral quarter' },
@@ -146,6 +152,8 @@ const PLACE_DETAILS = {
   },
   delrey: {
     about: 'DelRey is a neighbourhood favourite for brunch, cakes and all-day coffee in Zuid.',
+    placeId: 'photon/W/139822238',
+    ll: [51.2171137, 4.4177315],
     facts: [
       { emoji: '🥐', text: 'Brunch and homemade cakes' },
       { emoji: '📍', text: 'South Antwerp, Appelmansstraat' },

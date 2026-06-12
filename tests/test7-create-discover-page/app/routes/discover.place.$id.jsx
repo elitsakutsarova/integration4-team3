@@ -3,6 +3,7 @@
 import { data, useLoaderData } from 'react-router';
 import PlaceDetailPage from '../components/discover/PlaceDetailPage';
 import { getDiscoverPlaceById } from '../data/discoverDetails';
+import { loadSpotMemos } from '../utils/loadSpotMemos';
 
 export function meta({ data: loaderData }) {
   const title = loaderData?.place?.title ?? 'Place';
@@ -17,12 +18,26 @@ export async function clientLoader({ params }) {
   if (!place) {
     throw data('Place not found', { status: 404 });
   }
-  return { place };
+
+  const { featuredMemos, totalMemoCount } = await loadSpotMemos({
+    placeId: place.placeId,
+    lat: place.ll?.[0],
+    lng: place.ll?.[1],
+    locationName: place.title ?? place.location,
+  });
+
+  return { place, featuredMemos, totalMemoCount };
 }
 
 clientLoader.hydrate = true;
 
 export default function DiscoverPlaceDetail() {
-  const { place } = useLoaderData();
-  return <PlaceDetailPage place={place} />;
+  const { place, featuredMemos, totalMemoCount } = useLoaderData();
+  return (
+    <PlaceDetailPage
+      place={place}
+      featuredMemos={featuredMemos}
+      totalMemoCount={totalMemoCount}
+    />
+  );
 }

@@ -1,8 +1,11 @@
-import { useLocation, useNavigate } from 'react-router';
+// memory sheet component for the map view
+
+import { useNavigate } from 'react-router';
 import { useSavedMemos } from '../context/SavedMemosContext';
 import { isNamedVenueLocation } from '../utils/locationHelpers';
 import { resolvePhotonPoiAt } from '../utils/locationPhoton';
 import { buildLocationDetailHref, navigateToLocationDetail } from '../utils/locationHref';
+import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../utils/googleMaps';
 
 function buildPinLocationHref(pin) {
   if (!Array.isArray(pin.ll) || pin.ll.length < 2) return null;
@@ -73,12 +76,21 @@ function MemoFavoriteButton({ memoId, label }) {
 
 export default function MemorySheet({ pin, onClose }) {
   const navigate = useNavigate();
-  const location = useLocation();
 
   if (!pin) return null;
 
   const hasMedia = Boolean(pin.mediaPreview?.url);
   const locationIsLink = canNavigateToLocation(pin);
+  const canOpenMaps = Array.isArray(pin.ll) && pin.ll.length >= 2;
+
+  function handleTakeMeThere(event) {
+    event.stopPropagation();
+    if (!canOpenMaps) {
+      event.preventDefault();
+      return;
+    }
+    openGoogleMapsDirections(pin.ll[0], pin.ll[1], event);
+  }
 
   async function handleLocationClick(event) {
     event.stopPropagation();
@@ -86,11 +98,7 @@ export default function MemorySheet({ pin, onClose }) {
     if (!detailHref) return;
 
     onClose();
-    navigateToLocationDetail(
-      navigate,
-      detailHref,
-      `${location.pathname}${location.search}`,
-    );
+    navigateToLocationDetail(navigate, detailHref);
   }
 
   return (
@@ -152,15 +160,17 @@ export default function MemorySheet({ pin, onClose }) {
                 </span>
               )}
             </span>
-            <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${pin.ll[0]},${pin.ll[1]}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="memory-sheet-cta"
-              onClick={event => event.stopPropagation()}
-            >
-              Take me there
-            </a>
+            {canOpenMaps && (
+              <a
+                href={buildGoogleMapsDirectionsUrl(pin.ll[0], pin.ll[1])}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="memory-sheet-cta"
+                onClick={handleTakeMeThere}
+              >
+                Take me there
+              </a>
+            )}
           </div>
         </div>
       </article>

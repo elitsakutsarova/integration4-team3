@@ -1,8 +1,9 @@
-// // route for the event detail page in the discover
+// route for the event detail page in the discover
 
 import { data, useLoaderData } from 'react-router';
 import EventDetailPage from '../components/discover/EventDetailPage';
 import { getDiscoverEventById } from '../data/discoverDetails';
+import { loadSpotMemos } from '../utils/loadSpotMemos';
 
 export function meta({ data: loaderData }) {
   const title = loaderData?.event?.title ?? 'Event';
@@ -17,12 +18,26 @@ export async function clientLoader({ params }) {
   if (!event) {
     throw data('Event not found', { status: 404 });
   }
-  return { event };
+
+  const { featuredMemos, totalMemoCount } = await loadSpotMemos({
+    placeId: event.placeId,
+    lat: event.ll?.[0],
+    lng: event.ll?.[1],
+    locationName: event.venueName ?? event.location,
+  });
+
+  return { event, featuredMemos, totalMemoCount };
 }
 
 clientLoader.hydrate = true;
 
 export default function DiscoverEventDetail() {
-  const { event } = useLoaderData();
-  return <EventDetailPage event={event} />;
+  const { event, featuredMemos, totalMemoCount } = useLoaderData();
+  return (
+    <EventDetailPage
+      event={event}
+      featuredMemos={featuredMemos}
+      totalMemoCount={totalMemoCount}
+    />
+  );
 }

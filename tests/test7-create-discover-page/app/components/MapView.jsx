@@ -1,7 +1,7 @@
 // orchestration layer -> connects React with the Leaflet map engine
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFetcher, useLocation, useNavigate, useRevalidator, useSearchParams } from 'react-router';
+import { useFetcher, useNavigate, useRevalidator, useSearchParams } from 'react-router';
 import NewMemoForm from './NewMemoForm';
 import MemoLocationPicker from './MemoLocationPicker';
 import MapHomeChrome from './MapHomeChrome';
@@ -51,7 +51,6 @@ function dbMemoFingerprint(savedMemos) {
 export default function MapView({ savedMemos = [] }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const routerLocation = useLocation();
   const draftMemo = readDraftMemo(searchParams);
   const fetcher = useFetcher({ key: 'create-memo' });
   const revalidator = useRevalidator();
@@ -69,10 +68,7 @@ export default function MapView({ savedMemos = [] }) {
   // Holds the latest layer-sync fn so Leaflet zoomend handlers never capture a stale closure.
   const refreshMemoryLayersRef = useRef(null);
   const navigateRef = useRef(navigate);
-  const returnToRef = useRef('/');
-
   navigateRef.current = navigate;
-  returnToRef.current = `${routerLocation.pathname}${routerLocation.search}`;
 
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -141,7 +137,7 @@ export default function MapView({ savedMemos = [] }) {
       if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
       return buildEventMarker(L, map, pin, {
         onLocationClick: locationHref => {
-          navigateToLocationDetail(navigateRef.current, locationHref, returnToRef.current);
+          navigateToLocationDetail(navigateRef.current, locationHref);
         },
       });
     }).filter(Boolean);
@@ -247,7 +243,7 @@ export default function MapView({ savedMemos = [] }) {
         if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
         return buildEventMarker(L, map, pin, {
         onLocationClick: locationHref => {
-          navigateToLocationDetail(navigateRef.current, locationHref, returnToRef.current);
+          navigateToLocationDetail(navigateRef.current, locationHref);
         },
       });
       }).filter(Boolean);

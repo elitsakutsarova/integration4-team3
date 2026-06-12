@@ -1,9 +1,11 @@
-import { Link, href, useLocation, useNavigate } from 'react-router';
+// event detail page component for the discover page
+
+import { useNavigate } from 'react-router';
 import BottomNav from '../BottomNav';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 import DiscoverSavedModal from './DiscoverSavedModal';
-import { FEATURED_MEMOS } from '../../data/discoverDetails';
-import { buildLocationDetailHref, navigateToLocationDetail } from '../../utils/locationHref';
+import FeaturedMemosSection from '../memos/FeaturedMemosSection';
+import { buildLocationDetailHref, buildMemoArchiveHref, navigateToLocationDetail } from '../../utils/locationHref';
 
 function CategoryBadge({ type }) {
   if (type === 'music') {
@@ -35,34 +37,8 @@ function CategoryBadge({ type }) {
   );
 }
 
-function FeaturedMemoCard({ memo }) {
-  return (
-    <article className="discover-detail-memo-card">
-      <div className="discover-detail-memo-media">
-        <img src={memo.image} alt="" className="discover-detail-memo-image" />
-        <button type="button" className="discover-detail-memo-heart" aria-label="Save memo">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="#1952ff" strokeWidth="1.8" />
-          </svg>
-        </button>
-        <p className="discover-detail-memo-quote">
-          <span className="discover-detail-memo-quote-highlight">{memo.quote}</span>
-        </p>
-      </div>
-      <p className="discover-detail-memo-location">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 21s7-4.5 7-10a7 7 0 1 0-14 0c0 5.5 7 10 7 10z" stroke="currentColor" strokeWidth="1.8" />
-          <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-        </svg>
-        <span>{memo.location}</span>
-      </p>
-    </article>
-  );
-}
-
-export default function EventDetailPage({ event }) {
+export default function EventDetailPage({ event, featuredMemos = [], totalMemoCount = 0 }) {
   const navigate = useNavigate();
-  const location = useLocation();
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.mapsQuery)}`;
   const venueHref = buildLocationDetailHref({
     placeId: event.placeId,
@@ -70,13 +46,16 @@ export default function EventDetailPage({ event }) {
     lng: event.ll?.[1],
     name: event.venueName,
   });
+  const archiveHref = buildMemoArchiveHref({
+    placeId: event.placeId,
+    lat: event.ll?.[0],
+    lng: event.ll?.[1],
+    name: event.venueName ?? event.location,
+    title: event.title,
+  });
 
   function handleVenueClick() {
-    navigateToLocationDetail(
-      navigate,
-      venueHref,
-      `${location.pathname}${location.search}`,
-    );
+    navigateToLocationDetail(navigate, venueHref);
   }
 
   return (
@@ -186,25 +165,12 @@ export default function EventDetailPage({ event }) {
             Take me there
           </a>
 
-          <section className="discover-detail-section" aria-labelledby="event-memos">
-            <div className="discover-detail-section-header">
-              <h2 id="event-memos" className="discover-detail-section-title">
-                <span className="discover-section-highlight" style={{ width: '160px' }} aria-hidden="true" />
-                Featured memos
-              </h2>
-              <Link to={href('/discover')} className="discover-view-all">
-                View all
-                <svg width="6" height="12" viewBox="0 0 6 12" fill="none" aria-hidden="true">
-                  <path d="M1 1l4 5-4 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-            </div>
-            <div className="discover-detail-memo-carousel">
-              {FEATURED_MEMOS.map(memo => (
-                <FeaturedMemoCard key={memo.id} memo={memo} />
-              ))}
-            </div>
-          </section>
+          <FeaturedMemosSection
+            memos={featuredMemos}
+            totalMemoCount={totalMemoCount}
+            archiveHref={archiveHref}
+            layout="discover"
+          />
         </div>
       </div>
 
