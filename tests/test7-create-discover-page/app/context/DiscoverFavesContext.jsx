@@ -1,3 +1,6 @@
+// this provider manages Saved events, saved places, favorite count, save/remove functionality
+// provides the "Saved!" notification
+
 import {
   createContext,
   useCallback,
@@ -9,11 +12,10 @@ import {
 import { useAuth } from './AuthContext';
 import { patchAuthUserCollections } from '../utils/authSession';
 import {
-  addLocalDiscoverFave,
-  getLocalDiscoverFaves,
-  isLocalDiscoverFaved,
-  removeLocalDiscoverFave,
-} from '../utils/localDiscoverFaves';
+  addDiscoverFave,
+  fetchDiscoverFaves,
+  removeDiscoverFave,
+} from '../utils/discoverFavesStore';
 
 const DiscoverFavesContext = createContext(null);
 
@@ -28,9 +30,19 @@ export function DiscoverFavesProvider({ children }) {
   const [savedNotice, setSavedNotice] = useState(null);
 
   useEffect(() => {
-    const next = getLocalDiscoverFaves(userId);
-    setFaves(next);
-    if (userId) syncFavesCount(next.length);
+    let cancelled = false;
+
+    async function loadFaves() {
+      const next = await fetchDiscoverFaves(userId);
+      if (cancelled) return;
+      setFaves(next);
+      if (userId) syncFavesCount(next.length);
+    }
+
+    void loadFaves();
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
   const isFaved = useCallback(
@@ -38,8 +50,8 @@ export function DiscoverFavesProvider({ children }) {
     [faves],
   );
 
-  const saveFave = useCallback((type, id) => {
-    const result = addLocalDiscoverFave(userId, {
+  const saveFave = useCallback(async (type, id) => {
+    const result = await addDiscoverFave(userId, {
       type,
       id,
       savedAt: new Date().toISOString(),
@@ -54,19 +66,19 @@ export function DiscoverFavesProvider({ children }) {
     return result.added;
   }, [userId]);
 
-  const removeFave = useCallback((type, id) => {
-    const next = removeLocalDiscoverFave(userId, type, id);
+  const removeFave = useCallback(async (type, id) => {
+    const { faves: next } = await removeDiscoverFave(userId, type, id);
     setFaves(next);
     syncFavesCount(next.length);
   }, [userId]);
 
-  const toggleFave = useCallback((type, id) => {
-    if (isLocalDiscoverFaved(userId, type, id)) {
-      removeFave(type, id);
+  const toggleFave = useCallback(async (type, id) => {
+    if (isFaved(type, id)) {
+      await removeFave(type, id);
       return false;
     }
     return saveFave(type, id);
-  }, [removeFave, saveFave, userId]);
+  }, [isFaved, removeFave, saveFave]);
 
   const dismissSavedNotice = useCallback(() => {
     setSavedNotice(null);

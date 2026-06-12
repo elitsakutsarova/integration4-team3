@@ -1,3 +1,5 @@
+// re-usable "View All" page for the Discover feature
+
 import { useMemo, useState } from 'react';
 import { Link, href } from 'react-router';
 import BottomNav from '../BottomNav';

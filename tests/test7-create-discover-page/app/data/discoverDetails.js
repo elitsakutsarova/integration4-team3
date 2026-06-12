@@ -1,4 +1,5 @@
 import {
+  HAPPENING_NOW,
   HAPPENING_NOW_ALL,
   PLACES_WORTH_MEMO_ALL,
   UPCOMING_ALL,
@@ -25,6 +26,8 @@ const EVENT_DETAILS = {
     timeRange: '23:00 - 11:00',
     venueName: 'Traum',
     venueAddress: 'Verversrui 15',
+    placeId: 'photon/W/495163772',
+    ll: [51.226186, 4.4039538],
     about:
       'For the first time ever, we go all the way. The moment you’ve been waiting for... our first official in-club after moment, taking you straight through the night into the morning till 11:00.',
     websiteLabel: 'traumclub.com',
@@ -37,6 +40,8 @@ const EVENT_DETAILS = {
     timeRange: '22:00 - 06:00',
     venueName: 'Club Vaag',
     venueAddress: 'Nationalestraat 86',
+    placeId: 'photon/N/4935674425',
+    ll: [51.2337413, 4.4034725],
     about:
       'Ben Techy and MOIA bring a night of deep grooves and hypnotic techno to one of Antwerp’s favourite underground rooms.',
     websiteLabel: 'clubvaag.be',
@@ -49,6 +54,8 @@ const EVENT_DETAILS = {
     timeRange: '21:00 - 04:00',
     venueName: 'Lokaal Talent',
     venueAddress: 'Sint-Jacobsmarkt 24',
+    placeId: 'photon/W/495923902',
+    ll: [51.2203686, 4.4108932],
     about:
       'Groove Techno returns with a stacked local lineup — expect rolling basslines and sunrise energy until the early hours.',
     websiteLabel: 'lokaaltalent.be',
@@ -61,6 +68,8 @@ const EVENT_DETAILS = {
     timeRange: '09:00 - 17:00',
     venueName: 'Sint-Jansvliet',
     venueAddress: 'Sint-Jansvliet, Antwerp',
+    placeId: 'photon/W/255929107',
+    ll: [51.2184031, 4.3964363],
     about:
       'Browse antiques, curiosities and vintage finds at one of Antwerp’s classic Sunday markets.',
     websiteLabel: 'visitantwerpen.be',
@@ -73,6 +82,8 @@ const EVENT_DETAILS = {
     timeRange: '10:00 - 18:00',
     venueName: 'Oudevaartplaats',
     venueAddress: 'Oudevaartplaats, Antwerp',
+    placeId: 'photon/W/178553518',
+    ll: [51.2133659, 4.4091855],
     about:
       'Artists and makers fill the square with prints, ceramics and handmade treasures — Montmartre energy, Antwerp style.',
     websiteLabel: 'visitantwerpen.be',
@@ -85,6 +96,8 @@ const EVENT_DETAILS = {
     timeRange: '08:00 - 14:00',
     venueName: 'Dageraadplaats',
     venueAddress: 'Dageraadplaats, Antwerp',
+    placeId: 'photon/W/210459403',
+    ll: [51.2075216, 4.4305347],
     about:
       'Dig through vintage clothes, vinyl and hidden gems at the neighbourhood flea market.',
     websiteLabel: 'visitantwerpen.be',
@@ -97,6 +110,8 @@ const EVENT_DETAILS = {
     timeRange: '08:00 - 16:00',
     venueName: 'Dageraadplaats',
     venueAddress: 'Dageraadplaats, Antwerp',
+    placeId: 'photon/W/210459403',
+    ll: [51.2075216, 4.4305347],
     about:
       'Spices, street food and global flavours converge at Antwerp’s colourful exotic market.',
     websiteLabel: 'visitantwerpen.be',
@@ -190,6 +205,27 @@ export function getDiscoverEventById(id) {
   if (!item) return null;
   const detail = EVENT_DETAILS[id] ?? defaultEventDetail(item);
   return { ...item, ...detail };
+}
+
+/** Map pins for live discover events — requires Photon placeId + coordinates. */
+export function buildInitialMapEvents() {
+  return HAPPENING_NOW.flatMap((item, index) => {
+    const event = getDiscoverEventById(item.id);
+    if (!event?.placeId || !event?.ll) return [];
+
+    return [{
+      id: 101 + index,
+      ll: event.ll,
+      label: event.venueName ?? event.location,
+      title: event.title,
+      tags: event.tags,
+      likes: index === 0 ? 268 : 94,
+      badge: event.live ? 'Now' : 'Tonight',
+      image: event.image,
+      discoverEventId: event.id,
+      placeId: event.placeId,
+    }];
+  });
 }
 
 export function getDiscoverPlaceById(id) {

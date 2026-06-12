@@ -1,3 +1,5 @@
+// popup notification modal (component) that appears when a user saves something to their favs
+
 import { useDiscoverFaves } from '../../context/DiscoverFavesContext';
 
 export default function DiscoverSavedModal() {

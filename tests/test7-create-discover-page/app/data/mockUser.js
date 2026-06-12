@@ -1,5 +1,7 @@
 /** Mock user profile and Antwerp trip memories for test2 */
 
+import { buildInitialMapEvents } from './discoverDetails';
+
 export const USER = {
   username: '@alex_explores',
   tags: ['Foodie', 'Local'],
@@ -136,26 +138,4 @@ export const TRAVEL_DIARY = {
   createdAt: '2026-08-27',
 };
 
-export const INITIAL_EVENTS = [
-  {
-    id: 101,
-    ll: [51.2165, 4.4080],
-    label: 'Traum',
-    title: 'Bruismelk Festival',
-    tags: ['Festival', 'Music'],
-    likes: 268,
-    badge: 'Now',
-    image: '/discover/oh-honey.jpg',
-    discoverEventId: 'oh-honey',
-  },
-  {
-    id: 102,
-    ll: [51.2230, 4.4115],
-    label: 'Lux',
-    title: 'Nachtwerk Antwerp',
-    tags: ['Club', 'Nightlife'],
-    likes: 94,
-    badge: 'Tonight',
-    image: 'https://images.unsplash.com/photo-1571266028243-d220c6a6f792?w=200&h=200&fit=crop',
-  },
-];
+export const INITIAL_EVENTS = buildInitialMapEvents();

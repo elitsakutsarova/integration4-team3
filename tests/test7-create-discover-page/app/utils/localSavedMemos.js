@@ -1,3 +1,5 @@
+import { clearLocalUserBucket } from './localStorageUserBucket';
+
 const STORAGE_KEY = 'memome_saved_memos';
 
 /** @typedef {{ id: string, savedAt: string }} SavedMemoEntry */
@@ -56,4 +58,12 @@ export function removeLocalSavedMemo(userId, id) {
 
 export function isLocalSavedMemo(userId, id) {
   return getLocalSavedMemos(userId).some(item => item.id === String(id));
+}
+
+export function clearLocalSavedMemos(userId) {
+  clearLocalUserBucket(STORAGE_KEY, userId);
+}
+
+export function clearGuestSavedMemos() {
+  clearLocalSavedMemos(null);
 }

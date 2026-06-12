@@ -1,3 +1,5 @@
+// route for the places list page in the discover
+
 import DiscoverListPage from '../components/discover/DiscoverListPage';
 import { PLACES_WORTH_MEMO_ALL } from '../data/discoverContent';
 

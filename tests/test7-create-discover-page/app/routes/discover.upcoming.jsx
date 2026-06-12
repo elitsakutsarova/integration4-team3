@@ -1,3 +1,5 @@
+// // route for the incoming eventslist page in the discover
+
 import DiscoverListPage from '../components/discover/DiscoverListPage';
 import { UPCOMING_ALL } from '../data/discoverContent';
 

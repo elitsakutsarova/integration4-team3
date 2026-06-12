@@ -1,3 +1,5 @@
+// presentation/UI components for the discover page
+
 import { Link, href } from 'react-router';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 

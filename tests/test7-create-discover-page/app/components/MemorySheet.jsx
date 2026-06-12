@@ -1,30 +1,47 @@
-import { href, useLocation, useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useSavedMemos } from '../context/SavedMemosContext';
 import { isNamedVenueLocation } from '../utils/locationHelpers';
-import { isPhotonPlaceId, parsePhotonPlaceId } from '../utils/placeId';
+import { resolvePhotonPoiAt } from '../utils/locationPhoton';
+import { buildLocationDetailHref, navigateToLocationDetail } from '../utils/locationHref';
 
-function locationDetailHref(pin) {
+function buildPinLocationHref(pin) {
   if (!Array.isArray(pin.ll) || pin.ll.length < 2) return null;
 
-  const [lat, lng] = pin.ll;
-  const latQ = encodeURIComponent(lat);
-  const lngQ = encodeURIComponent(lng);
+  return buildLocationDetailHref({
+    placeId: pin.placeId,
+    lat: pin.ll[0],
+    lng: pin.ll[1],
+    name: pin.location,
+  });
+}
 
-  if (isPhotonPlaceId(pin.placeId)) {
-    const parsed = parsePhotonPlaceId(pin.placeId);
-    if (parsed) {
-      const nameQ = pin.location
-        ? `&name=${encodeURIComponent(pin.location)}`
-        : '';
-      return `${href('/location/:osmType/:osmId', parsed)}?lat=${latQ}&lng=${lngQ}${nameQ}`;
-    }
+function canNavigateToLocation(pin) {
+  if (buildPinLocationHref(pin)) return true;
+  return isNamedVenueLocation(pin.location) && Array.isArray(pin.ll) && pin.ll.length >= 2;
+}
+
+async function resolvePinLocationHref(pin) {
+  const directHref = buildPinLocationHref(pin);
+  if (directHref) return directHref;
+
+  if (!isNamedVenueLocation(pin.location) || !Array.isArray(pin.ll) || pin.ll.length < 2) {
+    return null;
   }
 
-  if (isNamedVenueLocation(pin.location)) {
-    return `/location?lat=${latQ}&lng=${lngQ}&name=${encodeURIComponent(pin.location)}`;
-  }
+  const resolved = await resolvePhotonPoiAt({
+    lat: pin.ll[0],
+    lng: pin.ll[1],
+    name: pin.location,
+  });
 
-  return null;
+  if (!resolved?.id) return null;
+
+  return buildLocationDetailHref({
+    placeId: resolved.id,
+    lat: resolved.lat,
+    lng: resolved.lng,
+    name: pin.location,
+  });
 }
 
 function MemoFavoriteButton({ memoId, label }) {
@@ -61,15 +78,19 @@ export default function MemorySheet({ pin, onClose }) {
   if (!pin) return null;
 
   const hasMedia = Boolean(pin.mediaPreview?.url);
-  const detailHref = locationDetailHref(pin);
+  const locationIsLink = canNavigateToLocation(pin);
 
-  function handleLocationClick(event) {
+  async function handleLocationClick(event) {
     event.stopPropagation();
+    const detailHref = await resolvePinLocationHref(pin);
     if (!detailHref) return;
+
     onClose();
-    navigate(detailHref, {
-      state: { returnTo: `${location.pathname}${location.search}` },
-    });
+    navigateToLocationDetail(
+      navigate,
+      detailHref,
+      `${location.pathname}${location.search}`,
+    );
   }
 
   return (
@@ -121,7 +142,7 @@ export default function MemorySheet({ pin, onClose }) {
                 <path d="M12 21s7-4.5 7-10a7 7 0 1 0-14 0c0 5.5 7 10 7 10z" stroke="currentColor" strokeWidth="1.8" />
                 <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
               </svg>
-              {detailHref ? (
+              {locationIsLink ? (
                 <button type="button" className="memory-sheet-location-name" onClick={handleLocationClick}>
                   {pin.location}
                 </button>

@@ -3,6 +3,14 @@ import {
   clearGuestStickerCache,
   mergeLocalStickersIntoAccount,
 } from './collectibleStore';
+import {
+  clearGuestDiscoverFavesCache,
+  mergeLocalDiscoverFavesIntoAccount,
+} from './discoverFavesStore';
+import {
+  clearGuestSavedMemosCache,
+  mergeLocalSavedMemosIntoAccount,
+} from './savedMemosStore';
 
 const SERVER_SNAPSHOT = { user: null, loading: true };
 
@@ -29,9 +37,13 @@ export function subscribeAuth(listener) {
   return () => listeners.delete(listener);
 }
 
-async function attachAccountStickers(userId) {
+async function attachAccountCollections(userId) {
   await mergeLocalStickersIntoAccount(userId);
+  await mergeLocalDiscoverFavesIntoAccount(userId);
+  await mergeLocalSavedMemosIntoAccount(userId);
   clearGuestStickerCache();
+  clearGuestDiscoverFavesCache();
+  clearGuestSavedMemosCache();
 }
 
 export function setAuthUser(user) {
@@ -63,7 +75,7 @@ export async function bootstrapAuthSession() {
       if (user?.id) {
         const profile = await authStore.syncSessionProfile();
         if (profile) user = profile;
-        await attachAccountStickers(user.id);
+        await attachAccountCollections(user.id);
       }
       snapshot = { user, loading: false };
     } catch {
@@ -73,7 +85,7 @@ export async function bootstrapAuthSession() {
     emit();
 
     authStore.subscribeToAuthChanges(async nextUser => {
-      if (nextUser?.id) await attachAccountStickers(nextUser.id);
+      if (nextUser?.id) await attachAccountCollections(nextUser.id);
       setAuthUser(nextUser);
     });
 
@@ -85,6 +97,6 @@ export async function bootstrapAuthSession() {
 
 export async function applySignedInUser(user) {
   if (!user) return;
-  await attachAccountStickers(user.id);
+  await attachAccountCollections(user.id);
   setAuthUser(user);
 }

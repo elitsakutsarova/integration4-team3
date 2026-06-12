@@ -1,3 +1,5 @@
+// this file containts the mock data for the discover page
+
 export const DISCOVER_CATEGORIES = [
   { id: 'All', label: 'All' },
   { id: 'Food', label: 'Food', icon: 'food' },

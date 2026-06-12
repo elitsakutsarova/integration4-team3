@@ -1,3 +1,5 @@
+import { clearLocalUserBucket } from './localStorageUserBucket';
+
 const STORAGE_KEY = 'memome_discover_faves';
 
 /** @typedef {'event' | 'place'} DiscoverFaveType */
@@ -55,4 +57,12 @@ export function removeLocalDiscoverFave(userId, type, id) {
 
 export function isLocalDiscoverFaved(userId, type, id) {
   return getLocalDiscoverFaves(userId).some(item => item.type === type && item.id === id);
+}
+
+export function clearLocalDiscoverFaves(userId) {
+  clearLocalUserBucket(STORAGE_KEY, userId);
+}
+
+export function clearGuestDiscoverFaves() {
+  clearLocalDiscoverFaves(null);
 }

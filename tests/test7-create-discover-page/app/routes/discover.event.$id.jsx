@@ -1,3 +1,5 @@
+// // route for the event detail page in the discover
+
 import { data, useLoaderData } from 'react-router';
 import EventDetailPage from '../components/discover/EventDetailPage';
 import { getDiscoverEventById } from '../data/discoverDetails';

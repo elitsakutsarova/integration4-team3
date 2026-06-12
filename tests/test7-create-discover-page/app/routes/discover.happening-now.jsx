@@ -1,3 +1,5 @@
+// route for the events happening now/soon list page in the discover
+
 import DiscoverListPage from '../components/discover/DiscoverListPage';
 import { HAPPENING_NOW_ALL } from '../data/discoverContent';
 

@@ -1,3 +1,5 @@
+// route for the place/location detail page in the discover
+
 import { data, useLoaderData } from 'react-router';
 import PlaceDetailPage from '../components/discover/PlaceDetailPage';
 import { getDiscoverPlaceById } from '../data/discoverDetails';

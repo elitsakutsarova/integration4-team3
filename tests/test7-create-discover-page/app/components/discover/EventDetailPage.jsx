@@ -1,8 +1,9 @@
-import { Link, href, useNavigate } from 'react-router';
+import { Link, href, useLocation, useNavigate } from 'react-router';
 import BottomNav from '../BottomNav';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 import DiscoverSavedModal from './DiscoverSavedModal';
 import { FEATURED_MEMOS } from '../../data/discoverDetails';
+import { buildLocationDetailHref, navigateToLocationDetail } from '../../utils/locationHref';
 
 function CategoryBadge({ type }) {
   if (type === 'music') {
@@ -61,7 +62,22 @@ function FeaturedMemoCard({ memo }) {
 
 export default function EventDetailPage({ event }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.mapsQuery)}`;
+  const venueHref = buildLocationDetailHref({
+    placeId: event.placeId,
+    lat: event.ll?.[0],
+    lng: event.ll?.[1],
+    name: event.venueName,
+  });
+
+  function handleVenueClick() {
+    navigateToLocationDetail(
+      navigate,
+      venueHref,
+      `${location.pathname}${location.search}`,
+    );
+  }
 
   return (
     <div className="discover-detail-page">
@@ -118,7 +134,13 @@ export default function EventDetailPage({ event }) {
               <div>
                 <span className="discover-detail-info-label">Venue</span>
                 <strong>{event.venueName}</strong>
-                <span className="discover-location-link">{event.venueAddress}</span>
+                {venueHref ? (
+                  <button type="button" className="discover-location-link" onClick={handleVenueClick}>
+                    {event.venueAddress}
+                  </button>
+                ) : (
+                  <span className="discover-location-link">{event.venueAddress}</span>
+                )}
               </div>
             </div>
           </div>

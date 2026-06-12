@@ -1,3 +1,5 @@
+//  main Discover page content (container)
+
 import { useMemo, useState } from 'react';
 import { Link, href } from 'react-router';
 import BottomNav from './BottomNav';

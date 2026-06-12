@@ -1,3 +1,5 @@
+// route for the location detail page
+
 import { data, useLoaderData } from 'react-router';
 import LocationDetail from '../components/LocationDetail';
 import { loadLocationPageClient } from '../utils/locationPage';

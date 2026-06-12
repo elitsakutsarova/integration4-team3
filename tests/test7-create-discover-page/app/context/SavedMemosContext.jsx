@@ -9,11 +9,10 @@ import {
 import { useAuth } from './AuthContext';
 import { patchAuthUserCollections } from '../utils/authSession';
 import {
-  addLocalSavedMemo,
-  getLocalSavedMemos,
-  isLocalSavedMemo,
-  removeLocalSavedMemo,
-} from '../utils/localSavedMemos';
+  addSavedMemo,
+  fetchSavedMemos,
+  removeSavedMemo,
+} from '../utils/savedMemosStore';
 
 const SavedMemosContext = createContext(null);
 
@@ -27,9 +26,19 @@ export function SavedMemosProvider({ children }) {
   const [savedMemos, setSavedMemos] = useState([]);
 
   useEffect(() => {
-    const next = getLocalSavedMemos(userId);
-    setSavedMemos(next);
-    if (userId) syncMemosCount(next.length);
+    let cancelled = false;
+
+    async function loadMemos() {
+      const next = await fetchSavedMemos(userId);
+      if (cancelled) return;
+      setSavedMemos(next);
+      if (userId) syncMemosCount(next.length);
+    }
+
+    void loadMemos();
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
   const isSaved = useCallback(
@@ -37,8 +46,8 @@ export function SavedMemosProvider({ children }) {
     [savedMemos],
   );
 
-  const saveMemo = useCallback(memoId => {
-    const result = addLocalSavedMemo(userId, memoId);
+  const saveMemo = useCallback(async memoId => {
+    const result = await addSavedMemo(userId, memoId);
     if (result.added) {
       setSavedMemos(result.memos);
       syncMemosCount(result.memos.length);
@@ -46,19 +55,19 @@ export function SavedMemosProvider({ children }) {
     return result.added;
   }, [userId]);
 
-  const removeMemo = useCallback(memoId => {
-    const next = removeLocalSavedMemo(userId, memoId);
+  const removeMemo = useCallback(async memoId => {
+    const { memos: next } = await removeSavedMemo(userId, memoId);
     setSavedMemos(next);
     syncMemosCount(next.length);
   }, [userId]);
 
-  const toggleMemo = useCallback(memoId => {
-    if (isLocalSavedMemo(userId, memoId)) {
-      removeMemo(memoId);
+  const toggleMemo = useCallback(async memoId => {
+    if (isSaved(memoId)) {
+      await removeMemo(memoId);
       return false;
     }
     return saveMemo(memoId);
-  }, [removeMemo, saveMemo, userId]);
+  }, [isSaved, removeMemo, saveMemo]);
 
   const value = useMemo(
     () => ({

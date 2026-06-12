@@ -16,7 +16,6 @@ export default [
   route("demo-stickers", "routes/demo-stickers.jsx"),
   route("connect", "routes/connect.jsx"),
   route("diary/:id", "routes/diary.$id.jsx"),
-  route("location", "routes/location._index.jsx"),
   route("location/:osmType/:osmId", "routes/location.$osmType.$osmId.jsx"),
   route("api/stickers", "routes/api.stickers.js"),
   route("api/location-search", "routes/api.location-search.js"),

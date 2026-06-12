@@ -1,3 +1,5 @@
+// route for the discover page
+
 import DiscoverPage from '../components/DiscoverPage';
 
 export function meta() {
