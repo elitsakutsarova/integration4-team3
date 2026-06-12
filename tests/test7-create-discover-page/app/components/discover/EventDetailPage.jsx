@@ -1,9 +1,7 @@
 // event detail page component for the discover page
 
 import { useNavigate } from 'react-router';
-import BottomNav from '../BottomNav';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
-import DiscoverSavedModal from './DiscoverSavedModal';
 import FeaturedMemosSection from '../memos/FeaturedMemosSection';
 import { buildLocationDetailHref, buildMemoArchiveHref, navigateToLocationDetail } from '../../utils/locationHref';
 
@@ -173,9 +171,6 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
           />
         </div>
       </div>
-
-      <BottomNav />
-      <DiscoverSavedModal />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import MemoShareCard, { ShareWholeDiaryCard } from './MemoShareCard';
 import ShareSheet from './ShareSheet';
 import { buildMemoShareFiles, shareImageFiles, shareToInstagram } from '../../utils/shareImage';
+import { diaryPath } from '../../utils/appPaths';
 import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
 
 export default function ShareDiaryModal({
@@ -31,7 +32,7 @@ export default function ShareDiaryModal({
   }
 
   function handleCopyLink() {
-    const url = `${window.location.origin}/diary/${diaryId}`;
+    const url = `${window.location.origin}${diaryPath(diaryId)}`;
     navigator.clipboard?.writeText(url);
     onShared?.('Link copied to clipboard');
   }

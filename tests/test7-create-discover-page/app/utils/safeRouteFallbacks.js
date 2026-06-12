@@ -1,11 +1,12 @@
 /** Safe redirect targets when URLs are invalid or tampered with. */
 
 import { TRAVEL_DIARY } from '../data/mockUser';
+import { diaryPath, paths } from './appPaths';
 
-export const FALLBACK_HOME = '/';
-export const FALLBACK_DISCOVER = '/discover';
-export const FALLBACK_PROFILE = '/profile';
-export const FALLBACK_DIARY = `/diary/${TRAVEL_DIARY.id}`;
+export const FALLBACK_HOME = paths.home;
+export const FALLBACK_DISCOVER = paths.discover;
+export const FALLBACK_PROFILE = paths.profile;
+export const FALLBACK_DIARY = diaryPath(TRAVEL_DIARY.id);
 
 const VALID_OSM_TYPES = new Set(['N', 'W', 'R']);
 

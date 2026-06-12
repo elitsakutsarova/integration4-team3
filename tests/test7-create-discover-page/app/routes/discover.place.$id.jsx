@@ -3,9 +3,9 @@
 import { redirect, useLoaderData } from 'react-router';
 import PlaceDetailPage from '../components/discover/PlaceDetailPage';
 import { getDiscoverPlaceById } from '../data/discoverDetails';
+import { paths } from '../utils/appPaths';
 import { loadSpotMemos } from '../utils/loadSpotMemos';
 import { resolveDiscoverPlaceSpot } from '../utils/resolveDiscoverPlaceSpot';
-import { FALLBACK_DISCOVER } from '../utils/safeRouteFallbacks';
 
 export function meta({ data: loaderData }) {
   const title = loaderData?.place?.title ?? 'Place';
@@ -15,12 +15,16 @@ export function meta({ data: loaderData }) {
   ];
 }
 
-export async function clientLoader({ params }) {
+export async function loader({ params }) {
   const place = getDiscoverPlaceById(params.id);
   if (!place) {
-    throw redirect(FALLBACK_DISCOVER);
+    throw redirect(paths.discover);
   }
+  return { place };
+}
 
+export async function clientLoader({ serverLoader }) {
+  const { place } = await serverLoader();
   const resolvedPlace = await resolveDiscoverPlaceSpot(place);
 
   const { featuredMemos, totalMemoCount } = await loadSpotMemos({

@@ -1,9 +1,9 @@
 import { Link } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import MemMeLogo from './MemMeLogo';
+import { paths } from '../../utils/appPaths';
 
 
-// Shows a loading indicator while checking Supabase session/user is still undefined
 function AuthLoading() {
   return (
     <div className="auth-loading">
@@ -12,7 +12,7 @@ function AuthLoading() {
   );
 }
 
-// Fallback wrapper — protected routes should use requireAuthInLoader() instead.
+// Fallback wrapper — protected account routes use account-layout clientMiddleware.
 export default function RequireAuth({ children }) {
   const { user, loading } = useAuth();
 
@@ -37,7 +37,7 @@ function AlreadySignedIn() {
           <p className="auth-subtitle">Logged in as {user?.username}</p>
         </header>
         <div className="auth-form">
-          <Link to="/" className="auth-btn auth-btn--primary">
+          <Link to={paths.home} className="auth-btn auth-btn--primary">
             Continue to map
           </Link>
           <button type="button" className="auth-btn auth-btn--google" onClick={handleLogout}>
@@ -58,12 +58,13 @@ export function RedirectIfAuthed({ children }) {
 }
 
 
-// reusable component to switch between login and register
 export function AuthSwitchLink({ to, children }) {
   return (
     <p className="auth-switch">
       {children}{' '}
-      <Link to={to} className="auth-switch-link">{to === '/register' ? 'Create account' : 'Log in'}</Link>
+      <Link to={to} className="auth-switch-link">
+        {to === paths.register ? 'Create account' : 'Log in'}
+      </Link>
     </p>
   );
 }

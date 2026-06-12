@@ -1,14 +1,12 @@
 // this page is a protected digital sticker album where users can browse the stickers they've collected 
 import { Link, useSearchParams } from 'react-router';
-import BottomNav from '../components/BottomNav';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
 
 // mock-data
 import { getAchievementStates } from '../data/achievementStickers';
-
-import { requireAuthInLoader } from '../utils/requireAuthLoader';
+import { paths } from '../utils/appPaths';
 
 export function meta() {
   return [
@@ -16,13 +14,6 @@ export function meta() {
     { name: 'description', content: 'Your sticker collection and achievements.' },
   ];
 }
-
-export async function clientLoader() {
-  await requireAuthInLoader();
-  return null;
-}
-
-clientLoader.hydrate = true;
 
 function BackIcon() {
   return (
@@ -48,7 +39,7 @@ export default function StickersGallery() {
   return (
     <div className="stickers-page">
         <header className="stickers-header">
-          <Link to="/profile" className="stickers-back-btn" aria-label="Back to profile">
+          <Link to={paths.profile} className="stickers-back-btn" aria-label="Back to profile">
             <BackIcon />
           </Link>
           <h1 className="stickers-title">Stickers</h1>
@@ -87,7 +78,7 @@ export default function StickersGallery() {
                   <p className="stickers-empty-hint">
                     Scan the MemMe collect QR to add random stickers to your collection.
                   </p>
-                  <Link to="/demo-stickers" className="stickers-empty-link">
+                  <Link to={paths.demoStickers} className="stickers-empty-link">
                     Open demo sticker QRs
                   </Link>
                 </div>
@@ -119,8 +110,6 @@ export default function StickersGallery() {
             </div>
           )}
         </div>
-
-        <BottomNav />
       </div>
   );
 }

@@ -1,10 +1,9 @@
 // re-usable "View All" page for the Discover feature
 
 import { useMemo, useState } from 'react';
-import { Link, href } from 'react-router';
-import BottomNav from '../BottomNav';
-import DiscoverSavedModal from './DiscoverSavedModal';
+import { Link } from 'react-router';
 import { CategoryIcon, EventCard, PlaceCard } from './DiscoverCards';
+import { paths } from '../../utils/appPaths';
 import {
   DISCOVER_CATEGORIES,
   filterDiscoverItems,
@@ -51,7 +50,7 @@ function DiscoverListHeader({
       )}
 
       <div className="discover-list-title-row">
-        <Link to={href('/discover')} className="discover-list-back" aria-label="Back to Discover">
+        <Link to={paths.discover} className="discover-list-back" aria-label="Back to Discover">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M15 6l-6 6 6 6" stroke="#1952ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -136,9 +135,6 @@ export default function DiscoverListPage({
           <p className="discover-empty">No items match your filters.</p>
         )}
       </div>
-
-      <BottomNav />
-      <DiscoverSavedModal />
     </div>
   );
 }

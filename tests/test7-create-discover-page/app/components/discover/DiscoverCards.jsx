@@ -1,6 +1,7 @@
 // presentation/UI components for the discover page
 
-import { Link, href } from 'react-router';
+import { Link } from 'react-router';
+import { discoverEventPath, discoverPlacePath } from '../../utils/appPaths';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 
 export function CategoryIcon({ name }) {
@@ -94,7 +95,7 @@ export function EventCard({ item, layout = 'carousel' }) {
           </svg>
           <span className="discover-location-link">{item.location}</span>
         </p>
-        <Link to={href('/discover/event/:id', { id: item.id })} className="discover-learn-more">
+        <Link to={discoverEventPath(item.id)} className="discover-learn-more">
           Learn more
         </Link>
       </div>
@@ -123,7 +124,7 @@ export function PlaceCard({ item, layout = 'carousel' }) {
           </svg>
           <span className="discover-location-link">{item.location}</span>
         </p>
-        <Link to={href('/discover/place/:id', { id: item.id })} className="discover-learn-more">
+        <Link to={discoverPlacePath(item.id)} className="discover-learn-more">
           Learn more
         </Link>
       </div>

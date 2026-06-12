@@ -1,5 +1,6 @@
-// // route for the incoming eventslist page in the discover
+// route for the incoming events list page in the discover
 
+import { useLoaderData } from 'react-router';
 import DiscoverListPage from '../components/discover/DiscoverListPage';
 import { UPCOMING_ALL } from '../data/discoverContent';
 
@@ -10,14 +11,17 @@ export function meta() {
   ];
 }
 
+export async function loader() {
+  return {
+    title: 'Upcoming',
+    highlightWidth: '116px',
+    decoration: 'upcoming',
+    items: UPCOMING_ALL,
+    itemType: 'event',
+  };
+}
+
 export default function DiscoverUpcoming() {
-  return (
-    <DiscoverListPage
-      title="Upcoming"
-      highlightWidth="116px"
-      decoration="upcoming"
-      items={UPCOMING_ALL}
-      itemType="event"
-    />
-  );
+  const listProps = useLoaderData();
+  return <DiscoverListPage {...listProps} />;
 }

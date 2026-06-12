@@ -15,6 +15,7 @@ import {
 } from '../utils/collectClaimCache';
 import { revalidateApp } from '../utils/revalidateApp';
 import * as authStore from '../utils/authStore';
+import { collectScanPath, paths } from '../utils/appPaths';
 
 export function meta() {
   return [{ title: 'MemMe — Collect sticker' }];
@@ -90,7 +91,7 @@ export default function CollectSticker() {
   const display = resolveClaimDisplay(result, Boolean(user));
 
   function handleScanAgain() {
-    navigate(`/collect?scan=${Date.now()}`);
+    navigate(collectScanPath(Date.now()));
   }
 
   return (
@@ -128,11 +129,11 @@ export default function CollectSticker() {
 
         <div className="collect-actions">
           {user ? (
-            <Link to="/stickers" className="auth-btn auth-btn--primary">View my stickers</Link>
+            <Link to={paths.stickers} className="auth-btn auth-btn--primary">View my stickers</Link>
           ) : (
             <>
-              <Link to="/register" className="auth-btn auth-btn--primary">Create account to save</Link>
-              <Link to="/login" className="auth-btn auth-btn--google">Log in</Link>
+              <Link to={paths.register} className="auth-btn auth-btn--primary">Create account to save</Link>
+              <Link to={paths.login} className="auth-btn auth-btn--google">Log in</Link>
             </>
           )}
           {display.status === 'done' && (
@@ -144,7 +145,7 @@ export default function CollectSticker() {
               Scan again
             </button>
           )}
-          <Link to="/" className="auth-btn auth-btn--google">Back to map</Link>
+          <Link to={paths.home} className="auth-btn auth-btn--google">Back to map</Link>
         </div>
       </div>
     </div>

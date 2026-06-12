@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { Link, useLoaderData } from 'react-router';
 import ConnectQr from '../components/ConnectQr';
+import { paths } from '../utils/appPaths';
 import { loadDevShareOrigin } from '../utils/devShareOrigin';
 import { connectToRoom } from '../utils/webrtc/peerConnection.js';
 
@@ -97,7 +98,7 @@ export default function ConnectPage() {
   return (
     <main className="connect-page">
       <header className="connect-header">
-        <Link to="/profile" className="connect-back" aria-label="Back to profile" onClick={leavePage}>
+        <Link to={paths.profile} className="connect-back" aria-label="Back to profile" onClick={leavePage}>
           ←
         </Link>
         <h1 className="connect-title">Connect devices</h1>

@@ -3,9 +3,9 @@
 import { redirect, useLoaderData } from 'react-router';
 import EventDetailPage from '../components/discover/EventDetailPage';
 import { getDiscoverEventById } from '../data/discoverDetails';
+import { paths } from '../utils/appPaths';
 import { loadSpotMemos } from '../utils/loadSpotMemos';
 import { resolveDiscoverPlaceSpot } from '../utils/resolveDiscoverPlaceSpot';
-import { FALLBACK_DISCOVER } from '../utils/safeRouteFallbacks';
 
 export function meta({ data: loaderData }) {
   const title = loaderData?.event?.title ?? 'Event';
@@ -15,11 +15,16 @@ export function meta({ data: loaderData }) {
   ];
 }
 
-export async function clientLoader({ params }) {
+export async function loader({ params }) {
   const event = getDiscoverEventById(params.id);
   if (!event) {
-    throw redirect(FALLBACK_DISCOVER);
+    throw redirect(paths.discover);
   }
+  return { event };
+}
+
+export async function clientLoader({ serverLoader }) {
+  const { event } = await serverLoader();
 
   const resolvedEvent = await resolveDiscoverPlaceSpot({
     ...event,

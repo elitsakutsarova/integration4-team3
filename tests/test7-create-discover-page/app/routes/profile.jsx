@@ -1,14 +1,10 @@
 import { Link } from 'react-router';
-import BottomNav from '../components/BottomNav';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers } from '../context/CollectedStickersContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
-
-// mock-data
+import { paths, diaryPath } from '../utils/appPaths';
 import { TRAVEL_DIARY } from '../data/mockUser';
-
-import { requireAuthInLoader } from '../utils/requireAuthLoader';
 
 export function meta() {
   return [
@@ -16,13 +12,6 @@ export function meta() {
     { name: 'description', content: 'Your memos, collections, and travel diaries.' },
   ];
 }
-
-export async function clientLoader() {
-  await requireAuthInLoader();
-  return null;
-}
-
-clientLoader.hydrate = true;
 
 export function HydrateFallback() {
   return (
@@ -79,13 +68,13 @@ export default function Profile() {
               </svg>
               <span>{favesCount} Faves</span>
             </div>
-            <Link to="/stickers" className="collection-card collection-card--link">
+            <Link to={paths.stickers} className="collection-card collection-card--link">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
               <span>{collectedStickers.length} Stickers</span>
             </Link>
-            <Link to="/connect" className="collection-card collection-card--link">
+            <Link to={paths.connect} className="collection-card collection-card--link">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="2" y="3" width="20" height="14" rx="2" />
                 <line x1="8" y1="21" x2="16" y2="21" />
@@ -93,7 +82,7 @@ export default function Profile() {
               </svg>
               <span>Connect</span>
             </Link>
-            <Link to="/demo-stickers" className="collection-card collection-card--link">
+            <Link to={paths.demoStickers} className="collection-card collection-card--link">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="3" width="7" height="7" />
                 <rect x="14" y="3" width="7" height="7" />
@@ -132,7 +121,7 @@ export default function Profile() {
               <span className="diary-card-new-label">New Travel Diary</span>
             </button>
 
-            <Link to={`/diary/${TRAVEL_DIARY.id}`} className="diary-card diary-card--existing">
+            <Link to={diaryPath(TRAVEL_DIARY.id)} className="diary-card diary-card--existing">
               <div className="diary-card-cover">
                 <span className="diary-cover-placeholder">COVER</span>
                 <span className="diary-card-edit" aria-hidden="true">
@@ -149,8 +138,6 @@ export default function Profile() {
             </Link>
           </div>
         </section>
-
-        <BottomNav />
       </div>
   );
 }

@@ -1,17 +1,10 @@
 //  main Discover page content (container)
 
 import { useMemo, useState } from 'react';
-import { Link, href } from 'react-router';
-import BottomNav from './BottomNav';
-import DiscoverSavedModal from './discover/DiscoverSavedModal';
+import { Link } from 'react-router';
 import { CategoryIcon, EventCard, PlaceCard } from './discover/DiscoverCards';
-import {
-  DISCOVER_CATEGORIES,
-  HAPPENING_NOW,
-  PLACES_WORTH_MEMO,
-  UPCOMING,
-  filterDiscoverItems,
-} from '../data/discoverContent';
+import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../data/discoverContent';
+import { paths } from '../utils/appPaths';
 
 function SectionHeader({ id, title, highlightWidth, underlined, viewAllTo }) {
   return (
@@ -33,7 +26,7 @@ function SectionHeader({ id, title, highlightWidth, underlined, viewAllTo }) {
   );
 }
 
-export default function DiscoverPage() {
+export default function DiscoverPage({ happeningNow, upcoming, places }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -42,17 +35,17 @@ export default function DiscoverPage() {
     [activeCategory, searchQuery],
   );
 
-  const happeningNow = useMemo(
-    () => filterDiscoverItems(HAPPENING_NOW, filters),
-    [filters],
+  const filteredHappeningNow = useMemo(
+    () => filterDiscoverItems(happeningNow, filters),
+    [happeningNow, filters],
   );
-  const upcoming = useMemo(
-    () => filterDiscoverItems(UPCOMING, filters),
-    [filters],
+  const filteredUpcoming = useMemo(
+    () => filterDiscoverItems(upcoming, filters),
+    [upcoming, filters],
   );
-  const places = useMemo(
-    () => filterDiscoverItems(PLACES_WORTH_MEMO, filters),
-    [filters],
+  const filteredPlaces = useMemo(
+    () => filterDiscoverItems(places, filters),
+    [places, filters],
   );
 
   return (
@@ -109,11 +102,11 @@ export default function DiscoverPage() {
           title="Happening now"
           highlightWidth="172px"
           id="discover-happening-now"
-          viewAllTo={href('/discover/happening-now')}
+          viewAllTo={paths.discoverHappeningNow}
         />
         <div className="discover-carousel">
-          {happeningNow.length > 0 ? (
-            happeningNow.map(item => <EventCard key={item.id} item={item} />)
+          {filteredHappeningNow.length > 0 ? (
+            filteredHappeningNow.map(item => <EventCard key={item.id} item={item} />)
           ) : (
             <p className="discover-empty">No live events match your filters.</p>
           )}
@@ -125,11 +118,11 @@ export default function DiscoverPage() {
           id="discover-upcoming"
           title="Upcoming"
           highlightWidth="116px"
-          viewAllTo={href('/discover/upcoming')}
+          viewAllTo={paths.discoverUpcoming}
         />
         <div className="discover-carousel">
-          {upcoming.length > 0 ? (
-            upcoming.map(item => <EventCard key={item.id} item={item} />)
+          {filteredUpcoming.length > 0 ? (
+            filteredUpcoming.map(item => <EventCard key={item.id} item={item} />)
           ) : (
             <p className="discover-empty">No upcoming events match your filters.</p>
           )}
@@ -151,19 +144,16 @@ export default function DiscoverPage() {
           title="Places worth a memo"
           highlightWidth="229px"
           underlined
-          viewAllTo={href('/discover/places')}
+          viewAllTo={paths.discoverPlaces}
         />
         <div className="discover-place-list">
-          {places.length > 0 ? (
-            places.map(item => <PlaceCard key={item.id} item={item} />)
+          {filteredPlaces.length > 0 ? (
+            filteredPlaces.map(item => <PlaceCard key={item.id} item={item} />)
           ) : (
             <p className="discover-empty">No places match your filters.</p>
           )}
         </div>
       </section>
-
-      <BottomNav />
-      <DiscoverSavedModal />
     </div>
   );
 }

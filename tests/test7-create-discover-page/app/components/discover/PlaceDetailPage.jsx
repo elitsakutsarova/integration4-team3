@@ -1,9 +1,7 @@
 // place detail page component for the discover page
 
 import { useNavigate } from 'react-router';
-import BottomNav from '../BottomNav';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
-import DiscoverSavedModal from './DiscoverSavedModal';
 import FeaturedMemosSection from '../memos/FeaturedMemosSection';
 import { buildMemoArchiveHref } from '../../utils/locationHref';
 
@@ -117,9 +115,6 @@ export default function PlaceDetailPage({ place, featuredMemos = [], totalMemoCo
           />
         </div>
       </div>
-
-      <BottomNav />
-      <DiscoverSavedModal />
     </div>
   );
 }

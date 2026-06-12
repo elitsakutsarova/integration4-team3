@@ -1,7 +1,7 @@
 import { redirect } from 'react-router';
 import TravelDiaryViewer from '../components/TravelDiaryViewer';
 import { TRAVEL_DIARY } from '../data/mockUser';
-import { FALLBACK_DIARY } from '../utils/safeRouteFallbacks';
+import { diaryPath } from '../utils/appPaths';
 
 export function meta() {
   return [
@@ -10,14 +10,12 @@ export function meta() {
   ];
 }
 
-export function clientLoader({ params }) {
+export function loader({ params }) {
   if (params.id !== TRAVEL_DIARY.id) {
-    throw redirect(FALLBACK_DIARY);
+    throw redirect(diaryPath(TRAVEL_DIARY.id));
   }
   return null;
 }
-
-clientLoader.hydrate = true;
 
 export default function DiaryDetail() {
   return <TravelDiaryViewer />;

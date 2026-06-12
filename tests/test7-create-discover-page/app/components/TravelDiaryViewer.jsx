@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router';
+import { paths } from '../utils/appPaths';
 import { TRAVEL_DIARY, MOCK_MEMORIES } from '../data/mockUser';
 import {
   loadPageStickers,
@@ -371,7 +372,7 @@ export default function TravelDiaryViewer() {
   return (
     <div className="diary-viewer">
       <header className="diary-header">
-        <Link to="/profile" className="diary-back-btn" aria-label="Back">
+        <Link to={paths.profile} className="diary-back-btn" aria-label="Back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>

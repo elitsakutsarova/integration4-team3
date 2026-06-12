@@ -1,5 +1,6 @@
 // route for the places list page in the discover
 
+import { useLoaderData } from 'react-router';
 import DiscoverListPage from '../components/discover/DiscoverListPage';
 import { PLACES_WORTH_MEMO_ALL } from '../data/discoverContent';
 
@@ -10,15 +11,18 @@ export function meta() {
   ];
 }
 
+export async function loader() {
+  return {
+    title: 'Places worth a memo',
+    highlightWidth: '229px',
+    underlined: true,
+    decoration: 'places',
+    items: PLACES_WORTH_MEMO_ALL,
+    itemType: 'place',
+  };
+}
+
 export default function DiscoverPlaces() {
-  return (
-    <DiscoverListPage
-      title="Places worth a memo"
-      highlightWidth="229px"
-      underlined
-      decoration="places"
-      items={PLACES_WORTH_MEMO_ALL}
-      itemType="place"
-    />
-  );
+  const listProps = useLoaderData();
+  return <DiscoverListPage {...listProps} />;
 }

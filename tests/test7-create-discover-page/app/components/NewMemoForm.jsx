@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
+import { paths } from '../utils/appPaths';
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { MEMO_MAX_MEDIA_BYTES } from '../utils/memoStore';
 
@@ -265,9 +266,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
           {actionError === 'auth_required' && (
             <div className="auth-banner auth-banner--warning" role="alert">
               Log in to publish a memo.{' '}
-              <Link to="/login" className="auth-switch-link">Log in</Link>
+              <Link to={paths.login} className="auth-switch-link">Log in</Link>
               {' or '}
-              <Link to="/register" className="auth-switch-link">Create an account</Link>.
+              <Link to={paths.register} className="auth-switch-link">Create an account</Link>.
             </div>
           )}
 

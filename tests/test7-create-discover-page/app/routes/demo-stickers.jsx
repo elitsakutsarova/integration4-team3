@@ -1,10 +1,9 @@
 // QR code generator and testing page for the sticker collection feature
 
 import { useState } from 'react';
-import { href, Link, useLoaderData } from 'react-router';
-
-//displays the QR component
+import { Link, useLoaderData } from 'react-router';
 import QrCode from '../components/QrCode';
+import { paths } from '../utils/appPaths';
 import { loadDevShareOrigin } from '../utils/devShareOrigin';
 
 const STICKER_ART = '/physicalStickers/physicalSticker.svg';
@@ -26,7 +25,7 @@ export default function DemoStickersPage() {
   const { devShare } = useLoaderData();
   const { shareOrigin, lanUrls, isOnLocalhost } = devShare;
   const [copied, setCopied] = useState(false);
-  const collectUrl = shareOrigin ? `${shareOrigin}${href('/collect')}?scan=memme-collect` : '';
+  const collectUrl = shareOrigin ? `${shareOrigin}${paths.collect}?scan=memme-collect` : '';
 
   async function copyLink() {
     if (!collectUrl) return;
@@ -42,7 +41,7 @@ export default function DemoStickersPage() {
   return (
     <div className="demo-stickers-page">
       <header className="demo-stickers-header">
-        <Link to="/profile" className="demo-stickers-back">← Profile</Link>
+        <Link to={paths.profile} className="demo-stickers-back">← Profile</Link>
         <h1 className="demo-stickers-title">Collect sticker QR</h1>
         <p className="demo-stickers-subtitle">
           Display or print this QR — scan with a phone on the same Wi‑Fi to open the collect page.
@@ -110,7 +109,7 @@ export default function DemoStickersPage() {
         <p>
           First scan on a new device? Trust the self-signed certificate once, then scan again.
         </p>
-        <Link to="/stickers" className="demo-stickers-footer-link">View your collection →</Link>
+        <Link to={paths.stickers} className="demo-stickers-footer-link">View your collection →</Link>
       </footer>
     </div>
   );

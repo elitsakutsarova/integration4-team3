@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import BottomNav from '../BottomNav';
 import MemoArchiveCard from './MemoArchiveCard';
 import { goBack } from '../../utils/navigationBack';
+import { paths } from '../../utils/appPaths';
 
 export default function MemoArchivePage({
   spotTitle,
@@ -14,7 +15,7 @@ export default function MemoArchivePage({
   const navigate = useNavigate();
 
   function handleBack() {
-    goBack(navigate, '/discover');
+    goBack(navigate, paths.discover);
   }
 
   return (

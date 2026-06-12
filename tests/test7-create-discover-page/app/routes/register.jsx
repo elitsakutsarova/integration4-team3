@@ -20,7 +20,10 @@ import {
 import { AuthSwitchLink } from '../components/auth/RequireAuth';
 import { getPasswordChecks, strengthBarCount } from '../utils/passwordRules';
 import { registerActionError, signUpAccount } from '../utils/authActions';
-import { redirectIfAuthedInLoader } from '../utils/requireAuthLoader';
+import { paths } from '../utils/appPaths';
+import { guestOnlyMiddleware } from '../middleware/clientAuth';
+
+export const clientMiddleware = guestOnlyMiddleware;
 
 //displays password quality/strength
 function PasswordStrength({ password }) {
@@ -65,14 +68,6 @@ export function meta() {
   ];
 }
 
-// checks if the user is already logged in, if yes, redirect, no -> show registration page
-export async function clientLoader() {
-  await redirectIfAuthedInLoader();
-  return {};
-}
-
-clientLoader.hydrate = true;
-
 // runs when the form submits
 export async function clientAction({ request }) {
   const formData = await request.formData();
@@ -98,7 +93,7 @@ export async function clientAction({ request }) {
   }
 
   // send user to home page
-  throw redirect('/');
+  throw redirect(paths.home);
 }
 
 // displayes the registration form, loads action data
@@ -238,7 +233,7 @@ export default function Register() {
           </button>
         </Form>
 
-        <AuthSwitchLink to="/login">Already have an account?</AuthSwitchLink>
+        <AuthSwitchLink to={paths.login}>Already have an account?</AuthSwitchLink>
       </div>
     </div>
   );

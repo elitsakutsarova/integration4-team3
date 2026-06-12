@@ -1,17 +1,22 @@
-import { useState } from 'react';
+// route for the login page
+
+import { useEffect, useState } from 'react';
 import {
   Form,
-  Link,
   redirect,
   useActionData,
   useLoaderData,
+  useNavigate,
   useNavigation,
 } from 'react-router';
 import MemMeLogo from '../components/auth/MemMeLogo';
 import { EyeIcon, LockIcon, MailIcon } from '../components/auth/AuthIcons';
 import { AuthSwitchLink } from '../components/auth/RequireAuth';
 import { loginActionError, signInAccount } from '../utils/authActions';
-import { redirectIfAuthedInLoader } from '../utils/requireAuthLoader';
+import { paths, safeInternalRedirectPath } from '../utils/appPaths';
+import { guestOnlyMiddleware } from '../middleware/clientAuth';
+
+export const clientMiddleware = guestOnlyMiddleware;
 
 export function meta() {
   return [
@@ -20,34 +25,42 @@ export function meta() {
   ];
 }
 
-//if the user is already logged in, they get redirected, otherwise it returns an authError
 export async function clientLoader({ request }) {
-  await redirectIfAuthedInLoader();
   const url = new URL(request.url);
-  return { authError: url.searchParams.get('authError') ?? '' };
+  return {
+    authError: url.searchParams.get('authError') ?? '',
+    redirectTo: url.searchParams.get('redirectTo') ?? '',
+  };
 }
 
 clientLoader.hydrate = true;
 
-// runs when the form is submitted
 export async function clientAction({ request }) {
   const formData = await request.formData();
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
+  const redirectTo = String(formData.get('redirectTo') ?? '');
   const result = await signInAccount({ email, password });
 
   if (result.error) {
+    const url = new URL(request.url);
+    if (url.searchParams.has('authError')) {
+      const params = new URLSearchParams();
+      const preservedRedirect = url.searchParams.get('redirectTo');
+      if (preservedRedirect) params.set('redirectTo', preservedRedirect);
+      throw redirect(params.size ? `${paths.login}?${params}` : paths.login);
+    }
     return loginActionError(result.error, email);
   }
 
-  throw redirect('/');
+  throw redirect(safeInternalRedirectPath(redirectTo) ?? paths.home);
 }
 
-// reads from loader and action
 export default function Login() {
-  const { authError } = useLoaderData();
+  const { authError, redirectTo } = useLoaderData();
   const actionData = useActionData();
   const navigation = useNavigation();
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -55,6 +68,14 @@ export default function Login() {
   const fieldErrors = actionData?.fieldErrors ?? {};
   const formError = actionData?.formError ?? authError;
   const loginLoading = navigation.state === 'submitting';
+
+  useEffect(() => {
+    if (!actionData?.formError) return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has('authError')) return;
+    url.searchParams.delete('authError');
+    navigate(`${url.pathname}${url.search}${url.hash}`, { replace: true });
+  }, [actionData, navigate]);
 
   return (
     <div className="auth-page">
@@ -67,6 +88,8 @@ export default function Login() {
         </header>
 
         <Form method="post" className="auth-form" noValidate>
+          {redirectTo ? <input type="hidden" name="redirectTo" value={redirectTo} /> : null}
+
           <div className="auth-field">
             <label className="auth-label" htmlFor="login-email">Email</label>
             <div className={`auth-input-wrap${fieldErrors.email ? ' auth-input-wrap--error' : ''}`}>
@@ -122,11 +145,7 @@ export default function Login() {
           </button>
         </Form>
 
-        <AuthSwitchLink to="/register">Don&apos;t have an account?</AuthSwitchLink>
-
-        <p className="auth-demo-hint">
-          New here? <Link to="/register" className="auth-switch-link">Create an account</Link> to get started.
-        </p>
+        <AuthSwitchLink to={paths.register}>Don&apos;t have an account?</AuthSwitchLink>
       </div>
     </div>
   );

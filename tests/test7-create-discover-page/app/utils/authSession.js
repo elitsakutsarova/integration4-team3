@@ -65,7 +65,10 @@ export function patchAuthUserCollections(collections) {
   emit();
 }
 
-/** Call from root clientLoader — hydrates session before the app renders. */
+/**
+ * Hydrates session before the app renders.
+ * Cached via singleton promise — no repeat Supabase fetch on later navigations.
+ */
 export async function bootstrapAuthSession() {
   if (bootstrapPromise) return bootstrapPromise;
 
