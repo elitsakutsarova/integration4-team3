@@ -4597,6 +4597,10 @@ html, body {
   font-size: 14px;
   padding: 10px 15px;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .discover-pin-deco {
@@ -4681,8 +4685,163 @@ html, body {
   font-size: 14px;
 }
 
+/* ─── Discover list pages (View all) ──────────────── */
+.discover-list-page {
+  height: 100dvh;
+  background: #fff;
+  padding-bottom: var(--nav-h-safe);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.discover-list-header {
+  position: relative;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 0;
+  min-height: 150px;
+}
+
+.discover-list-header .discover-grid-deco {
+  top: 0;
+  left: auto;
+  right: 0;
+}
+
+.discover-list-title-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 48px;
+  padding-bottom: 12px;
+}
+
+.discover-list-back {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 53px;
+  height: 49px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
+  color: #1952ff;
+  text-decoration: none;
+}
+
+.discover-list-title {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0.7px;
+  color: #1e1e1e;
+  line-height: 1.2;
+  padding: 7px 8px 8px;
+}
+
+.discover-list-title--underlined {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.discover-list-live-star {
+  position: relative;
+  flex-shrink: 0;
+  width: 62px;
+  height: 67px;
+  margin-right: 4px;
+}
+
+.discover-list-live-star svg {
+  transform: rotate(8deg);
+}
+
+.discover-list-live-star span {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%) rotate(-14deg);
+  font-size: 20px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.discover-list-arrow-deco {
+  position: absolute;
+  top: 28px;
+  left: -8px;
+  width: min(100%, 320px);
+  height: 58px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.discover-list-arrow-deco svg {
+  width: 100%;
+  height: 100%;
+}
+
+.discover-list-arrow-label {
+  position: absolute;
+  left: 18%;
+  top: 8px;
+  font-size: 14px;
+  color: #1952ff;
+  letter-spacing: 0.3px;
+  transform: rotate(-4deg);
+}
+
+.discover-list-pin-deco {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  left: 16px;
+  height: 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.discover-list-content {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 8px 16px 24px;
+}
+
+.discover-list-content--places {
+  gap: 12px;
+}
+
+.discover-event-card--list {
+  flex: none;
+  width: 100%;
+}
+
+.discover-event-card--list .discover-event-card-media {
+  height: 160px;
+  margin: 8px 8px 0;
+}
+
+.discover-event-card--list .discover-event-card-body {
+  min-height: 98px;
+  padding-bottom: 16px;
+}
+
+.discover-place-card--list {
+  width: 100%;
+}
+
 @media (min-width: 768px) {
   .discover-page {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .discover-list-page {
     max-width: 480px;
     margin: 0 auto;
   }

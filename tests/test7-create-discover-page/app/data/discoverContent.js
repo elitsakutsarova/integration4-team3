@@ -85,11 +85,77 @@ export const PLACES_WORTH_MEMO = [
     title: 'Rush Rush Caffee',
     location: 'Lange Altaarstraat 29',
     tags: ['Food'],
-    categories: ['Food'],
+    categories: ['Food', 'Art & culture', 'Nightlife'],
     image: '/discover/rush-rush.jpg',
   },
   {
     id: 'delrey',
+    title: 'DelRey',
+    location: 'Appelmansstraat 5',
+    tags: ['Food'],
+    categories: ['Food', 'Fashion'],
+    image: '/discover/delrey.jpg',
+  },
+];
+
+export const HAPPENING_NOW_ALL = [...HAPPENING_NOW];
+
+export const UPCOMING_ALL = [
+  ...UPCOMING,
+  {
+    id: 'exotische-markt',
+    title: 'Exotische markt',
+    date: 'Mon, 15 Jun. 2026',
+    location: 'Dageraadplaats',
+    tags: ['Market'],
+    categories: ['Random', 'Food'],
+    image: '/discover/flea-market.jpg',
+  },
+];
+
+export const PLACES_WORTH_MEMO_ALL = [
+  {
+    id: 'caffe-mundi',
+    title: 'Caffe Mundi',
+    location: 'Oude Beurs 24',
+    tags: ['Food'],
+    categories: ['Food'],
+    image: '/discover/caffe-mundi.jpg',
+  },
+  {
+    id: 'rush-rush-art',
+    title: 'Rush Rush Caffee',
+    location: 'Lange Altaarstraat 29',
+    tags: ['Art & culture'],
+    categories: ['Art & culture'],
+    image: '/discover/rush-rush.jpg',
+  },
+  {
+    id: 'delrey',
+    title: 'DelRey',
+    location: 'Appelmansstraat 5',
+    tags: ['Food'],
+    categories: ['Food'],
+    image: '/discover/delrey.jpg',
+  },
+  {
+    id: 'caffe-mundi-fashion',
+    title: 'Caffe Mundi',
+    location: 'Oude Beurs 24',
+    tags: ['Fashion'],
+    categories: ['Fashion'],
+    image: '/discover/caffe-mundi.jpg',
+  },
+  {
+    id: 'rush-rush-nightlife',
+    title: 'Rush Rush Caffee',
+    location: 'Lange Altaarstraat 29',
+    tags: ['Nightlife'],
+    categories: ['Nightlife'],
+    image: '/discover/rush-rush.jpg',
+  },
+  {
+    id: 'delrey-2',
     title: 'DelRey',
     location: 'Appelmansstraat 5',
     tags: ['Food'],
