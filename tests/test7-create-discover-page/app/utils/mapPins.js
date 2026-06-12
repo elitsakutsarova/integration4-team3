@@ -9,15 +9,27 @@ import {
   spreadPinPosition,
 } from './memoryPinCluster';
 
-const SQUARE_ICON_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#18181F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <rect x="3" y="3" width="18" height="18" rx="2"/>
-  <circle cx="8.5" cy="8.5" r="1.5" fill="#18181F" stroke="none"/>
-  <path d="M21 15l-5-5L5 21"/>
-</svg>`;
-
 const MUSIC_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#18181F">
   <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
 </svg>`;
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/"/g, '&quot;');
+}
+
+function truncateQuote(text, max = 42) {
+  const clean = String(text ?? '').trim();
+  if (clean.length <= max) return clean;
+  return `${clean.slice(0, max - 1).trim()}…`;
+}
+
+function pinRotation(id) {
+  const seed = String(id).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return ((seed % 7) - 3) * 3;
+}
 
 export function addPinHtml() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="48" viewBox="0 0 34 48" style="cursor:pointer;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.28))">
@@ -29,51 +41,61 @@ export function addPinHtml() {
   </svg>`;
 }
 
-export function memoryPinHtml() {
-  return `<div class="pin-memory">
-    <div class="pin-memory-square">${SQUARE_ICON_SVG}</div>
-    <div class="pin-memory-drop"><div class="pin-memory-dot"></div></div>
+export function memoryPinHtml(pin) {
+  const rotation = pinRotation(pin.id);
+  const hasMedia = Boolean(pin.mediaPreview?.url);
+  const body = hasMedia
+    ? `<img src="${escapeHtml(pin.mediaPreview.url)}" alt="" class="pin-memory-polaroid-img" />`
+    : `<p class="pin-memory-polaroid-text"><span class="pin-memory-polaroid-text-highlight">${escapeHtml(truncateQuote(pin.quote))}</span></p>`;
+
+  return `<div class="pin-memory-polaroid" style="--pin-rotate:${rotation}deg">
+    <div class="pin-memory-polaroid-frame">${body}</div>
   </div>`;
 }
 
 export function memoryClusterPinHtml(count) {
   return `<div class="pin-memory-cluster" aria-label="${count} memories">
-    <div class="pin-memory-cluster-glow"></div>
+    <div class="pin-memory-cluster-stack" aria-hidden="true"></div>
     <div class="pin-memory-cluster-head">
       <span class="pin-memory-cluster-count">${count}</span>
-      <span class="pin-memory-cluster-label">memories</span>
+      <span class="pin-memory-cluster-label">memos</span>
     </div>
-    <div class="pin-memory-cluster-drop"><div class="pin-memory-cluster-dot"></div></div>
   </div>`;
 }
 
 export function eventPinHtml() {
   return `<div class="pin-event">
-    <div class="pin-event-glow"></div>
+    <div class="pin-event-ring pin-event-ring--outer"></div>
+    <div class="pin-event-ring pin-event-ring--mid"></div>
+    <div class="pin-event-ring pin-event-ring--inner"></div>
     <div class="pin-event-circle">${MUSIC_ICON_SVG}</div>
   </div>`;
 }
 
 export function eventPopupHtml(pin) {
-  const tags = pin.tags.map(t => `<span class="event-tag">${t}</span>`).join('');
+  const tags = pin.tags.map(t => `<span class="event-tag">${escapeHtml(t)}</span>`).join('');
+  const learnMoreHref = pin.discoverEventId
+    ? `/discover/event/${encodeURIComponent(pin.discoverEventId)}`
+    : '#';
+
   return `<div class="event-popup">
     <div class="event-popup-body">
       <div class="event-popup-text">
-        <h3 class="event-popup-title"><span class="event-popup-title-highlight">${pin.title}</span></h3>
+        <h3 class="event-popup-title"><span class="event-popup-title-highlight">${escapeHtml(pin.title)}</span></h3>
         <div class="event-popup-tags">${tags}</div>
         <p class="event-popup-location">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
             <circle cx="12" cy="10" r="3"/>
           </svg>
-          ${pin.label}
+          <span class="event-popup-location-link">${escapeHtml(pin.label)}</span>
         </p>
-        <a class="event-popup-cta" href="#">Learn more</a>
+        <a class="event-popup-cta" href="${learnMoreHref}">Learn more</a>
       </div>
       <div class="event-popup-image-wrap">
         <div class="event-popup-image-shadow" aria-hidden="true"></div>
-        <img class="event-popup-image" src="${pin.image}" alt="${pin.title}" />
-        <span class="event-popup-badge"><span class="event-popup-badge-dot"></span> Now</span>
+        <img class="event-popup-image" src="${escapeHtml(pin.image)}" alt="${escapeHtml(pin.title)}" />
+        <span class="event-popup-badge"><span class="event-popup-badge-dot"></span> ${escapeHtml(pin.badge ?? 'Now')}</span>
       </div>
     </div>
   </div>`;
@@ -88,10 +110,10 @@ export function buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryR
   const ll = displayLl ?? pin.ll;
   const icon = L.divIcon({
     className: '',
-    html: memoryPinHtml(),
-    iconSize: [36, 52],
-    iconAnchor: [18, 52],
-    popupAnchor: [0, -56],
+    html: memoryPinHtml(pin),
+    iconSize: [64, 78],
+    iconAnchor: [32, 72],
+    popupAnchor: [0, -74],
   });
   const marker = L.marker(ll, { icon });
   marker.on('click', () => {
@@ -107,8 +129,8 @@ export function buildMemoryClusterMarker(L, map, layer, pins, suppressClickRef) 
   const icon = L.divIcon({
     className: '',
     html: memoryClusterPinHtml(count),
-    iconSize: [52, 76],
-    iconAnchor: [26, 76],
+    iconSize: [58, 72],
+    iconAnchor: [29, 68],
   });
   const marker = L.marker(clusterCentroid(pins), { icon, zIndexOffset: 500 });
   marker.on('click', () => {
@@ -178,9 +200,9 @@ export function buildEventMarker(L, map, pin) {
   const icon = L.divIcon({
     className: '',
     html: eventPinHtml(),
-    iconSize: [64, 64],
-    iconAnchor: [32, 32],
-    popupAnchor: [0, -36],
+    iconSize: [72, 72],
+    iconAnchor: [36, 36],
+    popupAnchor: [0, -40],
   });
   const marker = L.marker(pin.ll, { icon }).addTo(map);
   marker.bindPopup(eventPopupHtml(pin), {

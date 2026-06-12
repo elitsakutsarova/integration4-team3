@@ -51,10 +51,13 @@ export const MOCK_MEMORIES = [
     id: 5,
     ll: [51.2189, 4.4041],
     quote: 'I had the best kebab at 4AM here',
-    location: 'Liva Kebab',
-    tags: ['Food', 'Late night'],
+    location: 'Traum',
+    tags: ['Food', 'Added by Local'],
     date: 'Sat, 28 Aug, 2026',
-    mediaPreview: null,
+    mediaPreview: {
+      url: '/discover/oh-honey.jpg',
+      isVideo: false,
+    },
   },
   {
     id: 6,
@@ -142,7 +145,8 @@ export const INITIAL_EVENTS = [
     tags: ['Festival', 'Music'],
     likes: 268,
     badge: 'Now',
-    image: 'https://images.unsplash.com/photo-1459749411175-04bf5294ceeb?w=400&h=400&fit=crop',
+    image: '/discover/oh-honey.jpg',
+    discoverEventId: 'oh-honey',
   },
   {
     id: 102,

@@ -3,6 +3,7 @@ import BottomNav from '../components/BottomNav';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers } from '../context/CollectedStickersContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
+import { useSavedMemos } from '../context/SavedMemosContext';
 
 // mock-data
 import { TRAVEL_DIARY } from '../data/mockUser';
@@ -34,6 +35,7 @@ export function HydrateFallback() {
 export default function Profile() {
   const collectedStickers = useCollectedStickers();
   const { favesCount } = useDiscoverFaves();
+  const { memosCount } = useSavedMemos();
   const { user, signOut } = useAuth();
 
   return (
@@ -69,7 +71,7 @@ export default function Profile() {
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <span>{user?.collections?.memos ?? 0} Memos</span>
+              <span>{memosCount} Memos</span>
             </div>
             <div className="collection-card">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

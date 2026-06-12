@@ -16,6 +16,7 @@ import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
 import { AuthProvider } from "./context/AuthContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
 import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
+import { SavedMemosProvider } from "./context/SavedMemosContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { bootstrapAuthSession } from "./utils/authSession";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
@@ -99,9 +100,11 @@ export default function App() {
   return (
     <CollectedStickersProvider collectedStickers={collectedStickers}>
       <DiscoverFavesProvider>
-        <StickerCatalogProvider stickers={stickers}>
-          <Outlet />
-        </StickerCatalogProvider>
+        <SavedMemosProvider>
+          <StickerCatalogProvider stickers={stickers}>
+            <Outlet />
+          </StickerCatalogProvider>
+        </SavedMemosProvider>
       </DiscoverFavesProvider>
     </CollectedStickersProvider>
   );
