@@ -28,6 +28,11 @@ export function getAuthSnapshot() {
   return snapshot;
 }
 
+/** True after the first auth bootstrap finished (success or failure). */
+export function isAuthBootstrapped() {
+  return snapshot.loading === false;
+}
+
 export function getAuthServerSnapshot() {
   return SERVER_SNAPSHOT;
 }

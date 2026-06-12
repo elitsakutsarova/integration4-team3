@@ -23,7 +23,7 @@ import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
 import { SavedMemosProvider } from "./context/SavedMemosContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { appAuthMiddleware } from "./middleware/clientAuth";
-import { bootstrapAuthSession } from "./utils/authSession";
+import { bootstrapAuthSession, isAuthBootstrapped } from "./utils/authSession";
 import { isPublicAppPath } from "./utils/appPaths";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
 import { registerAppRevalidate } from "./utils/revalidateApp";
@@ -62,11 +62,11 @@ export async function clientLoader({ serverLoader }) {
 // run the client loader while react takes over the html sent from the server
 clientLoader.hydrate = true;
 
-export const clientMiddleware = appAuthMiddleware;
-
-export function HydrateFallback() {
-  return <AuthLoading />;
+export function shouldRevalidate({ formAction }) {
+  return Boolean(formAction);
 }
+
+export const clientMiddleware = appAuthMiddleware;
 
 // fonts
 export const links = () => [
@@ -113,7 +113,13 @@ export default function App() {
     registerAppRevalidate(revalidate);
   }, [revalidate]);
 
-  if (!isPublic && (loading || !user)) {
+  const bootstrapped = isAuthBootstrapped();
+
+  if (!isPublic && !bootstrapped && loading) {
+    return <AuthLoading />;
+  }
+
+  if (!isPublic && bootstrapped && !user) {
     return <AuthLoading />;
   }
 

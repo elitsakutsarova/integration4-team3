@@ -1,51 +1,11 @@
 // memory sheet component for the map view
 
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSavedMemos } from '../context/SavedMemosContext';
-import { isNamedVenueLocation } from '../utils/locationHelpers';
-import { resolvePhotonPoiAt } from '../utils/locationPhoton';
-import { buildLocationDetailHref, navigateToLocationDetail } from '../utils/locationHref';
+import { navigateToLocationDetail } from '../utils/locationHref';
+import { resolveNavigableLocationHref } from '../utils/navigableLocation';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../utils/googleMaps';
-
-function buildPinLocationHref(pin) {
-  if (!Array.isArray(pin.ll) || pin.ll.length < 2) return null;
-
-  return buildLocationDetailHref({
-    placeId: pin.placeId,
-    lat: pin.ll[0],
-    lng: pin.ll[1],
-    name: pin.location,
-  });
-}
-
-function canNavigateToLocation(pin) {
-  if (buildPinLocationHref(pin)) return true;
-  return isNamedVenueLocation(pin.location) && Array.isArray(pin.ll) && pin.ll.length >= 2;
-}
-
-async function resolvePinLocationHref(pin) {
-  const directHref = buildPinLocationHref(pin);
-  if (directHref) return directHref;
-
-  if (!isNamedVenueLocation(pin.location) || !Array.isArray(pin.ll) || pin.ll.length < 2) {
-    return null;
-  }
-
-  const resolved = await resolvePhotonPoiAt({
-    lat: pin.ll[0],
-    lng: pin.ll[1],
-    name: pin.location,
-  });
-
-  if (!resolved?.id) return null;
-
-  return buildLocationDetailHref({
-    placeId: resolved.id,
-    lat: resolved.lat,
-    lng: resolved.lng,
-    name: pin.location,
-  });
-}
 
 function MemoFavoriteButton({ memoId, label }) {
   const { isSaved, toggleMemo } = useSavedMemos();
@@ -76,11 +36,33 @@ function MemoFavoriteButton({ memoId, label }) {
 
 export default function MemorySheet({ pin, onClose }) {
   const navigate = useNavigate();
+  const [locationHref, setLocationHref] = useState(null);
+
+  useEffect(() => {
+    if (!pin) {
+      setLocationHref(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    void resolveNavigableLocationHref({
+      placeId: pin.placeId,
+      lat: pin.ll?.[0],
+      lng: pin.ll?.[1],
+      name: pin.location,
+    }).then(href => {
+      if (!cancelled) setLocationHref(href);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pin]);
 
   if (!pin) return null;
 
   const hasMedia = Boolean(pin.mediaPreview?.url);
-  const locationIsLink = canNavigateToLocation(pin);
   const canOpenMaps = Array.isArray(pin.ll) && pin.ll.length >= 2;
 
   function handleTakeMeThere(event) {
@@ -92,13 +74,12 @@ export default function MemorySheet({ pin, onClose }) {
     openGoogleMapsDirections(pin.ll[0], pin.ll[1], event);
   }
 
-  async function handleLocationClick(event) {
+  function handleLocationClick(event) {
     event.stopPropagation();
-    const detailHref = await resolvePinLocationHref(pin);
-    if (!detailHref) return;
+    if (!locationHref) return;
 
     onClose();
-    navigateToLocationDetail(navigate, detailHref);
+    navigateToLocationDetail(navigate, locationHref);
   }
 
   return (
@@ -150,7 +131,7 @@ export default function MemorySheet({ pin, onClose }) {
                 <path d="M12 21s7-4.5 7-10a7 7 0 1 0-14 0c0 5.5 7 10 7 10z" stroke="currentColor" strokeWidth="1.8" />
                 <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
               </svg>
-              {locationIsLink ? (
+              {locationHref ? (
                 <button type="button" className="memory-sheet-location-name" onClick={handleLocationClick}>
                   {pin.location}
                 </button>

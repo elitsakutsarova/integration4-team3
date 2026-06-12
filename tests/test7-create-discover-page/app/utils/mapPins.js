@@ -8,7 +8,6 @@ import {
   shouldShowSpotClusters,
   spreadPinPosition,
 } from './memoryPinCluster';
-import { buildLocationDetailHref } from './locationHref';
 
 const MUSIC_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#18181F">
   <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
@@ -78,15 +77,10 @@ export function eventPopupHtml(pin) {
   const learnMoreHref = pin.discoverEventId
     ? `/discover/event/${encodeURIComponent(pin.discoverEventId)}`
     : '#';
-  const locationHref = buildLocationDetailHref({
-    placeId: pin.placeId,
-    lat: pin.ll?.[0],
-    lng: pin.ll?.[1],
-    name: pin.label,
-  });
+  const locationHref = pin.locationHref ?? null;
   const locationLabel = locationHref
     ? `<a class="event-popup-location-link" href="${escapeHtml(locationHref)}">${escapeHtml(pin.label)}</a>`
-    : `<span class="event-popup-location-link">${escapeHtml(pin.label)}</span>`;
+    : `<span class="event-popup-location-link event-popup-location-link--plain">${escapeHtml(pin.label)}</span>`;
 
   return `<div class="event-popup">
     <div class="event-popup-body">

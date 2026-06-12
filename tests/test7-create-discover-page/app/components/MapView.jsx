@@ -16,6 +16,7 @@ import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
 import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
 import { navigateToLocationDetail } from '../utils/locationHref';
+import { resolveNavigableLocationHref } from '../utils/navigableLocation';
 import {
   buildEventMarker,
   placePendingPin,
@@ -48,7 +49,7 @@ function dbMemoFingerprint(savedMemos) {
     .join(',');
 }
 
-export default function MapView({ savedMemos = [] }) {
+export default function MapView({ savedMemos = [], active = true }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const draftMemo = readDraftMemo(searchParams);
@@ -73,6 +74,7 @@ export default function MapView({ savedMemos = [] }) {
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [eventLocationHrefs, setEventLocationHrefs] = useState(() => new Map());
 
   const filterOptions = { category: activeCategory, query: searchQuery };
 
@@ -107,6 +109,18 @@ export default function MapView({ savedMemos = [] }) {
   const filterFingerprint = `${memoFingerprint}|${activeCategory}|${searchQuery}`;
 
   useEffect(() => {
+    if (!active) {
+      setSelectedMemory(null);
+      setSearchParams({}, { replace: true });
+      return;
+    }
+
+    const map = mapRef.current;
+    if (!map) return;
+    requestAnimationFrame(() => map.invalidateSize());
+  }, [active, setSearchParams]);
+
+  useEffect(() => {
     if (!pendingMemoRef.current) return;
     if (savedMemos.some(m => m.id === pendingMemoRef.current.id)) {
       pendingMemoRef.current = null;
@@ -124,6 +138,34 @@ export default function MapView({ savedMemos = [] }) {
   }, [revalidator.state, filterFingerprint, syncMapPins]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function resolveEventLocations() {
+      const hrefs = new Map();
+
+      await Promise.all(INITIAL_EVENTS.map(async pin => {
+        if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return;
+
+        const href = await resolveNavigableLocationHref({
+          placeId: pin.placeId,
+          lat: pin.ll[0],
+          lng: pin.ll[1],
+          name: pin.label,
+        });
+
+        if (href) hrefs.set(pin.id, href);
+      }));
+
+      if (!cancelled) setEventLocationHrefs(hrefs);
+    }
+
+    void resolveEventLocations();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     const L = leafletRef.current;
     const map = mapRef.current;
     if (!L || !map) return;
@@ -135,7 +177,10 @@ export default function MapView({ savedMemos = [] }) {
     const visibleEvents = filterMapEvents(INITIAL_EVENTS, filterOptions);
     eventMarkersRef.current = visibleEvents.map(pin => {
       if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
-      return buildEventMarker(L, map, pin, {
+      return buildEventMarker(L, map, {
+        ...pin,
+        locationHref: eventLocationHrefs.get(pin.id) ?? null,
+      }, {
         onLocationClick: locationHref => {
           navigateToLocationDetail(navigateRef.current, locationHref);
         },
@@ -143,10 +188,10 @@ export default function MapView({ savedMemos = [] }) {
     }).filter(Boolean);
 
     const featured = eventMarkersRef.current[0];
-    if (featured && activeCategory === 'All' && !searchQuery.trim()) {
+    if (featured && active && activeCategory === 'All' && !searchQuery.trim()) {
       featured.openPopup();
     }
-  }, [activeCategory, searchQuery]);
+  }, [active, activeCategory, searchQuery, eventLocationHrefs]);
 
   useEffect(() => {
     const dbMemos = (savedMemos ?? []).filter(m => m.fromDb);
@@ -323,9 +368,11 @@ export default function MapView({ savedMemos = [] }) {
   }
 
   return (
-    <div className="map-page">
+    <div className={`map-page${active ? '' : ' map-page--inactive'}`}>
       <div ref={attachMapContainer} className="map-container" />
 
+      {active && (
+        <>
       <MapHomeChrome
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -359,6 +406,8 @@ export default function MapView({ savedMemos = [] }) {
           onClose={handleFormClose}
           onChooseLocation={handleOpenLocationPicker}
         />
+      )}
+        </>
       )}
     </div>
   );

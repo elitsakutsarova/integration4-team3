@@ -1,20 +1,22 @@
 import { index, route } from "@react-router/dev/routes";
 
 export default [
-  index("routes/home.jsx"),
+  route("", "routes/main-shell.jsx", [
+    index("routes/home.jsx"),
+    route("discover", "routes/discover-layout.jsx", [
+      index("routes/discover._index.jsx"),
+      route("happening-now", "routes/discover.happening-now.jsx"),
+      route("upcoming", "routes/discover.upcoming.jsx"),
+      route("places", "routes/discover.places.jsx"),
+      route("event/:id", "routes/discover.event.$id.jsx"),
+      route("place/:id", "routes/discover.place.$id.jsx"),
+    ]),
+    route("profile", "routes/account-layout.profile.jsx", [
+      index("routes/profile.jsx"),
+    ]),
+  ]),
   route("login", "routes/login.jsx"),
   route("register", "routes/register.jsx"),
-  route("discover", "routes/discover-layout.jsx", [
-    index("routes/discover._index.jsx"),
-    route("happening-now", "routes/discover.happening-now.jsx"),
-    route("upcoming", "routes/discover.upcoming.jsx"),
-    route("places", "routes/discover.places.jsx"),
-    route("event/:id", "routes/discover.event.$id.jsx"),
-    route("place/:id", "routes/discover.place.$id.jsx"),
-  ]),
-  route("profile", "routes/account-layout.profile.jsx", [
-    index("routes/profile.jsx"),
-  ]),
   route("stickers", "routes/account-layout.stickers.jsx", [
     index("routes/stickers.jsx"),
   ]),
