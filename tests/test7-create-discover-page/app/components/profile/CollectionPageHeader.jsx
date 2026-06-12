@@ -4,15 +4,27 @@ import { useNavigate } from 'react-router';
 import { goBack } from '../../utils/navigationBack';
 import { paths } from '../../utils/appPaths';
 
-export default function CollectionPageHeader({ title, backTo = paths.profile }) {
+export default function CollectionPageHeader({
+  title,
+  backTo = paths.profile,
+  explicitBack = false,
+}) {
   const navigate = useNavigate();
+
+  function handleBack() {
+    if (explicitBack) {
+      navigate(backTo);
+      return;
+    }
+    goBack(navigate, backTo);
+  }
 
   return (
     <header className="collection-page-header">
       <button
         type="button"
         className="collection-page-back"
-        onClick={() => goBack(navigate, backTo)}
+        onClick={handleBack}
         aria-label="Back"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">

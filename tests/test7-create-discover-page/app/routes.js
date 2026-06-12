@@ -14,7 +14,12 @@ export default [
     route("profile", "routes/account-layout.profile.jsx", [
       index("routes/profile.jsx"),
       route("memos", "routes/profile.memos.jsx"),
-      route("favourites", "routes/profile.favourites.jsx"),
+      route("favourites", "routes/profile.favourites-layout.jsx", [
+        index("routes/profile.favourites._index.jsx"),
+        route("memos", "routes/profile.favourites.memos.jsx"),
+        route("spots", "routes/profile.favourites.spots.jsx"),
+        route("events", "routes/profile.favourites.events.jsx"),
+      ]),
     ]),
   ]),
   route("login", "routes/login.jsx"),

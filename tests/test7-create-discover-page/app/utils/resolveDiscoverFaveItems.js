@@ -2,8 +2,10 @@
 
 import { getDiscoverEventById, getDiscoverPlaceById } from '../data/discoverDetails';
 
-export function resolveDiscoverFaveItems(faves) {
-  return faves
+export function resolveDiscoverFaveItems(faves, type) {
+  const source = type ? faves.filter(fave => fave.type === type) : faves;
+
+  return source
     .map(fave => {
       if (fave.type === 'event') {
         const item = getDiscoverEventById(fave.id);

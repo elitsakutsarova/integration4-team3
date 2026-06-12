@@ -1,6 +1,6 @@
 // memory sheet component for the map view
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSavedMemos } from '../context/SavedMemosContext';
 import { navigateToLocationDetail } from '../utils/locationHref';
@@ -34,9 +34,30 @@ function MemoFavoriteButton({ memoId, label }) {
   );
 }
 
-export default function MemorySheet({ pin, onClose }) {
+function measurePlacement(anchor, sheet) {
+  const rect = sheet.getBoundingClientRect();
+  const margin = 12;
+  const tailGap = 14;
+  const halfW = rect.width / 2;
+
+  const x = Math.min(
+    Math.max(anchor.x, margin + halfW),
+    window.innerWidth - margin - halfW,
+  );
+
+  const spaceAbove = anchor.y - margin;
+  const spaceBelow = window.innerHeight - anchor.y - margin;
+  const sheetH = rect.height + tailGap;
+  const below = spaceAbove < sheetH && spaceBelow > spaceAbove;
+
+  return { x, y: anchor.y, below };
+}
+
+export default function MemorySheet({ pin, anchor, onClose }) {
   const navigate = useNavigate();
+  const sheetRef = useRef(null);
   const [locationHref, setLocationHref] = useState(null);
+  const [placement, setPlacement] = useState(null);
 
   useEffect(() => {
     if (!pin) {
@@ -60,7 +81,16 @@ export default function MemorySheet({ pin, onClose }) {
     };
   }, [pin]);
 
-  if (!pin) return null;
+  useLayoutEffect(() => {
+    if (!anchor || !sheetRef.current) {
+      setPlacement(null);
+      return;
+    }
+
+    setPlacement(measurePlacement(anchor, sheetRef.current));
+  }, [anchor, pin, locationHref]);
+
+  if (!pin || !anchor) return null;
 
   const hasMedia = Boolean(pin.mediaPreview?.url);
   const canOpenMaps = Array.isArray(pin.ll) && pin.ll.length >= 2;
@@ -82,10 +112,28 @@ export default function MemorySheet({ pin, onClose }) {
     navigateToLocationDetail(navigate, locationHref);
   }
 
+  const sheetStyle = placement
+    ? {
+        left: placement.x,
+        top: placement.y,
+        transform: placement.below
+          ? 'translate(-50%, 14px)'
+          : 'translate(-50%, calc(-100% - 14px))',
+        visibility: 'visible',
+      }
+    : {
+        left: anchor.x,
+        top: anchor.y,
+        transform: 'translate(-50%, calc(-100% - 14px))',
+        visibility: 'hidden',
+      };
+
   return (
-    <div className="memory-sheet-backdrop" onClick={onClose}>
+    <div className="memory-sheet-backdrop memory-sheet-backdrop--anchored" onClick={onClose}>
       <article
-        className={`memory-sheet${hasMedia ? '' : ' memory-sheet--text-only'}`}
+        ref={sheetRef}
+        className={`memory-sheet memory-sheet--anchored${hasMedia ? '' : ' memory-sheet--text-only'}${placement?.below ? ' memory-sheet--below' : ''}`}
+        style={sheetStyle}
         onClick={event => event.stopPropagation()}
       >
         {hasMedia && (

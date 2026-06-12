@@ -626,6 +626,11 @@ html, body {
   padding: 72px 16px calc(var(--nav-h-safe) + 16px);
 }
 
+.memory-sheet-backdrop--anchored {
+  display: block;
+  padding: 0;
+}
+
 .memory-sheet {
   position: relative;
   width: min(100%, 340px);
@@ -634,6 +639,20 @@ html, body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
   overflow: visible;
   animation: form-enter .25s ease-out;
+}
+
+.memory-sheet--anchored {
+  position: fixed;
+  width: min(calc(100vw - 24px), 340px);
+  z-index: 1;
+  animation: none;
+}
+
+.memory-sheet--below::after {
+  bottom: auto;
+  top: -11px;
+  border-top: none;
+  border-bottom: 12px solid #fff;
 }
 
 .memory-sheet::after {
@@ -5684,6 +5703,10 @@ html, body {
   flex-shrink: 0;
 }
 
+.collection-tabs a {
+  text-decoration: none;
+}
+
 .collection-tab {
   border: none;
   background: transparent;
@@ -5715,6 +5738,12 @@ html, body {
   padding: 16px 0 12px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.collection-sort-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .collection-sort-track {

@@ -12,6 +12,8 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
   const [quote, setQuote] = useState('');
   const [quoteTouched, setQuoteTouched] = useState(false);
   const fileRef = useRef(null);
+  const mediaPreviewRef = useRef(null);
+  mediaPreviewRef.current = mediaPreview;
 
   const mediaState = mediaPreview ? 'preview' : showUploadZone ? 'zone' : 'idle';
   const locationLabel = draft?.locationName?.trim() || 'Choose Location';
@@ -30,9 +32,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
 
   useEffect(() => {
     return () => {
-      if (mediaPreview) URL.revokeObjectURL(mediaPreview.url);
+      if (mediaPreviewRef.current?.url) URL.revokeObjectURL(mediaPreviewRef.current.url);
     };
-  }, [mediaPreview]);
+  }, []);
 
   function applyMediaFile(file) {
     if (!file) return;
@@ -54,6 +56,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
     }
 
     setMediaError('');
+    if (mediaPreview?.url) URL.revokeObjectURL(mediaPreview.url);
     const url = URL.createObjectURL(file);
     setShowUploadZone(false);
     setMediaPreview({ url, isVideo: file.type.startsWith('video/') });

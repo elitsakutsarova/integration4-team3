@@ -74,11 +74,18 @@ export default function MapView({ savedMemos = [], active = true }) {
   navigateRef.current = navigate;
 
   const [selectedMemory, setSelectedMemory] = useState(null);
+  const [memoryAnchor, setMemoryAnchor] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [eventLocationHrefs, setEventLocationHrefs] = useState(() => new Map());
 
   const filterOptions = { category: activeCategory, query: searchQuery };
+
+  const savedMemosRef = useRef(savedMemos);
+  savedMemosRef.current = savedMemos;
+
+  const filterOptionsRef = useRef(filterOptions);
+  filterOptionsRef.current = filterOptions;
 
   // Live refs: Leaflet registers event handlers once at init — these always point at the
   // current navigate/setState logic without re-binding listeners on every render.
@@ -93,26 +100,42 @@ export default function MapView({ savedMemos = [], active = true }) {
   };
 
   const selectMemoryRef = useRef(null);
-  selectMemoryRef.current = setSelectedMemory;
+  selectMemoryRef.current = (pin) => {
+    const map = mapRef.current;
+    if (map && Array.isArray(pin?.ll) && pin.ll.length >= 2) {
+      const point = map.latLngToContainerPoint([pin.ll[0], pin.ll[1]]);
+      const rect = map.getContainer().getBoundingClientRect();
+      setMemoryAnchor({ x: rect.left + point.x, y: rect.top + point.y });
+    } else {
+      setMemoryAnchor(null);
+    }
+    setSelectedMemory(pin);
+  };
 
   const syncMapPins = useCallback(() => {
     const L = leafletRef.current;
     const map = mapRef.current;
-    if (L && map) refreshMemoryLayersRef.current?.(L, map);
+    if (!L || !map) return;
+
+    const pendingMemo = pendingMemoRef.current;
+    const mergedMemos = pendingMemo
+      ? [pendingMemo, ...savedMemosRef.current]
+      : savedMemosRef.current;
+    const allMemos = mergeMapMemories(mergedMemos);
+    memoryPinsRef.current = filterMapMemories(allMemos, filterOptionsRef.current);
+
+    refreshMemoryLayersRef.current?.(L, map);
   }, []);
 
-  // Keep pin data in sync with loader output (ref write only — safe during render).
   const pendingMemo = pendingMemoRef.current;
   const mergedMemos = pendingMemo ? [pendingMemo, ...savedMemos] : savedMemos;
-  const allMemos = mergeMapMemories(mergedMemos);
-  memoryPinsRef.current = filterMapMemories(allMemos, filterOptions);
-
   const memoFingerprint = dbMemoFingerprint(mergedMemos);
   const filterFingerprint = `${memoFingerprint}|${activeCategory}|${searchQuery}`;
 
   useEffect(() => {
     if (!active) {
       setSelectedMemory(null);
+      setMemoryAnchor(null);
       setSearchParams({}, { replace: true });
       return;
     }
@@ -123,6 +146,29 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, [active, setSearchParams]);
 
   useEffect(() => {
+    if (!active || !selectedMemory) return;
+
+    const map = mapRef.current;
+    if (!map || !Array.isArray(selectedMemory.ll) || selectedMemory.ll.length < 2) return;
+
+    function updateAnchor() {
+      const point = map.latLngToContainerPoint([selectedMemory.ll[0], selectedMemory.ll[1]]);
+      const rect = map.getContainer().getBoundingClientRect();
+      setMemoryAnchor({ x: rect.left + point.x, y: rect.top + point.y });
+    }
+
+    map.on('move', updateAnchor);
+    map.on('zoom', updateAnchor);
+    map.on('resize', updateAnchor);
+
+    return () => {
+      map.off('move', updateAnchor);
+      map.off('zoom', updateAnchor);
+      map.off('resize', updateAnchor);
+    };
+  }, [active, selectedMemory]);
+
+  useEffect(() => {
     if (!pendingMemoRef.current) return;
     if (savedMemos.some(m => m.id === pendingMemoRef.current.id)) {
       pendingMemoRef.current = null;
@@ -130,13 +176,8 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, [savedMemos, memoFingerprint]);
 
   useEffect(() => {
+    if (revalidator.state !== 'idle') return;
     syncMapPins();
-  }, [filterFingerprint, syncMapPins]);
-
-  useEffect(() => {
-    if (revalidator.state === 'idle') {
-      syncMapPins();
-    }
   }, [revalidator.state, filterFingerprint, syncMapPins]);
 
   useEffect(() => {
@@ -230,7 +271,6 @@ export default function MapView({ savedMemos = [], active = true }) {
 
       if (fetcher.data.memo) {
         pendingMemoRef.current = fetcher.data.memo;
-        memoryPinsRef.current = mergeMapMemories([fetcher.data.memo, ...savedMemos]);
         syncMapPins();
       }
 
@@ -304,7 +344,6 @@ export default function MapView({ savedMemos = [], active = true }) {
         if (suppressClickRef.current) return;
         if (!e.latlng || !Number.isFinite(e.latlng.lat) || !Number.isFinite(e.latlng.lng)) return;
         placePendingPin(L, map, e.latlng, pendingMarkerRef, suppressClickRef, openFormRef);
-        openFormRef.current(e.latlng);
       });
 
       requestAnimationFrame(() => map.invalidateSize());
@@ -386,7 +425,14 @@ export default function MapView({ savedMemos = [], active = true }) {
       <BottomNav onAddClick={handleAddBtnClick} />
 
       {selectedMemory && (
-        <MemorySheet pin={selectedMemory} onClose={() => setSelectedMemory(null)} />
+        <MemorySheet
+          pin={selectedMemory}
+          anchor={memoryAnchor}
+          onClose={() => {
+            setSelectedMemory(null);
+            setMemoryAnchor(null);
+          }}
+        />
       )}
 
       {draftMemo?.pickLocation && (
