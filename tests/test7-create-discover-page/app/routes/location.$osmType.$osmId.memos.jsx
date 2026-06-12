@@ -2,8 +2,7 @@
 
 import { useLoaderData } from 'react-router';
 import MemoArchivePage from '../components/memos/MemoArchivePage';
-import { loadSpotMemos } from '../utils/loadSpotMemos';
-import { parseLocationRoute } from '../utils/parseLocationRoute';
+import { loadLocationMemosClient } from '../utils/locationPage';
 
 export function meta({ data: loaderData }) {
   const title = loaderData?.spotTitle ?? 'Memo Archive';
@@ -14,21 +13,7 @@ export function meta({ data: loaderData }) {
 }
 
 export async function clientLoader(args) {
-  const { placeId, lat, lng, locationName, spotTitle } = parseLocationRoute(args);
-
-  const { archiveMemos, totalMemoCount } = await loadSpotMemos({
-    placeId,
-    lat,
-    lng,
-    locationName,
-  });
-
-  return {
-    spotTitle,
-    locationName,
-    memos: archiveMemos,
-    memoCount: totalMemoCount,
-  };
+  return loadLocationMemosClient(args);
 }
 
 clientLoader.hydrate = true;

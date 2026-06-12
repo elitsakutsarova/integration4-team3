@@ -49,3 +49,9 @@ export function loginPathWithRedirect(returnPath) {
   if (!safe) return paths.login;
   return `${paths.login}?${new URLSearchParams({ redirectTo: safe }).toString()}`;
 }
+
+const PUBLIC_APP_PATHS = new Set([paths.login, paths.register]);
+
+export function isPublicAppPath(pathname) {
+  return PUBLIC_APP_PATHS.has(pathname);
+}

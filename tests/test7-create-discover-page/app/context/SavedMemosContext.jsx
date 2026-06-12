@@ -24,15 +24,18 @@ export function SavedMemosProvider({ children }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const [savedMemos, setSavedMemos] = useState([]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    setReady(false);
 
     async function loadMemos() {
       const next = await fetchSavedMemos(userId);
       if (cancelled) return;
       setSavedMemos(next);
       if (userId) syncMemosCount(next.length);
+      setReady(true);
     }
 
     void loadMemos();
@@ -73,12 +76,13 @@ export function SavedMemosProvider({ children }) {
     () => ({
       savedMemos,
       memosCount: savedMemos.length,
+      ready,
       isSaved,
       saveMemo,
       removeMemo,
       toggleMemo,
     }),
-    [isSaved, removeMemo, saveMemo, savedMemos, toggleMemo],
+    [isSaved, ready, removeMemo, saveMemo, savedMemos, toggleMemo],
   );
 
   return (

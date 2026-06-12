@@ -3,7 +3,6 @@
 import { useLoaderData } from 'react-router';
 import LocationDetail from '../components/LocationDetail';
 import { loadLocationPageClient } from '../utils/locationPage';
-import { parseLocationRoute } from '../utils/parseLocationRoute';
 
 export function meta({ data: loaderData }) {
   const name = loaderData?.place?.name ?? 'Location';
@@ -14,8 +13,7 @@ export function meta({ data: loaderData }) {
 }
 
 export async function clientLoader(args) {
-  const { placeId, lat, lng, locationName } = parseLocationRoute(args);
-  return loadLocationPageClient({ placeId, lat, lng, locationName });
+  return loadLocationPageClient(args);
 }
 
 clientLoader.hydrate = true;

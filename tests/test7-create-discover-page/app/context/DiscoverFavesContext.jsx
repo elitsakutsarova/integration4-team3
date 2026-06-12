@@ -27,16 +27,19 @@ export function DiscoverFavesProvider({ children }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const [faves, setFaves] = useState([]);
+  const [ready, setReady] = useState(false);
   const [savedNotice, setSavedNotice] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
+    setReady(false);
 
     async function loadFaves() {
       const next = await fetchDiscoverFaves(userId);
       if (cancelled) return;
       setFaves(next);
       if (userId) syncFavesCount(next.length);
+      setReady(true);
     }
 
     void loadFaves();
@@ -88,6 +91,7 @@ export function DiscoverFavesProvider({ children }) {
     () => ({
       faves,
       favesCount: faves.length,
+      ready,
       isFaved,
       saveFave,
       removeFave,
@@ -95,7 +99,7 @@ export function DiscoverFavesProvider({ children }) {
       savedNotice,
       dismissSavedNotice,
     }),
-    [dismissSavedNotice, faves, isFaved, removeFave, saveFave, savedNotice, toggleFave],
+    [dismissSavedNotice, faves, isFaved, ready, removeFave, saveFave, savedNotice, toggleFave],
   );
 
   return (

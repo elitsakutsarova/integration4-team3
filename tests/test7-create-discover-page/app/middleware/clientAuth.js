@@ -9,8 +9,17 @@
  */
 
 import { redirect } from 'react-router';
-import { loginPathWithRedirect, paths } from '../utils/appPaths';
+import { isPublicAppPath, loginPathWithRedirect, paths } from '../utils/appPaths';
 import { bootstrapAuthSession, getAuthSnapshot } from '../utils/authSession';
+
+/** App-wide auth — skips login/register. Attach to root route. */
+export async function requireAppAuthMiddleware({ request }, next) {
+  const { pathname } = new URL(request.url);
+  if (isPublicAppPath(pathname)) {
+    return next();
+  }
+  return requireAuthClientMiddleware({ request }, next);
+}
 
 /** Redirect unauthenticated users to login, preserving intended destination. */
 export async function requireAuthClientMiddleware({ request }, next) {
@@ -35,3 +44,4 @@ export async function guestOnlyClientMiddleware(_args, next) {
 
 export const requireAuthMiddleware = [requireAuthClientMiddleware];
 export const guestOnlyMiddleware = [guestOnlyClientMiddleware];
+export const appAuthMiddleware = [requireAppAuthMiddleware];

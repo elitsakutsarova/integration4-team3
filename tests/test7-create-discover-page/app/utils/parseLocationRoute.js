@@ -1,5 +1,6 @@
 import { redirect } from 'react-router';
 import { buildPhotonPlaceId } from './placeId';
+import { isInAntwerpBounds } from './locationHelpers';
 import { fallbackPathFromRequest, isValidOsmRouteParams } from './safeRouteFallbacks';
 
 /** Shared param/query parsing for /location/:osmType/:osmId routes. */
@@ -17,6 +18,10 @@ export function parseLocationRoute({ params, request }) {
   const placeId = buildPhotonPlaceId(osmType, params.osmId);
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    throw redirect(fallbackPathFromRequest(request));
+  }
+
+  if (!isInAntwerpBounds(lat, lng)) {
     throw redirect(fallbackPathFromRequest(request));
   }
 

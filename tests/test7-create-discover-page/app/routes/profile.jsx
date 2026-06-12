@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import AuthLoading from '../components/auth/AuthLoading';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers } from '../context/CollectedStickersContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
@@ -14,18 +15,18 @@ export function meta() {
 }
 
 export function HydrateFallback() {
-  return (
-    <div className="auth-loading">
-      <div className="auth-loading-dot" />
-    </div>
-  );
+  return <AuthLoading />;
 }
 
 export default function Profile() {
   const collectedStickers = useCollectedStickers();
-  const { favesCount } = useDiscoverFaves();
-  const { memosCount } = useSavedMemos();
+  const { favesCount, ready: favesReady } = useDiscoverFaves();
+  const { memosCount, ready: memosReady } = useSavedMemos();
   const { user, signOut } = useAuth();
+
+  if (!memosReady || !favesReady) {
+    return <AuthLoading />;
+  }
 
   return (
     <div className="profile-page">

@@ -13,7 +13,7 @@ import MemMeLogo from '../components/auth/MemMeLogo';
 import { EyeIcon, LockIcon, MailIcon } from '../components/auth/AuthIcons';
 import { AuthSwitchLink } from '../components/auth/RequireAuth';
 import { loginActionError, signInAccount } from '../utils/authActions';
-import { paths, safeInternalRedirectPath } from '../utils/appPaths';
+import { paths } from '../utils/appPaths';
 import { guestOnlyMiddleware } from '../middleware/clientAuth';
 
 export const clientMiddleware = guestOnlyMiddleware;
@@ -39,7 +39,6 @@ export async function clientAction({ request }) {
   const formData = await request.formData();
   const email = String(formData.get('email') ?? '').trim();
   const password = String(formData.get('password') ?? '');
-  const redirectTo = String(formData.get('redirectTo') ?? '');
   const result = await signInAccount({ email, password });
 
   if (result.error) {
@@ -53,11 +52,11 @@ export async function clientAction({ request }) {
     return loginActionError(result.error, email);
   }
 
-  throw redirect(safeInternalRedirectPath(redirectTo) ?? paths.home);
+  throw redirect(paths.home);
 }
 
 export default function Login() {
-  const { authError, redirectTo } = useLoaderData();
+  const { authError } = useLoaderData();
   const actionData = useActionData();
   const navigation = useNavigation();
   const navigate = useNavigate();
@@ -88,8 +87,6 @@ export default function Login() {
         </header>
 
         <Form method="post" className="auth-form" noValidate>
-          {redirectTo ? <input type="hidden" name="redirectTo" value={redirectTo} /> : null}
-
           <div className="auth-field">
             <label className="auth-label" htmlFor="login-email">Email</label>
             <div className={`auth-input-wrap${fieldErrors.email ? ' auth-input-wrap--error' : ''}`}>

@@ -16,12 +16,15 @@ import { useLayoutEffect } from "react";
 
 import "./app.css";
 import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import AuthLoading from "./components/auth/AuthLoading";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
 import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
 import { SavedMemosProvider } from "./context/SavedMemosContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
+import { appAuthMiddleware } from "./middleware/clientAuth";
 import { bootstrapAuthSession } from "./utils/authSession";
+import { isPublicAppPath } from "./utils/appPaths";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
 import { registerAppRevalidate } from "./utils/revalidateApp";
 import { loadStickersFromPublic } from "./utils/stickers.server";
@@ -58,6 +61,12 @@ export async function clientLoader({ serverLoader }) {
 
 // run the client loader while react takes over the html sent from the server
 clientLoader.hydrate = true;
+
+export const clientMiddleware = appAuthMiddleware;
+
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
 
 // fonts
 export const links = () => [
@@ -96,10 +105,17 @@ export function Layout({ children }) {
 export default function App() {
   const { stickers, collectedStickers } = useLoaderData();
   const { revalidate } = useRevalidator();
+  const { user, loading } = useAuth();
+  const { pathname } = useLocation();
+  const isPublic = isPublicAppPath(pathname);
 
   useLayoutEffect(() => {
     registerAppRevalidate(revalidate);
   }, [revalidate]);
+
+  if (!isPublic && (loading || !user)) {
+    return <AuthLoading />;
+  }
 
   return (
     <CollectedStickersProvider collectedStickers={collectedStickers}>
