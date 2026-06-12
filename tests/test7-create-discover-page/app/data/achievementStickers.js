@@ -35,10 +35,10 @@ export const ACHIEVEMENTS = [
   },
 ];
 
-export function getAchievementStates(user, collectedCount) {
+export function getAchievementStates(user, collectedCount, overrides = {}) {
   const ctx = {
-    memoCount: user?.collections?.memos ?? 0,
-    favesCount: user?.collections?.faves ?? 0,
+    memoCount: overrides.memoCount ?? user?.collections?.memos ?? 0,
+    favesCount: overrides.favesCount ?? user?.collections?.faves ?? 0,
     collectedCount,
     role: user?.role,
   };

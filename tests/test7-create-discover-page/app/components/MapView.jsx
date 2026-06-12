@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useRevalidator, useSearchParams } from 'react-router';
+import { useCreatedMemos } from '../context/CreatedMemosContext';
 import NewMemoForm from './NewMemoForm';
 import MemoLocationPicker from './MemoLocationPicker';
 import MapHomeChrome from './MapHomeChrome';
@@ -55,6 +56,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const draftMemo = readDraftMemo(searchParams);
   const fetcher = useFetcher({ key: 'create-memo' });
   const revalidator = useRevalidator();
+  const { refreshCreatedMemos } = useCreatedMemos();
   const handledPublishRef = useRef(false);
   const initTokenRef = useRef(0);
   const mapRef = useRef(null);
@@ -234,8 +236,9 @@ export default function MapView({ savedMemos = [], active = true }) {
 
       setSearchParams({}, { replace: true });
       revalidator.revalidate();
+      void refreshCreatedMemos();
     }
-  }, [fetcher.state, fetcher.data, revalidator, savedMemos, setSearchParams, syncMapPins]);
+  }, [fetcher.state, fetcher.data, revalidator, savedMemos, setSearchParams, syncMapPins, refreshCreatedMemos]);
 
   const attachMapContainer = useCallback((node) => {
     if (!node) {

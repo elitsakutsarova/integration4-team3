@@ -11,10 +11,13 @@ export const paths = {
   login: href('/login'),
   register: href('/register'),
   profile: href('/profile'),
+  profileMemos: href('/profile/memos'),
+  profileFavourites: href('/profile/favourites'),
   stickers: href('/stickers'),
   connect: href('/connect'),
   collect: href('/collect'),
   demoStickers: href('/demo-stickers'),
+  apiMemos: href('/api/memos'),
 };
 
 export function discoverEventPath(id) {

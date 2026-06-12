@@ -1,3 +1,5 @@
+// context provider for the saved memos
+
 import {
   createContext,
   useCallback,
@@ -7,7 +9,6 @@ import {
   useState,
 } from 'react';
 import { useAuth } from './AuthContext';
-import { patchAuthUserCollections } from '../utils/authSession';
 import {
   addSavedMemo,
   fetchSavedMemos,
@@ -15,10 +16,6 @@ import {
 } from '../utils/savedMemosStore';
 
 const SavedMemosContext = createContext(null);
-
-function syncMemosCount(count) {
-  patchAuthUserCollections({ memos: count });
-}
 
 export function SavedMemosProvider({ children }) {
   const { user } = useAuth();
@@ -34,7 +31,6 @@ export function SavedMemosProvider({ children }) {
       const next = await fetchSavedMemos(userId);
       if (cancelled) return;
       setSavedMemos(next);
-      if (userId) syncMemosCount(next.length);
       setReady(true);
     }
 
@@ -53,7 +49,6 @@ export function SavedMemosProvider({ children }) {
     const result = await addSavedMemo(userId, memoId);
     if (result.added) {
       setSavedMemos(result.memos);
-      syncMemosCount(result.memos.length);
     }
     return result.added;
   }, [userId]);
@@ -61,7 +56,6 @@ export function SavedMemosProvider({ children }) {
   const removeMemo = useCallback(async memoId => {
     const { memos: next } = await removeSavedMemo(userId, memoId);
     setSavedMemos(next);
-    syncMemosCount(next.length);
   }, [userId]);
 
   const toggleMemo = useCallback(async memoId => {

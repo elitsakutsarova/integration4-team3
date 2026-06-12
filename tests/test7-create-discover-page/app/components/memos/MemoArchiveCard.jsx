@@ -11,7 +11,7 @@ function MemoFavoriteButton({ memoId, label }) {
     <button
       type="button"
       className={`memory-sheet-heart${saved ? ' memory-sheet-heart--saved' : ''}`}
-      aria-label={saved ? `Remove ${label} from saved memos` : `Save ${label} to memos`}
+      aria-label={saved ? `Remove ${label} from favourites` : `Save ${label} to favourites`}
       aria-pressed={saved}
       onClick={() => toggleMemo(memoId)}
     >

@@ -11,7 +11,7 @@ function MemoSaveButton({ memoId, label, className = 'featured-memo-heart' }) {
     <button
       type="button"
       className={`${className}${saved ? ' featured-memo-heart--saved' : ''}`}
-      aria-label={saved ? `Remove ${label} from saved memos` : `Save ${label} to memos`}
+      aria-label={saved ? `Remove ${label} from favourites` : `Save ${label} to favourites`}
       aria-pressed={saved}
       onClick={event => {
         event.preventDefault();

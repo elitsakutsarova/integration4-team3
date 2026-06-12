@@ -95,7 +95,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
   return (
     <fetcher.Form
       method="post"
-      action="/"
+      action={paths.apiMemos}
       encType="multipart/form-data"
       className={`form-overlay${hidden ? ' form-overlay--hidden' : ''}`}
       role="dialog"

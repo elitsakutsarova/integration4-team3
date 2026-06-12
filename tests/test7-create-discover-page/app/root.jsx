@@ -18,6 +18,7 @@ import "./app.css";
 import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthLoading from "./components/auth/AuthLoading";
+import { CreatedMemosProvider } from "./context/CreatedMemosContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
 import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
 import { SavedMemosProvider } from "./context/SavedMemosContext";
@@ -125,13 +126,15 @@ export default function App() {
 
   return (
     <CollectedStickersProvider collectedStickers={collectedStickers}>
-      <DiscoverFavesProvider>
-        <SavedMemosProvider>
-          <StickerCatalogProvider stickers={stickers}>
-            <Outlet />
-          </StickerCatalogProvider>
-        </SavedMemosProvider>
-      </DiscoverFavesProvider>
+      <CreatedMemosProvider>
+        <DiscoverFavesProvider>
+          <SavedMemosProvider>
+            <StickerCatalogProvider stickers={stickers}>
+              <Outlet />
+            </StickerCatalogProvider>
+          </SavedMemosProvider>
+        </DiscoverFavesProvider>
+      </CreatedMemosProvider>
     </CollectedStickersProvider>
   );
 }

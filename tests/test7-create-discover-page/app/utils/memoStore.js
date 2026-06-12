@@ -130,6 +130,41 @@ export async function fetchMemos() {
   return data.map(mapMemoRowToPin);
 }
 
+/** Memos published by the signed-in user. */
+export async function fetchCreatedMemosByUser(authUserId) {
+  if (!authUserId || !isSupabaseEnabled()) return [];
+
+  const client = getSupabaseBrowserClient();
+  if (!client) return [];
+
+  const { data, error } = await queryMemos(client, columns =>
+    client
+      .from('memos')
+      .select(columns)
+      .eq('auth_id', authUserId)
+      .order('created_at', { ascending: false }),
+  );
+
+  if (error || !Array.isArray(data)) return [];
+  return data.map(mapMemoRowToPin);
+}
+
+/** Load memo rows by id — used to hydrate heart-saved favourites. */
+export async function fetchMemosByIds(memoIds) {
+  const ids = [...new Set(memoIds.map(id => String(id)).filter(Boolean))];
+  if (!ids.length || !isSupabaseEnabled()) return [];
+
+  const client = getSupabaseBrowserClient();
+  if (!client) return [];
+
+  const { data, error } = await queryMemos(client, columns =>
+    client.from('memos').select(columns).in('id', ids),
+  );
+
+  if (error || !Array.isArray(data)) return [];
+  return data.map(mapMemoRowToPin);
+}
+
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
 /** Persist a new memo for the signed-in user. */

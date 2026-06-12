@@ -3,6 +3,9 @@ import { Link, useSearchParams } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
+import { useCreatedMemos } from '../context/CreatedMemosContext';
+import { useDiscoverFaves } from '../context/DiscoverFavesContext';
+import { useSavedMemos } from '../context/SavedMemosContext';
 
 // mock-data
 import { getAchievementStates } from '../data/achievementStickers';
@@ -30,7 +33,13 @@ export default function StickersGallery() {
   const { user } = useAuth();
   const collected = useCollectedStickers();
   const loading = useCollectedStickersLoading();
-  const achievements = getAchievementStates(user, collected.length);
+  const { createdCount } = useCreatedMemos();
+  const { memosCount: savedMemosCount } = useSavedMemos();
+  const { favesCount: discoverFavesCount } = useDiscoverFaves();
+  const achievements = getAchievementStates(user, collected.length, {
+    memoCount: createdCount,
+    favesCount: savedMemosCount + discoverFavesCount,
+  });
 
   function switchTab(next) {
     setSearchParams(next === 'achievements' ? { tab: 'achievements' } : {}, { replace: true });
