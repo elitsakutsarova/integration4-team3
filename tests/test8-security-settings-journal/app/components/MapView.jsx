@@ -365,17 +365,6 @@ export default function MapView({ savedMemos = [], active = true }) {
     setSearchParams({}, { replace: true });
   }
 
-  function handleOpenLocationPicker() {
-    setSearchParams(
-      prev => {
-        const next = new URLSearchParams(prev);
-        next.set('step', 'location');
-        return next;
-      },
-      { replace: true },
-    );
-  }
-
   function handleLocationBack() {
     setSearchParams(
       prev => {
@@ -453,7 +442,6 @@ export default function MapView({ savedMemos = [], active = true }) {
           fetcher={fetcher}
           hidden={draftMemo.pickLocation}
           onClose={handleFormClose}
-          onChooseLocation={handleOpenLocationPicker}
         />
       )}
         </>

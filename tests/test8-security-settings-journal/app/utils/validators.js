@@ -136,8 +136,9 @@ export function validateMemoQuote(raw) {
   return { value: quote };
 }
 
-export function validateMemoLocation(raw, fallback = 'My spot') {
-  const location = clampText(raw, LIMITS.memoLocation) || fallback;
+export function validateMemoLocation(raw) {
+  const location = clampText(raw, LIMITS.memoLocation);
+  if (!location) return validationError('location', 'Choose a location for your memo');
   return { value: location };
 }
 

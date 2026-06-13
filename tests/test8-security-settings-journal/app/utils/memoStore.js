@@ -1,5 +1,10 @@
-import { getSupabaseBrowserClient, isSupabaseEnabled } from './supabase.client';
+import { isSupabaseConfigured } from './supabase.env';
 import { isSafeHttpsUrl, validateCreateMemoInput } from './validators';
+
+async function getBrowserSupabaseClient() {
+  const { getSupabaseBrowserClient } = await import('./supabase.client');
+  return getSupabaseBrowserClient();
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -90,9 +95,9 @@ export function mapMemoRowToPin(row) {
 
 /** Load all published memos — visible to guests and signed-in users. */
 export async function fetchMemos() {
-  if (!isSupabaseEnabled()) return [];
+  if (!isSupabaseConfigured()) return [];
 
-  const client = getSupabaseBrowserClient();
+  const client = await getBrowserSupabaseClient();
   if (!client) return [];
 
   const { data, error } = await queryMemos(client, columns =>
@@ -105,9 +110,9 @@ export async function fetchMemos() {
 
 /** Memos published by the signed-in user. */
 export async function fetchCreatedMemosByUser(authUserId) {
-  if (!authUserId || !isSupabaseEnabled()) return [];
+  if (!authUserId || !isSupabaseConfigured()) return [];
 
-  const client = getSupabaseBrowserClient();
+  const client = await getBrowserSupabaseClient();
   if (!client) return [];
 
   const { data, error } = await queryMemos(client, columns =>
@@ -125,9 +130,9 @@ export async function fetchCreatedMemosByUser(authUserId) {
 /** Load memo rows by id — used to hydrate heart-saved favourites. */
 export async function fetchMemosByIds(memoIds) {
   const ids = [...new Set(memoIds.map(id => String(id)).filter(Boolean))];
-  if (!ids.length || !isSupabaseEnabled()) return [];
+  if (!ids.length || !isSupabaseConfigured()) return [];
 
-  const client = getSupabaseBrowserClient();
+  const client = await getBrowserSupabaseClient();
   if (!client) return [];
 
   const { data, error } = await queryMemos(client, columns =>
@@ -153,11 +158,11 @@ export async function createMemo(
   },
   serverContext = null,
 ) {
-  if (!isSupabaseEnabled()) {
+  if (!isSupabaseConfigured()) {
     return { error: 'Supabase is not configured.' };
   }
 
-  const client = serverContext?.client ?? getSupabaseBrowserClient();
+  const client = serverContext?.client ?? (await getBrowserSupabaseClient());
   if (!client) return { error: 'Could not connect to Supabase.' };
 
   let userId = serverContext?.userId ?? null;
