@@ -5,6 +5,7 @@ import { useFetcher, useNavigate, useRevalidator } from 'react-router';
 import { EyeIcon, LockIcon } from '../auth/AuthIcons';
 import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
+import PasswordStrengthFeedback from './PasswordStrengthFeedback';
 import { goBack, paths } from '../../utils/appPaths';
 import { syncSessionProfile } from '../../utils/authStore';
 
@@ -19,6 +20,7 @@ export default function ChangePasswordPage() {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
   const [clientErrors, setClientErrors] = useState({});
 
   const submitting = fetcher.state !== 'idle';
@@ -123,6 +125,8 @@ export default function ChangePasswordPage() {
                 placeholder="Enter your new password"
                 autoComplete="new-password"
                 required
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
                 aria-invalid={Boolean(fieldErrors.newPassword)}
               />
               <button
@@ -134,6 +138,7 @@ export default function ChangePasswordPage() {
                 <EyeIcon off={!showNew} />
               </button>
             </div>
+            <PasswordStrengthFeedback password={newPassword} />
             {fieldErrors.newPassword ? (
               <p className="auth-field-error">{fieldErrors.newPassword}</p>
             ) : null}

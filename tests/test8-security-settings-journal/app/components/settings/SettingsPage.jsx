@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { paths } from '../../utils/appPaths';
 import { goBack } from '../../utils/appPaths';
+import { getLanguageLabel, getLanguagePreference } from '../../utils/languagePreference';
 import { settingsAssets } from '../../utils/settingsAssets';
 import LogoutConfirmModal from './LogoutConfirmModal';
 
@@ -61,6 +62,7 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const [logoutOpen, setLogoutOpen] = useState(false);
+  const languageLabel = getLanguageLabel(getLanguagePreference());
 
   function handleBack() {
     goBack(navigate, paths.profile);
@@ -132,12 +134,13 @@ export default function SettingsPage() {
             />
             <SettingsRow
               label="Language"
-              trailing="English"
+              trailing={languageLabel}
+              to={paths.profileSettingsLanguage}
               icon={(
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                   <circle cx="10" cy="10" r="8.25" stroke="#1e1e1e" strokeWidth="1.5" />
                   <path
-                    d="M1.75 10h16.5M10 1.75c2.5 2.75 3.75 5.5 3.75 8.25S12.5 15.5 10 18.25M10 1.75C7.5 4.5 6.25 7.25 6.25 10S7.5 15.5 10 18.25"
+                    d="M1.75 10h16.5"
                     stroke="#1e1e1e"
                     strokeWidth="1.5"
                     strokeLinecap="round"
