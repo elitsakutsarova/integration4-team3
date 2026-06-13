@@ -3,7 +3,7 @@
 import { useNavigate } from 'react-router';
 import BottomNav from '../BottomNav';
 import MemoArchiveCard from './MemoArchiveCard';
-import { goBack } from '../../utils/navigationBack';
+import { goBack } from '../../utils/appPaths';
 import { paths } from '../../utils/appPaths';
 
 export default function MemoArchivePage({

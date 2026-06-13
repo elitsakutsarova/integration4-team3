@@ -1,13 +1,40 @@
 // account API routes for client actions and server actions
 
 import { data } from 'react-router';
+import * as authStore from '../utils/authStore';
 import { bootstrapAuthSession, getAuthSnapshot } from '../utils/authSession';
 import { signInAccount } from '../utils/authActions';
-import { handleAccountActionClient } from '../utils/accountActions';
 import { validateAccountFormData } from '../utils/accountFormValidation';
 import { handleAccountAction } from '../utils/accountActions.server';
 import { rateLimitActionError, RATE_LIMITS } from '../utils/rateLimit.server';
 import { createClient } from '../utils/supabase.server';
+
+async function runValidatedClientAction(validation, user) {
+  const { intent, payload } = validation;
+
+  if (intent === 'change-password') {
+    return authStore.changePassword({
+      userId: user.id,
+      oldPassword: payload.oldPassword,
+      newPassword: payload.newPassword,
+      confirmPassword: payload.confirmPassword,
+    });
+  }
+
+  if (intent === 'change-email') {
+    return authStore.changeEmail({
+      userId: user.id,
+      oldEmail: payload.oldEmail,
+      newEmail: payload.newEmail,
+      password: payload.password,
+    });
+  }
+
+  return authStore.changeUsername({
+    userId: user.id,
+    username: payload.value,
+  });
+}
 
 /** Email uses server admin API (immediate, no confirmation mail). Password/username use browser client. */
 export async function clientAction({ request, serverAction }) {
@@ -23,7 +50,7 @@ export async function clientAction({ request, serverAction }) {
     return data({ error: { field: 'form', message: 'You must be signed in.' } });
   }
 
-  const intent = String(formData.get('intent') ?? '').trim();
+  const intent = validation.intent;
 
   if (intent === 'change-email') {
     const serverResponse = await serverAction();
@@ -44,7 +71,7 @@ export async function clientAction({ request, serverAction }) {
     return data(payload);
   }
 
-  const result = await handleAccountActionClient(formData, user);
+  const result = await runValidatedClientAction(validation, user);
   if (result.error) return data({ error: result.error });
   return data(result);
 }
@@ -83,7 +110,7 @@ export async function action({ request }) {
     );
   }
 
-  const result = await handleAccountAction(formData, supabase, authData.user);
+  const result = await handleAccountAction(sessionValidation, supabase, authData.user);
   if (result.error) {
     return data({ error: result.error }, { headers });
   }

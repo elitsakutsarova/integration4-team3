@@ -1,7 +1,7 @@
 // header for the collection page
 
 import { useNavigate } from 'react-router';
-import { goBack } from '../../utils/navigationBack';
+import { goBack } from '../../utils/appPaths';
 import { paths } from '../../utils/appPaths';
 
 export default function CollectionPageHeader({

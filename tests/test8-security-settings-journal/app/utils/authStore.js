@@ -1,8 +1,18 @@
 // auth engine - logic layer
 
 import { isSupabaseEnabled, getSupabaseBrowserClient, USERS_TABLE } from './supabase.client';
+import { mapAuthError } from './authErrors';
 import {
-  validateChangeEmailPayload,
+  clearLocalSession,
+  localChangeEmail,
+  localChangePassword,
+  localChangeUsername,
+  localSignIn,
+  localSignUp,
+  readLocalSession,
+  toPublicUser,
+} from './authStore.local';
+import {
   validateChangePasswordPayload,
   validateChangeUsernamePayload,
   validateSignInPayload,
@@ -18,176 +28,6 @@ function getClient() {
  * Auth layer — uses Supabase when VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY are set,
  * otherwise falls back to localStorage (current dev stub).
  */
-
-const USERS_KEY = 'memome_users';
-const SESSION_KEY = 'memome_session';
-
-function normalizeEmail(raw) {
-  return raw.trim().toLowerCase();
-}
-
-function formatUsername(clean) {
-  return `@${clean}`;
-}
-
-function toPublicUser(record) {
-  const username = record.username?.startsWith('@')
-    ? record.username
-    : formatUsername(record.username ?? '');
-
-  const role = record.role ?? 'visitor';
-
-  return {
-    // auth_id links to Supabase Auth; int8 id is your table's own primary key
-    id: record.auth_id ?? String(record.id),
-    username,
-    email: record.email,
-    role,
-    tags: role === 'local' ? ['Local'] : ['Visitor'],
-    collections: record.collections ?? { memos: 0, faves: 0 },
-  };
-}
-
-/* ─── localStorage fallback (no Supabase keys) ─────────── */
-
-function readUsers() {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY) ?? '[]');
-  } catch {
-    return [];
-  }
-}
-
-function writeUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-async function hashPassword(password, saltB64) {
-  const salt = Uint8Array.from(atob(saltB64), c => c.charCodeAt(0));
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(password),
-    'PBKDF2',
-    false,
-    ['deriveBits'],
-  );
-  const bits = await crypto.subtle.deriveBits(
-    { name: 'PBKDF2', salt, iterations: 100_000, hash: 'SHA-256' },
-    key,
-    256,
-  );
-  return btoa(String.fromCharCode(...new Uint8Array(bits)));
-}
-
-async function createPasswordRecord(password) {
-  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
-  const salt = btoa(String.fromCharCode(...saltBytes));
-  const hash = await hashPassword(password, salt);
-  return { hash, salt };
-}
-
-async function verifyPassword(password, hash, salt) {
-  const attempt = await hashPassword(password, salt);
-  return attempt === hash;
-}
-
-function readLocalSession() {
-  try {
-    const raw = localStorage.getItem(SESSION_KEY);
-    if (!raw) return null;
-    const { userId } = JSON.parse(raw);
-    const user = readUsers().find(u => u.id === userId);
-    return user ? toPublicUser(user) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeLocalSession(userId) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ userId }));
-}
-
-function clearLocalSession() {
-  localStorage.removeItem(SESSION_KEY);
-}
-
-async function localSignUp({ username, email, password, role }) {
-  const validated = validateSignUpPayload({ username, email, password, role });
-  if (validated.field) return { error: validated };
-
-  const { username: displayUsername, email: cleanEmail, password: cleanPassword, role: cleanRole } = validated;
-  const cleanUsername = displayUsername.replace(/^@+/, '');
-  const users = readUsers();
-  if (users.some(u => normalizeUsername(u.username) === cleanUsername)) {
-    return { error: { field: 'username', message: 'Username already taken' } };
-  }
-  if (users.some(u => u.email === cleanEmail)) {
-    return { error: { field: 'email', message: 'Email already taken' } };
-  }
-
-  const { hash, salt } = await createPasswordRecord(cleanPassword);
-  const record = {
-    id: crypto.randomUUID(),
-    username: displayUsername,
-    email: cleanEmail,
-    passwordHash: hash,
-    salt,
-    role: cleanRole,
-    collections: { memos: 0, faves: 0 },
-    createdAt: new Date().toISOString(),
-  };
-
-  users.push(record);
-  writeUsers(users);
-  writeLocalSession(record.id);
-  return { user: toPublicUser(record) };
-}
-
-async function localSignIn({ email, password }) {
-  const validated = validateSignInPayload({ email, password });
-  if (validated.field) return { error: validated };
-
-  const record = readUsers().find(u => u.email === validated.email);
-
-  if (!record) {
-    return { error: { field: 'email', message: 'No account found with this email' } };
-  }
-
-  const valid = await verifyPassword(validated.password, record.passwordHash, record.salt);
-  if (!valid) {
-    return { error: { field: 'password', message: 'Incorrect password' } };
-  }
-
-  writeLocalSession(record.id);
-  return { user: toPublicUser(record) };
-}
-
-/* ─── Supabase ─────────────────────────────────────────── */
-
-function mapSupabaseAuthError(error, fallbackField = 'form') {
-  const msg = error?.message ?? 'Something went wrong';
-  const code = error?.code ?? '';
-
-  if (code === 'invalid_credentials' || /invalid login credentials/i.test(msg)) {
-    return {
-      field: 'form',
-      message: 'Incorrect email or password.',
-    };
-  }
-  if (/rate limit|over_email_send_rate_limit/i.test(msg)) {
-    return {
-      field: 'form',
-      message: 'Too many attempts. Wait a few minutes, then try again.',
-    };
-  }
-  if (/already registered|already exists|duplicate/i.test(msg)) {
-    return { field: 'email', message: 'Email already taken' };
-  }
-  if (/username/i.test(msg)) {
-    return { field: 'username', message: msg };
-  }
-  return { field: fallbackField, message: msg };
-}
 
 /** If signup already created the user, sign in instead of failing on email rate limit. */
 async function trySignInAfterSignUpFailure(email, password) {
@@ -370,9 +210,9 @@ async function supabaseSignUp({ username, email, password, role }) {
       if (/already registered|already exists|already been registered|user already registered/i.test(msg)) {
         const user = await trySignInAfterSignUpFailure(cleanEmail, cleanPassword);
         if (user) return { user };
-        return { error: mapSupabaseAuthError(error) };
+        return { error: mapAuthError(error) };
       }
-      return { error: mapSupabaseAuthError(error) };
+      return { error: mapAuthError(error) };
     }
     if (!data.user) return { error: { field: 'form', message: 'Sign up failed' } };
 
@@ -389,7 +229,7 @@ async function supabaseSignUp({ username, email, password, role }) {
 
     return { error: { field: 'form', message: 'Sign up failed — please try logging in.' } };
   } catch (err) {
-    return { error: mapSupabaseAuthError(err) };
+    return { error: mapAuthError(err) };
   }
 }
 
@@ -406,7 +246,7 @@ async function supabaseSignIn({ email, password }) {
     if (import.meta.env.DEV) {
       console.warn('Supabase signIn failed:', error.code ?? error.message);
     }
-    return { error: mapSupabaseAuthError(error) };
+    return { error: mapAuthError(error) };
   }
 
   if (!data.session?.user) {
@@ -487,24 +327,6 @@ export async function signOut() {
   clearLocalSession();
 }
 
-async function localChangePassword({ userId, oldPassword, newPassword, confirmPassword }) {
-  const validated = validateChangePasswordPayload({ oldPassword, newPassword, confirmPassword });
-  if (validated.field) return { error: validated };
-
-  const users = readUsers();
-  const record = users.find(u => u.id === userId);
-  if (!record?.password) {
-    return { error: { field: 'form', message: 'Could not verify your account.' } };
-  }
-
-  const valid = await verifyPassword(validated.oldPassword, record.password.hash, record.password.salt);
-  if (!valid) return { error: { field: 'oldPassword', message: 'Incorrect password' } };
-
-  record.password = await createPasswordRecord(validated.newPassword);
-  writeUsers(users);
-  return { success: true, kind: 'password' };
-}
-
 async function supabaseChangePassword(payload) {
   const validated = validateChangePasswordPayload(payload);
   if (validated.field) return { error: validated };
@@ -523,41 +345,11 @@ async function supabaseChangePassword(payload) {
   if (verifyError) return { error: { field: 'oldPassword', message: 'Incorrect password' } };
 
   const { error } = await client.auth.updateUser({ password: validated.newPassword });
-  if (error) return { error: mapSupabaseAuthError(error, 'newPassword') };
+  if (error) return { error: mapAuthError(error, 'newPassword') };
 
   await client.auth.refreshSession();
 
   return { success: true, kind: 'password' };
-}
-
-async function localChangeEmail({ userId, oldEmail, newEmail, password }) {
-  const validated = validateChangeEmailPayload({ oldEmail, newEmail, password });
-  if (validated.field) return { error: validated };
-
-  const users = readUsers();
-  const record = users.find(u => u.id === userId);
-  if (!record?.password) {
-    return { error: { field: 'form', message: 'Could not verify your account.' } };
-  }
-
-  if (normalizeEmail(record.email) !== validated.oldEmail) {
-    return { error: { field: 'oldEmail', message: 'Old email does not match your account' } };
-  }
-
-  const taken = users.some(
-    u => u.id !== userId && normalizeEmail(u.email) === validated.newEmail,
-  );
-  if (taken) return { error: { field: 'newEmail', message: 'Email already taken' } };
-
-  const valid = await verifyPassword(validated.password, record.password.hash, record.password.salt);
-  if (!valid) return { error: { field: 'password', message: 'Incorrect password' } };
-
-  record.email = validated.newEmail;
-  writeUsers(users);
-
-  const user = toPublicUser(record);
-  if (readLocalSession()?.id === userId) writeLocalSession(userId);
-  return { success: true, kind: 'email', user };
 }
 
 async function supabaseChangeEmail() {
@@ -577,35 +369,6 @@ export async function changePassword(payload) {
 export async function changeEmail(payload) {
   if (isSupabaseEnabled()) return supabaseChangeEmail(payload);
   return localChangeEmail(payload);
-}
-
-async function localChangeUsername({ userId, username }) {
-  const validated = validateChangeUsernamePayload({ username });
-  if (validated.field) return { error: validated };
-
-  const users = readUsers();
-  const record = users.find(u => u.id === userId);
-  if (!record) {
-    return { error: { field: 'form', message: 'Could not verify your account.' } };
-  }
-
-  const nextClean = validated.value.replace(/^@+/, '').toLowerCase();
-  const currentClean = normalizeUsername(record.username);
-  if (currentClean === nextClean) {
-    return { error: { field: 'username', message: 'Choose a different username' } };
-  }
-
-  const taken = users.some(
-    u => u.id !== userId && normalizeUsername(u.username) === nextClean,
-  );
-  if (taken) return { error: { field: 'username', message: 'Username already taken' } };
-
-  record.username = validated.value;
-  writeUsers(users);
-
-  const user = toPublicUser(record);
-  if (readLocalSession()?.id === userId) writeLocalSession(userId);
-  return { success: true, kind: 'username', user };
 }
 
 async function supabaseChangeUsername({ username }) {
@@ -639,7 +402,7 @@ async function supabaseChangeUsername({ username }) {
   const { data, error } = await client.auth.updateUser({
     data: { username: validated.value },
   });
-  if (error) return { error: mapSupabaseAuthError(error, 'username') };
+  if (error) return { error: mapAuthError(error, 'username') };
 
   if (session.user) {
     await insertProfile({

@@ -1,35 +1,9 @@
 // validate, verify password via Supabase, update auth + sync profile table -> server-only
 
+import { mapAuthError } from './authErrors';
 import { USERS_TABLE } from './supabase.env';
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from './supabase.admin.server';
-import {
-  normalizeUsername,
-  validateChangeEmailPayload,
-  validateChangePasswordPayload,
-  validateChangeUsernamePayload,
-} from './validators';
-
-function mapCredentialError(error, fallbackField = 'form') {
-  const msg = error?.message ?? '';
-  const code = error?.code ?? '';
-
-  if (code === 'invalid_credentials' || /invalid login credentials/i.test(msg)) {
-    return { field: 'password', message: 'Incorrect password' };
-  }
-  if (/same password|should be different/i.test(msg)) {
-    return { field: 'newPassword', message: 'Choose a different password than your current one' };
-  }
-  if (/already registered|already exists|duplicate|unique/i.test(msg)) {
-    if (/username/i.test(msg)) {
-      return { field: 'username', message: 'Username already taken' };
-    }
-    return { field: 'newEmail', message: 'Email already taken' };
-  }
-  if (/rate limit|over_email_send_rate_limit/i.test(msg)) {
-    return { field: 'form', message: 'Too many attempts. Wait a few minutes, then try again.' };
-  }
-  return { field: fallbackField, message: 'Could not update your account. Please try again.' };
-}
+import { normalizeEmail, normalizeUsername } from './validators';
 
 async function verifyCurrentPassword(supabase, email, password) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -69,64 +43,50 @@ async function isUsernameTakenByOther(supabase, username, authId) {
   return Boolean(data?.auth_id && data.auth_id !== authId);
 }
 
-export async function handleAccountAction(formData, supabase, authUser) {
-  const intent = String(formData.get('intent') ?? '').trim();
+export async function handleAccountAction(validation, supabase, authUser) {
+  const { intent, payload } = validation;
 
   if (intent === 'change-password') {
-    return changePasswordAction(formData, supabase, authUser);
+    return changePasswordAction(payload, supabase, authUser);
   }
 
   if (intent === 'change-email') {
-    return changeEmailAction(formData, supabase, authUser);
+    return changeEmailAction(payload, supabase, authUser);
   }
 
   if (intent === 'change-username') {
-    return changeUsernameAction(formData, supabase, authUser);
+    return changeUsernameAction(payload, supabase, authUser);
   }
 
   return { error: { field: 'form', message: 'Unknown action.' } };
 }
 
-async function changePasswordAction(formData, supabase, authUser) {
-  const validated = validateChangePasswordPayload({
-    oldPassword: formData.get('oldPassword'),
-    newPassword: formData.get('newPassword'),
-    confirmPassword: formData.get('confirmPassword'),
-  });
-  if (validated.field) return { error: validated };
-
+async function changePasswordAction(payload, supabase, authUser) {
   const email = authUser.email;
   if (!email) {
     return { error: { field: 'form', message: 'Could not verify your account.' } };
   }
 
-  const verified = await verifyCurrentPassword(supabase, email, validated.oldPassword);
+  const verified = await verifyCurrentPassword(supabase, email, payload.oldPassword);
   if (!verified) {
     return { error: { field: 'oldPassword', message: 'Incorrect password' } };
   }
 
-  const { error } = await supabase.auth.updateUser({ password: validated.newPassword });
-  if (error) return { error: mapCredentialError(error, 'newPassword') };
+  const { error } = await supabase.auth.updateUser({ password: payload.newPassword });
+  if (error) return { error: mapAuthError(error, 'newPassword') };
 
   await supabase.auth.refreshSession();
 
   return { success: true, kind: 'password' };
 }
 
-async function changeEmailAction(formData, supabase, authUser) {
-  const validated = validateChangeEmailPayload({
-    oldEmail: formData.get('oldEmail'),
-    newEmail: formData.get('newEmail'),
-    password: formData.get('password'),
-  });
-  if (validated.field) return { error: validated };
-
-  const currentEmail = String(authUser.email ?? '').toLowerCase();
-  if (currentEmail !== validated.oldEmail) {
+async function changeEmailAction(payload, supabase, authUser) {
+  const currentEmail = normalizeEmail(authUser.email ?? '');
+  if (currentEmail !== payload.oldEmail) {
     return { error: { field: 'oldEmail', message: 'Old email does not match your account' } };
   }
 
-  const verified = await verifyCurrentPassword(supabase, currentEmail, validated.password);
+  const verified = await verifyCurrentPassword(supabase, currentEmail, payload.password);
   if (!verified) {
     return { error: { field: 'password', message: 'Incorrect password' } };
   }
@@ -142,12 +102,12 @@ async function changeEmailAction(formData, supabase, authUser) {
 
   const admin = getSupabaseAdmin();
   const { data: updated, error } = await admin.auth.admin.updateUserById(authUser.id, {
-    email: validated.newEmail,
+    email: payload.newEmail,
     email_confirm: true,
   });
-  if (error) return { error: mapCredentialError(error, 'newEmail') };
+  if (error) return { error: mapAuthError(error, 'newEmail') };
 
-  const confirmedEmail = validated.newEmail;
+  const confirmedEmail = payload.newEmail;
   await syncProfileEmail(supabase, authUser.id, confirmedEmail);
 
   return {
@@ -162,33 +122,30 @@ async function changeEmailAction(formData, supabase, authUser) {
   };
 }
 
-async function changeUsernameAction(formData, supabase, authUser) {
-  const validated = validateChangeUsernamePayload({ username: formData.get('username') });
-  if (validated.field) return { error: validated };
-
+async function changeUsernameAction(payload, supabase, authUser) {
   const currentUsername = normalizeUsername(authUser.user_metadata?.username);
-  const nextUsername = normalizeUsername(validated.value);
+  const nextUsername = normalizeUsername(payload.value);
   if (currentUsername === nextUsername) {
     return { error: { field: 'username', message: 'Choose a different username' } };
   }
 
-  if (await isUsernameTakenByOther(supabase, validated.value, authUser.id)) {
+  if (await isUsernameTakenByOther(supabase, payload.value, authUser.id)) {
     return { error: { field: 'username', message: 'Username already taken' } };
   }
 
   const { data, error } = await supabase.auth.updateUser({
-    data: { username: validated.value },
+    data: { username: payload.value },
   });
-  if (error) return { error: mapCredentialError(error, 'username') };
+  if (error) return { error: mapAuthError(error, 'username') };
 
-  await syncProfileUsername(supabase, authUser.id, validated.value);
+  await syncProfileUsername(supabase, authUser.id, payload.value);
 
   return {
     success: true,
     kind: 'username',
     user: {
       id: authUser.id,
-      username: validated.value,
+      username: payload.value,
       email: data.user?.email ?? authUser.email,
     },
   };

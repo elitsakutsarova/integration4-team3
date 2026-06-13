@@ -1,5 +1,5 @@
 import { data, redirect } from 'react-router';
-import { fallbackPathFromRequest } from '../utils/safeRouteFallbacks';
+import { fallbackPathFromRequest } from '../utils/appPaths';
 
 export function loader({ request }) {
   const pathname = new URL(request.url).pathname;

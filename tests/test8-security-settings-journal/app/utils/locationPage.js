@@ -6,7 +6,7 @@ import { isInAntwerpBounds } from './locationHelpers';
 import { fetchPhotonPlaceDetail } from './locationPhoton';
 import { parseLocationRoute } from './parseLocationRoute';
 import { loadSpotMemos } from './loadSpotMemos';
-import { fallbackPathFromRequest } from './safeRouteFallbacks';
+import { fallbackPathFromRequest } from './appPaths';
 
 /** Reject fabricated /location URLs — coords must be in Antwerp and match a real OSM place. */
 export async function resolveVerifiedLocationSpot(args) {

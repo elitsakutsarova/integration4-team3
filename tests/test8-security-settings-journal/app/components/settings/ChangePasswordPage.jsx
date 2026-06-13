@@ -5,7 +5,7 @@ import { useFetcher, useNavigate } from 'react-router';
 import { EyeIcon, LockIcon } from '../auth/AuthIcons';
 import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
-import { goBack } from '../../utils/navigationBack';
+import { goBack } from '../../utils/appPaths';
 import { paths } from '../../utils/appPaths';
 import { revalidateApp } from '../../utils/revalidateApp';
 import { syncSessionProfile } from '../../utils/authStore';

@@ -56,6 +56,11 @@ export function normalizeUsername(raw) {
   return stripControlChars(raw).trim().replace(/^@+/, '').toLowerCase();
 }
 
+/** Trim and lowercase for email comparison. */
+export function normalizeEmail(raw) {
+  return stripControlChars(raw).trim().toLowerCase();
+}
+
 export function clampText(value, maxLength) {
   const clean = stripControlChars(value).trim();
   if (!clean) return '';

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import BottomNav from './BottomNav';
 import FeaturedMemosSection from './memos/FeaturedMemosSection';
 import { buildMemoArchiveHref } from '../utils/locationHref';
-import { goBack } from '../utils/navigationBack';
+import { goBack } from '../utils/appPaths';
 import { fetchPhotonPlaceDetail, resolvePhotonPoiAt } from '../utils/locationPhoton';
 import { fetchPlaceImageUrl } from '../utils/placeImage';
 import { parsePhotonPlaceId } from '../utils/placeId';

@@ -2,6 +2,7 @@
 // pure/synchronous, shared between client and server so we don't duplicate the "same username" check in two places
 
 import {
+  normalizeEmail,
   normalizeUsername,
   validateChangeEmailPayload,
   validateChangePasswordPayload,
@@ -30,7 +31,14 @@ export function validateAccountFormData(formData, currentUser = null) {
       confirmPassword: formData.get('confirmPassword'),
     });
     if (result.field) return { error: result };
-    return { ok: true, intent, payload: result };
+    return {
+      ok: true,
+      intent,
+      payload: {
+        ...result,
+        confirmPassword: String(formData.get('confirmPassword') ?? ''),
+      },
+    };
   }
 
   if (intent === 'change-email') {
@@ -41,7 +49,7 @@ export function validateAccountFormData(formData, currentUser = null) {
     });
     if (result.field) return { error: result };
 
-    const currentEmail = String(currentUser?.email ?? '').toLowerCase();
+    const currentEmail = normalizeEmail(currentUser?.email ?? '');
     if (currentEmail && result.oldEmail !== currentEmail) {
       return { error: { field: 'oldEmail', message: 'Old email does not match your account' } };
     }

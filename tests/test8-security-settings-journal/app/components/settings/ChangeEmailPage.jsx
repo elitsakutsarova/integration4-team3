@@ -7,7 +7,7 @@ import { applySignedInUser, getAuthSnapshot } from '../../utils/authSession';
 import { syncSessionProfile } from '../../utils/authStore';
 import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import { paths } from '../../utils/appPaths';
-import { goBack } from '../../utils/navigationBack';
+import { goBack } from '../../utils/appPaths';
 import { revalidateApp } from '../../utils/revalidateApp';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 import { useAuth } from '../../context/AuthContext';

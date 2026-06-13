@@ -29,7 +29,7 @@ import { isPublicAppPath } from "./utils/appPaths";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
 import { registerAppRevalidate } from "./utils/revalidateApp";
 import { loadStickersFromPublic } from "./utils/stickers.server";
-import { getSafeFallbackPath } from "./utils/safeRouteFallbacks";
+import { getSafeFallbackPath } from "./utils/appPaths";
 
 // loads stickers from public/stickers (server-side)
 export async function loader() {

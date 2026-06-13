@@ -3,7 +3,7 @@
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { paths } from '../../utils/appPaths';
-import { goBack } from '../../utils/navigationBack';
+import { goBack } from '../../utils/appPaths';
 import { settingsAssets } from '../../utils/settingsAssets';
 import EditPenIcon from './EditPenIcon';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
