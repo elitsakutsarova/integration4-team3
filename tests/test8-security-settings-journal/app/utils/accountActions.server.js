@@ -1,14 +1,13 @@
-// server-side account actions for client actions and server actions
+// validate, verify password via Supabase, update auth + sync profile table -> server-only
 
 import { USERS_TABLE } from './supabase.env';
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from './supabase.admin.server';
 import {
+  normalizeUsername,
   validateChangeEmailPayload,
   validateChangePasswordPayload,
   validateChangeUsernamePayload,
 } from './validators';
-
-const ACCOUNT_INTENTS = new Set(['change-password', 'change-email', 'change-username']);
 
 function mapCredentialError(error, fallbackField = 'form') {
   const msg = error?.message ?? '';
@@ -73,10 +72,6 @@ async function isUsernameTakenByOther(supabase, username, authId) {
 export async function handleAccountAction(formData, supabase, authUser) {
   const intent = String(formData.get('intent') ?? '').trim();
 
-  if (!ACCOUNT_INTENTS.has(intent)) {
-    return { error: { field: 'form', message: 'Unknown action.' } };
-  }
-
   if (intent === 'change-password') {
     return changePasswordAction(formData, supabase, authUser);
   }
@@ -85,7 +80,11 @@ export async function handleAccountAction(formData, supabase, authUser) {
     return changeEmailAction(formData, supabase, authUser);
   }
 
-  return changeUsernameAction(formData, supabase, authUser);
+  if (intent === 'change-username') {
+    return changeUsernameAction(formData, supabase, authUser);
+  }
+
+  return { error: { field: 'form', message: 'Unknown action.' } };
 }
 
 async function changePasswordAction(formData, supabase, authUser) {
@@ -167,11 +166,8 @@ async function changeUsernameAction(formData, supabase, authUser) {
   const validated = validateChangeUsernamePayload({ username: formData.get('username') });
   if (validated.field) return { error: validated };
 
-  const currentUsername = String(authUser.user_metadata?.username ?? '')
-    .trim()
-    .replace(/^@+/, '')
-    .toLowerCase();
-  const nextUsername = validated.value.replace(/^@+/, '').toLowerCase();
+  const currentUsername = normalizeUsername(authUser.user_metadata?.username);
+  const nextUsername = normalizeUsername(validated.value);
   if (currentUsername === nextUsername) {
     return { error: { field: 'username', message: 'Choose a different username' } };
   }

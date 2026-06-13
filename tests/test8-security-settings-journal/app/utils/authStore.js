@@ -7,6 +7,7 @@ import {
   validateChangeUsernamePayload,
   validateSignInPayload,
   validateSignUpPayload,
+  normalizeUsername,
 } from './validators';
 
 function getClient() {
@@ -20,10 +21,6 @@ function getClient() {
 
 const USERS_KEY = 'memome_users';
 const SESSION_KEY = 'memome_session';
-
-function normalizeUsername(raw) {
-  return raw.trim().replace(/^@+/, '').toLowerCase();
-}
 
 function normalizeEmail(raw) {
   return raw.trim().toLowerCase();

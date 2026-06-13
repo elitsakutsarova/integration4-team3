@@ -1,6 +1,8 @@
-// shared account form validation for client actions and UI
+// combines field validation with user context checks (old email matches, username unchanged) 
+// pure/synchronous, shared between client and server so we don't duplicate the "same username" check in two places
 
 import {
+  normalizeUsername,
   validateChangeEmailPayload,
   validateChangePasswordPayload,
   validateChangeUsernamePayload,
@@ -12,10 +14,6 @@ export function accountErrorToFieldMap(error) {
   if (!error) return {};
   if (error.field) return { [error.field]: error.message };
   return { form: error.message };
-}
-
-function normalizeUsernameValue(username) {
-  return String(username ?? '').trim().replace(/^@+/, '').toLowerCase();
 }
 
 /** Shared account form validation for client actions and UI. */
@@ -54,8 +52,8 @@ export function validateAccountFormData(formData, currentUser = null) {
   const result = validateChangeUsernamePayload({ username: formData.get('username') });
   if (result.field) return { error: result };
 
-  const currentUsername = normalizeUsernameValue(currentUser?.username);
-  const nextUsername = normalizeUsernameValue(result.value);
+  const currentUsername = normalizeUsername(currentUser?.username);
+  const nextUsername = normalizeUsername(result.value);
   if (currentUsername && currentUsername === nextUsername) {
     return { error: { field: 'username', message: 'Choose a different username' } };
   }

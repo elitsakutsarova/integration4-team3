@@ -1,4 +1,4 @@
-// validation helpers for input validation and sanitization
+// pure field-level validation (format, length, required) -> no user context or network, re-usable
 
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { isInAntwerpBounds } from './locationHelpers';
@@ -51,6 +51,11 @@ export function stripControlChars(value) {
   return String(value ?? '').replace(CONTROL_CHARS_RE, '');
 }
 
+/** Strip @ prefix and lowercase for username comparison. */
+export function normalizeUsername(raw) {
+  return stripControlChars(raw).trim().replace(/^@+/, '').toLowerCase();
+}
+
 export function clampText(value, maxLength) {
   const clean = stripControlChars(value).trim();
   if (!clean) return '';
@@ -78,7 +83,7 @@ export function validatePassword(raw) {
 }
 
 export function validateUsername(raw) {
-  const clean = stripControlChars(raw).trim().replace(/^@+/, '').toLowerCase();
+  const clean = normalizeUsername(raw);
   if (!clean) return validationError('username', 'Username is required');
   if (clean.length > LIMITS.username) {
     return validationError('username', `Username must be under ${LIMITS.username} characters`);
