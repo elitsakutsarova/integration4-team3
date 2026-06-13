@@ -2,6 +2,8 @@
 
 import { isSupabaseEnabled, getSupabaseBrowserClient, USERS_TABLE } from './supabase.client';
 import {
+  validateChangeEmailPayload,
+  validateChangePasswordPayload,
   validateSignInPayload,
   validateSignUpPayload,
 } from './validators';
@@ -485,6 +487,137 @@ export async function signOut() {
     profileLinkMode = null;
   }
   clearLocalSession();
+}
+
+async function localChangePassword({ userId, oldPassword, newPassword, confirmPassword }) {
+  const validated = validateChangePasswordPayload({ oldPassword, newPassword, confirmPassword });
+  if (validated.field) return { error: validated };
+
+  const users = readUsers();
+  const record = users.find(u => u.id === userId);
+  if (!record?.password) {
+    return { error: { field: 'form', message: 'Could not verify your account.' } };
+  }
+
+  const valid = await verifyPassword(validated.oldPassword, record.password.hash, record.password.salt);
+  if (!valid) return { error: { field: 'oldPassword', message: 'Incorrect password' } };
+
+  record.password = await createPasswordRecord(validated.newPassword);
+  writeUsers(users);
+  return { success: true, kind: 'password' };
+}
+
+async function supabaseChangePassword(payload) {
+  const validated = validateChangePasswordPayload(payload);
+  if (validated.field) return { error: validated };
+
+  const client = getClient();
+  if (!client) return { error: { field: 'form', message: 'Could not connect to Supabase.' } };
+
+  const { data: { session } } = await client.auth.getSession();
+  const email = session?.user?.email;
+  if (!email) return { error: { field: 'form', message: 'Could not verify your account.' } };
+
+  const { error: verifyError } = await client.auth.signInWithPassword({
+    email,
+    password: validated.oldPassword,
+  });
+  if (verifyError) return { error: { field: 'oldPassword', message: 'Incorrect password' } };
+
+  const { error } = await client.auth.updateUser({ password: validated.newPassword });
+  if (error) return { error: mapSupabaseAuthError(error, 'newPassword') };
+
+  return { success: true, kind: 'password' };
+}
+
+async function localChangeEmail({ userId, oldEmail, newEmail, confirmEmail, password }) {
+  const validated = validateChangeEmailPayload({ oldEmail, newEmail, confirmEmail, password });
+  if (validated.field) return { error: validated };
+
+  const users = readUsers();
+  const record = users.find(u => u.id === userId);
+  if (!record?.password) {
+    return { error: { field: 'form', message: 'Could not verify your account.' } };
+  }
+
+  if (normalizeEmail(record.email) !== validated.oldEmail) {
+    return { error: { field: 'oldEmail', message: 'Old email does not match your account' } };
+  }
+
+  const taken = users.some(
+    u => u.id !== userId && normalizeEmail(u.email) === validated.newEmail,
+  );
+  if (taken) return { error: { field: 'newEmail', message: 'Email already taken' } };
+
+  const valid = await verifyPassword(validated.password, record.password.hash, record.password.salt);
+  if (!valid) return { error: { field: 'password', message: 'Incorrect password' } };
+
+  record.email = validated.newEmail;
+  writeUsers(users);
+
+  const user = toPublicUser(record);
+  if (readLocalSession()?.id === userId) writeLocalSession(userId);
+  return { success: true, kind: 'email', user };
+}
+
+async function supabaseChangeEmail(payload) {
+  const validated = validateChangeEmailPayload(payload);
+  if (validated.field) return { error: validated };
+
+  const client = getClient();
+  if (!client) return { error: { field: 'form', message: 'Could not connect to Supabase.' } };
+
+  const { data: { session } } = await client.auth.getSession();
+  const currentEmail = normalizeEmail(session?.user?.email ?? '');
+  if (!currentEmail) return { error: { field: 'form', message: 'Could not verify your account.' } };
+  if (currentEmail !== validated.oldEmail) {
+    return { error: { field: 'oldEmail', message: 'Old email does not match your account' } };
+  }
+
+  const { error: verifyError } = await client.auth.signInWithPassword({
+    email: currentEmail,
+    password: validated.password,
+  });
+  if (verifyError) return { error: { field: 'password', message: 'Incorrect password' } };
+
+  const { data, error } = await client.auth.updateUser({ email: validated.newEmail });
+  if (error) return { error: mapSupabaseAuthError(error, 'newEmail') };
+
+  const nextEmail = data.user?.email ?? validated.newEmail;
+  if (session?.user) {
+    await insertProfile({
+      authId: session.user.id,
+      username: session.user.user_metadata?.username ?? '@user',
+      email: nextEmail,
+      role: session.user.user_metadata?.role ?? 'visitor',
+    });
+  }
+
+  const user = session?.user
+    ? toPublicUser({
+      auth_id: session.user.id,
+      username: session.user.user_metadata?.username ?? '@user',
+      email: nextEmail,
+      role: session.user.user_metadata?.role ?? 'visitor',
+    })
+    : null;
+
+  return {
+    success: true,
+    kind: 'email',
+    pendingConfirmation: normalizeEmail(nextEmail) !== validated.newEmail,
+    user,
+  };
+}
+
+export async function changePassword(payload) {
+  if (isSupabaseEnabled()) return supabaseChangePassword(payload);
+  return localChangePassword(payload);
+}
+
+export async function changeEmail(payload) {
+  if (isSupabaseEnabled()) return supabaseChangeEmail(payload);
+  return localChangeEmail(payload);
 }
 
 export function subscribeToAuthChanges(callback) {

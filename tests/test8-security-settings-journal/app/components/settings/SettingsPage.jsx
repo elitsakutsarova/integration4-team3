@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { paths } from '../../utils/appPaths';
 import { goBack } from '../../utils/navigationBack';
@@ -31,17 +31,28 @@ function SettingsChevron() {
   );
 }
 
-function SettingsRow({ icon, label, trailing, onClick, danger = false, showChevron = true }) {
-  return (
-    <button
-      type="button"
-      className={`settings-row${danger ? ' settings-row--danger' : ''}`}
-      onClick={onClick}
-    >
+function SettingsRow({ icon, label, trailing, onClick, to, danger = false, showChevron = true }) {
+  const className = `settings-row${danger ? ' settings-row--danger' : ''}`;
+  const content = (
+    <>
       <SettingsRowIcon>{icon}</SettingsRowIcon>
       <span className="settings-row-label">{label}</span>
       {trailing ? <span className="settings-row-trailing">{trailing}</span> : null}
       {showChevron ? <SettingsChevron /> : null}
+    </>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" className={className} onClick={onClick}>
+      {content}
     </button>
   );
 }
@@ -106,6 +117,7 @@ export default function SettingsPage() {
           <div className="settings-section-box">
             <SettingsRow
               label="Account Details"
+              to={paths.profileSettingsAccount}
               icon={(
                 <svg width="18" height="20" viewBox="0 0 18 20" fill="none" aria-hidden="true">
                   <circle cx="9" cy="5" r="4" stroke="#1e1e1e" strokeWidth="1.5" />

@@ -12,6 +12,9 @@ export const paths = {
   register: href('/register'),
   profile: href('/profile'),
   profileSettings: href('/profile/settings'),
+  profileSettingsAccount: href('/profile/settings/account'),
+  profileSettingsChangePassword: href('/profile/settings/change-password'),
+  profileSettingsChangeEmail: href('/profile/settings/change-email'),
   profileMemos: href('/profile/memos'),
   profileFavourites: href('/profile/favourites'),
   profileFavouritesMemos: href('/profile/favourites/memos'),
@@ -22,6 +25,7 @@ export const paths = {
   collect: href('/collect'),
   demoStickers: href('/demo-stickers'),
   apiMemos: href('/api/memos'),
+  apiAccount: href('/api/account'),
 };
 
 export function discoverEventPath(id) {

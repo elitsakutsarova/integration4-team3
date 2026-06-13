@@ -14,6 +14,9 @@ export default [
     route("profile", "routes/account-layout.profile.jsx", [
       index("routes/profile.jsx"),
       route("settings", "routes/profile.settings.jsx"),
+      route("settings/account", "routes/profile.settings.account.jsx"),
+      route("settings/change-password", "routes/profile.settings.change-password.jsx"),
+      route("settings/change-email", "routes/profile.settings.change-email.jsx"),
       route("memos", "routes/profile.memos.jsx"),
       route("favourites", "routes/profile.favourites-layout.jsx", [
         index("routes/profile.favourites._index.jsx"),
@@ -36,6 +39,7 @@ export default [
   route("location/:osmType/:osmId", "routes/location.$osmType.$osmId.jsx"),
   route("api/stickers", "routes/api.stickers.js"),
   route("api/memos", "routes/api.memos.js"),
+  route("api/account", "routes/api.account.js"),
   route("api/location-search", "routes/api.location-search.js"),
   route("*", "routes/catchall.jsx"),
 ];

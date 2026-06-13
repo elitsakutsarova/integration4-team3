@@ -4,6 +4,7 @@ export const RATE_LIMITS = {
   locationSearch: { max: 30, windowMs: 60_000 },
   stickers: { max: 60, windowMs: 60_000 },
   memos: { max: 10, windowMs: 60_000 },
+  account: { max: 5, windowMs: 300_000 },
 };
 
 const buckets = new Map();

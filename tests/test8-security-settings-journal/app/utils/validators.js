@@ -117,6 +117,63 @@ export function validateSignUpPayload({ username, email, password, role }) {
   };
 }
 
+export function validateChangePasswordPayload({ oldPassword, newPassword, confirmPassword }) {
+  const old = String(oldPassword ?? '');
+  if (!old) return validationError('oldPassword', 'Enter your current password');
+  if (old.length > LIMITS.password) {
+    return validationError('oldPassword', `Password must be under ${LIMITS.password} characters`);
+  }
+
+  const newResult = validatePassword(newPassword);
+  if (newResult.field) {
+    return validationError(
+      'newPassword',
+      'Password must be at least 8 characters and include an uppercase, lowercase and number',
+    );
+  }
+
+  const confirm = String(confirmPassword ?? '');
+  if (!confirm) return validationError('confirmPassword', 'Confirm your new password');
+  if (confirm !== newResult.value) {
+    return validationError('confirmPassword', 'Passwords do not match');
+  }
+  if (old === newResult.value) {
+    return validationError('newPassword', 'Choose a different password than your current one');
+  }
+
+  return { oldPassword: old, newPassword: newResult.value };
+}
+
+export function validateChangeEmailPayload({ oldEmail, newEmail, confirmEmail, password }) {
+  const oldResult = validateEmail(oldEmail);
+  if (oldResult.field) return validationError('oldEmail', 'Enter your current email address');
+
+  const newResult = validateEmail(newEmail);
+  if (newResult.field) return validationError('newEmail', 'Enter a valid email address');
+
+  const confirmResult = validateEmail(confirmEmail);
+  if (confirmResult.field) return validationError('confirmEmail', 'Confirm your new email address');
+
+  if (newResult.value !== confirmResult.value) {
+    return validationError('confirmEmail', 'Email addresses do not match');
+  }
+  if (oldResult.value === newResult.value) {
+    return validationError('newEmail', 'Choose a different email than your current one');
+  }
+
+  const passwordValue = String(password ?? '');
+  if (!passwordValue) return validationError('password', 'Password is required');
+  if (passwordValue.length > LIMITS.password) {
+    return validationError('password', `Password must be under ${LIMITS.password} characters`);
+  }
+
+  return {
+    oldEmail: oldResult.value,
+    newEmail: newResult.value,
+    password: passwordValue,
+  };
+}
+
 export function validateSignInPayload({ email, password: rawPassword }) {
   const emailResult = validateEmail(email);
   if (emailResult.field) return emailResult;

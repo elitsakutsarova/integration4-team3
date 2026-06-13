@@ -18,4 +18,7 @@ export const settingsAssets = {
   ellipse73: asset('Ellipse 73.svg'),
   star21: asset('Star 21.svg'),
   vector554: asset('Vector 554.svg'),
+  avatarPlaceholder: asset('avatar_placeholder.svg'),
+  leftGridDecoration: asset('left_grid_decoration.svg'),
+  greenStar: asset('green_star.svg'),
 };
