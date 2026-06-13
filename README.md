@@ -82,3 +82,13 @@ After our consult, I changed a lot of things in test5 like:
 - memo archive at spots — event/place/location detail pages show featured memos and a “View more” link to a full memo archive per location
 - map + location safety — event pins on the map tied to discover; memory popup anchored to the clicked pin; location links validated via Photon so only real, in-bounds spots are navigable and users can't create non-existent locations through the url
 - auth & routing polish — client auth middleware, protected-route redirects, type-safe path helpers, and a dedicated /api/memos endpoint for publishing (instead of posting to home)
+
+## Test 8 (?) - 13/06/2026
+
+- add security: configure RLS on Supabase, check authentification security, SQL injections, url injections, run the app through vulnerability/penetration software
+- add Settings page and everything related
+- discuss Journal page with team
+- add details (e.g change password, sharing, sharing popup notif screen, etc -> screens I haven't coded yet)
+- add journal (just not sharing yet)
+- implement if you don't have an account, how it would look/act
+- do css components for buttons, animations?
