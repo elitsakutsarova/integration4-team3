@@ -95,14 +95,7 @@ After our consult, I changed a lot of things in test5 like:
 - **Secrets hygiene** — No `service_role` or hardcoded keys in source; `.env` / `.env.local` gitignored. Only Supabase publishable/anon key in client (expected; protected by RLS).
 - **SQL injection** — All DB access via Supabase client (parameterized queries); no raw SQL in app code.
 
-### Security (still TODO)
-
-- Run remaining Supabase SQL migrations / Security Advisor fixes (`fix-security-advisor.sql`: revoke public execute on trigger RPCs, storage listing policy, RLS `(select auth.uid())` performance tweak).
-- Enable **Leaked password protection** in Supabase Auth dashboard.
-- Penetration / vulnerability scan (e.g. OWASP ZAP, npm audit).
-- Production rate limiting at edge (Redis / Cloudflare) if running multiple server instances.
-
-### Other Test 8 scope (not started)
+### Other Test 8 scope 
 
 - add Settings page and everything related
 - discuss Journal page with team
