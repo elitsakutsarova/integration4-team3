@@ -1,21 +1,14 @@
-import { bootstrapAuthSession, getAuthSnapshot } from './authSession';
+// client-side account actions for client actions and server actions
+
 import * as authStore from './authStore';
+import { validateAccountFormData } from './accountFormValidation';
 import { stripControlChars } from './validators';
 
-const ACCOUNT_INTENTS = new Set(['change-password', 'change-email']);
+export async function handleAccountActionClient(formData, user) {
+  const validation = validateAccountFormData(formData, user);
+  if (validation.error) return { error: validation.error };
 
-export async function handleAccountActionClient(request) {
-  await bootstrapAuthSession();
-  const { user } = getAuthSnapshot();
-  if (!user?.id) {
-    return { error: { field: 'form', message: 'You must be signed in.' } };
-  }
-
-  const formData = await request.formData();
   const intent = stripControlChars(formData.get('intent')).trim();
-  if (!ACCOUNT_INTENTS.has(intent)) {
-    return { error: { field: 'form', message: 'Unknown action.' } };
-  }
 
   if (intent === 'change-password') {
     return authStore.changePassword({
@@ -26,11 +19,17 @@ export async function handleAccountActionClient(request) {
     });
   }
 
-  return authStore.changeEmail({
+  if (intent === 'change-email') {
+    return authStore.changeEmail({
+      userId: user.id,
+      oldEmail: formData.get('oldEmail'),
+      newEmail: formData.get('newEmail'),
+      password: formData.get('password'),
+    });
+  }
+
+  return authStore.changeUsername({
     userId: user.id,
-    oldEmail: formData.get('oldEmail'),
-    newEmail: formData.get('newEmail'),
-    confirmEmail: formData.get('confirmEmail'),
-    password: formData.get('password'),
+    username: formData.get('username'),
   });
 }

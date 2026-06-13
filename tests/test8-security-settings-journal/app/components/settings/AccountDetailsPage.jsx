@@ -1,3 +1,5 @@
+// account details page for account settings
+
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { paths } from '../../utils/appPaths';
@@ -5,10 +7,7 @@ import { goBack } from '../../utils/navigationBack';
 import { settingsAssets } from '../../utils/settingsAssets';
 import EditPenIcon from './EditPenIcon';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
-
-function displayUsername(username) {
-  return String(username ?? '').replace(/^@+/, '') || 'user';
-}
+import UsernameField from './UsernameField';
 
 function AccountField({ label, value, editTo }) {
   return (
@@ -21,19 +20,15 @@ function AccountField({ label, value, editTo }) {
         <Link to={editTo} className="account-details-edit" aria-label={`Edit ${label.toLowerCase()}`}>
           <EditPenIcon />
         </Link>
-      ) : (
-        <span className="account-details-edit account-details-edit--static" aria-hidden="true">
-          <EditPenIcon />
-        </span>
-      )}
+      ) : null}
     </div>
   );
 }
 
 const SUCCESS_MESSAGES = {
-  password: 'Your password was updated successfully.',
+  password: 'Your password was updated. Sign in with your new password next time.',
   email: 'Your email was updated successfully.',
-  'email-pending': 'Check your inbox to confirm your new email address.',
+  username: 'Your username was updated successfully.',
 };
 
 export default function AccountDetailsPage() {
@@ -42,9 +37,7 @@ export default function AccountDetailsPage() {
   const { user } = useAuth();
 
   const updated = searchParams.get('updated');
-  const successMessage = updated === 'email-pending'
-    ? SUCCESS_MESSAGES['email-pending']
-    : SUCCESS_MESSAGES[updated] ?? null;
+  const successMessage = SUCCESS_MESSAGES[updated] ?? null;
 
   function handleBack() {
     goBack(navigate, paths.profileSettings);
@@ -97,10 +90,7 @@ export default function AccountDetailsPage() {
           </h2>
 
           <div className="account-details-card">
-            <AccountField
-              label="Username"
-              value={displayUsername(user?.username)}
-            />
+            <UsernameField username={user?.username} />
             <AccountField
               label="E-mail"
               value={user?.email ?? '—'}

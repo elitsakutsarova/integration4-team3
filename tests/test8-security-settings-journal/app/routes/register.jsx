@@ -188,7 +188,7 @@ export default function Register() {
                 onClick={() => setShowPassword(v => !v)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                <EyeIcon off={showPassword} />
+                <EyeIcon off={!showPassword} />
               </button>
             </div>
             <PasswordStrength password={password} />

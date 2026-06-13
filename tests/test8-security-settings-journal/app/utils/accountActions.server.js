@@ -1,10 +1,14 @@
+// server-side account actions for client actions and server actions
+
 import { USERS_TABLE } from './supabase.env';
+import { getSupabaseAdmin, isSupabaseAdminConfigured } from './supabase.admin.server';
 import {
   validateChangeEmailPayload,
   validateChangePasswordPayload,
+  validateChangeUsernamePayload,
 } from './validators';
 
-const ACCOUNT_INTENTS = new Set(['change-password', 'change-email']);
+const ACCOUNT_INTENTS = new Set(['change-password', 'change-email', 'change-username']);
 
 function mapCredentialError(error, fallbackField = 'form') {
   const msg = error?.message ?? '';
@@ -16,7 +20,10 @@ function mapCredentialError(error, fallbackField = 'form') {
   if (/same password|should be different/i.test(msg)) {
     return { field: 'newPassword', message: 'Choose a different password than your current one' };
   }
-  if (/already registered|already exists|duplicate/i.test(msg)) {
+  if (/already registered|already exists|duplicate|unique/i.test(msg)) {
+    if (/username/i.test(msg)) {
+      return { field: 'username', message: 'Username already taken' };
+    }
     return { field: 'newEmail', message: 'Email already taken' };
   }
   if (/rate limit|over_email_send_rate_limit/i.test(msg)) {
@@ -41,8 +48,29 @@ async function syncProfileEmail(supabase, authId, email) {
   }
 }
 
-export async function handleAccountAction(request, supabase, authUser) {
-  const formData = await request.formData();
+async function syncProfileUsername(supabase, authId, username) {
+  const { error } = await supabase
+    .from(USERS_TABLE)
+    .update({ username })
+    .eq('auth_id', authId);
+
+  if (error && !/does not exist|42703/i.test(error.message ?? '')) {
+    console.warn('[MemMe] Could not sync profile username:', error.message);
+  }
+}
+
+async function isUsernameTakenByOther(supabase, username, authId) {
+  const { data, error } = await supabase
+    .from(USERS_TABLE)
+    .select('auth_id')
+    .eq('username', username)
+    .maybeSingle();
+
+  if (error) return false;
+  return Boolean(data?.auth_id && data.auth_id !== authId);
+}
+
+export async function handleAccountAction(formData, supabase, authUser) {
   const intent = String(formData.get('intent') ?? '').trim();
 
   if (!ACCOUNT_INTENTS.has(intent)) {
@@ -53,7 +81,11 @@ export async function handleAccountAction(request, supabase, authUser) {
     return changePasswordAction(formData, supabase, authUser);
   }
 
-  return changeEmailAction(formData, supabase, authUser);
+  if (intent === 'change-email') {
+    return changeEmailAction(formData, supabase, authUser);
+  }
+
+  return changeUsernameAction(formData, supabase, authUser);
 }
 
 async function changePasswordAction(formData, supabase, authUser) {
@@ -77,6 +109,8 @@ async function changePasswordAction(formData, supabase, authUser) {
   const { error } = await supabase.auth.updateUser({ password: validated.newPassword });
   if (error) return { error: mapCredentialError(error, 'newPassword') };
 
+  await supabase.auth.refreshSession();
+
   return { success: true, kind: 'password' };
 }
 
@@ -84,7 +118,6 @@ async function changeEmailAction(formData, supabase, authUser) {
   const validated = validateChangeEmailPayload({
     oldEmail: formData.get('oldEmail'),
     newEmail: formData.get('newEmail'),
-    confirmEmail: formData.get('confirmEmail'),
     password: formData.get('password'),
   });
   if (validated.field) return { error: validated };
@@ -99,20 +132,68 @@ async function changeEmailAction(formData, supabase, authUser) {
     return { error: { field: 'password', message: 'Incorrect password' } };
   }
 
-  const { data, error } = await supabase.auth.updateUser({ email: validated.newEmail });
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      error: {
+        field: 'form',
+        message: 'Email change is not configured. Add SUPABASE_SERVICE_ROLE_KEY to your .env file.',
+      },
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  const { data: updated, error } = await admin.auth.admin.updateUserById(authUser.id, {
+    email: validated.newEmail,
+    email_confirm: true,
+  });
   if (error) return { error: mapCredentialError(error, 'newEmail') };
 
-  const nextEmail = data.user?.email ?? validated.newEmail;
-  await syncProfileEmail(supabase, authUser.id, nextEmail);
+  const confirmedEmail = validated.newEmail;
+  await syncProfileEmail(supabase, authUser.id, confirmedEmail);
 
   return {
     success: true,
     kind: 'email',
-    pendingConfirmation: nextEmail.toLowerCase() !== validated.newEmail,
+    pendingConfirmation: false,
     user: {
       id: authUser.id,
-      email: nextEmail,
-      username: data.user?.user_metadata?.username ?? null,
+      email: confirmedEmail,
+      username: updated.user?.user_metadata?.username ?? authUser.user_metadata?.username ?? null,
+    },
+  };
+}
+
+async function changeUsernameAction(formData, supabase, authUser) {
+  const validated = validateChangeUsernamePayload({ username: formData.get('username') });
+  if (validated.field) return { error: validated };
+
+  const currentUsername = String(authUser.user_metadata?.username ?? '')
+    .trim()
+    .replace(/^@+/, '')
+    .toLowerCase();
+  const nextUsername = validated.value.replace(/^@+/, '').toLowerCase();
+  if (currentUsername === nextUsername) {
+    return { error: { field: 'username', message: 'Choose a different username' } };
+  }
+
+  if (await isUsernameTakenByOther(supabase, validated.value, authUser.id)) {
+    return { error: { field: 'username', message: 'Username already taken' } };
+  }
+
+  const { data, error } = await supabase.auth.updateUser({
+    data: { username: validated.value },
+  });
+  if (error) return { error: mapCredentialError(error, 'username') };
+
+  await syncProfileUsername(supabase, authUser.id, validated.value);
+
+  return {
+    success: true,
+    kind: 'username',
+    user: {
+      id: authUser.id,
+      username: validated.value,
+      email: data.user?.email ?? authUser.email,
     },
   };
 }

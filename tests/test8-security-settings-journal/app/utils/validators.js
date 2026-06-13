@@ -1,3 +1,5 @@
+// validation helpers for input validation and sanitization
+
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { isInAntwerpBounds } from './locationHelpers';
 import { isPhotonPlaceId } from './placeId';
@@ -144,19 +146,13 @@ export function validateChangePasswordPayload({ oldPassword, newPassword, confir
   return { oldPassword: old, newPassword: newResult.value };
 }
 
-export function validateChangeEmailPayload({ oldEmail, newEmail, confirmEmail, password }) {
+export function validateChangeEmailPayload({ oldEmail, newEmail, password }) {
   const oldResult = validateEmail(oldEmail);
   if (oldResult.field) return validationError('oldEmail', 'Enter your current email address');
 
   const newResult = validateEmail(newEmail);
   if (newResult.field) return validationError('newEmail', 'Enter a valid email address');
 
-  const confirmResult = validateEmail(confirmEmail);
-  if (confirmResult.field) return validationError('confirmEmail', 'Confirm your new email address');
-
-  if (newResult.value !== confirmResult.value) {
-    return validationError('confirmEmail', 'Email addresses do not match');
-  }
   if (oldResult.value === newResult.value) {
     return validationError('newEmail', 'Choose a different email than your current one');
   }
@@ -172,6 +168,10 @@ export function validateChangeEmailPayload({ oldEmail, newEmail, confirmEmail, p
     newEmail: newResult.value,
     password: passwordValue,
   };
+}
+
+export function validateChangeUsernamePayload({ username }) {
+  return validateUsername(username);
 }
 
 export function validateSignInPayload({ email, password: rawPassword }) {

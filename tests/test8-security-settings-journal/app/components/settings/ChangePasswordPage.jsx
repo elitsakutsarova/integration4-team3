@@ -1,15 +1,17 @@
+// change password page for account settings
+
 import { useEffect, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
 import { EyeIcon, LockIcon } from '../auth/AuthIcons';
+import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 import { goBack } from '../../utils/navigationBack';
 import { paths } from '../../utils/appPaths';
 import { revalidateApp } from '../../utils/revalidateApp';
+import { syncSessionProfile } from '../../utils/authStore';
 
-function fieldErrorsFromAction(data) {
-  if (!data?.error) return {};
-  const { field, message } = data.error;
-  return field ? { [field]: message } : { form: message };
+function mergeFieldErrors(clientErrors, fetcherData) {
+  return { ...accountErrorToFieldMap(fetcherData?.error), ...clientErrors };
 }
 
 export default function ChangePasswordPage() {
@@ -18,16 +20,22 @@ export default function ChangePasswordPage() {
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [clientErrors, setClientErrors] = useState({});
 
   const submitting = fetcher.state !== 'idle';
-  const fieldErrors = fieldErrorsFromAction(fetcher.data);
+  const fieldErrors = mergeFieldErrors(clientErrors, fetcher.data);
   const formError = fieldErrors.form;
 
   useEffect(() => {
     if (!fetcher.data?.success || fetcher.data?.kind !== 'password') return;
 
-    revalidateApp();
-    navigate(`${paths.profileSettingsAccount}?updated=password`, { replace: true });
+    async function finishPasswordChange() {
+      await syncSessionProfile();
+      revalidateApp();
+      navigate(`${paths.profileSettingsAccount}?updated=password`, { replace: true });
+    }
+
+    void finishPasswordChange();
   }, [fetcher.data, navigate]);
 
   function handleBack() {
@@ -36,6 +44,19 @@ export default function ChangePasswordPage() {
 
   function handleCancel() {
     navigate(paths.profileSettingsAccount);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const validation = validateAccountFormData(formData);
+    if (validation.error) {
+      setClientErrors(accountErrorToFieldMap(validation.error));
+      return;
+    }
+
+    setClientErrors({});
+    fetcher.submit(formData, { method: 'post', action: paths.apiAccount });
   }
 
   return (
@@ -54,7 +75,13 @@ export default function ChangePasswordPage() {
           </p>
         </div>
 
-        <fetcher.Form method="post" action={paths.apiAccount} className="settings-form" noValidate>
+        <fetcher.Form
+          method="post"
+          action={paths.apiAccount}
+          className="settings-form"
+          noValidate
+          onSubmit={handleSubmit}
+        >
           <input type="hidden" name="intent" value="change-password" />
 
           <div className="auth-field">
@@ -77,7 +104,7 @@ export default function ChangePasswordPage() {
                 onClick={() => setShowOld(v => !v)}
                 aria-label={showOld ? 'Hide password' : 'Show password'}
               >
-                <EyeIcon off={showOld} />
+                <EyeIcon off={!showOld} />
               </button>
             </div>
             {fieldErrors.oldPassword ? (
@@ -105,7 +132,7 @@ export default function ChangePasswordPage() {
                 onClick={() => setShowNew(v => !v)}
                 aria-label={showNew ? 'Hide password' : 'Show password'}
               >
-                <EyeIcon off={showNew} />
+                <EyeIcon off={!showNew} />
               </button>
             </div>
             {fieldErrors.newPassword ? (
@@ -133,7 +160,7 @@ export default function ChangePasswordPage() {
                 onClick={() => setShowConfirm(v => !v)}
                 aria-label={showConfirm ? 'Hide password' : 'Show password'}
               >
-                <EyeIcon off={showConfirm} />
+                <EyeIcon off={!showConfirm} />
               </button>
             </div>
             {fieldErrors.confirmPassword ? (

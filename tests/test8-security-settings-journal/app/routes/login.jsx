@@ -136,7 +136,7 @@ export default function Login() {
                 onClick={() => setShowPassword(v => !v)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                <EyeIcon off={showPassword} />
+                <EyeIcon off={!showPassword} />
               </button>
             </div>
             {fieldErrors.password && <p className="auth-field-error">{fieldErrors.password}</p>}

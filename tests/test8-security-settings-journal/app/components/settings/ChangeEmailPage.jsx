@@ -1,40 +1,48 @@
+// change e-mail page for account settings
+
 import { useEffect, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
 import { EyeIcon, LockIcon, MailIcon } from '../auth/AuthIcons';
 import { applySignedInUser, getAuthSnapshot } from '../../utils/authSession';
+import { syncSessionProfile } from '../../utils/authStore';
+import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import { paths } from '../../utils/appPaths';
 import { goBack } from '../../utils/navigationBack';
 import { revalidateApp } from '../../utils/revalidateApp';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
+import { useAuth } from '../../context/AuthContext';
 
-function fieldErrorsFromAction(data) {
-  if (!data?.error) return {};
-  const { field, message } = data.error;
-  return field ? { [field]: message } : { form: message };
+function mergeFieldErrors(clientErrors, fetcherData) {
+  return { ...accountErrorToFieldMap(fetcherData?.error), ...clientErrors };
 }
 
 export default function ChangeEmailPage() {
   const navigate = useNavigate();
   const fetcher = useFetcher();
+  const { user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [clientErrors, setClientErrors] = useState({});
 
   const submitting = fetcher.state !== 'idle';
-  const fieldErrors = fieldErrorsFromAction(fetcher.data);
+  const fieldErrors = mergeFieldErrors(clientErrors, fetcher.data);
   const formError = fieldErrors.form;
 
   useEffect(() => {
     if (!fetcher.data?.success || fetcher.data?.kind !== 'email') return;
 
-    if (fetcher.data.user?.email) {
-      const current = getAuthSnapshot().user;
-      if (current) {
-        applySignedInUser({ ...current, email: fetcher.data.user.email });
+    async function finishEmailChange() {
+      if (fetcher.data.user) {
+        const current = getAuthSnapshot().user;
+        if (current) {
+          applySignedInUser({ ...current, ...fetcher.data.user });
+        }
+        await syncSessionProfile();
       }
+      revalidateApp();
+      navigate(`${paths.profileSettingsAccount}?updated=email`, { replace: true });
     }
-    revalidateApp();
 
-    const updated = fetcher.data.pendingConfirmation ? 'email-pending' : 'email';
-    navigate(`${paths.profileSettingsAccount}?updated=${updated}`, { replace: true });
+    void finishEmailChange();
   }, [fetcher.data, navigate]);
 
   function handleBack() {
@@ -43,6 +51,19 @@ export default function ChangeEmailPage() {
 
   function handleCancel() {
     navigate(paths.profileSettingsAccount);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const validation = validateAccountFormData(formData, user);
+    if (validation.error) {
+      setClientErrors(accountErrorToFieldMap(validation.error));
+      return;
+    }
+
+    setClientErrors({});
+    fetcher.submit(formData, { method: 'post', action: paths.apiAccount });
   }
 
   return (
@@ -61,7 +82,13 @@ export default function ChangeEmailPage() {
           </p>
         </div>
 
-        <fetcher.Form method="post" action={paths.apiAccount} className="settings-form" noValidate>
+        <fetcher.Form
+          method="post"
+          action={paths.apiAccount}
+          className="settings-form"
+          noValidate
+          onSubmit={handleSubmit}
+        >
           <input type="hidden" name="intent" value="change-email" />
 
           <div className="auth-field">
@@ -74,6 +101,7 @@ export default function ChangeEmailPage() {
                 type="email"
                 className="auth-input auth-input--icon"
                 placeholder="Enter your old e-mail"
+                defaultValue={user?.email ?? ''}
                 autoComplete="email"
                 required
                 aria-invalid={Boolean(fieldErrors.oldEmail)}
@@ -124,7 +152,7 @@ export default function ChangeEmailPage() {
                 onClick={() => setShowPassword(v => !v)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                <EyeIcon off={showPassword} />
+                <EyeIcon off={!showPassword} />
               </button>
             </div>
             {fieldErrors.password ? (

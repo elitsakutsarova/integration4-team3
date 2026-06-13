@@ -4,6 +4,7 @@ import { isSupabaseEnabled, getSupabaseBrowserClient, USERS_TABLE } from './supa
 import {
   validateChangeEmailPayload,
   validateChangePasswordPayload,
+  validateChangeUsernamePayload,
   validateSignInPayload,
   validateSignUpPayload,
 } from './validators';
@@ -527,11 +528,13 @@ async function supabaseChangePassword(payload) {
   const { error } = await client.auth.updateUser({ password: validated.newPassword });
   if (error) return { error: mapSupabaseAuthError(error, 'newPassword') };
 
+  await client.auth.refreshSession();
+
   return { success: true, kind: 'password' };
 }
 
-async function localChangeEmail({ userId, oldEmail, newEmail, confirmEmail, password }) {
-  const validated = validateChangeEmailPayload({ oldEmail, newEmail, confirmEmail, password });
+async function localChangeEmail({ userId, oldEmail, newEmail, password }) {
+  const validated = validateChangeEmailPayload({ oldEmail, newEmail, password });
   if (validated.field) return { error: validated };
 
   const users = readUsers();
@@ -560,53 +563,12 @@ async function localChangeEmail({ userId, oldEmail, newEmail, confirmEmail, pass
   return { success: true, kind: 'email', user };
 }
 
-async function supabaseChangeEmail(payload) {
-  const validated = validateChangeEmailPayload(payload);
-  if (validated.field) return { error: validated };
-
-  const client = getClient();
-  if (!client) return { error: { field: 'form', message: 'Could not connect to Supabase.' } };
-
-  const { data: { session } } = await client.auth.getSession();
-  const currentEmail = normalizeEmail(session?.user?.email ?? '');
-  if (!currentEmail) return { error: { field: 'form', message: 'Could not verify your account.' } };
-  if (currentEmail !== validated.oldEmail) {
-    return { error: { field: 'oldEmail', message: 'Old email does not match your account' } };
-  }
-
-  const { error: verifyError } = await client.auth.signInWithPassword({
-    email: currentEmail,
-    password: validated.password,
-  });
-  if (verifyError) return { error: { field: 'password', message: 'Incorrect password' } };
-
-  const { data, error } = await client.auth.updateUser({ email: validated.newEmail });
-  if (error) return { error: mapSupabaseAuthError(error, 'newEmail') };
-
-  const nextEmail = data.user?.email ?? validated.newEmail;
-  if (session?.user) {
-    await insertProfile({
-      authId: session.user.id,
-      username: session.user.user_metadata?.username ?? '@user',
-      email: nextEmail,
-      role: session.user.user_metadata?.role ?? 'visitor',
-    });
-  }
-
-  const user = session?.user
-    ? toPublicUser({
-      auth_id: session.user.id,
-      username: session.user.user_metadata?.username ?? '@user',
-      email: nextEmail,
-      role: session.user.user_metadata?.role ?? 'visitor',
-    })
-    : null;
-
+async function supabaseChangeEmail() {
   return {
-    success: true,
-    kind: 'email',
-    pendingConfirmation: normalizeEmail(nextEmail) !== validated.newEmail,
-    user,
+    error: {
+      field: 'form',
+      message: 'Email change is not configured. Add SUPABASE_SERVICE_ROLE_KEY to your .env file.',
+    },
   };
 }
 
@@ -618,6 +580,92 @@ export async function changePassword(payload) {
 export async function changeEmail(payload) {
   if (isSupabaseEnabled()) return supabaseChangeEmail(payload);
   return localChangeEmail(payload);
+}
+
+async function localChangeUsername({ userId, username }) {
+  const validated = validateChangeUsernamePayload({ username });
+  if (validated.field) return { error: validated };
+
+  const users = readUsers();
+  const record = users.find(u => u.id === userId);
+  if (!record) {
+    return { error: { field: 'form', message: 'Could not verify your account.' } };
+  }
+
+  const nextClean = validated.value.replace(/^@+/, '').toLowerCase();
+  const currentClean = normalizeUsername(record.username);
+  if (currentClean === nextClean) {
+    return { error: { field: 'username', message: 'Choose a different username' } };
+  }
+
+  const taken = users.some(
+    u => u.id !== userId && normalizeUsername(u.username) === nextClean,
+  );
+  if (taken) return { error: { field: 'username', message: 'Username already taken' } };
+
+  record.username = validated.value;
+  writeUsers(users);
+
+  const user = toPublicUser(record);
+  if (readLocalSession()?.id === userId) writeLocalSession(userId);
+  return { success: true, kind: 'username', user };
+}
+
+async function supabaseChangeUsername({ username }) {
+  const validated = validateChangeUsernamePayload({ username });
+  if (validated.field) return { error: validated };
+
+  const client = getClient();
+  if (!client) return { error: { field: 'form', message: 'Could not connect to Supabase.' } };
+
+  const { data: { session } } = await client.auth.getSession();
+  if (!session?.user) {
+    return { error: { field: 'form', message: 'Could not verify your account.' } };
+  }
+
+  const currentClean = normalizeUsername(session.user.user_metadata?.username ?? '');
+  const nextClean = validated.value.replace(/^@+/, '').toLowerCase();
+  if (currentClean === nextClean) {
+    return { error: { field: 'username', message: 'Choose a different username' } };
+  }
+
+  const { data: existing, error: lookupError } = await getClient()
+    .from(USERS_TABLE)
+    .select('auth_id')
+    .eq('username', validated.value)
+    .maybeSingle();
+
+  if (!lookupError && existing?.auth_id && existing.auth_id !== session.user.id) {
+    return { error: { field: 'username', message: 'Username already taken' } };
+  }
+
+  const { data, error } = await client.auth.updateUser({
+    data: { username: validated.value },
+  });
+  if (error) return { error: mapSupabaseAuthError(error, 'username') };
+
+  if (session.user) {
+    await insertProfile({
+      authId: session.user.id,
+      username: validated.value,
+      email: session.user.email ?? '',
+      role: session.user.user_metadata?.role ?? 'visitor',
+    });
+  }
+
+  const user = toPublicUser({
+    auth_id: session.user.id,
+    username: validated.value,
+    email: data.user?.email ?? session.user.email,
+    role: session.user.user_metadata?.role ?? 'visitor',
+  });
+
+  return { success: true, kind: 'username', user };
+}
+
+export async function changeUsername(payload) {
+  if (isSupabaseEnabled()) return supabaseChangeUsername(payload);
+  return localChangeUsername(payload);
 }
 
 export function subscribeToAuthChanges(callback) {
