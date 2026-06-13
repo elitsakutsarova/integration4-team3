@@ -1,0 +1,35 @@
+{
+  "name": "integration4-team3",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "certs:generate": "node scripts/generate-dev-certs.mjs",
+    "dev": "react-router dev --port 5173",
+    "dev:lan": "node scripts/generate-dev-certs.mjs --check && VITE_ALLOW_LAN=true react-router dev --port 5173",
+    "start": "react-router-serve ./build/server/index.js"
+  },
+  "dependencies": {
+    "@maplibre/maplibre-gl-leaflet": "^0.1.3",
+    "@react-router/node": "7.16.0",
+    "@react-router/serve": "7.16.0",
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.0",
+    "gsap": "^3.15.0",
+    "isbot": "^5.1.36",
+    "leaflet": "^1.9.4",
+    "maplibre-gl": "^5.24.0",
+    "qrcode.react": "^4.2.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-leaflet": "^5.0.0",
+    "react-router": "7.16.0"
+  },
+  "devDependencies": {
+    "@react-router/dev": "7.16.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.3",
+    "ws": "^8.21.0"
+  }
+}

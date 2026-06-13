@@ -83,12 +83,30 @@ After our consult, I changed a lot of things in test5 like:
 - map + location safety — event pins on the map tied to discover; memory popup anchored to the clicked pin; location links validated via Photon so only real, in-bounds spots are navigable and users can't create non-existent locations through the url
 - auth & routing polish — client auth middleware, protected-route redirects, type-safe path helpers, and a dedicated /api/memos endpoint for publishing (instead of posting to home)
 
-## Test 8 (?) - 13/06/2026
+## Test 8 (Security, Settings, Journal) — 13/06/2026
 
-- add security: configure RLS on Supabase, check authentification security, SQL injections, url injections, run the app through vulnerability/penetration software
+### Security (implemented)
+
+- **Row Level Security (RLS)** — Supabase SQL policies in `tests/test8-security-settings-journal/supabase/` for `users`, `memos`, stickers, saved collections, and memo-media storage. Data scoped per user via `auth_id`; public read where intended (map memos, sticker catalog).
+- **Input validation** — Shared `app/utils/validators.js` used in route actions, stores, and forms. Server-side checks for auth (email, password strength, username format, role whitelist), memo creation (quote length, Antwerp bounds, tag whitelist, MIME types), URL display names, favourites IDs, connect room/messages, and search queries.
+- **XSS hardening** — User content rendered as React text; map popups use `escapeHtml()`; media/image URLs restricted to safe `http:`/`https:` schemes.
+- **URL / open-redirect safety** — Location routes validate OSM params, coords, and Photon lookup; login `redirectTo` limited to same-origin relative paths.
+- **API rate limiting** — Per-IP fixed-window limits in `app/utils/rateLimit.server.js`: location search (30/min), stickers (60/min), memo create (10/min). Returns HTTP 429 when exceeded.
+- **Secrets hygiene** — No `service_role` or hardcoded keys in source; `.env` / `.env.local` gitignored. Only Supabase publishable/anon key in client (expected; protected by RLS).
+- **SQL injection** — All DB access via Supabase client (parameterized queries); no raw SQL in app code.
+
+### Security (still TODO)
+
+- Run remaining Supabase SQL migrations / Security Advisor fixes (`fix-security-advisor.sql`: revoke public execute on trigger RPCs, storage listing policy, RLS `(select auth.uid())` performance tweak).
+- Enable **Leaked password protection** in Supabase Auth dashboard.
+- Penetration / vulnerability scan (e.g. OWASP ZAP, npm audit).
+- Production rate limiting at edge (Redis / Cloudflare) if running multiple server instances.
+
+### Other Test 8 scope (not started)
+
 - add Settings page and everything related
 - discuss Journal page with team
-- add details (e.g change password, sharing, sharing popup notif screen, etc -> screens I haven't coded yet)
+- add details (e.g. change password, sharing, sharing popup notif screen, etc.)
 - add journal (just not sharing yet)
-- implement if you don't have an account, how it would look/act
+- implement guest UX when user has no account
 - do css components for buttons, animations?
