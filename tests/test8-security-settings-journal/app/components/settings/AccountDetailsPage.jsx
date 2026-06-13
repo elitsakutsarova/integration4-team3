@@ -1,10 +1,17 @@
 // account details page for account settings
 
+import { useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
-import { paths } from '../../utils/appPaths';
-import { goBack } from '../../utils/appPaths';
+import { useUserAvatar } from '../../hooks/useUserAvatar';
+import { goBack, paths } from '../../utils/appPaths';
+import {
+  clearUserAvatar,
+  readAvatarDataUrl,
+  setUserAvatar,
+} from '../../utils/userAvatarStore';
 import { settingsAssets } from '../../utils/settingsAssets';
+import AvatarSuccessModal from './AvatarSuccessModal';
 import EditPenIcon from './EditPenIcon';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 import UsernameField from './UsernameField';
@@ -35,9 +42,14 @@ export default function AccountDetailsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+  const fileInputRef = useRef(null);
+  const avatarUrl = useUserAvatar(user?.id);
+  const [avatarError, setAvatarError] = useState('');
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
 
   const updated = searchParams.get('updated');
   const successMessage = SUCCESS_MESSAGES[updated] ?? null;
+  const hasCustomAvatar = Boolean(avatarUrl);
 
   function handleBack() {
     goBack(navigate, paths.profileSettings);
@@ -47,6 +59,35 @@ export default function AccountDetailsPage() {
     const next = new URLSearchParams(searchParams);
     next.delete('updated');
     setSearchParams(next, { replace: true });
+  }
+
+  function openFilePicker() {
+    setAvatarError('');
+    fileInputRef.current?.click();
+  }
+
+  async function handleAvatarChange(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file || !user?.id) return;
+
+    const result = await readAvatarDataUrl(file);
+    if (result.error) {
+      setAvatarError(result.error.message);
+      return;
+    }
+
+    setUserAvatar(user.id, result.dataUrl);
+    setAvatarError('');
+    setSuccessModalOpen(true);
+  }
+
+  function handleRemoveAvatar() {
+    if (!user?.id) return;
+    clearUserAvatar(user.id);
+    setAvatarError('');
+    setSuccessModalOpen(false);
   }
 
   return (
@@ -59,19 +100,49 @@ export default function AccountDetailsPage() {
 
       <div className="account-details-content">
         <section className="account-details-avatar-section">
-          <div className="account-details-avatar-wrap">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="account-details-avatar-input"
+            onChange={handleAvatarChange}
+          />
+
+          <button
+            type="button"
+            className="account-details-avatar-wrap"
+            onClick={openFilePicker}
+            aria-label="Change avatar"
+          >
             <img
-              className="account-details-avatar"
-              src={settingsAssets.avatarPlaceholder}
+              className={`account-details-avatar${hasCustomAvatar ? ' account-details-avatar--photo' : ' account-details-avatar--placeholder'}`}
+              src={hasCustomAvatar ? avatarUrl : settingsAssets.avatarPlaceholder}
               alt=""
             />
             <span className="account-details-avatar-edit" aria-hidden="true">
               <EditPenIcon />
             </span>
-          </div>
-          <button type="button" className="account-details-avatar-link" disabled>
+          </button>
+
+          <button type="button" className="account-details-avatar-link" onClick={openFilePicker}>
             Change avatar
           </button>
+
+          {hasCustomAvatar ? (
+            <button
+              type="button"
+              className="account-details-avatar-remove"
+              onClick={handleRemoveAvatar}
+            >
+              Remove photo
+            </button>
+          ) : null}
+
+          {avatarError ? (
+            <p className="account-details-avatar-error" role="alert">
+              {avatarError}
+            </p>
+          ) : null}
         </section>
 
         {successMessage ? (
@@ -126,6 +197,10 @@ export default function AccountDetailsPage() {
           </div>
         </section>
       </div>
+
+      {successModalOpen ? (
+        <AvatarSuccessModal onClose={() => setSuccessModalOpen(false)} />
+      ) : null}
     </div>
   );
 }

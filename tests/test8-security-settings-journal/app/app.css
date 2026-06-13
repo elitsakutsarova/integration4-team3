@@ -1860,12 +1860,34 @@ html, body {
 .profile-avatar {
   width: 88px;
   height: 88px;
-  border-radius: 50%;
-  background: #e8e8ec;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.profile-avatar--placeholder {
+  background: transparent;
+}
+
+.profile-avatar--photo {
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e8e8ec;
+}
+
+.profile-avatar-image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.profile-avatar-image--placeholder {
+  object-fit: contain;
+}
+
+.profile-avatar--photo .profile-avatar-image {
+  object-fit: cover;
 }
 
 .profile-avatar-label {
@@ -6188,7 +6210,7 @@ html, body {
 }
 
 .settings-row--danger .settings-row-label {
-  color: #ff2727;
+  color: black;
 }
 
 .settings-row-trailing {
@@ -6318,6 +6340,105 @@ html, body {
   color: #fff;
 }
 
+/* ─── Avatar success modal ─────────────────────────── */
+.avatar-success-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 16000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.avatar-success-modal {
+  position: relative;
+  width: min(363px, 100%);
+  min-height: 220px;
+  padding: 72px 24px 32px;
+  border-radius: 16px;
+  background: #fff;
+  text-align: center;
+  overflow: hidden;
+}
+
+.avatar-success-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.avatar-success-deco-wave {
+  position: absolute;
+  left: 8px;
+  top: 14px;
+  width: calc(100% - 16px);
+  height: auto;
+}
+
+.avatar-success-deco-grid {
+  position: absolute;
+  width: 100px;
+  height: auto;
+  opacity: 0.55;
+}
+
+.avatar-success-deco-grid--left {
+  left: -6px;
+  top: -4px;
+}
+
+.avatar-success-deco-grid--right {
+  right: -6px;
+  top: -4px;
+}
+
+.avatar-success-title {
+  position: relative;
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e1e1e;
+}
+
+.avatar-success-title-highlight {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 120px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+  background: #99f2d1;
+  z-index: -1;
+}
+
+.avatar-success-desc {
+  position: relative;
+  margin: 0 auto;
+  max-width: 240px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #1e1e1e;
+}
+
+.avatar-success-desc-highlight {
+  position: relative;
+  display: inline;
+  font-weight: 700;
+}
+
+.avatar-success-desc-highlight::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 0;
+  height: 10px;
+  background: #f9ff75;
+  z-index: -1;
+}
+
 @media (min-width: 768px) {
   .settings-page {
     max-width: 480px;
@@ -6368,15 +6489,39 @@ html, body {
   display: grid;
   grid-template-areas: 'avatar';
   place-items: center;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.account-details-avatar-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .account-details-avatar {
   grid-area: avatar;
   width: 114px;
   height: 114px;
+  display: block;
+}
+
+.account-details-avatar--placeholder {
+  border-radius: 0;
+  object-fit: contain;
+}
+
+.account-details-avatar--photo {
   border-radius: 50%;
   object-fit: cover;
-  display: block;
 }
 
 .account-details-avatar-edit {
@@ -6386,17 +6531,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  margin-right: -8px;
-  margin-bottom: -4px;
+  width: 40px;
+  height: 40px;
+  margin-right: -4px;
+  margin-bottom: 0;
   border-radius: 50%;
-  background: #1952ff;
-  color: #fff;
-}
-
-.account-details-avatar-edit svg path {
-  stroke: #fff;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .account-details-avatar-link {
@@ -6405,9 +6546,31 @@ html, body {
   padding: 0;
   font-size: 14px;
   font-weight: 700;
-  color: #1952ff;
-  cursor: not-allowed;
-  opacity: 0.7;
+  color: #1e1e1e;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.account-details-avatar-remove {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.account-details-avatar-remove:hover {
+  color: #ff2727;
+}
+
+.account-details-avatar-error {
+  margin: 0;
+  font-size: 12px;
+  color: #ff2727;
+  text-align: center;
 }
 
 .account-details-banner {

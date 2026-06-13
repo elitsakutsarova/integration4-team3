@@ -192,7 +192,24 @@ export default function SettingsPage() {
               danger
               showChevron={false}
               onClick={() => setLogoutOpen(true)}
-              icon={<img src={settingsAssets.logoutGlyph} alt="" width="20" height="18" />}
+              icon={(
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path
+                    d="M7 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"
+                    stroke="#1e1e1e"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M14 14l3-3-3-3M17 11H7"
+                    stroke="#1e1e1e"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
             />
           </div>
         </section>

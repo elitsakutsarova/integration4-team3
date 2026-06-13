@@ -13,6 +13,7 @@ export const settingsAssets = {
   maskGroup: asset('Mask group.svg'),
   vector507: asset('Vector 507.svg'),
   vector519: asset('Vector 519.svg'),
+  vector533: asset('Vector 533.svg'),
   grid: asset('grid.svg'),
   group5691: asset('Group 2085665691.svg'),
   group6190: asset('Group 2085666190.svg'),

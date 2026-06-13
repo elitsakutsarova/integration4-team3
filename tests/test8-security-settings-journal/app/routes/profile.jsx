@@ -4,7 +4,9 @@ import { useCollectedStickers } from '../context/CollectedStickersContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
+import { useUserAvatar } from '../hooks/useUserAvatar';
 import { paths, diaryPath } from '../utils/appPaths';
+import { settingsAssets } from '../utils/settingsAssets';
 import { TRAVEL_DIARY } from '../data/mockUser';
 
 export function meta() {
@@ -20,6 +22,8 @@ export default function Profile() {
   const { memosCount: savedMemosCount, ready: savedReady } = useSavedMemos();
   const { favesCount: discoverFavesCount, ready: discoverReady } = useDiscoverFaves();
   const { user } = useAuth();
+  const avatarUrl = useUserAvatar(user?.id);
+  const hasCustomAvatar = Boolean(avatarUrl);
 
   const favouritesCount = savedMemosCount + discoverFavesCount;
   const favouritesReady = savedReady && discoverReady;
@@ -39,8 +43,14 @@ export default function Profile() {
         </header>
 
         <section className="profile-identity">
-          <div className="profile-avatar">
-            <span className="profile-avatar-label">IMG</span>
+          <div
+            className={`profile-avatar${hasCustomAvatar ? ' profile-avatar--photo' : ' profile-avatar--placeholder'}`}
+          >
+            <img
+              className={`profile-avatar-image${hasCustomAvatar ? '' : ' profile-avatar-image--placeholder'}`}
+              src={hasCustomAvatar ? avatarUrl : settingsAssets.avatarPlaceholder}
+              alt=""
+            />
           </div>
           <div className="profile-info">
             <h1 className="profile-username">{user?.username ?? '@guest'}</h1>
