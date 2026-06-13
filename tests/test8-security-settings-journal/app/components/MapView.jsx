@@ -16,7 +16,6 @@ import { readDraftMemo } from '../utils/memoDraft';
 import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
 import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
-import { navigateToLocationDetail } from '../utils/locationHref';
 import { resolveNavigableLocationHref } from '../utils/navigableLocation';
 import {
   buildEventMarker,
@@ -225,7 +224,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         locationHref: eventLocationHrefs.get(pin.id) ?? null,
       }, {
         onLocationClick: locationHref => {
-          navigateToLocationDetail(navigateRef.current, locationHref);
+          if (locationHref) navigateRef.current(locationHref);
         },
       });
     }).filter(Boolean);
@@ -331,7 +330,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
         return buildEventMarker(L, map, pin, {
         onLocationClick: locationHref => {
-          navigateToLocationDetail(navigateRef.current, locationHref);
+          if (locationHref) navigateRef.current(locationHref);
         },
       });
       }).filter(Boolean);

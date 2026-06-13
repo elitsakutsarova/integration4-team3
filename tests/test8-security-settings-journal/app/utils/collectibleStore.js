@@ -5,6 +5,7 @@ import {
   getLocalOwnedStickerIds,
 } from './localCollectedStickers';
 import { getSupabaseBrowserClient, isSupabaseEnabled } from './supabase.client';
+import { resolveAccountAuthId } from './userCollectionsStoreHelpers';
 
 const COLLECTION_COMPLETE = 'collection_complete';
 
@@ -31,16 +32,6 @@ function pickRandomFromEligible(eligible) {
   if (!eligible.length) return null;
   const index = Math.floor(Math.random() * eligible.length);
   return eligible[index];
-}
-
-async function resolveAccountAuthId(hintAuthUserId) {
-  if (!isSupabaseEnabled()) return hintAuthUserId ?? null;
-
-  const client = getSupabaseBrowserClient();
-  if (!client) return hintAuthUserId ?? null;
-
-  const { data: { session } } = await client.auth.getSession();
-  return session?.user?.id ?? hintAuthUserId ?? null;
 }
 
 function normalizeClaimError(errorCode) {
@@ -186,11 +177,6 @@ export async function mergeLocalStickersIntoAccount(authUserId) {
 
 export function clearGuestStickerCache() {
   clearLocalCollected();
-}
-
-export async function getCollectedCount(authUserId) {
-  const stickers = await fetchCollectedStickers(authUserId);
-  return stickers.length;
 }
 
 export { COLLECTION_COMPLETE };

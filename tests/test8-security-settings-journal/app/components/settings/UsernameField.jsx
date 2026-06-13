@@ -1,12 +1,11 @@
 // username field for account settings
 
 import { useEffect, useRef, useState } from 'react';
-import { useFetcher } from 'react-router';
+import { useFetcher, useRevalidator } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { applySignedInUser, getAuthSnapshot } from '../../utils/authSession';
 import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import { paths } from '../../utils/appPaths';
-import { revalidateApp } from '../../utils/revalidateApp';
 import ConfirmCheckIcon from './ConfirmCheckIcon';
 import EditPenIcon from './EditPenIcon';
 
@@ -21,6 +20,7 @@ function fieldErrorsFromAction(data) {
 export default function UsernameField({ username }) {
   const { user } = useAuth();
   const fetcher = useFetcher();
+  const { revalidate } = useRevalidator();
   const inputRef = useRef(null);
 
   const [editing, setEditing] = useState(false);
@@ -44,7 +44,7 @@ export default function UsernameField({ username }) {
     if (current && fetcher.data.user?.username) {
       applySignedInUser({ ...current, username: fetcher.data.user.username });
     }
-    revalidateApp();
+    revalidate();
     setEditing(false);
     setClientErrors({});
   }, [fetcher.data]);

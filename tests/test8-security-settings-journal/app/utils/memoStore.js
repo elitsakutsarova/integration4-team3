@@ -8,8 +8,6 @@ async function getBrowserSupabaseClient() {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-export const MEMO_MAX_MEDIA_BYTES = 10 * 1024 * 1024;
-
 const MEMO_MEDIA_BUCKET = 'memo-media';
 const DEFAULT_LOCATION = 'My spot';
 

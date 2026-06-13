@@ -1,13 +1,11 @@
 // change password page for account settings
 
 import { useEffect, useState } from 'react';
-import { useFetcher, useNavigate } from 'react-router';
+import { useFetcher, useNavigate, useRevalidator } from 'react-router';
 import { EyeIcon, LockIcon } from '../auth/AuthIcons';
 import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
-import { goBack } from '../../utils/appPaths';
-import { paths } from '../../utils/appPaths';
-import { revalidateApp } from '../../utils/revalidateApp';
+import { goBack, paths } from '../../utils/appPaths';
 import { syncSessionProfile } from '../../utils/authStore';
 
 function mergeFieldErrors(clientErrors, fetcherData) {
@@ -17,6 +15,7 @@ function mergeFieldErrors(clientErrors, fetcherData) {
 export default function ChangePasswordPage() {
   const navigate = useNavigate();
   const fetcher = useFetcher();
+  const { revalidate } = useRevalidator();
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -31,7 +30,7 @@ export default function ChangePasswordPage() {
 
     async function finishPasswordChange() {
       await syncSessionProfile();
-      revalidateApp();
+      revalidate();
       navigate(`${paths.profileSettingsAccount}?updated=password`, { replace: true });
     }
 

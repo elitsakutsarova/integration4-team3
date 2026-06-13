@@ -1,14 +1,13 @@
 // change e-mail page for account settings
 
 import { useEffect, useState } from 'react';
-import { useFetcher, useNavigate } from 'react-router';
+import { useFetcher, useNavigate, useRevalidator } from 'react-router';
 import { EyeIcon, LockIcon, MailIcon } from '../auth/AuthIcons';
 import { applySignedInUser, getAuthSnapshot } from '../../utils/authSession';
 import { syncSessionProfile } from '../../utils/authStore';
 import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import { paths } from '../../utils/appPaths';
 import { goBack } from '../../utils/appPaths';
-import { revalidateApp } from '../../utils/revalidateApp';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 import { useAuth } from '../../context/AuthContext';
 
@@ -19,6 +18,7 @@ function mergeFieldErrors(clientErrors, fetcherData) {
 export default function ChangeEmailPage() {
   const navigate = useNavigate();
   const fetcher = useFetcher();
+  const { revalidate } = useRevalidator();
   const { user } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [clientErrors, setClientErrors] = useState({});
@@ -38,7 +38,7 @@ export default function ChangeEmailPage() {
         }
         await syncSessionProfile();
       }
-      revalidateApp();
+      revalidate();
       navigate(`${paths.profileSettingsAccount}?updated=email`, { replace: true });
     }
 

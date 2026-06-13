@@ -1,6 +1,7 @@
 //turning our data (pins, clusters, events) into map markers with custom HTML interface
 
 import { isSafeHttpsUrl } from './validators';
+import { discoverEventPath } from './appPaths';
 
 import {
   clusterCentroid,
@@ -81,7 +82,7 @@ export function eventPinHtml() {
 export function eventPopupHtml(pin) {
   const tags = pin.tags.map(t => `<span class="event-tag">${escapeHtml(t)}</span>`).join('');
   const learnMoreHref = pin.discoverEventId
-    ? `/discover/event/${encodeURIComponent(pin.discoverEventId)}`
+    ? discoverEventPath(pin.discoverEventId)
     : '#';
   const locationHref = pin.locationHref ?? null;
   const locationLabel = locationHref

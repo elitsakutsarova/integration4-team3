@@ -20,10 +20,6 @@ import {
   normalizeUsername,
 } from './validators';
 
-function getClient() {
-  return getSupabaseBrowserClient();
-}
-
 /**
  * Auth layer — uses Supabase when VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY are set,
  * otherwise falls back to localStorage (current dev stub).
@@ -31,7 +27,7 @@ function getClient() {
 
 /** If signup already created the user, sign in instead of failing on email rate limit. */
 async function trySignInAfterSignUpFailure(email, password) {
-  const { data, error } = await getClient().auth.signInWithPassword({ email, password });
+  const { data, error } = await getSupabaseBrowserClient().auth.signInWithPassword({ email, password });
   if (error) return null;
   if (!data.session?.user) return null;
   return ensureProfile(data.user);
@@ -61,7 +57,7 @@ async function fetchProfile(authUser) {
   const email = typeof authUser === 'object' ? authUser.email : null;
 
   if (profileLinkMode !== 'legacy') {
-    const { data, error } = await getClient()
+    const { data, error } = await getSupabaseBrowserClient()
       .from(USERS_TABLE)
       .select('id, auth_id, username, email, role, created_at')
       .eq('auth_id', authUserId)
@@ -82,7 +78,7 @@ async function fetchProfile(authUser) {
 
   if (!email) return null;
 
-  const { data, error } = await getClient()
+  const { data, error } = await getSupabaseBrowserClient()
     .from(USERS_TABLE)
     .select('id, username, email, created_at')
     .eq('email', email)
@@ -93,7 +89,7 @@ async function fetchProfile(authUser) {
 }
 
 async function isUsernameTaken(username) {
-  const { data, error } = await getClient()
+  const { data, error } = await getSupabaseBrowserClient()
     .from(USERS_TABLE)
     .select('id')
     .eq('username', username)
@@ -117,7 +113,7 @@ async function syncAuthMetadata(authUser) {
     role: role ?? 'visitor',
   };
 
-  const { data, error } = await getClient().auth.updateUser({ data: nextMeta });
+  const { data, error } = await getSupabaseBrowserClient().auth.updateUser({ data: nextMeta });
   if (error) {
     console.warn('Could not update auth user metadata:', error.message);
     return authUser;
@@ -127,19 +123,19 @@ async function syncAuthMetadata(authUser) {
 
 async function insertProfile({ authId, username, email, role }) {
   if (profileLinkMode === 'legacy') {
-    const { error } = await getClient().from(USERS_TABLE).upsert(
+    const { error } = await getSupabaseBrowserClient().from(USERS_TABLE).upsert(
       { username, email },
       { onConflict: 'email', ignoreDuplicates: false },
     );
     if (error && !/duplicate|unique|already exists|no unique|constraint/i.test(error.message)) {
       // email may not be unique — fall back to plain insert
-      const { error: insertError } = await getClient().from(USERS_TABLE).insert({ username, email });
+      const { error: insertError } = await getSupabaseBrowserClient().from(USERS_TABLE).insert({ username, email });
       if (insertError && !/duplicate|unique|already exists/i.test(insertError.message)) throw insertError;
     }
     return;
   }
 
-  const { error: rpcError } = await getClient().rpc('upsert_own_profile', {
+  const { error: rpcError } = await getSupabaseBrowserClient().rpc('upsert_own_profile', {
     p_username: username,
     p_email: email,
     p_role: role,
@@ -151,7 +147,7 @@ async function insertProfile({ authId, username, email, role }) {
     console.warn('[MemMe] Run supabase/fix-users-rls.sql in Supabase SQL Editor, then retry.');
   }
 
-  const { error } = await getClient().from(USERS_TABLE).upsert(
+  const { error } = await getSupabaseBrowserClient().from(USERS_TABLE).upsert(
     { auth_id: authId, username, email, role },
     { onConflict: 'auth_id' },
   );
@@ -199,7 +195,7 @@ async function supabaseSignUp({ username, email, password, role }) {
       return { error: { field: 'username', message: 'Username already taken' } };
     }
 
-    const { data, error } = await getClient().auth.signUp({
+    const { data, error } = await getSupabaseBrowserClient().auth.signUp({
       email: cleanEmail,
       password: cleanPassword,
       options: { data: { username: displayUsername, role: cleanRole } },
@@ -237,7 +233,7 @@ async function supabaseSignIn({ email, password }) {
   const validated = validateSignInPayload({ email, password });
   if (validated.field) return { error: validated };
 
-  const { data, error } = await getClient().auth.signInWithPassword({
+  const { data, error } = await getSupabaseBrowserClient().auth.signInWithPassword({
     email: validated.email,
     password: validated.password,
   });
@@ -278,7 +274,7 @@ export function sameUser(a, b) {
 }
 
 async function supabaseGetSession() {
-  const client = getClient();
+  const client = getSupabaseBrowserClient();
   if (!client) return null;
 
   const { data: { session } } = await client.auth.getSession();
@@ -291,7 +287,7 @@ async function supabaseGetSession() {
 /** Ensure public.users profile row exists for the current session. */
 export async function syncSessionProfile() {
   if (!isSupabaseEnabled()) return null;
-  const client = getClient();
+  const client = getSupabaseBrowserClient();
   if (!client) return null;
 
   const { data: { session } } = await client.auth.getSession();
@@ -318,7 +314,7 @@ export async function signIn(payload) {
 
 export async function signOut() {
   if (isSupabaseEnabled()) {
-    const client = getClient();
+    const client = getSupabaseBrowserClient();
     if (client) {
       await client.auth.signOut({ scope: 'local' });
     }
@@ -331,7 +327,7 @@ async function supabaseChangePassword(payload) {
   const validated = validateChangePasswordPayload(payload);
   if (validated.field) return { error: validated };
 
-  const client = getClient();
+  const client = getSupabaseBrowserClient();
   if (!client) return { error: { field: 'form', message: 'Could not connect to Supabase.' } };
 
   const { data: { session } } = await client.auth.getSession();
@@ -352,22 +348,13 @@ async function supabaseChangePassword(payload) {
   return { success: true, kind: 'password' };
 }
 
-async function supabaseChangeEmail() {
-  return {
-    error: {
-      field: 'form',
-      message: 'Email change is not configured. Add SUPABASE_SERVICE_ROLE_KEY to your .env file.',
-    },
-  };
-}
-
 export async function changePassword(payload) {
   if (isSupabaseEnabled()) return supabaseChangePassword(payload);
   return localChangePassword(payload);
 }
 
+/** Email change always goes through the server action (admin API). Local-only fallback for dev. */
 export async function changeEmail(payload) {
-  if (isSupabaseEnabled()) return supabaseChangeEmail(payload);
   return localChangeEmail(payload);
 }
 
@@ -375,7 +362,7 @@ async function supabaseChangeUsername({ username }) {
   const validated = validateChangeUsernamePayload({ username });
   if (validated.field) return { error: validated };
 
-  const client = getClient();
+  const client = getSupabaseBrowserClient();
   if (!client) return { error: { field: 'form', message: 'Could not connect to Supabase.' } };
 
   const { data: { session } } = await client.auth.getSession();
@@ -389,7 +376,7 @@ async function supabaseChangeUsername({ username }) {
     return { error: { field: 'username', message: 'Choose a different username' } };
   }
 
-  const { data: existing, error: lookupError } = await getClient()
+  const { data: existing, error: lookupError } = await getSupabaseBrowserClient()
     .from(USERS_TABLE)
     .select('auth_id')
     .eq('username', validated.value)
@@ -431,7 +418,7 @@ export async function changeUsername(payload) {
 export function subscribeToAuthChanges(callback) {
   if (!isSupabaseEnabled()) return () => {};
 
-  const client = getClient();
+  const client = getSupabaseBrowserClient();
   if (!client) return () => {};
 
   const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {

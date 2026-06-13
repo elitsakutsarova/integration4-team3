@@ -1,7 +1,8 @@
 // collect a sticker page
 // when the user scans a sticker QR code, it automatically gives them a random digital sticker and show them the result
 
-import { Link, useLoaderData, useNavigate } from 'react-router';
+import { useEffect } from 'react';
+import { Link, useLoaderData, useNavigate, useRevalidator } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -13,7 +14,6 @@ import {
   readCollectCache,
   writeCollectCache,
 } from '../utils/collectClaimCache';
-import { revalidateApp } from '../utils/revalidateApp';
 import * as authStore from '../utils/authStore';
 import { collectScanPath, paths } from '../utils/appPaths';
 
@@ -31,9 +31,8 @@ export async function clientLoader({ request }) {
 
   const result = await claimRandomSticker(session);
   writeCollectCache(scan, result);
-  if (result.sticker) revalidateApp();
 
-  return { scan, result };
+  return { scan, result, shouldRevalidateRoot: Boolean(result.sticker) };
 }
 
 clientLoader.hydrate = true;
@@ -85,10 +84,16 @@ function resolveClaimDisplay(result, isLoggedIn) {
 }
 
 export default function CollectSticker() {
-  const { result } = useLoaderData();
+  const { result, shouldRevalidateRoot } = useLoaderData();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { revalidate } = useRevalidator();
   const display = resolveClaimDisplay(result, Boolean(user));
+
+  useEffect(() => {
+    if (shouldRevalidateRoot) revalidate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldRevalidateRoot]);
 
   function handleScanAgain() {
     navigate(collectScanPath(Date.now()));

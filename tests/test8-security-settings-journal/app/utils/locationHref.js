@@ -23,11 +23,6 @@ export function buildLocationDetailHref({ placeId, lat, lng, name }) {
   return `${href('/location/:osmType/:osmId', parsed)}?${params.toString()}`;
 }
 
-export function navigateToLocationDetail(navigate, locationHref) {
-  if (!locationHref) return;
-  navigate(locationHref);
-}
-
 export function buildMemoArchiveHref({ placeId, lat, lng, name, title }) {
   if (!isPhotonPlaceId(placeId)) return null;
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;

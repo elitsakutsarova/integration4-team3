@@ -72,29 +72,6 @@ export function loadPageStickers(diaryId, pageIndex) {
   return pages[pageIndex] ?? pages[String(pageIndex)] ?? [];
 }
 
-export function getDiaryStickerLayout(diaryId) {
-  const all = readAll();
-  return all[diaryId] ?? {};
-}
-
-/** Export layout for sharing — normalised coords per page */
-export function exportShareLayout(diaryId, pageIndices) {
-  const layout = getDiaryStickerLayout(diaryId);
-  const exported = {};
-  for (const idx of pageIndices) {
-    const key = String(idx);
-    exported[idx] = (layout[key] ?? layout[idx] ?? []).map(s => ({
-      uid: s.uid,
-      stickerId: s.stickerId,
-      emoji: s.emoji,
-      src: s.src,
-      x: s.x,
-      y: s.y,
-    }));
-  }
-  return exported;
-}
-
 export function createSticker(stickerDef, x, y) {
   return {
     uid: `${stickerDef.id}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -117,6 +94,3 @@ export function pixelToPercent(clientX, clientY, rect) {
   };
 }
 
-export function rectsOverlap(a, b) {
-  return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
-}

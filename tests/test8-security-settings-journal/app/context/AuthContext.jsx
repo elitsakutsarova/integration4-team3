@@ -10,6 +10,7 @@ import {
   useMemo,
   useSyncExternalStore,
 } from 'react';
+import { useRevalidator } from 'react-router';
 import * as authStore from '../utils/authStore';
 import {
   applySignedInUser,
@@ -19,7 +20,6 @@ import {
   subscribeAuth,
 } from '../utils/authSession';
 import { signInAccount } from '../utils/authActions';
-import { revalidateApp } from '../utils/revalidateApp';
 
 const AuthContext = createContext(null);
 
@@ -29,23 +29,28 @@ export function AuthProvider({ children }) {
     getAuthSnapshot,
     getAuthServerSnapshot,
   );
+  const { revalidate } = useRevalidator();
 
   const signUp = useCallback(async payload => {
     const result = await authStore.signUp(payload);
     if (result.user) {
       await applySignedInUser(result.user);
-      revalidateApp();
+      revalidate();
     }
     return result;
-  }, []);
+  }, [revalidate]);
 
-  const signIn = useCallback(payload => signInAccount(payload), []);
+  const signIn = useCallback(async payload => {
+    const result = await signInAccount(payload);
+    if (result.user) revalidate();
+    return result;
+  }, [revalidate]);
 
   const signOut = useCallback(async () => {
     await authStore.signOut();
     setAuthUser(null);
-    revalidateApp();
-  }, []);
+    revalidate();
+  }, [revalidate]);
 
   const value = useMemo(
     () => ({ user, loading, signUp, signIn, signOut }),

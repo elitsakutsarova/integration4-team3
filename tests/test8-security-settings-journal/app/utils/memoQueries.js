@@ -22,7 +22,7 @@ async function queryMemos(client, buildQuery) {
   return result;
 }
 
-function distanceKm(lat1, lng1, lat2, lng2) {
+export function distanceKm(lat1, lng1, lat2, lng2) {
   const dLat = lat2 - lat1;
   const dLng = lng2 - lng1;
   return Math.sqrt(dLat * dLat + dLng * dLng) * 111;
