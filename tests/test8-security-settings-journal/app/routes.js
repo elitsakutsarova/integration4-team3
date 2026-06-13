@@ -13,6 +13,7 @@ export default [
     ]),
     route("profile", "routes/account-layout.profile.jsx", [
       index("routes/profile.jsx"),
+      route("settings", "routes/profile.settings.jsx"),
       route("memos", "routes/profile.memos.jsx"),
       route("favourites", "routes/profile.favourites-layout.jsx", [
         index("routes/profile.favourites._index.jsx"),

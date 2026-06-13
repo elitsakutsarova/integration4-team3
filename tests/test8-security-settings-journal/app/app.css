@@ -1828,6 +1828,10 @@ html, body {
   padding: 6px;
   border-radius: 50%;
   transition: background .15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .profile-settings-btn:hover { background: #f0f0f2; }
@@ -5962,6 +5966,343 @@ html, body {
 
 @media (min-width: 768px) {
   .collection-page {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+/* ─── Settings page ───────────────────────────────── */
+.settings-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #fff;
+  padding-bottom: var(--nav-h-safe);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.settings-hero {
+  position: relative;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 0 20px;
+  overflow: hidden;
+}
+
+.settings-hero-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.settings-hero-mask {
+  position: absolute;
+  left: -54px;
+  top: -4px;
+  width: min(448px, 120%);
+  height: auto;
+  opacity: 0.9;
+}
+
+.settings-hero-grid {
+  position: absolute;
+  right: 0;
+  top: -2px;
+  width: 100px;
+  height: auto;
+  transform: rotate(180deg);
+}
+
+.settings-hero-wave {
+  position: absolute;
+  left: -26px;
+  top: 104px;
+  width: min(315px, 90%);
+  height: auto;
+}
+
+.settings-hero-star--mint {
+  position: absolute;
+  right: 68px;
+  top: 23px;
+  width: 50px;
+  height: auto;
+  transform: rotate(-0.67deg);
+}
+
+.settings-hero-star--blue {
+  position: absolute;
+  right: 96px;
+  top: 51px;
+  width: 39px;
+  height: auto;
+  transform: rotate(-26.57deg);
+}
+
+.settings-hero-sparkle {
+  position: absolute;
+  right: 24px;
+  top: 86px;
+  width: 59px;
+  height: auto;
+}
+
+.settings-title-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px 0;
+}
+
+.settings-back-btn {
+  flex-shrink: 0;
+  width: 53px;
+  height: 49px;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.settings-title {
+  position: relative;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0.7px;
+  color: #1e1e1e;
+  line-height: 1.2;
+}
+
+.settings-title-highlight {
+  position: absolute;
+  left: -8px;
+  top: -6px;
+  width: calc(100% + 16px);
+  height: 66px;
+  background: #f9ff75;
+  z-index: -1;
+}
+
+.settings-content {
+  position: relative;
+  z-index: 1;
+  padding: 8px 16px 24px;
+}
+
+.settings-section + .settings-section {
+  margin-top: 28px;
+}
+
+.settings-section-label {
+  position: relative;
+  margin: 0 0 12px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #1e1e1e;
+}
+
+.settings-section-underline {
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 86px;
+  height: 9px;
+  background: #66ebb9;
+  z-index: -1;
+}
+
+.settings-section-underline--short {
+  width: 49px;
+}
+
+.settings-section-box {
+  border: 1px dashed #1952ff;
+  border-radius: 12px;
+  opacity: 0.95;
+  overflow: hidden;
+}
+
+.settings-section-box--compact .settings-row {
+  min-height: 48px;
+}
+
+.settings-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 28px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.settings-row + .settings-row {
+  border-top: 1px solid #e5e7eb;
+}
+
+.settings-row-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.settings-row-icon img {
+  display: block;
+  width: 20px;
+  height: auto;
+}
+
+.settings-row-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e1e1e;
+}
+
+.settings-row--danger .settings-row-label {
+  color: #ff2727;
+}
+
+.settings-row-trailing {
+  font-size: 14px;
+  font-weight: 700;
+  color: #9ca3af;
+}
+
+.settings-row-chevron {
+  justify-self: end;
+}
+
+/* ─── Settings logout modal ───────────────────────── */
+.settings-logout-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 16000;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.settings-logout-modal {
+  position: relative;
+  width: min(363px, 100%);
+  min-height: 275px;
+  padding: 108px 24px 28px;
+  border-radius: 16px;
+  background: #fff;
+  text-align: center;
+  overflow: hidden;
+}
+
+.settings-logout-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.settings-logout-deco-grid {
+  position: absolute;
+  right: -8px;
+  top: -6px;
+  width: 132px;
+  height: auto;
+}
+
+.settings-logout-deco-wave {
+  position: absolute;
+  left: 6px;
+  top: 12px;
+  width: calc(100% - 12px);
+  height: auto;
+}
+
+.settings-logout-deco-star {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 91px;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.settings-logout-deco-shadow {
+  position: absolute;
+  left: 50%;
+  top: 82px;
+  width: 108px;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.settings-logout-deco-icon {
+  position: absolute;
+  left: 50%;
+  top: 58px;
+  width: 48px;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.settings-logout-title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e1e1e;
+}
+
+.settings-logout-desc {
+  margin: 0 auto 28px;
+  max-width: 185px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #1e1e1e;
+}
+
+.settings-logout-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+}
+
+.settings-logout-cancel,
+.settings-logout-confirm {
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 16px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.settings-logout-cancel {
+  border: 2px dashed #1952ff;
+  background: #fff;
+  color: #1e1e1e;
+}
+
+.settings-logout-confirm {
+  border: none;
+  background: #1952ff;
+  color: #fff;
+}
+
+@media (min-width: 768px) {
+  .settings-page {
     max-width: 480px;
     margin: 0 auto;
   }

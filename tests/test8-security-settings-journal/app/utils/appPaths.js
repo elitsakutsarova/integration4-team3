@@ -11,6 +11,7 @@ export const paths = {
   login: href('/login'),
   register: href('/register'),
   profile: href('/profile'),
+  profileSettings: href('/profile/settings'),
   profileMemos: href('/profile/memos'),
   profileFavourites: href('/profile/favourites'),
   profileFavouritesMemos: href('/profile/favourites/memos'),
