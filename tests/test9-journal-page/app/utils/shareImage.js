@@ -2,11 +2,21 @@
  * Renders memo/diary pages to PNG blobs for real sharing (Instagram, etc.)
  */
 
+import {
+  RECAP_ASSETS,
+  RECAP_SLOTS,
+  buildRecapSubtitle,
+  formatRecapMemoDay,
+  getRecapStyle,
+  splitJournalTitle,
+} from './recapTemplates';
 import { getStickersForPage } from './stickerTracker';
 import { getStickerDef } from './stickers';
 
 const CARD_W = 1080;
 const CARD_H = 1440;
+const STORY_W = 1080;
+const STORY_H = 1920;
 
 function drawRoundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -189,6 +199,252 @@ export async function renderRecapImage(diary, memories, diaryId, pageOffset) {
   });
 
   return canvasToFile(canvas, `recap-${diary.id}.png`);
+}
+
+function truncateText(ctx, text, maxWidth) {
+  if (ctx.measureText(text).width <= maxWidth) return text;
+  let trimmed = text;
+  while (trimmed.length > 1 && ctx.measureText(`${trimmed}…`).width > maxWidth) {
+    trimmed = trimmed.slice(0, -1);
+  }
+  return `${trimmed}…`;
+}
+
+function drawDashedRect(ctx, x, y, w, h, color) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 4;
+  ctx.setLineDash([10, 8]);
+  ctx.strokeRect(x, y, w, h);
+  ctx.restore();
+}
+
+async function drawAsset(ctx, src, x, y, w, h) {
+  if (!src) return;
+  try {
+    const url = src.startsWith('/') ? `${window.location.origin}${src}` : src;
+    const img = await loadImage(url);
+    ctx.drawImage(img, x, y, w, h);
+  } catch {
+    /* skip failed asset */
+  }
+}
+
+async function drawMemoPhotoTile(ctx, memo, slot, x, y, w) {
+  const photoH = 150;
+  const accentH = photoH - 8;
+  const accentW = w - 10;
+
+  ctx.save();
+  ctx.translate(x + w / 2, y + photoH / 2);
+  ctx.rotate((slot.rotate ?? -7) * (Math.PI / 180) * 0.12);
+  ctx.translate(-(x + w / 2), -(y + photoH / 2));
+
+  ctx.fillStyle = slot.accent;
+  ctx.fillRect(x + 8, y + 10, accentW, accentH);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = 'rgba(0,0,0,0.2)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetY = 2;
+  ctx.fillRect(x + 2, y + 2, w - 8, photoH);
+  ctx.shadowColor = 'transparent';
+
+  const src = memo.mediaPreview?.url;
+  if (src) {
+    try {
+      const url = src.startsWith('/') ? `${window.location.origin}${src}` : src;
+      const img = await loadImage(url);
+      ctx.drawImage(img, x + 8, y + 8, w - 20, photoH - 24);
+    } catch {
+      ctx.fillStyle = '#d8d8dc';
+      ctx.fillRect(x + 8, y + 8, w - 20, photoH - 24);
+    }
+  } else {
+    ctx.fillStyle = '#d8d8dc';
+    ctx.fillRect(x + 8, y + 8, w - 20, photoH - 24);
+  }
+
+  ctx.restore();
+
+  const day = formatRecapMemoDay(memo.date);
+  ctx.fillStyle = '#1e1e1e';
+  ctx.font = 'bold 16px "Space Grotesk", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(day, x + 10, y + photoH - 6);
+
+  const quote = memo.quote?.trim() || 'A memory from this trip';
+  ctx.fillStyle = slot.captionBg;
+  const captionW = w - 4;
+  ctx.fillRect(x, y + photoH + 10, captionW, 38);
+  ctx.fillStyle = '#1e1e1e';
+  ctx.font = 'bold 18px "Space Grotesk", sans-serif';
+  wrapText(ctx, truncateText(ctx, quote, captionW - 12), x + 8, y + photoH + 30, captionW - 12, 20);
+}
+
+function drawMemoQuoteTile(ctx, memo, slot, x, y, w) {
+  const stripH = 170;
+  ctx.fillStyle = slot.accent;
+  ctx.fillRect(x + w / 2 - 8, y + 4, 16, stripH);
+
+  ctx.save();
+  ctx.translate(x + w / 2, y + 70);
+  ctx.rotate(-0.1);
+  ctx.fillStyle = slot.captionBg;
+  ctx.fillRect(-(w - 16) / 2, -36, w - 16, 88);
+  ctx.fillStyle = '#1e1e1e';
+  ctx.font = 'bold 18px "Space Grotesk", sans-serif';
+  ctx.textAlign = 'left';
+  const quote = memo.quote?.trim() || 'A memory from this trip';
+  wrapText(ctx, truncateText(ctx, quote, w - 36), -(w - 36) / 2 + 8, -14, w - 36, 22);
+  ctx.restore();
+
+  ctx.fillStyle = '#1e1e1e';
+  ctx.font = 'bold 16px "Space Grotesk", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(formatRecapMemoDay(memo.date), x + w / 2, y + stripH + 18);
+}
+
+function drawRecapRowDivider(ctx, y, color) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.setLineDash([10, 8]);
+  ctx.beginPath();
+  ctx.moveTo(90, y);
+  ctx.lineTo(STORY_W - 90, y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/** Render styled trip recap for share/download */
+export async function renderStyledRecapImage(diary, memories, styleId) {
+  const style = getRecapStyle(styleId);
+  const titleParts = splitJournalTitle(diary.title);
+  const subtitle = buildRecapSubtitle(diary);
+  const tiles = memories.slice(0, 9);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = STORY_W;
+  canvas.height = STORY_H;
+  const ctx = canvas.getContext('2d');
+
+  const framePad = 28;
+  const frameInnerX = framePad;
+  const frameInnerY = framePad;
+  const frameInnerW = STORY_W - framePad * 2;
+  const frameInnerH = STORY_H - framePad * 2;
+
+  ctx.fillStyle = style.frameBg;
+  ctx.fillRect(0, 0, STORY_W, STORY_H);
+
+  ctx.strokeStyle = style.frameBorder;
+  ctx.lineWidth = 16;
+  ctx.strokeRect(frameInnerX, frameInnerY, frameInnerW, frameInnerH);
+
+  await drawAsset(ctx, RECAP_ASSETS.grid, frameInnerX, frameInnerY, frameInnerW, frameInnerH);
+  await drawAsset(ctx, RECAP_ASSETS.pixelCorner, frameInnerX + 16, frameInnerY + 16, 72, 72);
+  await drawAsset(ctx, RECAP_ASSETS.starSticker, frameInnerX + 36, frameInnerY + 8, 180, 180);
+
+  const sheetX = frameInnerX + 20;
+  const sheetY = frameInnerY + 20;
+  const sheetW = frameInnerW - 40;
+  const sheetH = frameInnerH - 40;
+  ctx.fillStyle = style.sheetBg;
+  ctx.fillRect(sheetX, sheetY, sheetW, sheetH);
+
+  ctx.fillStyle = style.titleSticker;
+  ctx.save();
+  ctx.translate(sheetX + 120, sheetY + 90);
+  ctx.rotate(-0.07);
+  ctx.fillRect(-90, -28, 220, 56);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(sheetX + 200, sheetY + 140);
+  ctx.rotate(0.035);
+  ctx.fillRect(-110, -24, 240, 48);
+  ctx.restore();
+
+  ctx.fillStyle = '#1e1e1e';
+  ctx.font = 'bold 48px "Space Grotesk", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(titleParts.top, sheetX + 70, sheetY + 100);
+  ctx.fillText(titleParts.bottom, sheetX + 150, sheetY + 152);
+
+  await drawAsset(ctx, RECAP_ASSETS.mapPin, sheetX + 250, sheetY + 118, 56, 56);
+
+  const subtitleW = 520;
+  const subtitleX = sheetX + (sheetW - subtitleW) / 2;
+  const subtitleY = sheetY + 180;
+  drawDashedRect(ctx, subtitleX, subtitleY, subtitleW, 52, style.subtitleBorder);
+  ctx.fillStyle = style.subtitleText;
+  ctx.font = 'italic 28px "Playfair Display", serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(subtitle, sheetX + sheetW / 2, subtitleY + 36);
+
+  const rowY = [sheetY + 250, sheetY + 520, sheetY + 790];
+  const colX = [sheetX + 24, sheetX + sheetW / 3 + 8, sheetX + (sheetW / 3) * 2 - 8];
+  const tileW = sheetW / 3 - 24;
+
+  for (let i = 0; i < tiles.length; i += 1) {
+    const memo = tiles[i];
+    const slot = RECAP_SLOTS[i];
+    const row = Math.floor(i / 3);
+    const col = i % 3;
+    const x = colX[col];
+    const y = rowY[row];
+    const hasPhoto = Boolean(memo.mediaPreview?.url);
+
+    if (slot.type === 'quote' || !hasPhoto) {
+      drawMemoQuoteTile(ctx, memo, slot, x, y, tileW);
+    } else {
+      await drawMemoPhotoTile(ctx, memo, slot, x, y, tileW);
+    }
+
+    if (row > 0 && col === 0) {
+      drawRecapRowDivider(ctx, rowY[row] - 18, style.rowDivider);
+    }
+  }
+
+  await drawAsset(ctx, RECAP_ASSETS.memoLogo, sheetX + sheetW - 120, sheetY + sheetH - 70, 36, 48);
+  ctx.fillStyle = '#1e1e1e';
+  ctx.font = 'bold 34px "Space Grotesk", sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Memo', sheetX + sheetW - 36, sheetY + sheetH - 44);
+  ctx.font = 'bold 28px "Space Grotesk", sans-serif';
+  ctx.fillText('me', sheetX + sheetW - 36, sheetY + sheetH - 12);
+
+  return canvasToFile(canvas, `recap-${diary.id}-${styleId}.png`);
+}
+
+/** Download recap PNG — uses native share on mobile when anchor download is unavailable */
+export async function downloadRecapImageFile(file) {
+  if (!file) throw new Error('No recap image to download');
+
+  const payload = { files: [file], title: file.name };
+  if (typeof navigator !== 'undefined' && navigator.canShare?.(payload)) {
+    try {
+      await navigator.share(payload);
+      return { method: 'share', message: 'Recap ready to save from the share sheet.' };
+    } catch (err) {
+      if (err.name === 'AbortError') return { method: 'cancelled', message: null };
+    }
+  }
+
+  const url = URL.createObjectURL(file);
+  try {
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = file.name;
+    anchor.rel = 'noopener';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    return { method: 'download', message: 'Recap downloaded!' };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 function canvasToFile(canvas, filename) {

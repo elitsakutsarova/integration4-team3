@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import DraggableSticker from '../diary/DraggableSticker';
 import ShareDiaryModal from '../diary/ShareDiaryModal';
-import RecapSelectView, { RecapPreviewView } from '../diary/RecapViews';
+import RecapSelectView, { RecapChooseStyleView } from '../diary/RecapViews';
 import { diaryPath, paths } from '../../utils/appPaths';
 import {
   createSticker,
@@ -97,35 +97,27 @@ export default function JournalDetailPage({
     return (
       <>
         <RecapSelectView
-          diary={journal}
           memories={memories}
-          diaryId={diaryId}
-          pageOffset={0}
           onBack={() => setView('journal')}
-          onPreview={(ids) => {
+          onContinue={(ids) => {
             syncDiaryLayoutToStorage(diaryId, pageStickers);
             setRecapSelectedIds(ids);
-            setView('recap-preview');
+            setView('recap-choose');
           }}
-          onShared={(msg) => setSuccessMsg(msg)}
         />
         <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />
       </>
     );
   }
 
-  if (view === 'recap-preview') {
+  if (view === 'recap-choose') {
     return (
       <>
-        <RecapPreviewView
-          diary={journal}
+        <RecapChooseStyleView
+          journal={journal}
           memories={memories}
           selectedIds={recapSelectedIds}
-          diaryId={diaryId}
-          pageOffset={0}
-          pageLayout={pageStickers}
           onBack={() => setView('recap-select')}
-          onGoDiary={() => setView('journal')}
           onShared={(msg) => setSuccessMsg(msg)}
         />
         <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />

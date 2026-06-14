@@ -11,7 +11,7 @@ import {
 import DraggableSticker from './diary/DraggableSticker';
 import DiaryStickerTray from './diary/DiaryStickerTray';
 import ShareDiaryModal from './diary/ShareDiaryModal';
-import RecapSelectView, { RecapPreviewView } from './diary/RecapViews';
+import RecapSelectView, { RecapChooseStyleView } from './diary/RecapViews';
 
 const MEMO_PAGE_OFFSET = 1; // page 0 = cover
 
@@ -111,7 +111,7 @@ export default function TravelDiaryViewer({
   const [direction, setDirection] = useState('next');
   const [pageStickers, setPageStickers] = useState(() => loadAllPageStickers(diaryId, totalPages));
 
-  const [view, setView] = useState('diary'); // diary | share | recap-select | recap-preview
+  const [view, setView] = useState('diary'); // diary | share | recap-select | recap-choose
   const [recapSelectedIds, setRecapSelectedIds] = useState([]);
   const [successMsg, setSuccessMsg] = useState(null);
 
@@ -347,36 +347,28 @@ export default function TravelDiaryViewer({
     return (
       <>
         <RecapSelectView
-          diary={diary}
           memories={memories}
-          diaryId={diaryId}
-          pageOffset={MEMO_PAGE_OFFSET}
           onBack={() => setView('diary')}
-          onPreview={ids => {
+          onContinue={(ids) => {
             syncDiaryLayoutToStorage(diaryId, pageStickers);
             setRecapSelectedIds(ids);
-            setView('recap-preview');
+            setView('recap-choose');
           }}
-          onShared={msg => setSuccessMsg(msg)}
         />
         <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />
       </>
     );
   }
 
-  if (view === 'recap-preview') {
+  if (view === 'recap-choose') {
     return (
       <>
-        <RecapPreviewView
-          diary={diary}
+        <RecapChooseStyleView
+          journal={diary}
           memories={memories}
           selectedIds={recapSelectedIds}
-          diaryId={diaryId}
-          pageOffset={MEMO_PAGE_OFFSET}
-          pageLayout={pageStickers}
           onBack={() => setView('recap-select')}
-          onGoDiary={() => setView('diary')}
-          onShared={msg => setSuccessMsg(msg)}
+          onShared={(msg) => setSuccessMsg(msg)}
         />
         <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />
       </>
