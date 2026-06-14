@@ -1,5 +1,5 @@
 import { redirect } from 'react-router';
-import TravelDiaryViewer from '../components/TravelDiaryViewer';
+import JournalDetailPage from '../components/journals/JournalDetailPage';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useCustomJournals } from '../context/CreateJournalContext';
 import { findJournalById } from '../utils/journalBuilder';
@@ -7,8 +7,8 @@ import { paths } from '../utils/appPaths';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Travel Diary' },
-    { name: 'description', content: 'Flip through your Antwerp travel diary.' },
+    { title: 'MemoMe — Journal' },
+    { name: 'description', content: 'Your travel journal memories and stickers.' },
   ];
 }
 
@@ -19,8 +19,8 @@ export default function DiaryDetail({ params }) {
 
   if (!ready) {
     return (
-      <div className="diary-viewer diary-viewer--loading">
-        <p>Loading your diary…</p>
+      <div className="journal-detail-page journal-detail-page--loading">
+        <p>Loading your journal…</p>
       </div>
     );
   }
@@ -30,8 +30,8 @@ export default function DiaryDetail({ params }) {
   }
 
   return (
-    <TravelDiaryViewer
-      diary={journal}
+    <JournalDetailPage
+      journal={journal}
       memories={journal.memos}
       backTo={paths.journals}
     />

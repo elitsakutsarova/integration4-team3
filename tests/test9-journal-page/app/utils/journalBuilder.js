@@ -178,6 +178,8 @@ function buildCustomJournal(record, memos) {
     coverPhotos: photoMemos.slice(0, 2).map((m) => m.mediaPreview.url),
     textQuotes: textMemos.slice(0, 2).map((m) => m.quote),
     createdAt: record.createdAt ?? new Date(startTs).toISOString(),
+    startDate: record.startDate ?? '',
+    endDate: record.endDate ?? '',
   };
 }
 
