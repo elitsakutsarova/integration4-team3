@@ -1,16 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router';
 import { paths } from '../utils/appPaths';
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
+import { hasChosenMemoLocation } from '../utils/memoDraft';
 import { validateMemoMediaFile } from '../utils/validators';
 
-export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, onChooseLocation }) {
+export default function NewMemoForm({ draft, fetcher, hidden = false, onClose }) {
   const [showUploadZone, setShowUploadZone] = useState(false);
   const [mediaPreview, setMediaPreview] = useState(null);
   const [mediaError, setMediaError] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [quote, setQuote] = useState('');
   const [quoteTouched, setQuoteTouched] = useState(false);
+  const [showLocationError, setShowLocationError] = useState(false);
+  const [searchParams] = useSearchParams();
   const fileRef = useRef(null);
   const mediaPreviewRef = useRef(null);
   mediaPreviewRef.current = mediaPreview;
@@ -28,13 +31,32 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
       : { tone: 'error', message: 'Required field! Please describe memo.' }
     : null;
 
-  const canPublish = selectedTags.length > 0 && quoteValid && !mediaError && !isSubmitting;
+  const hasLocation = hasChosenMemoLocation(draft);
+  const canSubmit = selectedTags.length > 0 && quoteValid && !mediaError && !isSubmitting;
+  const publishActive = canSubmit && hasLocation;
+
+  const locationPickerHref = useMemo(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set('step', 'location');
+    return `?${next.toString()}`;
+  }, [searchParams]);
 
   useEffect(() => {
     return () => {
       if (mediaPreviewRef.current?.url) URL.revokeObjectURL(mediaPreviewRef.current.url);
     };
   }, []);
+
+  useEffect(() => {
+    if (hasLocation) setShowLocationError(false);
+  }, [hasLocation]);
+
+  function handleFormSubmit(event) {
+    if (!hasLocation) {
+      event.preventDefault();
+      setShowLocationError(true);
+    }
+  }
 
   function applyMediaFile(file) {
     if (!file) return;
@@ -94,6 +116,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
       method="post"
       action={paths.apiMemos}
       encType="multipart/form-data"
+      onSubmit={handleFormSubmit}
       className={`form-overlay${hidden ? ' form-overlay--hidden' : ''}`}
       role="dialog"
       aria-modal={!hidden}
@@ -103,7 +126,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
       <input type="hidden" name="intent" value="create-memo" />
       <input type="hidden" name="lat" value={draft?.lat ?? ''} />
       <input type="hidden" name="lng" value={draft?.lng ?? ''} />
-      <input type="hidden" name="location" value={draft?.locationName?.trim() || 'My spot'} />
+      <input type="hidden" name="location" value={draft?.locationName?.trim() ?? ''} />
       <input type="hidden" name="placeId" value={draft?.placeId ?? ''} />
       {selectedTags.map(tag => (
         <input key={tag} type="hidden" name="tags" value={tag} />
@@ -248,18 +271,26 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
             </div>
           </div>
 
-          <button type="button" className="form-location-row" onClick={onChooseLocation}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <Link to={locationPickerHref} replace className="form-location-row">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-            <span className={`form-location-label${hasLocationName ? '' : ' form-location-label--muted'}`}>
-              {locationLabel}
+            <span className="form-location-copy">
+              <span className={`form-location-label${hasLocationName ? '' : ' form-location-label--muted'}`}>
+                {locationLabel}
+              </span>
+              {showLocationError && !hasLocation ? (
+                <p className="form-field-feedback form-field-feedback--error" role="status">
+                  <span className="form-field-feedback-icon" aria-hidden="true">✕</span>
+                  Choose a location before publishing.
+                </p>
+              ) : null}
             </span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polyline points="9 18 15 12 9 6" />
             </svg>
-          </button>
+          </Link>
 
           {actionError === 'auth_required' && (
             <div className="auth-banner auth-banner--warning" role="alert">
@@ -281,8 +312,8 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
         <div className="form-footer">
           <button
             type="submit"
-            className={`form-publish-btn${canPublish ? ' form-publish-btn--active' : ''}`}
-            disabled={!canPublish}
+            className={`form-publish-btn${publishActive ? ' form-publish-btn--active' : ''}`}
+            disabled={!canSubmit}
           >
             {isSubmitting ? 'Publishing…' : 'Publish'}
           </button>
@@ -292,3 +323,5 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose, o
     </fetcher.Form>
   );
 }
+
+//{/* disabled blocks submission without location error; active class shows visual state */}

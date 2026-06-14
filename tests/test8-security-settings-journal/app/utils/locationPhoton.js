@@ -3,6 +3,7 @@
  */
 
 import { buildPhotonPlaceId } from './placeId';
+import { distanceKm } from './memoQueries';
 
 const PHOTON_REVERSE_URL = 'https://photon.komoot.io/reverse';
 const USER_AGENT = 'MemoMe/1.0 (+https://github.com/devine-integration; location detail)';
@@ -86,24 +87,6 @@ function buildDetails(props) {
   return items;
 }
 
-export function buildPlaceStub({ placeId = null, lat, lng, name = '' }) {
-  const trimmedName = String(name).trim() || 'My spot';
-  return {
-    id: placeId,
-    name: trimmedName,
-    lat,
-    lng,
-    categoryLabel: 'Place',
-    address: '',
-    description: `${trimmedName} is a spot in Antwerp.`,
-    details: [],
-    osmKey: null,
-    osmValue: null,
-    city: 'Antwerp',
-    district: null,
-  };
-}
-
 export function photonFeatureToPlaceDetail(feature) {
   const coords = feature.geometry?.coordinates;
   if (!Array.isArray(coords) || coords.length < 2) return null;
@@ -150,12 +133,6 @@ export function isPhotonPoiFeature(props) {
 
 function namesMatch(a, b) {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
-}
-
-function distanceKm(lat1, lng1, lat2, lng2) {
-  const dLat = lat2 - lat1;
-  const dLng = lng2 - lng1;
-  return Math.sqrt(dLat * dLat + dLng * dLng) * 111;
 }
 
 async function fetchReverseFeatures(lat, lng) {

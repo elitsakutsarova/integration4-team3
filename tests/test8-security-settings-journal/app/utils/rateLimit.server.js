@@ -4,6 +4,8 @@ export const RATE_LIMITS = {
   locationSearch: { max: 30, windowMs: 60_000 },
   stickers: { max: 60, windowMs: 60_000 },
   memos: { max: 10, windowMs: 60_000 },
+  account: { max: 20, windowMs: 60_000 },
+  feedback: { max: 5, windowMs: 60_000 },
 };
 
 const buckets = new Map();
@@ -40,9 +42,10 @@ function consumeToken(key, { max, windowMs }) {
   return true;
 }
 
-export function isRateLimited(request, bucket, limits) {
+export function isRateLimited(request, bucket, limits, scope = null) {
   const ip = getClientIp(request);
-  const key = `${bucket}:${ip}`;
+  const identity = scope || ip || 'unknown';
+  const key = `${bucket}:${identity}`;
   return !consumeToken(key, limits);
 }
 
@@ -65,10 +68,10 @@ export function enforceApiRateLimit(request, bucket, limits) {
   return null;
 }
 
-export function rateLimitActionError(request, bucket, limits) {
-  if (!isRateLimited(request, bucket, limits)) return null;
+export function rateLimitActionError(request, bucket, limits, scope = null) {
+  if (!isRateLimited(request, bucket, limits, scope)) return null;
   return {
-    error: 'Too many requests. Please try again later.',
+    error: 'Too many requests. Please try again in a minute.',
     status: 429,
   };
 }

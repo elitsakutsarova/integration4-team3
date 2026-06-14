@@ -95,11 +95,19 @@ After our consult, I changed a lot of things in test5 like:
 - **Secrets hygiene** — No `service_role` or hardcoded keys in source; `.env` / `.env.local` gitignored. Only Supabase publishable/anon key in client (expected; protected by RLS).
 - **SQL injection** — All DB access via Supabase client (parameterized queries); no raw SQL in app code.
 
-### Other Test 8 scope 
+### Settings page
 
-- add Settings page and everything related
-- discuss Journal page with team
-- add details (e.g. change password, sharing, sharing popup notif screen, etc.)
-- add journal (just not sharing yet)
+- Add account details page
+- Add option to change password and email -> should reflect in the database
+- Add language preference option (demo, not functional) -> eng, fr, nl
+- Add privacy toggles page 
+- Add a feedback form page (Support & Help) 
+- Add confirmation modals for logging out and deleting the user's account
+- Add a success modal  for changing the avatar in account details
+- Implement server-backed account/feedback actions, and client-side preferences for language, privacy, and avatars
+
+### Test 9:
+- add Journal page
+- add sharing (of memos, journals, events, etc...)
 - implement guest UX when user has no account
-- do css components for buttons, animations?
+

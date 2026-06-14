@@ -2,6 +2,8 @@
  * Resolve storefront / venue photos from OpenStreetMap tags and Wikidata.
  */
 
+import { isSafeHttpsUrl } from './validators';
+
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
 const USER_AGENT = 'MemoMe/1.0 (+https://github.com/devine-integration; place images)';
 const OVERPASS_TIMEOUT_MS = 2000;
@@ -14,17 +16,8 @@ function commonsFileUrl(fileName, width = 800) {
   return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(normalized)}?width=${width}`;
 }
 
-function isAllowedImageUrl(url) {
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
-  } catch {
-    return false;
-  }
-}
-
 function pushUniqueUrl(urls, url) {
-  if (!url || !isAllowedImageUrl(url) || urls.includes(url)) return;
+  if (!url || !isSafeHttpsUrl(url) || urls.includes(url)) return;
   urls.push(url);
 }
 

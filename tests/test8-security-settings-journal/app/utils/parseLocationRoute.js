@@ -1,7 +1,7 @@
 import { redirect } from 'react-router';
 import { buildPhotonPlaceId } from './placeId';
 import { isInAntwerpBounds } from './locationHelpers';
-import { fallbackPathFromRequest, isValidOsmRouteParams } from './safeRouteFallbacks';
+import { fallbackPathFromRequest, isValidOsmRouteParams } from './appPaths';
 import { validateUrlDisplayName } from './validators';
 
 /** Shared param/query parsing for /location/:osmType/:osmId routes. */

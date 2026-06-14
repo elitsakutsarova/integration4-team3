@@ -18,3 +18,4 @@ export function isSupabaseConfigured() {
 }
 
 export const USERS_TABLE = env('VITE_SUPABASE_USERS_TABLE') || 'users';
+export const FEEDBACK_TABLE = env('VITE_SUPABASE_FEEDBACK_TABLE') || 'feedback';

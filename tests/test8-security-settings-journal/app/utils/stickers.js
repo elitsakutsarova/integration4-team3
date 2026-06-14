@@ -1,6 +1,6 @@
 /** Build sticker catalog entries from PNG filenames in public/stickers */
 
-export function stickerFromFilename(filename) {
+function stickerFromFilename(filename) {
   const base = filename.replace(/\.png$/i, '');
   return {
     id: base.toLowerCase(),

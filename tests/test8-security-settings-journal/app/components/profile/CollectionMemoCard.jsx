@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSavedMemos } from '../../context/SavedMemosContext';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
-import { navigateToLocationDetail } from '../../utils/locationHref';
 import { resolveNavigableLocationHref } from '../../utils/navigableLocation';
 
 function MemoHeartButton({ memoId, label }) {
@@ -64,8 +63,7 @@ export default function CollectionMemoCard({ memo, variant = 'favourite', showHe
   }
 
   function handleLocationClick() {
-    if (!locationHref) return;
-    navigateToLocationDetail(navigate, locationHref);
+    if (locationHref) navigate(locationHref);
   }
 
   return (

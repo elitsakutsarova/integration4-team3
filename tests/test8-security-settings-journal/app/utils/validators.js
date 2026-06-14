@@ -1,3 +1,5 @@
+// pure field-level validation (format, length, required) -> no user context or network, re-usable
+
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { isInAntwerpBounds } from './locationHelpers';
 import { isPhotonPlaceId } from './placeId';
@@ -13,6 +15,9 @@ export const LIMITS = {
   scanKey: 64,
   connectRoom: 64,
   connectMessage: 500,
+  feedbackName: 120,
+  feedbackSubject: 200,
+  feedbackMessage: 2000,
   savedMemoId: 64,
   discoverFaveId: 80,
   urlDisplayName: 120,
@@ -49,6 +54,16 @@ export function stripControlChars(value) {
   return String(value ?? '').replace(CONTROL_CHARS_RE, '');
 }
 
+/** Strip @ prefix and lowercase for username comparison. */
+export function normalizeUsername(raw) {
+  return stripControlChars(raw).trim().replace(/^@+/, '').toLowerCase();
+}
+
+/** Trim and lowercase for email comparison. */
+export function normalizeEmail(raw) {
+  return stripControlChars(raw).trim().toLowerCase();
+}
+
 export function clampText(value, maxLength) {
   const clean = stripControlChars(value).trim();
   if (!clean) return '';
@@ -76,7 +91,7 @@ export function validatePassword(raw) {
 }
 
 export function validateUsername(raw) {
-  const clean = stripControlChars(raw).trim().replace(/^@+/, '').toLowerCase();
+  const clean = normalizeUsername(raw);
   if (!clean) return validationError('username', 'Username is required');
   if (clean.length > LIMITS.username) {
     return validationError('username', `Username must be under ${LIMITS.username} characters`);
@@ -117,6 +132,61 @@ export function validateSignUpPayload({ username, email, password, role }) {
   };
 }
 
+export function validateChangePasswordPayload({ oldPassword, newPassword, confirmPassword }) {
+  const old = String(oldPassword ?? '');
+  if (!old) return validationError('oldPassword', 'Enter your current password');
+  if (old.length > LIMITS.password) {
+    return validationError('oldPassword', `Password must be under ${LIMITS.password} characters`);
+  }
+
+  const newResult = validatePassword(newPassword);
+  if (newResult.field) {
+    return validationError(
+      'newPassword',
+      'Password must be at least 8 characters and include an uppercase, lowercase and number',
+    );
+  }
+
+  const confirm = String(confirmPassword ?? '');
+  if (!confirm) return validationError('confirmPassword', 'Confirm your new password');
+  if (confirm !== newResult.value) {
+    return validationError('confirmPassword', 'Passwords do not match');
+  }
+  if (old === newResult.value) {
+    return validationError('newPassword', 'Choose a different password than your current one');
+  }
+
+  return { oldPassword: old, newPassword: newResult.value };
+}
+
+export function validateChangeEmailPayload({ oldEmail, newEmail, password }) {
+  const oldResult = validateEmail(oldEmail);
+  if (oldResult.field) return validationError('oldEmail', 'Enter your current email address');
+
+  const newResult = validateEmail(newEmail);
+  if (newResult.field) return validationError('newEmail', 'Enter a valid email address');
+
+  if (oldResult.value === newResult.value) {
+    return validationError('newEmail', 'Choose a different email than your current one');
+  }
+
+  const passwordValue = String(password ?? '');
+  if (!passwordValue) return validationError('password', 'Password is required');
+  if (passwordValue.length > LIMITS.password) {
+    return validationError('password', `Password must be under ${LIMITS.password} characters`);
+  }
+
+  return {
+    oldEmail: oldResult.value,
+    newEmail: newResult.value,
+    password: passwordValue,
+  };
+}
+
+export function validateChangeUsernamePayload({ username }) {
+  return validateUsername(username);
+}
+
 export function validateSignInPayload({ email, password: rawPassword }) {
   const emailResult = validateEmail(email);
   if (emailResult.field) return emailResult;
@@ -136,8 +206,9 @@ export function validateMemoQuote(raw) {
   return { value: quote };
 }
 
-export function validateMemoLocation(raw, fallback = 'My spot') {
-  const location = clampText(raw, LIMITS.memoLocation) || fallback;
+export function validateMemoLocation(raw) {
+  const location = clampText(raw, LIMITS.memoLocation);
+  if (!location) return validationError('location', 'Choose a location for your memo');
   return { value: location };
 }
 
@@ -269,6 +340,27 @@ export function validateDiscoverFaveId(raw) {
   }
   if (!DISCOVER_FAVE_ID_RE.test(id)) return validationError('id', 'Invalid favourite reference');
   return { value: id };
+}
+
+export function validateFeedbackPayload({ name, email, subject, message }) {
+  const cleanName = clampText(name, LIMITS.feedbackName);
+  if (!cleanName) return validationError('name', 'Name is required');
+
+  const emailResult = validateEmail(email);
+  if (emailResult.field) return emailResult;
+
+  const cleanSubject = clampText(subject, LIMITS.feedbackSubject);
+  if (!cleanSubject) return validationError('subject', 'Subject is required');
+
+  const cleanMessage = clampText(message, LIMITS.feedbackMessage);
+  if (!cleanMessage) return validationError('message', 'Message is required');
+
+  return {
+    name: cleanName,
+    email: emailResult.value,
+    subject: cleanSubject,
+    message: cleanMessage,
+  };
 }
 
 export function isSafeHttpsUrl(url) {

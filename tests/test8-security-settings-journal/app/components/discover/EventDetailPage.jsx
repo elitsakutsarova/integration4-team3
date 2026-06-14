@@ -3,7 +3,7 @@
 import { useNavigate } from 'react-router';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 import FeaturedMemosSection from '../memos/FeaturedMemosSection';
-import { buildLocationDetailHref, buildMemoArchiveHref, navigateToLocationDetail } from '../../utils/locationHref';
+import { buildLocationDetailHref, buildMemoArchiveHref } from '../../utils/locationHref';
 
 function CategoryBadge({ type }) {
   if (type === 'music') {
@@ -53,7 +53,7 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
   });
 
   function handleVenueClick() {
-    navigateToLocationDetail(navigate, venueHref);
+    if (venueHref) navigate(venueHref);
   }
 
   return (

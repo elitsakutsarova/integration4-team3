@@ -8,11 +8,9 @@ import {
   ScrollRestoration,
   useLoaderData,
   useLocation,
-  useRevalidator,
   useRouteError,
   redirect,
 } from "react-router";
-import { useLayoutEffect } from "react";
 
 import "./app.css";
 import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
@@ -27,9 +25,8 @@ import { appAuthMiddleware } from "./middleware/clientAuth";
 import { bootstrapAuthSession, isAuthBootstrapped } from "./utils/authSession";
 import { isPublicAppPath } from "./utils/appPaths";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
-import { registerAppRevalidate } from "./utils/revalidateApp";
 import { loadStickersFromPublic } from "./utils/stickers.server";
-import { getSafeFallbackPath } from "./utils/safeRouteFallbacks";
+import { getSafeFallbackPath } from "./utils/appPaths";
 
 // loads stickers from public/stickers (server-side)
 export async function loader() {
@@ -105,14 +102,9 @@ export function Layout({ children }) {
 
 export default function App() {
   const { stickers, collectedStickers } = useLoaderData();
-  const { revalidate } = useRevalidator();
   const { user, loading } = useAuth();
   const { pathname } = useLocation();
   const isPublic = isPublicAppPath(pathname);
-
-  useLayoutEffect(() => {
-    registerAppRevalidate(revalidate);
-  }, [revalidate]);
 
   const bootstrapped = isAuthBootstrapped();
 

@@ -1,4 +1,4 @@
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import {
   getSupabaseKey,
   getSupabaseUrl,
@@ -32,9 +32,8 @@ export function getSupabaseBrowserClient() {
   const cached = readCachedClient();
   if (cached) return cached;
 
-  const client = createSupabaseClient(getSupabaseUrl(), getSupabaseKey(), {
+  const client = createBrowserClient(getSupabaseUrl(), getSupabaseKey(), {
     auth: {
-      flowType: 'pkce',
       detectSessionInUrl: true,
       persistSession: true,
       autoRefreshToken: true,

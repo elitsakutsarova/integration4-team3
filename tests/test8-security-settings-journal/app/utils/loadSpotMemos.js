@@ -2,7 +2,6 @@
 
 import { bootstrapAuthSession } from './authSession';
 import {
-  countMemosAtSpot,
   FEATURED_MEMO_LIMIT,
   fetchMemosAtPlace,
   MAX_MEMOS_PER_SPOT,
@@ -18,10 +17,9 @@ export async function loadSpotMemos(
   const client = getSupabaseBrowserClient();
   const spot = { placeId, lat, lng, locationName };
 
-  const [featuredMemos, archiveMemos] = await Promise.all([
-    fetchMemosAtPlace(client, spot, { limit: featuredLimit }),
-    fetchMemosAtPlace(client, spot, { limit: archiveLimit }),
-  ]);
+  // Fetch up to archiveLimit once; slice for featured to avoid two identical queries.
+  const archiveMemos = await fetchMemosAtPlace(client, spot, { limit: archiveLimit });
+  const featuredMemos = archiveMemos.slice(0, featuredLimit);
 
   return {
     featuredMemos,

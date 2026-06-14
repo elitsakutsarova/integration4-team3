@@ -3,7 +3,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSavedMemos } from '../context/SavedMemosContext';
-import { navigateToLocationDetail } from '../utils/locationHref';
 import { resolveNavigableLocationHref } from '../utils/navigableLocation';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../utils/googleMaps';
 
@@ -109,7 +108,7 @@ export default function MemorySheet({ pin, anchor, onClose }) {
     if (!locationHref) return;
 
     onClose();
-    navigateToLocationDetail(navigate, locationHref);
+    if (locationHref) navigate(locationHref);
   }
 
   const sheetStyle = placement

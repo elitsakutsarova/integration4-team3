@@ -1,5 +1,18 @@
 /** Read memo draft pin state from URL search params. */
 
+import { isInAntwerpBounds } from './locationHelpers';
+
+export function hasChosenMemoLocation(draft) {
+  if (!draft) return false;
+
+  const lat = Number(draft.lat);
+  const lng = Number(draft.lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return false;
+  if (!draft.locationName?.trim()) return false;
+
+  return isInAntwerpBounds(lat, lng);
+}
+
 export function readDraftMemo(searchParams) {
   const latRaw = searchParams.get('lat');
   const lngRaw = searchParams.get('lng');

@@ -2,20 +2,16 @@
 
 import { redirect } from 'react-router';
 import { bootstrapAuthSession } from './authSession';
-import { isInAntwerpBounds } from './locationHelpers';
 import { fetchPhotonPlaceDetail } from './locationPhoton';
 import { parseLocationRoute } from './parseLocationRoute';
 import { loadSpotMemos } from './loadSpotMemos';
-import { fallbackPathFromRequest } from './safeRouteFallbacks';
+import { fallbackPathFromRequest } from './appPaths';
 
-/** Reject fabricated /location URLs — coords must be in Antwerp and match a real OSM place. */
+/** Reject fabricated /location URLs — coords must be in Antwerp and match a real OSM place.
+ *  Bounds are already verified by parseLocationRoute; we verify Photon confirms the place ID. */
 export async function resolveVerifiedLocationSpot(args) {
   const parsed = parseLocationRoute(args);
   const { placeId, lat, lng, locationName, spotTitle } = parsed;
-
-  if (!isInAntwerpBounds(lat, lng)) {
-    throw redirect(fallbackPathFromRequest(args.request));
-  }
 
   const place = await fetchPhotonPlaceDetail({ lat, lng, placeId });
   if (!place || place.id !== placeId) {

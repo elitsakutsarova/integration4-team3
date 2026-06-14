@@ -4,7 +4,9 @@ import { useCollectedStickers } from '../context/CollectedStickersContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
+import { useUserAvatar } from '../hooks/useUserAvatar';
 import { paths, diaryPath } from '../utils/appPaths';
+import { settingsAssets } from '../utils/settingsAssets';
 import { TRAVEL_DIARY } from '../data/mockUser';
 
 export function meta() {
@@ -19,7 +21,9 @@ export default function Profile() {
   const { createdCount, ready: createdReady } = useCreatedMemos();
   const { memosCount: savedMemosCount, ready: savedReady } = useSavedMemos();
   const { favesCount: discoverFavesCount, ready: discoverReady } = useDiscoverFaves();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
+  const avatarUrl = useUserAvatar(user?.id);
+  const hasCustomAvatar = Boolean(avatarUrl);
 
   const favouritesCount = savedMemosCount + discoverFavesCount;
   const favouritesReady = savedReady && discoverReady;
@@ -30,17 +34,23 @@ export default function Profile() {
   return (
     <div className="profile-page">
         <header className="profile-header">
-          <button type="button" className="profile-settings-btn" aria-label="Log out" onClick={() => signOut()}>
+          <Link to={paths.profileSettings} className="profile-settings-btn" aria-label="Settings">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3" />
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
             </svg>
-          </button>
+          </Link>
         </header>
 
         <section className="profile-identity">
-          <div className="profile-avatar">
-            <span className="profile-avatar-label">IMG</span>
+          <div
+            className={`profile-avatar${hasCustomAvatar ? ' profile-avatar--photo' : ' profile-avatar--placeholder'}`}
+          >
+            <img
+              className={`profile-avatar-image${hasCustomAvatar ? '' : ' profile-avatar-image--placeholder'}`}
+              src={hasCustomAvatar ? avatarUrl : settingsAssets.avatarPlaceholder}
+              alt=""
+            />
           </div>
           <div className="profile-info">
             <h1 className="profile-username">{user?.username ?? '@guest'}</h1>

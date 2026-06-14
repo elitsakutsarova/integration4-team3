@@ -63,9 +63,7 @@ export async function clientAction({ request }) {
     return loginActionError(result.error, validated.email);
   }
 
-  const url = new URL(request.url);
-  const redirectTo = safeInternalRedirectPath(url.searchParams.get('redirectTo')) ?? paths.home;
-  throw redirect(redirectTo);
+  throw redirect(paths.home);
 }
 
 export default function Login() {
@@ -138,7 +136,7 @@ export default function Login() {
                 onClick={() => setShowPassword(v => !v)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                <EyeIcon off={showPassword} />
+                <EyeIcon off={!showPassword} />
               </button>
             </div>
             {fieldErrors.password && <p className="auth-field-error">{fieldErrors.password}</p>}
