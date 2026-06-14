@@ -175,6 +175,7 @@ export default function SettingsPage() {
           <div className="settings-section-box settings-section-box--compact">
             <SettingsRow
               label="Support & Help"
+              to={paths.profileSettingsFeedback}
               icon={(
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                   <circle cx="10" cy="10" r="8.25" stroke="#1e1e1e" strokeWidth="1.5" />

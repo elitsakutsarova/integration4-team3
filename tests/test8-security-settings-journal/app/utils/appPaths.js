@@ -18,6 +18,7 @@ export const paths = {
   profileSettingsChangeEmail: href('/profile/settings/change-email'),
   profileSettingsLanguage: href('/profile/settings/language'),
   profileSettingsPrivacy: href('/profile/settings/privacy'),
+  profileSettingsFeedback: href('/profile/settings/feedback'),
   profileMemos: href('/profile/memos'),
   profileFavourites: href('/profile/favourites'),
   profileFavouritesMemos: href('/profile/favourites/memos'),

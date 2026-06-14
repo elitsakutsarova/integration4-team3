@@ -14,6 +14,7 @@
   --script:      'Playfair Display', serif;
   --nav-h:       68px;
   --nav-h-safe:  calc(68px + env(safe-area-inset-bottom, 0px));
+  --settings-bottom-pad: calc(48px + var(--nav-h-safe));
   --diary-dock-h: 118px;
   --diary-dock-h-mobile: 168px;
   --sticker-tray-size: 44px;
@@ -1820,12 +1821,12 @@ html, body {
 
 /* ─── Profile page ────────────────────────────────── */
 .profile-page {
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100dvh;
   background: #fff;
-  padding-bottom: var(--nav-h-safe);
+  padding-bottom: var(--settings-bottom-pad);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 .profile-header {
@@ -6009,12 +6010,17 @@ html, body {
 
 /* ─── Settings page ───────────────────────────────── */
 .settings-page {
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100dvh;
   background: #fff;
-  padding-bottom: var(--nav-h-safe);
+  padding-bottom: var(--settings-bottom-pad);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.settings-page.settings-form-page {
+  padding-bottom: 0;
+  overflow: hidden;
 }
 
 .settings-hero {
@@ -6127,7 +6133,7 @@ html, body {
 .settings-content {
   position: relative;
   z-index: 1;
-  padding: 8px 16px 24px;
+  padding: 8px 16px 32px;
 }
 
 .settings-section + .settings-section {
@@ -6474,7 +6480,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 0 16px 24px;
+  padding: 0 16px 32px;
 }
 
 .account-details-avatar-section {
@@ -6713,15 +6719,17 @@ html, body {
 .settings-form-page {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh;
 }
 
 .settings-form-body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 8px 16px calc(24px + var(--nav-h-safe));
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding: 8px 16px var(--settings-bottom-pad);
 }
 
 .settings-form-intro {
@@ -6871,7 +6879,7 @@ html, body {
 .language-content {
   position: relative;
   z-index: 1;
-  padding: 8px 29px 24px;
+  padding: 8px 29px 32px;
 }
 
 .language-intro {
@@ -6978,7 +6986,7 @@ html, body {
 .privacy-content {
   position: relative;
   z-index: 1;
-  padding: 8px 16px 24px;
+  padding: 8px 16px 32px;
 }
 
 .privacy-section-label {
@@ -7073,6 +7081,162 @@ html, body {
   border-radius: 50%;
   background: #fff;
   flex-shrink: 0;
+}
+
+/* ─── Send feedback page ───────────────────────────── */
+.settings-hero--feedback {
+  min-height: 132px;
+  padding-bottom: 12px;
+}
+
+.feedback-hero-grid {
+  position: absolute;
+  left: 60px;
+  top: -3px;
+  width: 100px;
+  height: auto;
+  transform: scaleY(-1);
+}
+
+.feedback-hero-wave {
+  position: absolute;
+  left: 0;
+  top: 27px;
+  width: min(376px, 100%);
+  height: auto;
+}
+
+.feedback-hero-icon {
+  position: absolute;
+  right: 40px;
+  top: 29px;
+  width: 59px;
+  height: auto;
+  z-index: 2;
+}
+
+.settings-title-highlight--feedback {
+  left: -12px;
+  width: calc(100% + 48px);
+  height: 57px;
+}
+
+.feedback-content {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.feedback-content .settings-form-intro-title {
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+.feedback-at-symbol {
+  font-size: 14px;
+  font-weight: 500;
+  color: #d1d1d1;
+  line-height: 1;
+}
+
+.feedback-success {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #ecfdf5;
+  border: 1px solid #99f2d1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e1e1e;
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-bottom: 16px;
+}
+
+.feedback-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feedback-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e1e1e;
+}
+
+.feedback-input-wrap {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.feedback-input-wrap--textarea {
+  align-items: flex-start;
+  padding: 12px 13px;
+  min-height: 162px;
+}
+
+.feedback-input-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.feedback-input,
+.feedback-textarea {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1e1e1e;
+  outline: none;
+}
+
+.feedback-input--icon {
+  padding-left: 0;
+}
+
+.feedback-input::placeholder,
+.feedback-textarea::placeholder {
+  color: #d1d1d1;
+}
+
+.feedback-textarea {
+  min-height: 138px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.feedback-submit {
+  align-self: flex-start;
+  min-width: 191px;
+  min-height: 48px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 10px;
+  background: #1952ff;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.feedback-submit:hover {
+  background: #1444d9;
 }
 
 /* ─── Change password strength (Figma) ─────────────── */
