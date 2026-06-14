@@ -2,11 +2,5 @@
     "buildCommand": "npm run build",
     "framework": "react-router",
     "installCommand": "npm install",
-    "outputDirectory": "build/server",
-    "env": {
-        "VITE_SUPABASE_URL": "@vite_supabase_url",
-        "VITE_SUPABASE_PUBLISHABLE_KEY": "@vite_supabase_publishable_key",
-        "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key",
-        "VITE_APP_ORIGIN": "@vite_app_origin"
-    }
+    "outputDirectory": "build/server"
 }

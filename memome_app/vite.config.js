@@ -13,10 +13,6 @@ const hasCerts = fs.existsSync(keyFile) && fs.existsSync(certFile);
 
 export default defineConfig({
   plugins: [stickersManifestPlugin(), webrtcSignalingPlugin(), reactRouter(), tailwindcss()],
-  ssr: {
-    external: ['gsap', 'leaflet', 'maplibre-gl', 'react-leaflet'],
-    noExternal: [],
-  },
   server: {
     host: process.env.VITE_ALLOW_LAN === 'true' ? true : 'localhost',
     port: 5173,
