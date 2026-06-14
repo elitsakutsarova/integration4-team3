@@ -112,3 +112,4 @@ After our consult, I changed a lot of things in test5 like:
 - fix search bar
 - implement guest UX when user has no account
 
+## Deployment
