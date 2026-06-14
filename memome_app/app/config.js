@@ -1,9 +1,16 @@
 /** When true, dev server listens on LAN and root clientLoader does not force localhost. */
-export const ALLOW_LAN = import.meta.env.VITE_ALLOW_LAN === 'true';
+function getEnv(name) {
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[name];
+  }
+  return import.meta.env?.[name];
+}
+
+export const ALLOW_LAN = getEnv('VITE_ALLOW_LAN') === 'true';
 
 /** Canonical app origin for auth redirects (localhost in dev). */
 export const APP_ORIGIN =
-  import.meta.env.VITE_APP_ORIGIN ??
+  getEnv('VITE_APP_ORIGIN') ??
   (ALLOW_LAN ? 'https://localhost:5173' : 'http://localhost:5173');
 
 export function appUrl(path = '/') {
@@ -27,7 +34,8 @@ function isDevLocalOrigin(origin) {
 }
 
 export function isAllowedDevOrigin(origin) {
-  if (!import.meta.env.DEV) return origin === APP_ORIGIN;
+  const isDev = typeof process !== 'undefined' ? process.env.NODE_ENV === 'development' : import.meta.env.DEV;
+  if (!isDev) return origin === APP_ORIGIN;
 
   if (isDevLocalOrigin(origin)) return true;
 
