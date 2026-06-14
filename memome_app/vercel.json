@@ -1,0 +1,6 @@
+{
+    "buildCommand": "npm run build",
+    "framework": "react-router",
+    "installCommand": "npm install",
+    "outputDirectory": "build/server"
+}
