@@ -150,6 +150,7 @@ export default function SettingsPage() {
             />
             <SettingsRow
               label="Privacy"
+              to={paths.profileSettingsPrivacy}
               icon={(
                 <svg width="18" height="20" viewBox="0 0 18 20" fill="none" aria-hidden="true">
                   <rect x="3" y="8" width="12" height="10" rx="2" stroke="#1e1e1e" strokeWidth="1.5" />

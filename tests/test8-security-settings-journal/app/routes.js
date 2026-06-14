@@ -18,6 +18,7 @@ export default [
       route("settings/change-password", "routes/profile.settings.change-password.jsx"),
       route("settings/change-email", "routes/profile.settings.change-email.jsx"),
       route("settings/language", "routes/profile.settings.language.jsx"),
+      route("settings/privacy", "routes/profile.settings.privacy.jsx"),
       route("memos", "routes/profile.memos.jsx"),
       route("favourites", "routes/profile.favourites-layout.jsx", [
         index("routes/profile.favourites._index.jsx"),

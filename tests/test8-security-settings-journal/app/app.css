@@ -6936,6 +6936,145 @@ html, body {
   background: #1952ff;
 }
 
+/* ─── Privacy preference page ──────────────────────── */
+.settings-hero--privacy {
+  min-height: 132px;
+  padding-bottom: 12px;
+}
+
+.privacy-hero-grid {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(484px, 130%);
+  height: auto;
+  transform: translateX(-50%);
+  opacity: 0.55;
+}
+
+.privacy-hero-wave {
+  position: absolute;
+  left: -27px;
+  top: 16px;
+  width: min(446px, 115%);
+  height: auto;
+}
+
+.privacy-hero-icon {
+  position: absolute;
+  right: 40px;
+  top: 33px;
+  width: 59px;
+  height: auto;
+  z-index: 2;
+}
+
+.settings-title-highlight--privacy {
+  left: -12px;
+  width: calc(100% + 48px);
+  height: 57px;
+}
+
+.privacy-content {
+  position: relative;
+  z-index: 1;
+  padding: 8px 16px 24px;
+}
+
+.privacy-section-label {
+  margin: 0 0 12px;
+  padding: 0 17px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #6b7280;
+}
+
+.privacy-options-box {
+  border: 1px dashed #1952ff;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.privacy-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+}
+
+.privacy-option--bordered {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.privacy-option-icon {
+  width: 21px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.privacy-option-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.privacy-option-label {
+  font-size: 14px;
+  line-height: 1.43;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.privacy-option-description {
+  font-size: 12px;
+  line-height: 1.43;
+  color: #4b5563;
+}
+
+.privacy-toggle {
+  flex-shrink: 0;
+  width: 51px;
+  height: 22px;
+  border: none;
+  border-radius: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 0 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.privacy-toggle--on {
+  background: #1952ff;
+}
+
+.privacy-toggle--off {
+  background: #d1d5db;
+  justify-content: flex-start;
+  padding: 0 4px;
+}
+
+.privacy-toggle-label {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  color: #fff;
+}
+
+.privacy-toggle-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  flex-shrink: 0;
+}
+
 /* ─── Change password strength (Figma) ─────────────── */
 .settings-password-strength {
   display: flex;
