@@ -109,5 +109,6 @@ After our consult, I changed a lot of things in test5 like:
 ### Test 9:
 - add Journal page
 - add sharing (of memos, journals, events, etc...)
+- fix search bar
 - implement guest UX when user has no account
 
