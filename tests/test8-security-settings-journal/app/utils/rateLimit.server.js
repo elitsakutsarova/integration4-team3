@@ -5,6 +5,7 @@ export const RATE_LIMITS = {
   stickers: { max: 60, windowMs: 60_000 },
   memos: { max: 10, windowMs: 60_000 },
   account: { max: 20, windowMs: 60_000 },
+  feedback: { max: 5, windowMs: 60_000 },
 };
 
 const buckets = new Map();

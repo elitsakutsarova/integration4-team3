@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useFetcher, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { goBack, paths } from '../../utils/appPaths';
+import { feedbackErrorToFieldMap } from '../../utils/submitFeedbackAction';
 import { sendFeedbackAssets } from '../../utils/sendFeedbackAssets';
 import { settingsAssets } from '../../utils/settingsAssets';
 
@@ -11,19 +11,17 @@ function AtIcon() {
 
 export default function SendFeedbackPage() {
   const navigate = useNavigate();
+  const fetcher = useFetcher();
   const { user } = useAuth();
-  const [submitted, setSubmitted] = useState(false);
 
+  const submitting = fetcher.state !== 'idle';
+  const submitted = fetcher.data?.success === true;
+  const fieldErrors = feedbackErrorToFieldMap(fetcher.data?.error);
+  const formError = fieldErrors.form;
   const emailPlaceholder = user?.username ?? 'alex_explores';
 
   function handleBack() {
     goBack(navigate, paths.profileSettings);
-  }
-
-  function handleSubmit(event) {
-    event.preventDefault();
-    setSubmitted(true);
-    event.currentTarget.reset();
   }
 
   return (
@@ -69,14 +67,27 @@ export default function SendFeedbackPage() {
           <div className="feedback-success" role="status">
             Thanks for your feedback!
           </div>
-        ) : null}
+        ) : (
+        <>
+          {formError ? (
+            <p className="feedback-form-error" role="alert">
+              {formError}
+            </p>
+          ) : null}
 
-        <form className="feedback-form" onSubmit={handleSubmit} noValidate>
+          <fetcher.Form
+          method="post"
+          action={paths.apiFeedback}
+          className="feedback-form"
+          noValidate
+        >
+          <input type="hidden" name="intent" value="submit-feedback" />
+
           <div className="feedback-field">
             <label className="feedback-label" htmlFor="feedback-name">
               Name:
             </label>
-            <div className="feedback-input-wrap">
+            <div className={`feedback-input-wrap${fieldErrors.name ? ' feedback-input-wrap--error' : ''}`}>
               <input
                 id="feedback-name"
                 name="name"
@@ -84,15 +95,20 @@ export default function SendFeedbackPage() {
                 className="feedback-input"
                 placeholder="Name"
                 autoComplete="name"
+                required
+                aria-invalid={Boolean(fieldErrors.name)}
               />
             </div>
+            {fieldErrors.name ? (
+              <p className="feedback-field-error">{fieldErrors.name}</p>
+            ) : null}
           </div>
 
           <div className="feedback-field">
             <label className="feedback-label" htmlFor="feedback-email">
               Email:
             </label>
-            <div className="feedback-input-wrap">
+            <div className={`feedback-input-wrap${fieldErrors.email ? ' feedback-input-wrap--error' : ''}`}>
               <span className="feedback-input-icon">
                 <AtIcon />
               </span>
@@ -104,44 +120,61 @@ export default function SendFeedbackPage() {
                 placeholder={emailPlaceholder}
                 defaultValue={user?.email ?? ''}
                 autoComplete="email"
+                required
+                aria-invalid={Boolean(fieldErrors.email)}
               />
             </div>
+            {fieldErrors.email ? (
+              <p className="feedback-field-error">{fieldErrors.email}</p>
+            ) : null}
           </div>
 
           <div className="feedback-field">
             <label className="feedback-label" htmlFor="feedback-subject">
               Subject:
             </label>
-            <div className="feedback-input-wrap">
+            <div className={`feedback-input-wrap${fieldErrors.subject ? ' feedback-input-wrap--error' : ''}`}>
               <input
                 id="feedback-subject"
                 name="subject"
                 type="text"
                 className="feedback-input"
                 placeholder="enter subject"
+                required
+                aria-invalid={Boolean(fieldErrors.subject)}
               />
             </div>
+            {fieldErrors.subject ? (
+              <p className="feedback-field-error">{fieldErrors.subject}</p>
+            ) : null}
           </div>
 
           <div className="feedback-field">
             <label className="feedback-label" htmlFor="feedback-message">
               Message:
             </label>
-            <div className="feedback-input-wrap feedback-input-wrap--textarea">
+            <div className={`feedback-input-wrap feedback-input-wrap--textarea${fieldErrors.message ? ' feedback-input-wrap--error' : ''}`}>
               <textarea
                 id="feedback-message"
                 name="message"
                 className="feedback-textarea"
                 placeholder="Enter message"
                 rows={6}
+                required
+                aria-invalid={Boolean(fieldErrors.message)}
               />
             </div>
+            {fieldErrors.message ? (
+              <p className="feedback-field-error">{fieldErrors.message}</p>
+            ) : null}
           </div>
 
-          <button type="submit" className="feedback-submit">
-            Submit
+          <button type="submit" className="feedback-submit" disabled={submitting}>
+            {submitting ? 'Sending…' : 'Submit'}
           </button>
-        </form>
+        </fetcher.Form>
+        </>
+        )}
       </div>
     </div>
   );

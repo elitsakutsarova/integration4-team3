@@ -43,6 +43,7 @@ export default [
   route("api/stickers", "routes/api.stickers.js"),
   route("api/memos", "routes/api.memos.js"),
   route("api/account", "routes/api.account.js"),
+  route("api/feedback", "routes/api.feedback.js"),
   route("api/location-search", "routes/api.location-search.js"),
   route("*", "routes/catchall.jsx"),
 ];

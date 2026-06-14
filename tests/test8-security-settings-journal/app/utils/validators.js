@@ -15,6 +15,9 @@ export const LIMITS = {
   scanKey: 64,
   connectRoom: 64,
   connectMessage: 500,
+  feedbackName: 120,
+  feedbackSubject: 200,
+  feedbackMessage: 2000,
   savedMemoId: 64,
   discoverFaveId: 80,
   urlDisplayName: 120,
@@ -337,6 +340,27 @@ export function validateDiscoverFaveId(raw) {
   }
   if (!DISCOVER_FAVE_ID_RE.test(id)) return validationError('id', 'Invalid favourite reference');
   return { value: id };
+}
+
+export function validateFeedbackPayload({ name, email, subject, message }) {
+  const cleanName = clampText(name, LIMITS.feedbackName);
+  if (!cleanName) return validationError('name', 'Name is required');
+
+  const emailResult = validateEmail(email);
+  if (emailResult.field) return emailResult;
+
+  const cleanSubject = clampText(subject, LIMITS.feedbackSubject);
+  if (!cleanSubject) return validationError('subject', 'Subject is required');
+
+  const cleanMessage = clampText(message, LIMITS.feedbackMessage);
+  if (!cleanMessage) return validationError('message', 'Message is required');
+
+  return {
+    name: cleanName,
+    email: emailResult.value,
+    subject: cleanSubject,
+    message: cleanMessage,
+  };
 }
 
 export function isSafeHttpsUrl(url) {

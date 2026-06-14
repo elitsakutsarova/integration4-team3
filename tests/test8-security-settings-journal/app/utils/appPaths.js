@@ -30,6 +30,7 @@ export const paths = {
   demoStickers: href('/demo-stickers'),
   apiMemos: href('/api/memos'),
   apiAccount: href('/api/account'),
+  apiFeedback: href('/api/feedback'),
 };
 
 export function discoverEventPath(id) {
