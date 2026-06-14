@@ -1,0 +1,141 @@
+/** Mock user profile and Antwerp trip memories for test2 */
+
+import { buildInitialMapEvents } from './discoverDetails';
+
+export const USER = {
+  username: '@alex_explores',
+  tags: ['Foodie', 'Local'],
+  avatar: null,
+  collections: {
+    memos: 12,
+    faves: 128,
+  },
+};
+
+export const MOCK_MEMORIES = [
+  {
+    id: 1,
+    ll: [51.2203, 4.3997],
+    quote: 'Best frites in the city, no contest',
+    location: 'Frituur No. 1',
+    tags: ['Food', 'Classic'],
+    date: 'Fri, 27 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 2,
+    ll: [51.2258, 4.4002],
+    quote: 'Cathedral looks insane at golden hour',
+    location: 'Cathedral of Our Lady',
+    tags: ['Sightseeing', 'Added by Local'],
+    date: 'Fri, 27 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 3,
+    ll: [51.2165, 4.4080],
+    quote: 'Best live set I have ever heard',
+    location: 'De Nor',
+    tags: ['Nightlife', 'Music'],
+    date: 'Fri, 27 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 4,
+    ll: [51.2230, 4.4115],
+    quote: 'Danced until sunrise, zero regrets',
+    location: 'Lux',
+    tags: ['Club', 'Nightlife'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 5,
+    ll: [51.2189, 4.4041],
+    quote: 'I had the best kebab at 4AM here',
+    location: 'Traum',
+    tags: ['Food', 'Added by Local'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: {
+      url: '/discover/oh-honey.jpg',
+      isVideo: false,
+    },
+  },
+  {
+    id: 6,
+    ll: [51.2215, 4.3972],
+    quote: 'Stumbled upon the cutest vintage shop',
+    location: 'Kloosterstraat',
+    tags: ['Fashion', 'Hidden gem'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 7,
+    ll: [51.2142, 4.3958],
+    quote: 'Museum day — Rubens blew my mind',
+    location: 'Rubenshuis',
+    tags: ['Art & culture', 'Museum'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 8,
+    ll: [51.2281, 4.4065],
+    quote: 'Rooftop views over the whole city',
+    location: 'MAS Museum',
+    tags: ['Sightseeing', 'Views'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 9,
+    ll: [51.2198, 4.4132],
+    quote: 'Boat tour at sunset — magical',
+    location: 'Scheldt River',
+    tags: ['Sightseeing', 'Water'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 10,
+    ll: [51.2176, 4.4018],
+    quote: 'Oat latte heaven in the old town',
+    location: 'Caffenation',
+    tags: ['Food', 'Coffee'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 11,
+    ll: [51.2244, 4.3988],
+    quote: 'Street art alley — every wall a canvas',
+    location: 'Het Eilandje',
+    tags: ['Art & culture', 'Street art'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: null,
+  },
+  {
+    id: 12,
+    ll: [51.2220, 4.4025],
+    quote: 'Last night walk through Grote Markt',
+    location: 'Grote Markt',
+    tags: ['Sightseeing', 'Classic'],
+    date: 'Sat, 28 Aug, 2026',
+    mediaPreview: null,
+  },
+];
+
+export const TRAVEL_DIARY = {
+  id: 'summer-in-antwerp',
+  title: 'Summer in Antwerp',
+  dateRange: '27 Aug 2026 – 28 Aug 2026',
+  monthLabel: 'Aug 2026',
+  description:
+    'Trip with friends to Antwerp. Lots of laughs, fun had, clubbing and treats had.',
+  coverImage: null,
+  memoryIds: MOCK_MEMORIES.map(m => m.id),
+  createdAt: '2026-08-27',
+};
+
+export const INITIAL_EVENTS = buildInitialMapEvents();
