@@ -9,7 +9,12 @@ import {
   validateChangeUsernamePayload,
 } from './validators';
 
-const ACCOUNT_INTENTS = new Set(['change-password', 'change-email', 'change-username']);
+const ACCOUNT_INTENTS = new Set([
+  'change-password',
+  'change-email',
+  'change-username',
+  'delete-account',
+]);
 
 export function accountErrorToFieldMap(error) {
   if (!error) return {};
@@ -39,6 +44,10 @@ export function validateAccountFormData(formData, currentUser = null) {
         confirmPassword: String(formData.get('confirmPassword') ?? ''),
       },
     };
+  }
+
+  if (intent === 'delete-account') {
+    return { ok: true, intent, payload: {} };
   }
 
   if (intent === 'change-email') {

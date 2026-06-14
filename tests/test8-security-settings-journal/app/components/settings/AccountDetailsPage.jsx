@@ -1,7 +1,7 @@
 // account details page for account settings
 
-import { useRef, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useFetcher, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { useUserAvatar } from '../../hooks/useUserAvatar';
 import { goBack, paths } from '../../utils/appPaths';
@@ -12,6 +12,7 @@ import {
 } from '../../utils/userAvatarStore';
 import { settingsAssets } from '../../utils/settingsAssets';
 import AvatarSuccessModal from './AvatarSuccessModal';
+import DeleteAccountConfirmModal from './DeleteAccountConfirmModal';
 import EditPenIcon from './EditPenIcon';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 import UsernameField from './UsernameField';
@@ -40,16 +41,38 @@ const SUCCESS_MESSAGES = {
 
 export default function AccountDetailsPage() {
   const navigate = useNavigate();
+  const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const fileInputRef = useRef(null);
   const avatarUrl = useUserAvatar(user?.id);
   const [avatarError, setAvatarError] = useState('');
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
+  const deleting = fetcher.state !== 'idle';
   const updated = searchParams.get('updated');
   const successMessage = SUCCESS_MESSAGES[updated] ?? null;
   const hasCustomAvatar = Boolean(avatarUrl);
+
+  useEffect(() => {
+    if (!fetcher.data?.success || fetcher.data?.kind !== 'delete-account') return;
+
+    async function finishDelete() {
+      setDeleteModalOpen(false);
+      setDeleteError('');
+      await signOut();
+      navigate(paths.home, { replace: true });
+    }
+
+    void finishDelete();
+  }, [fetcher.data, navigate, signOut]);
+
+  useEffect(() => {
+    if (!fetcher.data?.error || fetcher.data?.success) return;
+    setDeleteError(fetcher.data.error.message ?? 'Could not delete your account.');
+  }, [fetcher.data]);
 
   function handleBack() {
     goBack(navigate, paths.profileSettings);
@@ -88,6 +111,19 @@ export default function AccountDetailsPage() {
     clearUserAvatar(user.id);
     setAvatarError('');
     setSuccessModalOpen(false);
+  }
+
+  function openDeleteModal() {
+    setDeleteError('');
+    setDeleteModalOpen(true);
+  }
+
+  function handleConfirmDelete() {
+    if (!user?.id || deleting) return;
+
+    const formData = new FormData();
+    formData.set('intent', 'delete-account');
+    fetcher.submit(formData, { method: 'post', action: paths.apiAccount });
   }
 
   return (
@@ -182,7 +218,7 @@ export default function AccountDetailsPage() {
           </h2>
 
           <div className="account-details-card account-details-card--actions">
-            <button type="button" className="account-details-delete" disabled>
+            <button type="button" className="account-details-delete" onClick={openDeleteModal}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path
                   d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"
@@ -194,12 +230,27 @@ export default function AccountDetailsPage() {
               </svg>
               <span>Delete account</span>
             </button>
+            {deleteError ? (
+              <p className="account-details-delete-error" role="alert">
+                {deleteError}
+              </p>
+            ) : null}
           </div>
         </section>
       </div>
 
       {successModalOpen ? (
         <AvatarSuccessModal onClose={() => setSuccessModalOpen(false)} />
+      ) : null}
+
+      {deleteModalOpen ? (
+        <DeleteAccountConfirmModal
+          busy={deleting}
+          onCancel={() => {
+            if (!deleting) setDeleteModalOpen(false);
+          }}
+          onConfirm={handleConfirmDelete}
+        />
       ) : null}
     </div>
   );

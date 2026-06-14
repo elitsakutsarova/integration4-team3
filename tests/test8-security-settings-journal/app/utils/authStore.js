@@ -1,5 +1,6 @@
 // auth engine - logic layer
 
+import { clearAccountClientData } from './accountClientCleanup';
 import { isSupabaseEnabled, getSupabaseBrowserClient, USERS_TABLE } from './supabase.client';
 import { mapAuthError } from './authErrors';
 import {
@@ -7,6 +8,7 @@ import {
   localChangeEmail,
   localChangePassword,
   localChangeUsername,
+  localDeleteAccount,
   localSignIn,
   localSignUp,
   readLocalSession,
@@ -414,6 +416,20 @@ export async function changeUsername(payload) {
   if (isSupabaseEnabled()) return supabaseChangeUsername(payload);
   return localChangeUsername(payload);
 }
+
+export async function deleteAccount({ userId }) {
+  if (isSupabaseEnabled()) {
+    return { error: { field: 'form', message: 'Account deletion must run on the server.' } };
+  }
+
+  const result = await localDeleteAccount(userId);
+  if (result.error) return result;
+
+  clearAccountClientData(userId);
+  return result;
+}
+
+export { clearAccountClientData };
 
 export function subscribeToAuthChanges(callback) {
   if (!isSupabaseEnabled()) return () => {};

@@ -58,7 +58,39 @@ export async function handleAccountAction(validation, supabase, authUser) {
     return changeUsernameAction(payload, supabase, authUser);
   }
 
+  if (intent === 'delete-account') {
+    return deleteAccountAction(supabase, authUser);
+  }
+
   return { error: { field: 'form', message: 'Unknown action.' } };
+}
+
+async function deleteProfileRow(supabase, authId) {
+  const { error } = await supabase.from(USERS_TABLE).delete().eq('auth_id', authId);
+  if (error && !/does not exist|42703/i.test(error.message ?? '')) {
+    console.warn('[MemMe] Could not delete profile row:', error.message);
+  }
+}
+
+async function deleteAccountAction(supabase, authUser) {
+  if (!isSupabaseAdminConfigured()) {
+    return {
+      error: {
+        field: 'form',
+        message: 'Account deletion is not configured. Add SUPABASE_SERVICE_ROLE_KEY to your .env file.',
+      },
+    };
+  }
+
+  const admin = getSupabaseAdmin();
+  await deleteProfileRow(admin, authUser.id);
+
+  const { error } = await admin.auth.admin.deleteUser(authUser.id);
+  if (error) return { error: mapAuthError(error, 'form') };
+
+  await supabase.auth.signOut();
+
+  return { success: true, kind: 'delete-account', deleted: true };
 }
 
 async function changePasswordAction(payload, supabase, authUser) {

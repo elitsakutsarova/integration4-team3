@@ -224,3 +224,20 @@ export async function localChangeUsername({ userId, username }) {
   if (readLocalSession()?.id === userId) writeLocalSession(userId);
   return { success: true, kind: 'username', user };
 }
+
+export async function localDeleteAccount(userId) {
+  if (!userId) {
+    return { error: { field: 'form', message: 'Could not verify your account.' } };
+  }
+
+  const users = readUsers();
+  const exists = users.some((user) => user.id === userId);
+  if (!exists) {
+    return { error: { field: 'form', message: 'Account not found.' } };
+  }
+
+  writeUsers(users.filter((user) => user.id !== userId));
+  if (readLocalSession()?.id === userId) clearLocalSession();
+
+  return { success: true, kind: 'delete-account', deleted: true };
+}

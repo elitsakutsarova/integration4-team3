@@ -8,6 +8,8 @@ import { validateAccountFormData } from '../utils/accountFormValidation';
 import { handleAccountAction } from '../utils/accountActions.server';
 import { rateLimitActionError, RATE_LIMITS } from '../utils/rateLimit.server';
 import { createClient } from '../utils/supabase.server';
+import { isSupabaseEnabled } from '../utils/supabase.client';
+import { clearAccountClientData } from '../utils/accountClientCleanup';
 
 async function runValidatedClientAction(validation, user) {
   const { intent, payload } = validation;
@@ -51,6 +53,21 @@ export async function clientAction({ request, serverAction }) {
   }
 
   const intent = validation.intent;
+
+  if (intent === 'delete-account') {
+    if (isSupabaseEnabled()) {
+      const serverResponse = await serverAction();
+      const payload = serverResponse?.data ?? serverResponse;
+      if (payload?.error) return data({ error: payload.error });
+
+      clearAccountClientData(user.id);
+      return data(payload);
+    }
+
+    const result = await authStore.deleteAccount({ userId: user.id });
+    if (result.error) return data({ error: result.error });
+    return data(result);
+  }
 
   if (intent === 'change-email') {
     const serverResponse = await serverAction();
