@@ -3,8 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import DraggableSticker from '../diary/DraggableSticker';
 import ShareDiaryModal from '../diary/ShareDiaryModal';
 import RecapSelectView, { RecapPreviewView } from '../diary/RecapViews';
-import { useCreateJournal } from '../../context/CreateJournalContext';
-import { paths } from '../../utils/appPaths';
+import { diaryPath, paths } from '../../utils/appPaths';
 import {
   createSticker,
   loadPageStickers,
@@ -39,7 +38,6 @@ export default function JournalDetailPage({
   backTo = paths.journals,
 }) {
   const navigate = useNavigate();
-  const { setDraft } = useCreateJournal();
   const diaryId = journal.id;
 
   const [pageStickers, setPageStickers] = useState(() => ({
@@ -79,15 +77,7 @@ export default function JournalDetailPage({
   }, [diaryId]);
 
   function handleEditJournal() {
-    if (!journal.isCustom) return;
-    setDraft({
-      title: journal.title,
-      description: journal.description ?? '',
-      startDate: journal.startDate ?? '',
-      endDate: journal.endDate ?? '',
-      selectedMemoIds: journal.memoryIds ?? [],
-    });
-    navigate(paths.journalsCreate);
+    navigate(paths.journalsEdit(journal.id));
   }
 
   const placedStickers = (pageStickers[JOURNAL_CANVAS_PAGE] ?? []).map((s) => (
@@ -186,6 +176,9 @@ export default function JournalDetailPage({
         >
           {placedStickers}
           <div className="journal-detail-memos">
+            {journal.description?.trim() && (
+              <p className="journal-detail-description">{journal.description}</p>
+            )}
             {memories.map((memo, index) => (
               <JournalMemoEntry
                 key={memo.id}
@@ -197,20 +190,18 @@ export default function JournalDetailPage({
 
           <div className="journal-detail-wave" aria-hidden="true" />
 
-          <div className={`journal-detail-actions${journal.isCustom ? '' : ' journal-detail-actions--single'}`}>
-            {journal.isCustom && (
-              <button
-                type="button"
-                className="journal-detail-action journal-detail-action--edit"
-                onClick={handleEditJournal}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-                </svg>
-                <span>Edit journal</span>
-              </button>
-            )}
+          <div className="journal-detail-actions">
+            <button
+              type="button"
+              className="journal-detail-action journal-detail-action--edit"
+              onClick={handleEditJournal}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+              </svg>
+              <span>Edit journal</span>
+            </button>
             <button
               type="button"
               className="journal-detail-action journal-detail-action--recap"

@@ -27,6 +27,8 @@ export const paths = {
   journals: href('/journals'),
   journalsCreate: href('/journals/create'),
   journalsCreateMemos: href('/journals/create/memos'),
+  journalsEdit: journalsEditPath,
+  journalsEditMemos: journalsEditMemosPath,
   stickers: href('/stickers'),
   connect: href('/connect'),
   collect: href('/collect'),
@@ -46,6 +48,14 @@ export function discoverPlacePath(id) {
 
 export function diaryPath(id) {
   return href('/diary/:id', { id });
+}
+
+export function journalsEditPath(id) {
+  return href('/journals/:id/edit', { id });
+}
+
+export function journalsEditMemosPath(id) {
+  return href('/journals/:id/edit/memos', { id });
 }
 
 export function collectScanPath(scanKey) {

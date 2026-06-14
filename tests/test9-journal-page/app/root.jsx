@@ -21,6 +21,7 @@ import {
   CreateJournalProvider,
   CustomJournalsProvider,
 } from "./context/CreateJournalContext";
+import { EditJournalProvider } from "./context/EditJournalContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
 import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
 import { SavedMemosProvider } from "./context/SavedMemosContext";
@@ -30,7 +31,7 @@ import { bootstrapAuthSession, isAuthBootstrapped } from "./utils/authSession";
 import { isPublicAppPath } from "./utils/appPaths";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
 import { loadStickersFromPublic } from "./utils/stickers.server";
-import { getSafeFallbackPath } from "./utils/appPaths";
+import { getSafeFallbackPath, FALLBACK_JOURNALS } from "./utils/appPaths";
 
 // loads stickers from public/stickers (server-side)
 export async function loader() {
@@ -125,13 +126,15 @@ export default function App() {
       <CreatedMemosProvider>
         <CustomJournalsProvider>
           <CreateJournalProvider>
-            <DiscoverFavesProvider>
-              <SavedMemosProvider>
-                <StickerCatalogProvider stickers={stickers}>
-                  <Outlet />
-                </StickerCatalogProvider>
-              </SavedMemosProvider>
-            </DiscoverFavesProvider>
+            <EditJournalProvider>
+              <DiscoverFavesProvider>
+                <SavedMemosProvider>
+                  <StickerCatalogProvider stickers={stickers}>
+                    <Outlet />
+                  </StickerCatalogProvider>
+                </SavedMemosProvider>
+              </DiscoverFavesProvider>
+            </EditJournalProvider>
           </CreateJournalProvider>
         </CustomJournalsProvider>
       </CreatedMemosProvider>
@@ -146,6 +149,18 @@ export function ErrorBoundary() {
 
   if (isRouteErrorResponse(error) && (error.status === 404 || error.status === 400)) {
     return <Navigate to={getSafeFallbackPath(pathname)} replace />;
+  }
+
+  if (error instanceof Response && error.status >= 300 && error.status < 400) {
+    const location = error.headers.get('Location');
+    if (location) return <Navigate to={location} replace />;
+  }
+
+  if (
+    pathname.startsWith('/diary/')
+    || /^\/journals\/[^/]+\/edit/.test(pathname)
+  ) {
+    return <Navigate to={FALLBACK_JOURNALS} replace />;
   }
 
   let message = "Oops!";

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useCreateJournal } from '../../context/CreateJournalContext';
+import { useEditJournal } from '../../context/EditJournalContext';
 import { useCreatedMemos } from '../../context/CreatedMemosContext';
 import { paths } from '../../utils/appPaths';
 import { MEMO_TAG_OPTIONS } from '../../data/memoTags';
@@ -17,11 +18,18 @@ function filterMemos(memos, filterId) {
   return memos.filter((memo) => (memo.tags ?? []).includes(filterId));
 }
 
-export default function AddJournalMemosPage() {
+export default function AddJournalMemosPage({ flow = 'create', journalId = null }) {
   const navigate = useNavigate();
-  const { draft, setDraft } = useCreateJournal();
+  const createJournal = useCreateJournal();
+  const editJournal = useEditJournal();
+  const isEditFlow = flow === 'edit';
+  const { draft, setDraft } = isEditFlow ? editJournal : createJournal;
   const { createdMemos, ready } = useCreatedMemos();
   const [filterId, setFilterId] = useState('all');
+
+  const backPath = isEditFlow && journalId
+    ? paths.journalsEdit(journalId)
+    : paths.journalsCreate;
 
   const selectedSet = useMemo(() => new Set(draft.selectedMemoIds), [draft.selectedMemoIds]);
   const filteredMemos = useMemo(
@@ -43,7 +51,7 @@ export default function AddJournalMemosPage() {
 
   function handleConfirm() {
     if (!selectedSet.size) return;
-    navigate(paths.journalsCreate);
+    navigate(backPath);
   }
 
   return (
@@ -51,8 +59,8 @@ export default function AddJournalMemosPage() {
       <button
         type="button"
         className="create-journal-back"
-        onClick={() => navigate(paths.journalsCreate)}
-        aria-label="Back to create journal"
+        onClick={() => navigate(backPath)}
+        aria-label={isEditFlow ? 'Back to edit journal' : 'Back to create journal'}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />

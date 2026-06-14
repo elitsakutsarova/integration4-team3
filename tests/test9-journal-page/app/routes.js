@@ -31,6 +31,8 @@ export default [
     route("journals", "routes/journals.jsx"),
     route("journals/create", "routes/journals.create.jsx"),
     route("journals/create/memos", "routes/journals.create.memos.jsx"),
+    route("journals/:id/edit", "routes/journals.$id.edit.jsx"),
+    route("journals/:id/edit/memos", "routes/journals.$id.edit.memos.jsx"),
   ]),
   route("login", "routes/login.jsx"),
   route("register", "routes/register.jsx"),

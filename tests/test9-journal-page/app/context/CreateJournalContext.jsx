@@ -14,7 +14,7 @@ import {
   loadCreateJournalDraft,
   saveCreateJournalDraft,
 } from '../utils/createJournalDraft';
-import { addCustomJournal, getCustomJournals } from '../utils/customJournalStore';
+import { addCustomJournal, deleteCustomJournal, getCustomJournals, updateCustomJournal } from '../utils/customJournalStore';
 
 const CreateJournalContext = createContext(null);
 const CustomJournalsContext = createContext(null);
@@ -72,9 +72,29 @@ export function CustomJournalsProvider({ children }) {
     return journal;
   }, [userId]);
 
+  const patchCustomJournal = useCallback((journalId, updates) => {
+    if (!userId) return null;
+    const updated = updateCustomJournal(userId, journalId, updates);
+    if (!updated) return null;
+    setCustomJournals(getCustomJournals(userId));
+    return updated;
+  }, [userId]);
+
+  const removeCustomJournal = useCallback((journalId) => {
+    if (!userId) return false;
+    const removed = deleteCustomJournal(userId, journalId);
+    if (removed) setCustomJournals(getCustomJournals(userId));
+    return removed;
+  }, [userId]);
+
   const value = useMemo(
-    () => ({ customJournals, saveCustomJournal }),
-    [customJournals, saveCustomJournal],
+    () => ({
+      customJournals,
+      saveCustomJournal,
+      patchCustomJournal,
+      removeCustomJournal,
+    }),
+    [customJournals, patchCustomJournal, removeCustomJournal, saveCustomJournal],
   );
 
   return (

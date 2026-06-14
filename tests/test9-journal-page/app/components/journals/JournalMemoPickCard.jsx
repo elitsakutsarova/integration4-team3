@@ -96,22 +96,17 @@ export default function JournalMemoPickCard({ memo, selected, onToggle }) {
   return <TextPickCard memo={memo} selected={selected} onToggle={onToggle} />;
 }
 
-export function JournalMemoMiniCard({ memo, onRemove }) {
+export function JournalMemoMiniCard({
+  memo,
+  onRemove,
+  selectable = false,
+  selected = false,
+  onSelect,
+}) {
   const hasPhoto = Boolean(memo.mediaPreview?.url);
 
-  return (
-    <article className="journal-mini-card">
-      <button
-        type="button"
-        className="journal-mini-card-remove"
-        aria-label="Remove memo from journal"
-        onClick={onRemove}
-      >
-        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <line x1="1" y1="1" x2="13" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          <line x1="13" y1="1" x2="1" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      </button>
+  const content = (
+    <>
       <div className="journal-mini-card-visual">
         {hasPhoto ? (
           <div className="memory-sheet-media-wrap journal-mini-card-media">
@@ -131,6 +126,43 @@ export function JournalMemoMiniCard({ memo, onRemove }) {
         )}
       </div>
       <p className="journal-mini-card-location">{memo.location}</p>
+    </>
+  );
+
+  if (selectable) {
+    return (
+      <article
+        className={`journal-mini-card journal-mini-card--selectable${selected ? ' journal-mini-card--selected' : ''}`}
+        onClick={onSelect}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onSelect?.();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-pressed={selected}
+      >
+        {content}
+      </article>
+    );
+  }
+
+  return (
+    <article className="journal-mini-card">
+      <button
+        type="button"
+        className="journal-mini-card-remove"
+        aria-label="Remove memo from journal"
+        onClick={onRemove}
+      >
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <line x1="1" y1="1" x2="13" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <line x1="13" y1="1" x2="1" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </button>
+      {content}
     </article>
   );
 }
