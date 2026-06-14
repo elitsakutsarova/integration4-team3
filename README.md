@@ -111,8 +111,8 @@ After our consult, I changed a lot of things in test5 like:
 ## Create Journals page:
 
 ## A) Journals page
-- Create the Journals page
-- Implement an empty state for users who haven’t added memos yet
+- Create the Journals page ✔️ 
+- Implement an empty state for users who haven’t added memos yet ✔️
 - If the user clicks on “New Travel Diary” -> create a page “Create Journal”
 - If the user clicks on “Add memos” -> create a page “Add memories” (max 12); the top right blue element keeps count
 - Add a warning message when the user tries to leave the page without saving their journal

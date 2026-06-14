@@ -122,24 +122,84 @@ function buildJournalFromAlbum(albumMemos, index, totalAlbums, now) {
     memoryIds: albumMemos.map((m) => m.id),
     isActive,
     displayType,
-    coverPhotos: photoMemos[0] ? [photoMemos[0].mediaPreview.url] : [],
-    textQuotes: textMemos[0] ? [textMemos[0].quote] : [],
+    coverPhotos: photoMemos.slice(0, 2).map((m) => m.mediaPreview.url),
+    textQuotes: textMemos.slice(0, 2).map((m) => m.quote),
     createdAt: new Date(firstTs).toISOString(),
   };
 }
 
 /** Build trip journals from the user's created memos, newest first. */
-export function buildJournalsFromMemos(memos) {
-  if (!memos?.length) return [];
-
-  const albums = groupMemosIntoAlbums(memos);
+export function buildJournalsFromMemos(memos, customJournals = []) {
+  const customMemoIds = new Set(
+    customJournals.flatMap((journal) => journal.memoIds ?? []),
+  );
+  const autoMemos = (memos ?? []).filter((memo) => !customMemoIds.has(memo.id));
   const now = Date.now();
 
-  return albums
-    .map((albumMemos, index) => buildJournalFromAlbum(albumMemos, index, albums.length, now))
-    .reverse();
+  const autoJournals = !autoMemos.length
+    ? []
+    : groupMemosIntoAlbums(autoMemos)
+        .map((albumMemos, index, albums) =>
+          buildJournalFromAlbum(albumMemos, index, albums.length, now),
+        )
+        .reverse();
+
+  const manualJournals = (customJournals ?? []).map((record) =>
+    buildCustomJournal(record, memos ?? []),
+  );
+
+  return [...manualJournals, ...autoJournals];
 }
 
-export function findJournalById(memos, journalId) {
-  return buildJournalsFromMemos(memos).find((j) => j.id === journalId) ?? null;
+function buildCustomJournal(record, memos) {
+  const memoById = new Map(memos.map((memo) => [memo.id, memo]));
+  const albumMemos = (record.memoIds ?? [])
+    .map((id) => memoById.get(id))
+    .filter(Boolean);
+  const displayType = getJournalDisplayType(albumMemos);
+  const photoMemos = albumMemos.filter((m) => m.mediaPreview?.url);
+  const textMemos = albumMemos.filter((m) => !m.mediaPreview?.url);
+  const startTs = record.startDate
+    ? new Date(`${record.startDate}T12:00:00`).getTime()
+    : Date.now();
+
+  return {
+    id: record.id,
+    title: record.title,
+    monthLabel: formatMonthLabel(startTs),
+    dateRange: formatCustomDateRange(record.startDate, record.endDate),
+    description: record.description,
+    memos: albumMemos,
+    memoCount: albumMemos.length,
+    memoryIds: albumMemos.map((m) => m.id),
+    isActive: false,
+    isCustom: true,
+    displayType,
+    coverPhotos: photoMemos.slice(0, 2).map((m) => m.mediaPreview.url),
+    textQuotes: textMemos.slice(0, 2).map((m) => m.quote),
+    createdAt: record.createdAt ?? new Date(startTs).toISOString(),
+  };
+}
+
+function formatCustomDateRange(startDate, endDate) {
+  const fmt = (value) => {
+    if (!value) return '';
+    const date = new Date(`${value}T12:00:00`);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  const start = fmt(startDate);
+  const end = fmt(endDate);
+  if (!start) return '';
+  if (!end || start === end) return start;
+  return `${start} – ${end}`;
+}
+
+export function findJournalById(memos, journalId, customJournals = []) {
+  return buildJournalsFromMemos(memos, customJournals).find((j) => j.id === journalId) ?? null;
 }

@@ -25,6 +25,8 @@ export const paths = {
   profileFavouritesSpots: href('/profile/favourites/spots'),
   profileFavouritesEvents: href('/profile/favourites/events'),
   journals: href('/journals'),
+  journalsCreate: href('/journals/create'),
+  journalsCreateMemos: href('/journals/create/memos'),
   stickers: href('/stickers'),
   connect: href('/connect'),
   collect: href('/collect'),

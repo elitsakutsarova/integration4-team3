@@ -1,6 +1,7 @@
 import { redirect } from 'react-router';
 import TravelDiaryViewer from '../components/TravelDiaryViewer';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
+import { useCustomJournals } from '../context/CreateJournalContext';
 import { findJournalById } from '../utils/journalBuilder';
 import { paths } from '../utils/appPaths';
 
@@ -13,7 +14,8 @@ export function meta() {
 
 export default function DiaryDetail({ params }) {
   const { createdMemos, ready } = useCreatedMemos();
-  const journal = findJournalById(createdMemos, params.id);
+  const { customJournals } = useCustomJournals();
+  const journal = findJournalById(createdMemos, params.id, customJournals);
 
   if (!ready) {
     return (

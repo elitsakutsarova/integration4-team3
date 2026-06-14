@@ -3,10 +3,15 @@ import BottomNav from '../BottomNav';
 import JournalCard, { NewJournalCard } from './JournalCard';
 import JournalsDecorations from './JournalsDecorations';
 import JournalsEmptyState from './JournalsEmptyState';
+import { useCustomJournals } from '../../context/CreateJournalContext';
 import { buildJournalsFromMemos } from '../../utils/journalBuilder';
 
 export default function JournalsPage({ memos, ready }) {
-  const journals = useMemo(() => buildJournalsFromMemos(memos), [memos]);
+  const { customJournals } = useCustomJournals();
+  const journals = useMemo(
+    () => buildJournalsFromMemos(memos, customJournals),
+    [customJournals, memos],
+  );
 
   return (
     <div className="journals-page">
