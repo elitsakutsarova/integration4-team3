@@ -28,6 +28,7 @@ export default [
         route("events", "routes/profile.favourites.events.jsx"),
       ]),
     ]),
+    route("journals", "routes/journals.jsx"),
   ]),
   route("login", "routes/login.jsx"),
   route("register", "routes/register.jsx"),

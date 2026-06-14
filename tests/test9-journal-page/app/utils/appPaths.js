@@ -24,6 +24,7 @@ export const paths = {
   profileFavouritesMemos: href('/profile/favourites/memos'),
   profileFavouritesSpots: href('/profile/favourites/spots'),
   profileFavouritesEvents: href('/profile/favourites/events'),
+  journals: href('/journals'),
   stickers: href('/stickers'),
   connect: href('/connect'),
   collect: href('/collect'),
@@ -47,6 +48,22 @@ export function diaryPath(id) {
 
 export function collectScanPath(scanKey) {
   return `${paths.collect}?scan=${encodeURIComponent(String(scanKey))}`;
+}
+
+const ANTWERP_MAP_CENTER = { lat: 51.2194, lng: 4.4025 };
+
+/** Home map URL that opens the new-memo form at the default Antwerp center. */
+export function homePathWithAddMemo(
+  lat = ANTWERP_MAP_CENTER.lat,
+  lng = ANTWERP_MAP_CENTER.lng,
+) {
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lng: String(lng),
+    pinLat: String(lat),
+    pinLng: String(lng),
+  });
+  return `${paths.home}?${params.toString()}`;
 }
 
 /** Allow same-origin relative paths only — blocks open redirects. */
@@ -75,6 +92,7 @@ export function isPublicAppPath(pathname) {
 export const FALLBACK_HOME = paths.home;
 export const FALLBACK_DISCOVER = paths.discover;
 export const FALLBACK_PROFILE = paths.profile;
+export const FALLBACK_JOURNALS = paths.journals;
 export const FALLBACK_DIARY = diaryPath(TRAVEL_DIARY.id);
 
 const VALID_OSM_TYPES = new Set(['N', 'W', 'R']);
@@ -93,7 +111,10 @@ export function getSafeFallbackPath(pathname) {
     return FALLBACK_HOME;
   }
   if (path.startsWith('/diary/')) {
-    return FALLBACK_DIARY;
+    return FALLBACK_JOURNALS;
+  }
+  if (path.startsWith('/journals')) {
+    return FALLBACK_JOURNALS;
   }
   if (path.startsWith('/profile') || path.startsWith('/stickers') || path.startsWith('/collect') || path.startsWith('/connect')) {
     return FALLBACK_PROFILE;

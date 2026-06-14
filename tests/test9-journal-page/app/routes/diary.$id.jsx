@@ -1,22 +1,37 @@
 import { redirect } from 'react-router';
 import TravelDiaryViewer from '../components/TravelDiaryViewer';
-import { TRAVEL_DIARY } from '../data/mockUser';
-import { diaryPath } from '../utils/appPaths';
+import { useCreatedMemos } from '../context/CreatedMemosContext';
+import { findJournalById } from '../utils/journalBuilder';
+import { paths } from '../utils/appPaths';
 
 export function meta() {
   return [
-    { title: `MemoMe — ${TRAVEL_DIARY.title}` },
+    { title: 'MemoMe — Travel Diary' },
     { name: 'description', content: 'Flip through your Antwerp travel diary.' },
   ];
 }
 
-export function loader({ params }) {
-  if (params.id !== TRAVEL_DIARY.id) {
-    throw redirect(diaryPath(TRAVEL_DIARY.id));
-  }
-  return null;
-}
+export default function DiaryDetail({ params }) {
+  const { createdMemos, ready } = useCreatedMemos();
+  const journal = findJournalById(createdMemos, params.id);
 
-export default function DiaryDetail() {
-  return <TravelDiaryViewer />;
+  if (!ready) {
+    return (
+      <div className="diary-viewer diary-viewer--loading">
+        <p>Loading your diary…</p>
+      </div>
+    );
+  }
+
+  if (!journal) {
+    throw redirect(paths.journals);
+  }
+
+  return (
+    <TravelDiaryViewer
+      diary={journal}
+      memories={journal.memos}
+      backTo={paths.journals}
+    />
+  );
 }

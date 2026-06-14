@@ -55,7 +55,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const draftMemo = readDraftMemo(searchParams);
   const fetcher = useFetcher({ key: 'create-memo' });
   const revalidator = useRevalidator();
-  const { refreshCreatedMemos } = useCreatedMemos();
+  const { prependCreatedMemo, refreshCreatedMemos } = useCreatedMemos();
   const handledPublishRef = useRef(false);
   const initTokenRef = useRef(0);
   const mapRef = useRef(null);
@@ -259,6 +259,18 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, [draftMemo]);
 
   useEffect(() => {
+    if (!active || !draftMemo) return;
+
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    const latlng = { lat: draftMemo.pinLat, lng: draftMemo.pinLng };
+    placePendingPin(L, map, latlng, pendingMarkerRef, suppressClickRef, openFormRef);
+    map.setView([latlng.lat, latlng.lng], Math.max(map.getZoom(), 13), { animate: false });
+  }, [active, draftMemo?.lat, draftMemo?.lng, draftMemo?.pinLat, draftMemo?.pinLng]);
+
+  useEffect(() => {
     if (fetcher.state === 'submitting') {
       handledPublishRef.current = false;
       return;
@@ -270,14 +282,15 @@ export default function MapView({ savedMemos = [], active = true }) {
 
       if (fetcher.data.memo) {
         pendingMemoRef.current = fetcher.data.memo;
+        prependCreatedMemo(fetcher.data.memo);
         syncMapPins();
       }
 
       setSearchParams({}, { replace: true });
       revalidator.revalidate();
-      void refreshCreatedMemos();
+      void refreshCreatedMemos({ silent: true });
     }
-  }, [fetcher.state, fetcher.data, revalidator, savedMemos, setSearchParams, syncMapPins, refreshCreatedMemos]);
+  }, [fetcher.state, fetcher.data, revalidator, savedMemos, setSearchParams, syncMapPins, prependCreatedMemo, refreshCreatedMemos]);
 
   const attachMapContainer = useCallback((node) => {
     if (!node) {

@@ -13,7 +13,6 @@ import DiaryStickerTray from './diary/DiaryStickerTray';
 import ShareDiaryModal from './diary/ShareDiaryModal';
 import RecapSelectView, { RecapPreviewView } from './diary/RecapViews';
 
-const DIARY_ID = TRAVEL_DIARY.id;
 const MEMO_PAGE_OFFSET = 1; // page 0 = cover
 
 function loadAllPageStickers(diaryId, totalPages) {
@@ -39,6 +38,8 @@ function CoverPage({ diary, children, dropZoneRef }) {
 }
 
 function MemoPage({ memory, children, dropZoneRef }) {
+  const hasPhoto = Boolean(memory.mediaPreview?.url);
+
   return (
     <div className="diary-page diary-page--memo">
       <div className="diary-page-spine" aria-hidden="true" />
@@ -48,7 +49,15 @@ function MemoPage({ memory, children, dropZoneRef }) {
         <div className="diary-polaroid">
           <span className="diary-corner diary-corner--tl" aria-hidden="true" />
           <span className="diary-corner diary-corner--br" aria-hidden="true" />
-          <div className="diary-polaroid-photo" />
+          <div className="diary-polaroid-photo">
+            {hasPhoto && (
+              <img
+                src={memory.mediaPreview.url}
+                alt=""
+                className="diary-polaroid-photo-img"
+              />
+            )}
+          </div>
         </div>
         <p className="diary-memo-quote">&ldquo;{memory.quote}&rdquo;</p>
         <p className="diary-memo-location">At: {memory.location}</p>
@@ -88,14 +97,19 @@ function SuccessToast({ message, onClose }) {
   );
 }
 
-export default function TravelDiaryViewer() {
-  const diary = TRAVEL_DIARY;
-  const memories = MOCK_MEMORIES.filter(m => diary.memoryIds.includes(m.id));
+export default function TravelDiaryViewer({
+  diary: diaryProp,
+  memories: memoriesProp,
+  backTo = paths.journals,
+}) {
+  const diary = diaryProp ?? TRAVEL_DIARY;
+  const memories = memoriesProp ?? MOCK_MEMORIES.filter((m) => diary.memoryIds.includes(m.id));
+  const diaryId = diary.id;
   const totalPages = 1 + memories.length + 1;
 
   const [pageIndex, setPageIndex] = useState(0);
   const [direction, setDirection] = useState('next');
-  const [pageStickers, setPageStickers] = useState(() => loadAllPageStickers(DIARY_ID, totalPages));
+  const [pageStickers, setPageStickers] = useState(() => loadAllPageStickers(diaryId, totalPages));
 
   const [view, setView] = useState('diary'); // diary | share | recap-select | recap-preview
   const [recapSelectedIds, setRecapSelectedIds] = useState([]);
@@ -140,7 +154,7 @@ export default function TravelDiaryViewer() {
     const newSticker = createSticker(stickerDef, x, y);
     setPageStickers(prev => {
       const next = [...(prev[targetPageIndex] ?? []), newSticker];
-      savePageStickers(DIARY_ID, targetPageIndex, next);
+      savePageStickers(diaryId, targetPageIndex, next);
       return { ...prev, [targetPageIndex]: next };
     });
   }, []);
@@ -150,7 +164,7 @@ export default function TravelDiaryViewer() {
       const next = (prev[targetPageIndex] ?? []).map(s =>
         s.uid === uid ? { ...s, x, y } : s,
       );
-      savePageStickers(DIARY_ID, targetPageIndex, next);
+      savePageStickers(diaryId, targetPageIndex, next);
       return { ...prev, [targetPageIndex]: next };
     });
   }, []);
@@ -158,7 +172,7 @@ export default function TravelDiaryViewer() {
   const handleReturnToTray = useCallback((targetPageIndex, uid) => {
     setPageStickers(prev => {
       const next = (prev[targetPageIndex] ?? []).filter(s => s.uid !== uid);
-      savePageStickers(DIARY_ID, targetPageIndex, next);
+      savePageStickers(diaryId, targetPageIndex, next);
       return { ...prev, [targetPageIndex]: next };
     });
   }, []);
@@ -295,7 +309,7 @@ export default function TravelDiaryViewer() {
         key={`${forPageIndex}-${s.uid}`}
         sticker={s}
         pageIndex={forPageIndex}
-        diaryId={DIARY_ID}
+        diaryId={diaryId}
         dropZoneRef={dropZoneRef}
         trayRef={trayRef}
         onMove={(uid, x, y) => handleMoveSticker(forPageIndex, uid, x, y)}
@@ -335,11 +349,11 @@ export default function TravelDiaryViewer() {
         <RecapSelectView
           diary={diary}
           memories={memories}
-          diaryId={DIARY_ID}
+          diaryId={diaryId}
           pageOffset={MEMO_PAGE_OFFSET}
           onBack={() => setView('diary')}
           onPreview={ids => {
-            syncDiaryLayoutToStorage(DIARY_ID, pageStickers);
+            syncDiaryLayoutToStorage(diaryId, pageStickers);
             setRecapSelectedIds(ids);
             setView('recap-preview');
           }}
@@ -357,7 +371,7 @@ export default function TravelDiaryViewer() {
           diary={diary}
           memories={memories}
           selectedIds={recapSelectedIds}
-          diaryId={DIARY_ID}
+          diaryId={diaryId}
           pageOffset={MEMO_PAGE_OFFSET}
           pageLayout={pageStickers}
           onBack={() => setView('recap-select')}
@@ -372,7 +386,7 @@ export default function TravelDiaryViewer() {
   return (
     <div className="diary-viewer">
       <header className="diary-header">
-        <Link to={paths.profile} className="diary-back-btn" aria-label="Back">
+        <Link to={backTo} className="diary-back-btn" aria-label="Back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="15 18 9 12 15 6" />
           </svg>
@@ -383,7 +397,7 @@ export default function TravelDiaryViewer() {
           className="diary-share-btn"
           aria-label="Share"
           onClick={() => {
-            syncDiaryLayoutToStorage(DIARY_ID, pageStickers);
+            syncDiaryLayoutToStorage(diaryId, pageStickers);
             setView('share');
           }}
         >
@@ -446,7 +460,7 @@ export default function TravelDiaryViewer() {
         <ShareDiaryModal
           diary={diary}
           memories={memories}
-          diaryId={DIARY_ID}
+          diaryId={diaryId}
           pageOffset={MEMO_PAGE_OFFSET}
           pageLayout={pageStickers}
           onClose={() => setView('diary')}
