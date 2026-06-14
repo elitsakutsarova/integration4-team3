@@ -1,4 +1,5 @@
 import os from 'node:os';
+import { vercelPreset } from '@vercel/react-router/vite';
 
 const DEV_PORT = '5173';
 
@@ -24,12 +25,10 @@ function buildDevActionOrigins() {
 }
 
 export default {
-  // Server-side render by default, to enable SPA mode set this to `false`
   ssr: true,
-  // RR v7 CSRF checks compare Origin vs Host; dev:lan hostnames often differ.
+  presets: [vercelPreset()],
   allowedActionOrigins: buildDevActionOrigins(),
   future: {
-    // Required for route `clientMiddleware` auth guards (RR v7.16+)
     v8_middleware: true,
     v8_passThroughRequests: true,
     v8_splitRouteModules: true,
