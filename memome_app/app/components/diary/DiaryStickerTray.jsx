@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useRef } from 'react';
-import gsap from 'gsap';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { getGsap, loadGsap } from '../../utils/gsapClient.js';
 import { pixelToPercent } from '../../utils/stickerTracker';
 import StickerVisual, { createStickerCloneNode } from './StickerVisual';
 import { useCollectedStickers, useCollectedStickersLoading } from '../../context/CollectedStickersContext';
@@ -46,6 +46,10 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
   const dragRef = useRef(null);
   const lastStartRef = useRef(0);
 
+  useEffect(() => {
+    void loadGsap();
+  }, []);
+
   const attachTrayRef = useCallback((node) => {
     if (trayRef) trayRef.current = node;
     if (!node) clearDragSession(dragRef);
@@ -74,23 +78,33 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
     if (onPage) {
       const { x, y } = pixelToPercent(clientX, clientY, zoneRect);
       onDropRef.current(stickerDef, x, y, originPageIndex);
-      gsap.fromTo(
-        clone,
-        { scale: 1.2 },
-        {
-          scale: 1,
-          duration: 0.2,
-          ease: 'power2.out',
-          onComplete: () => clone.remove(),
-        },
-      );
+      const gsap = getGsap();
+      if (gsap) {
+        gsap.fromTo(
+          clone,
+          { scale: 1.2 },
+          {
+            scale: 1,
+            duration: 0.2,
+            ease: 'power2.out',
+            onComplete: () => clone.remove(),
+          },
+        );
+      } else {
+        clone.remove();
+      }
     } else {
-      gsap.to(clone, {
-        scale: 0.5,
-        opacity: 0,
-        duration: 0.15,
-        onComplete: () => clone.remove(),
-      });
+      const gsap = getGsap();
+      if (gsap) {
+        gsap.to(clone, {
+          scale: 0.5,
+          opacity: 0,
+          duration: 0.15,
+          onComplete: () => clone.remove(),
+        });
+      } else {
+        clone.remove();
+      }
     }
   }, []);
 
@@ -113,13 +127,27 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
 
     const clone = createStickerCloneNode(stickerDef);
     document.body.appendChild(clone);
-    gsap.set(clone, { x: e.clientX, y: e.clientY, xPercent: -50, yPercent: -50 });
+    const gsap = getGsap();
+    if (gsap) {
+      gsap.set(clone, { x: e.clientX, y: e.clientY, xPercent: -50, yPercent: -50 });
+    } else {
+      clone.style.position = 'fixed';
+      clone.style.left = `${e.clientX}px`;
+      clone.style.top = `${e.clientY}px`;
+      clone.style.transform = 'translate(-50%, -50%)';
+    }
 
     const pointerId = e.pointerId;
 
     const onMove = ev => {
       if (ev.pointerId !== pointerId) return;
-      gsap.set(clone, { x: ev.clientX, y: ev.clientY, xPercent: -50, yPercent: -50 });
+      const activeGsap = getGsap();
+      if (activeGsap) {
+        activeGsap.set(clone, { x: ev.clientX, y: ev.clientY, xPercent: -50, yPercent: -50 });
+      } else {
+        clone.style.left = `${ev.clientX}px`;
+        clone.style.top = `${ev.clientY}px`;
+      }
     };
 
     const onEnd = ev => {

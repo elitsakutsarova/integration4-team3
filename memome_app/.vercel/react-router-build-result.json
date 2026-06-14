@@ -1,0 +1,800 @@
+{
+  "buildManifest": {
+    "serverBundles": {
+      "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0": {
+        "id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+        "file": "build/server/nodejs_eyJydW50aW1lIjoibm9kZWpzIn0/index.js",
+        "config": {
+          "runtime": "nodejs"
+        }
+      }
+    },
+    "routeIdToServerBundleId": {
+      "root": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/discover._index": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/discover.happening-now": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/discover.upcoming": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/discover.places": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/discover.event.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/discover.place.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.settings": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.settings.account": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.settings.change-password": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.settings.change-email": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.settings.language": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.settings.privacy": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.settings.feedback": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.favourites._index": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.favourites.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.favourites.spots": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.favourites.events": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/register": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/collect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/connect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/demo-stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/diary.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/location.$osmType.$osmId.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/location.$osmType.$osmId": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.account": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.feedback": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.location-search": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/catchall": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "app/root.jsx",
+        "path": "",
+        "config": {
+          "runtime": "nodejs"
+        }
+      },
+      "routes/main-shell": {
+        "id": "routes/main-shell",
+        "parentId": "root",
+        "file": "app/routes/main-shell.jsx",
+        "path": "",
+        "config": {}
+      },
+      "routes/home": {
+        "id": "routes/home",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/home.jsx",
+        "index": true,
+        "config": {}
+      },
+      "routes/discover-layout": {
+        "id": "routes/discover-layout",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/discover-layout.jsx",
+        "path": "discover",
+        "config": {}
+      },
+      "routes/discover._index": {
+        "id": "routes/discover._index",
+        "parentId": "routes/discover-layout",
+        "file": "app/routes/discover._index.jsx",
+        "index": true,
+        "config": {}
+      },
+      "routes/discover.happening-now": {
+        "id": "routes/discover.happening-now",
+        "parentId": "routes/discover-layout",
+        "file": "app/routes/discover.happening-now.jsx",
+        "path": "happening-now",
+        "config": {}
+      },
+      "routes/discover.upcoming": {
+        "id": "routes/discover.upcoming",
+        "parentId": "routes/discover-layout",
+        "file": "app/routes/discover.upcoming.jsx",
+        "path": "upcoming",
+        "config": {}
+      },
+      "routes/discover.places": {
+        "id": "routes/discover.places",
+        "parentId": "routes/discover-layout",
+        "file": "app/routes/discover.places.jsx",
+        "path": "places",
+        "config": {}
+      },
+      "routes/discover.event.$id": {
+        "id": "routes/discover.event.$id",
+        "parentId": "routes/discover-layout",
+        "file": "app/routes/discover.event.$id.jsx",
+        "path": "event/:id",
+        "config": {}
+      },
+      "routes/discover.place.$id": {
+        "id": "routes/discover.place.$id",
+        "parentId": "routes/discover-layout",
+        "file": "app/routes/discover.place.$id.jsx",
+        "path": "place/:id",
+        "config": {}
+      },
+      "routes/account-layout.profile": {
+        "id": "routes/account-layout.profile",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/account-layout.profile.jsx",
+        "path": "profile",
+        "config": {}
+      },
+      "routes/profile": {
+        "id": "routes/profile",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.jsx",
+        "index": true,
+        "config": {}
+      },
+      "routes/profile.settings": {
+        "id": "routes/profile.settings",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.settings.jsx",
+        "path": "settings",
+        "config": {}
+      },
+      "routes/profile.settings.account": {
+        "id": "routes/profile.settings.account",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.settings.account.jsx",
+        "path": "settings/account",
+        "config": {}
+      },
+      "routes/profile.settings.change-password": {
+        "id": "routes/profile.settings.change-password",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.settings.change-password.jsx",
+        "path": "settings/change-password",
+        "config": {}
+      },
+      "routes/profile.settings.change-email": {
+        "id": "routes/profile.settings.change-email",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.settings.change-email.jsx",
+        "path": "settings/change-email",
+        "config": {}
+      },
+      "routes/profile.settings.language": {
+        "id": "routes/profile.settings.language",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.settings.language.jsx",
+        "path": "settings/language",
+        "config": {}
+      },
+      "routes/profile.settings.privacy": {
+        "id": "routes/profile.settings.privacy",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.settings.privacy.jsx",
+        "path": "settings/privacy",
+        "config": {}
+      },
+      "routes/profile.settings.feedback": {
+        "id": "routes/profile.settings.feedback",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.settings.feedback.jsx",
+        "path": "settings/feedback",
+        "config": {}
+      },
+      "routes/profile.memos": {
+        "id": "routes/profile.memos",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.memos.jsx",
+        "path": "memos",
+        "config": {}
+      },
+      "routes/profile.favourites-layout": {
+        "id": "routes/profile.favourites-layout",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.favourites-layout.jsx",
+        "path": "favourites",
+        "config": {}
+      },
+      "routes/profile.favourites._index": {
+        "id": "routes/profile.favourites._index",
+        "parentId": "routes/profile.favourites-layout",
+        "file": "app/routes/profile.favourites._index.jsx",
+        "index": true,
+        "config": {}
+      },
+      "routes/profile.favourites.memos": {
+        "id": "routes/profile.favourites.memos",
+        "parentId": "routes/profile.favourites-layout",
+        "file": "app/routes/profile.favourites.memos.jsx",
+        "path": "memos",
+        "config": {}
+      },
+      "routes/profile.favourites.spots": {
+        "id": "routes/profile.favourites.spots",
+        "parentId": "routes/profile.favourites-layout",
+        "file": "app/routes/profile.favourites.spots.jsx",
+        "path": "spots",
+        "config": {}
+      },
+      "routes/profile.favourites.events": {
+        "id": "routes/profile.favourites.events",
+        "parentId": "routes/profile.favourites-layout",
+        "file": "app/routes/profile.favourites.events.jsx",
+        "path": "events",
+        "config": {}
+      },
+      "routes/login": {
+        "id": "routes/login",
+        "parentId": "root",
+        "file": "app/routes/login.jsx",
+        "path": "login",
+        "config": {}
+      },
+      "routes/register": {
+        "id": "routes/register",
+        "parentId": "root",
+        "file": "app/routes/register.jsx",
+        "path": "register",
+        "config": {}
+      },
+      "routes/account-layout.stickers": {
+        "id": "routes/account-layout.stickers",
+        "parentId": "root",
+        "file": "app/routes/account-layout.stickers.jsx",
+        "path": "stickers",
+        "config": {}
+      },
+      "routes/stickers": {
+        "id": "routes/stickers",
+        "parentId": "routes/account-layout.stickers",
+        "file": "app/routes/stickers.jsx",
+        "index": true,
+        "config": {}
+      },
+      "routes/collect": {
+        "id": "routes/collect",
+        "parentId": "root",
+        "file": "app/routes/collect.jsx",
+        "path": "collect",
+        "config": {}
+      },
+      "routes/connect": {
+        "id": "routes/connect",
+        "parentId": "root",
+        "file": "app/routes/connect.jsx",
+        "path": "connect",
+        "config": {}
+      },
+      "routes/demo-stickers": {
+        "id": "routes/demo-stickers",
+        "parentId": "root",
+        "file": "app/routes/demo-stickers.jsx",
+        "path": "demo-stickers",
+        "config": {}
+      },
+      "routes/diary.$id": {
+        "id": "routes/diary.$id",
+        "parentId": "root",
+        "file": "app/routes/diary.$id.jsx",
+        "path": "diary/:id",
+        "config": {}
+      },
+      "routes/location.$osmType.$osmId.memos": {
+        "id": "routes/location.$osmType.$osmId.memos",
+        "parentId": "root",
+        "file": "app/routes/location.$osmType.$osmId.memos.jsx",
+        "path": "location/:osmType/:osmId/memos",
+        "config": {}
+      },
+      "routes/location.$osmType.$osmId": {
+        "id": "routes/location.$osmType.$osmId",
+        "parentId": "root",
+        "file": "app/routes/location.$osmType.$osmId.jsx",
+        "path": "location/:osmType/:osmId",
+        "config": {}
+      },
+      "routes/api.stickers": {
+        "id": "routes/api.stickers",
+        "parentId": "root",
+        "file": "app/routes/api.stickers.js",
+        "path": "api/stickers",
+        "config": {}
+      },
+      "routes/api.memos": {
+        "id": "routes/api.memos",
+        "parentId": "root",
+        "file": "app/routes/api.memos.js",
+        "path": "api/memos",
+        "config": {}
+      },
+      "routes/api.account": {
+        "id": "routes/api.account",
+        "parentId": "root",
+        "file": "app/routes/api.account.js",
+        "path": "api/account",
+        "config": {}
+      },
+      "routes/api.feedback": {
+        "id": "routes/api.feedback",
+        "parentId": "root",
+        "file": "app/routes/api.feedback.js",
+        "path": "api/feedback",
+        "config": {}
+      },
+      "routes/api.location-search": {
+        "id": "routes/api.location-search",
+        "parentId": "root",
+        "file": "app/routes/api.location-search.js",
+        "path": "api/location-search",
+        "config": {}
+      },
+      "routes/catchall": {
+        "id": "routes/catchall",
+        "parentId": "root",
+        "file": "app/routes/catchall.jsx",
+        "path": "*",
+        "config": {}
+      }
+    }
+  },
+  "reactRouterConfig": {
+    "appDirectory": "/Users/renetruseva/Documents/DEVINE/integration4/integration4-team3/memome_app/app",
+    "basename": "/",
+    "buildDirectory": "/Users/renetruseva/Documents/DEVINE/integration4/integration4-team3/memome_app/build",
+    "future": {
+      "unstable_optimizeDeps": false,
+      "v8_passThroughRequests": true,
+      "v8_trailingSlashAwareDataRequests": true,
+      "unstable_previewServerPrerendering": false,
+      "v8_middleware": true,
+      "v8_splitRouteModules": true,
+      "v8_viteEnvironmentApi": true
+    },
+    "routes": {
+      "root": {
+        "id": "root",
+        "file": "root.jsx",
+        "path": ""
+      },
+      "routes/main-shell": {
+        "id": "routes/main-shell",
+        "parentId": "root",
+        "file": "routes/main-shell.jsx",
+        "path": ""
+      },
+      "routes/home": {
+        "id": "routes/home",
+        "parentId": "routes/main-shell",
+        "file": "routes/home.jsx",
+        "index": true
+      },
+      "routes/discover-layout": {
+        "id": "routes/discover-layout",
+        "parentId": "routes/main-shell",
+        "file": "routes/discover-layout.jsx",
+        "path": "discover"
+      },
+      "routes/discover._index": {
+        "id": "routes/discover._index",
+        "parentId": "routes/discover-layout",
+        "file": "routes/discover._index.jsx",
+        "index": true
+      },
+      "routes/discover.happening-now": {
+        "id": "routes/discover.happening-now",
+        "parentId": "routes/discover-layout",
+        "file": "routes/discover.happening-now.jsx",
+        "path": "happening-now"
+      },
+      "routes/discover.upcoming": {
+        "id": "routes/discover.upcoming",
+        "parentId": "routes/discover-layout",
+        "file": "routes/discover.upcoming.jsx",
+        "path": "upcoming"
+      },
+      "routes/discover.places": {
+        "id": "routes/discover.places",
+        "parentId": "routes/discover-layout",
+        "file": "routes/discover.places.jsx",
+        "path": "places"
+      },
+      "routes/discover.event.$id": {
+        "id": "routes/discover.event.$id",
+        "parentId": "routes/discover-layout",
+        "file": "routes/discover.event.$id.jsx",
+        "path": "event/:id"
+      },
+      "routes/discover.place.$id": {
+        "id": "routes/discover.place.$id",
+        "parentId": "routes/discover-layout",
+        "file": "routes/discover.place.$id.jsx",
+        "path": "place/:id"
+      },
+      "routes/account-layout.profile": {
+        "id": "routes/account-layout.profile",
+        "parentId": "routes/main-shell",
+        "file": "routes/account-layout.profile.jsx",
+        "path": "profile"
+      },
+      "routes/profile": {
+        "id": "routes/profile",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.jsx",
+        "index": true
+      },
+      "routes/profile.settings": {
+        "id": "routes/profile.settings",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.settings.jsx",
+        "path": "settings"
+      },
+      "routes/profile.settings.account": {
+        "id": "routes/profile.settings.account",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.settings.account.jsx",
+        "path": "settings/account"
+      },
+      "routes/profile.settings.change-password": {
+        "id": "routes/profile.settings.change-password",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.settings.change-password.jsx",
+        "path": "settings/change-password"
+      },
+      "routes/profile.settings.change-email": {
+        "id": "routes/profile.settings.change-email",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.settings.change-email.jsx",
+        "path": "settings/change-email"
+      },
+      "routes/profile.settings.language": {
+        "id": "routes/profile.settings.language",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.settings.language.jsx",
+        "path": "settings/language"
+      },
+      "routes/profile.settings.privacy": {
+        "id": "routes/profile.settings.privacy",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.settings.privacy.jsx",
+        "path": "settings/privacy"
+      },
+      "routes/profile.settings.feedback": {
+        "id": "routes/profile.settings.feedback",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.settings.feedback.jsx",
+        "path": "settings/feedback"
+      },
+      "routes/profile.memos": {
+        "id": "routes/profile.memos",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.memos.jsx",
+        "path": "memos"
+      },
+      "routes/profile.favourites-layout": {
+        "id": "routes/profile.favourites-layout",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.favourites-layout.jsx",
+        "path": "favourites"
+      },
+      "routes/profile.favourites._index": {
+        "id": "routes/profile.favourites._index",
+        "parentId": "routes/profile.favourites-layout",
+        "file": "routes/profile.favourites._index.jsx",
+        "index": true
+      },
+      "routes/profile.favourites.memos": {
+        "id": "routes/profile.favourites.memos",
+        "parentId": "routes/profile.favourites-layout",
+        "file": "routes/profile.favourites.memos.jsx",
+        "path": "memos"
+      },
+      "routes/profile.favourites.spots": {
+        "id": "routes/profile.favourites.spots",
+        "parentId": "routes/profile.favourites-layout",
+        "file": "routes/profile.favourites.spots.jsx",
+        "path": "spots"
+      },
+      "routes/profile.favourites.events": {
+        "id": "routes/profile.favourites.events",
+        "parentId": "routes/profile.favourites-layout",
+        "file": "routes/profile.favourites.events.jsx",
+        "path": "events"
+      },
+      "routes/login": {
+        "id": "routes/login",
+        "parentId": "root",
+        "file": "routes/login.jsx",
+        "path": "login"
+      },
+      "routes/register": {
+        "id": "routes/register",
+        "parentId": "root",
+        "file": "routes/register.jsx",
+        "path": "register"
+      },
+      "routes/account-layout.stickers": {
+        "id": "routes/account-layout.stickers",
+        "parentId": "root",
+        "file": "routes/account-layout.stickers.jsx",
+        "path": "stickers"
+      },
+      "routes/stickers": {
+        "id": "routes/stickers",
+        "parentId": "routes/account-layout.stickers",
+        "file": "routes/stickers.jsx",
+        "index": true
+      },
+      "routes/collect": {
+        "id": "routes/collect",
+        "parentId": "root",
+        "file": "routes/collect.jsx",
+        "path": "collect"
+      },
+      "routes/connect": {
+        "id": "routes/connect",
+        "parentId": "root",
+        "file": "routes/connect.jsx",
+        "path": "connect"
+      },
+      "routes/demo-stickers": {
+        "id": "routes/demo-stickers",
+        "parentId": "root",
+        "file": "routes/demo-stickers.jsx",
+        "path": "demo-stickers"
+      },
+      "routes/diary.$id": {
+        "id": "routes/diary.$id",
+        "parentId": "root",
+        "file": "routes/diary.$id.jsx",
+        "path": "diary/:id"
+      },
+      "routes/location.$osmType.$osmId.memos": {
+        "id": "routes/location.$osmType.$osmId.memos",
+        "parentId": "root",
+        "file": "routes/location.$osmType.$osmId.memos.jsx",
+        "path": "location/:osmType/:osmId/memos"
+      },
+      "routes/location.$osmType.$osmId": {
+        "id": "routes/location.$osmType.$osmId",
+        "parentId": "root",
+        "file": "routes/location.$osmType.$osmId.jsx",
+        "path": "location/:osmType/:osmId"
+      },
+      "routes/api.stickers": {
+        "id": "routes/api.stickers",
+        "parentId": "root",
+        "file": "routes/api.stickers.js",
+        "path": "api/stickers"
+      },
+      "routes/api.memos": {
+        "id": "routes/api.memos",
+        "parentId": "root",
+        "file": "routes/api.memos.js",
+        "path": "api/memos"
+      },
+      "routes/api.account": {
+        "id": "routes/api.account",
+        "parentId": "root",
+        "file": "routes/api.account.js",
+        "path": "api/account"
+      },
+      "routes/api.feedback": {
+        "id": "routes/api.feedback",
+        "parentId": "root",
+        "file": "routes/api.feedback.js",
+        "path": "api/feedback"
+      },
+      "routes/api.location-search": {
+        "id": "routes/api.location-search",
+        "parentId": "root",
+        "file": "routes/api.location-search.js",
+        "path": "api/location-search"
+      },
+      "routes/catchall": {
+        "id": "routes/catchall",
+        "parentId": "root",
+        "file": "routes/catchall.jsx",
+        "path": "*"
+      }
+    },
+    "routeDiscovery": {
+      "mode": "lazy",
+      "manifestPath": "/__manifest"
+    },
+    "serverBuildFile": "index.js",
+    "serverModuleFormat": "esm",
+    "ssr": true,
+    "subResourceIntegrity": false,
+    "allowedActionOrigins": [
+      "localhost:5173",
+      "127.0.0.1:5173",
+      "memome.local:5173",
+      "10.175.45.113:5173"
+    ],
+    "unstable_routeConfig": [
+      {
+        "id": "root",
+        "path": "",
+        "file": "root.jsx",
+        "children": [
+          {
+            "file": "routes/main-shell.jsx",
+            "children": [
+              {
+                "file": "routes/home.jsx",
+                "index": true
+              },
+              {
+                "file": "routes/discover-layout.jsx",
+                "children": [
+                  {
+                    "file": "routes/discover._index.jsx",
+                    "index": true
+                  },
+                  {
+                    "file": "routes/discover.happening-now.jsx",
+                    "path": "happening-now"
+                  },
+                  {
+                    "file": "routes/discover.upcoming.jsx",
+                    "path": "upcoming"
+                  },
+                  {
+                    "file": "routes/discover.places.jsx",
+                    "path": "places"
+                  },
+                  {
+                    "file": "routes/discover.event.$id.jsx",
+                    "path": "event/:id"
+                  },
+                  {
+                    "file": "routes/discover.place.$id.jsx",
+                    "path": "place/:id"
+                  }
+                ],
+                "path": "discover"
+              },
+              {
+                "file": "routes/account-layout.profile.jsx",
+                "children": [
+                  {
+                    "file": "routes/profile.jsx",
+                    "index": true
+                  },
+                  {
+                    "file": "routes/profile.settings.jsx",
+                    "path": "settings"
+                  },
+                  {
+                    "file": "routes/profile.settings.account.jsx",
+                    "path": "settings/account"
+                  },
+                  {
+                    "file": "routes/profile.settings.change-password.jsx",
+                    "path": "settings/change-password"
+                  },
+                  {
+                    "file": "routes/profile.settings.change-email.jsx",
+                    "path": "settings/change-email"
+                  },
+                  {
+                    "file": "routes/profile.settings.language.jsx",
+                    "path": "settings/language"
+                  },
+                  {
+                    "file": "routes/profile.settings.privacy.jsx",
+                    "path": "settings/privacy"
+                  },
+                  {
+                    "file": "routes/profile.settings.feedback.jsx",
+                    "path": "settings/feedback"
+                  },
+                  {
+                    "file": "routes/profile.memos.jsx",
+                    "path": "memos"
+                  },
+                  {
+                    "file": "routes/profile.favourites-layout.jsx",
+                    "children": [
+                      {
+                        "file": "routes/profile.favourites._index.jsx",
+                        "index": true
+                      },
+                      {
+                        "file": "routes/profile.favourites.memos.jsx",
+                        "path": "memos"
+                      },
+                      {
+                        "file": "routes/profile.favourites.spots.jsx",
+                        "path": "spots"
+                      },
+                      {
+                        "file": "routes/profile.favourites.events.jsx",
+                        "path": "events"
+                      }
+                    ],
+                    "path": "favourites"
+                  }
+                ],
+                "path": "profile"
+              }
+            ],
+            "path": ""
+          },
+          {
+            "file": "routes/login.jsx",
+            "path": "login"
+          },
+          {
+            "file": "routes/register.jsx",
+            "path": "register"
+          },
+          {
+            "file": "routes/account-layout.stickers.jsx",
+            "children": [
+              {
+                "file": "routes/stickers.jsx",
+                "index": true
+              }
+            ],
+            "path": "stickers"
+          },
+          {
+            "file": "routes/collect.jsx",
+            "path": "collect"
+          },
+          {
+            "file": "routes/connect.jsx",
+            "path": "connect"
+          },
+          {
+            "file": "routes/demo-stickers.jsx",
+            "path": "demo-stickers"
+          },
+          {
+            "file": "routes/diary.$id.jsx",
+            "path": "diary/:id"
+          },
+          {
+            "file": "routes/location.$osmType.$osmId.memos.jsx",
+            "path": "location/:osmType/:osmId/memos"
+          },
+          {
+            "file": "routes/location.$osmType.$osmId.jsx",
+            "path": "location/:osmType/:osmId"
+          },
+          {
+            "file": "routes/api.stickers.js",
+            "path": "api/stickers"
+          },
+          {
+            "file": "routes/api.memos.js",
+            "path": "api/memos"
+          },
+          {
+            "file": "routes/api.account.js",
+            "path": "api/account"
+          },
+          {
+            "file": "routes/api.feedback.js",
+            "path": "api/feedback"
+          },
+          {
+            "file": "routes/api.location-search.js",
+            "path": "api/location-search"
+          },
+          {
+            "file": "routes/catchall.jsx",
+            "path": "*"
+          }
+        ]
+      }
+    ]
+  },
+  "viteConfig": {
+    "build": {
+      "assetsDir": "assets"
+    }
+  }
+}
