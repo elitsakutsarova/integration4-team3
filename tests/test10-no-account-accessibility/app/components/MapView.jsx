@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useRevalidator, useSearchParams } from 'react-router';
+import { useAuth } from '../context/AuthContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import NewMemoForm from './NewMemoForm';
 import MemoLocationPicker from './MemoLocationPicker';
 import MapHomeChrome from './MapHomeChrome';
+import MapGuestCta from './MapGuestCta';
+import GuestAddMemoLocked from './GuestAddMemoLocked';
 import BottomNav from './BottomNav';
 import MemorySheet from './MemorySheet';
 import StickerRevealSheet from './StickerRevealSheet';
@@ -24,6 +27,7 @@ import {
   syncMemoryLayers,
 } from '../utils/mapPins';
 import { clearStickerReveal, readStickerReveal } from '../utils/stickerReveal';
+import { journalAssets } from '../utils/journalAssets';
 
 const DEMO_MEMORIES = [...MOCK_MEMORIES, ...GROTE_MARKT_CLUSTER_MEMORIES];
 
@@ -57,6 +61,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const draftMemo = readDraftMemo(searchParams);
   const fetcher = useFetcher({ key: 'create-memo' });
   const revalidator = useRevalidator();
+  const { user } = useAuth();
   const { prependCreatedMemo, refreshCreatedMemos } = useCreatedMemos();
   const handledPublishRef = useRef(false);
   const initTokenRef = useRef(0);
@@ -74,9 +79,16 @@ export default function MapView({ savedMemos = [], active = true }) {
   const navigateRef = useRef(navigate);
   navigateRef.current = navigate;
 
+  const isGuestRef = useRef(false);
+  isGuestRef.current = !user;
+
+  const promptGuestAddMemoRef = useRef(null);
+  promptGuestAddMemoRef.current = () => setGuestAddMemoLocked(true);
+
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [memoryAnchor, setMemoryAnchor] = useState(null);
   const [revealedSticker, setRevealedSticker] = useState(null);
+  const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [eventLocationHrefs, setEventLocationHrefs] = useState(() => new Map());
@@ -93,6 +105,10 @@ export default function MapView({ savedMemos = [], active = true }) {
   // current navigate/setState logic without re-binding listeners on every render.
   const openFormRef = useRef(null);
   openFormRef.current = (latlng) => {
+    if (isGuestRef.current) {
+      promptGuestAddMemoRef.current?.();
+      return;
+    }
     setSearchParams({
       lat: String(latlng.lat),
       lng: String(latlng.lng),
@@ -138,6 +154,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     if (!active) {
       setSelectedMemory(null);
       setMemoryAnchor(null);
+      setGuestAddMemoLocked(false);
       setSearchParams({}, { replace: true });
       return;
     }
@@ -369,6 +386,10 @@ export default function MapView({ savedMemos = [], active = true }) {
       map.on('click', e => {
         if (suppressClickRef.current) return;
         if (!e.latlng || !Number.isFinite(e.latlng.lat) || !Number.isFinite(e.latlng.lng)) return;
+        if (isGuestRef.current) {
+          promptGuestAddMemoRef.current?.();
+          return;
+        }
         placePendingPin(L, map, e.latlng, pendingMarkerRef, suppressClickRef, openFormRef);
       });
 
@@ -379,6 +400,11 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, []);
 
   function handleAddBtnClick() {
+    if (isGuestRef.current) {
+      promptGuestAddMemoRef.current?.();
+      return;
+    }
+
     const L = leafletRef.current;
     const map = mapRef.current;
     if (!L || !map) return;
@@ -386,6 +412,20 @@ export default function MapView({ savedMemos = [], active = true }) {
     placePendingPin(L, map, center, pendingMarkerRef, suppressClickRef, openFormRef);
     openFormRef.current(center);
   }
+
+  function dismissGuestAddMemoLocked() {
+    setGuestAddMemoLocked(false);
+    if (pendingMarkerRef.current) {
+      pendingMarkerRef.current.remove();
+      pendingMarkerRef.current = null;
+    }
+  }
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !active) return;
+    requestAnimationFrame(() => map.invalidateSize());
+  }, [active, guestAddMemoLocked, draftMemo]);
 
   function handleFormClose() {
     setSearchParams({}, { replace: true });
@@ -425,7 +465,14 @@ export default function MapView({ savedMemos = [], active = true }) {
   }
 
   return (
-    <div className={`map-page${active ? '' : ' map-page--inactive'}`}>
+    <div
+      className={[
+        'map-page',
+        active ? '' : 'map-page--inactive',
+        guestAddMemoLocked ? 'map-page--side-panel' : '',
+        draftMemo && !draftMemo.pickLocation ? 'map-page--side-panel' : '',
+      ].filter(Boolean).join(' ')}
+    >
       <div ref={attachMapContainer} className="map-container" />
 
       {active && (
@@ -437,7 +484,29 @@ export default function MapView({ savedMemos = [], active = true }) {
         onCategoryChange={setActiveCategory}
       />
 
+      {!user && !revealedSticker && !draftMemo && !selectedMemory && !guestAddMemoLocked && (
+        <MapGuestCta />
+      )}
+
       <BottomNav onAddClick={handleAddBtnClick} />
+
+      <button
+        type="button"
+        className="map-desktop-add"
+        onClick={handleAddBtnClick}
+        aria-label="Add memo"
+      >
+        <img
+          className="map-desktop-add-icon"
+          src={journalAssets.addMenu}
+          alt=""
+          aria-hidden="true"
+        />
+      </button>
+
+      {guestAddMemoLocked && (
+        <GuestAddMemoLocked onClose={dismissGuestAddMemoLocked} />
+      )}
 
       {selectedMemory && (
         <MemorySheet

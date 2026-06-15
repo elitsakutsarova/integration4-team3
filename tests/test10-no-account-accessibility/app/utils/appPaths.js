@@ -104,6 +104,7 @@ const GUEST_APP_PATHS = new Set([
   paths.profile,
   paths.stickers,
   paths.discover,
+  paths.journals,
 ]);
 
 export function isPublicAppPath(pathname) {
