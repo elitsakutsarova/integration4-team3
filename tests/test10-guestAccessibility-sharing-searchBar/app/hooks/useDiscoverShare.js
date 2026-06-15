@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { sharePageLink } from '../utils/shareLink';
 
-export function useDiscoverShare({ title, text }) {
+function resolvePayload(payload) {
+  return typeof payload === 'function' ? payload() : payload;
+}
+
+export function useDiscoverShare(payload) {
   const [showSheet, setShowSheet] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [sharing, setSharing] = useState(false);
@@ -11,6 +15,7 @@ export function useDiscoverShare({ title, text }) {
     setSharing(true);
 
     try {
+      const { title, text } = resolvePayload(payload);
       const result = await sharePageLink({ title, text });
       if (result.shared) {
         setShowSheet(false);

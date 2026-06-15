@@ -7,6 +7,8 @@ const SUCCESS_ASSETS = {
 const COPY = {
   event: { subject: 'Event was', highlight: 'successfully shared' },
   place: { subject: 'Place was', highlight: 'successfully shared' },
+  location: { subject: 'Location was', highlight: 'successfully shared' },
+  memo: { subject: 'Memo was', highlight: 'successfully shared' },
 };
 
 export default function DiscoverShareSuccess({ variant, onClose }) {

@@ -2,57 +2,73 @@
 
 import { useMemo, useState } from 'react';
 import BottomNav from '../BottomNav';
+import ShareSheet from '../diary/ShareSheet';
+import DiscoverShareSuccess from '../discover/DiscoverShareSuccess';
 import CollectionMemoCard from './CollectionMemoCard';
-import CollectionPageHeader from './CollectionPageHeader';
-import CollectionSortChips from './CollectionSortChips';
-
-const SORT_OPTIONS = [
-  { id: 'all', label: 'All' },
-  { id: 'recent', label: 'Recently Added' },
-  { id: 'oldest', label: 'Oldest added' },
-  { id: 'az', label: 'A-Z' },
-  { id: 'za', label: 'Z-A' },
-];
-
-function sortMemos(memos, sortId) {
-  const next = [...memos];
-
-  switch (sortId) {
-    case 'oldest':
-      return next.reverse();
-    case 'az':
-      return next.sort((a, b) => String(a.location).localeCompare(String(b.location)));
-    case 'za':
-      return next.sort((a, b) => String(b.location).localeCompare(String(a.location)));
-    case 'recent':
-    case 'all':
-    default:
-      return next;
-  }
-}
+import CreatedMemoCategoryChips from './CreatedMemoCategoryChips';
+import CreatedMemosPageHeader from './CreatedMemosPageHeader';
+import { useMemoShare } from '../../hooks/useMemoShare';
+import { filterMapMemories } from '../../utils/mapFilters';
 
 export default function CreatedMemosPage({ memos }) {
-  const [sortId, setSortId] = useState('all');
-  const sortedMemos = useMemo(() => sortMemos(memos, sortId), [memos, sortId]);
+  const [category, setCategory] = useState('All');
+  const {
+    shareMemo,
+    openShare,
+    closeShare,
+    confirmShare,
+    showSuccess,
+    closeSuccess,
+    sharing,
+  } = useMemoShare();
+
+  const filteredMemos = useMemo(
+    () => filterMapMemories(memos, { category }),
+    [memos, category],
+  );
 
   return (
-    <div className="collection-page">
-      <CollectionPageHeader title="Created Memos" />
-      <CollectionSortChips options={SORT_OPTIONS} value={sortId} onChange={setSortId} />
+    <div className="collection-page collection-page--created-memos">
+      <CreatedMemosPageHeader />
+      <CreatedMemoCategoryChips value={category} onChange={setCategory} />
 
       <div className="collection-scroll">
-        {sortedMemos.length > 0 ? (
-          <div className="collection-memo-list">
-            {sortedMemos.map(memo => (
-              <CollectionMemoCard key={memo.id} memo={memo} variant="created" showHeart={false} />
+        {filteredMemos.length > 0 ? (
+          <div className="collection-memo-list collection-memo-list--created">
+            {filteredMemos.map((memo, index) => (
+              <CollectionMemoCard
+                key={memo.id}
+                memo={memo}
+                variant="created"
+                showHeart
+                layout={index % 2 === 0 ? 'horizontal' : 'vertical'}
+                onShare={() => openShare(memo)}
+              />
             ))}
           </div>
         ) : (
           <p className="collection-empty">
-            You haven&apos;t created any memos yet. Tap + on the map to share your first memory.
+            {category === 'All'
+              ? "You haven't created any memos yet. Tap + on the map to share your first memory."
+              : 'No memos in this category yet.'}
           </p>
         )}
       </div>
+
+      {shareMemo && (
+        <ShareSheet
+          title="Share memo"
+          countLabel={shareMemo.location || 'My memo'}
+          onClose={closeShare}
+          onShareApp={confirmShare}
+          onShareContact={confirmShare}
+          disabled={sharing}
+        />
+      )}
+
+      {showSuccess && (
+        <DiscoverShareSuccess variant="memo" onClose={closeSuccess} />
+      )}
 
       <BottomNav />
     </div>

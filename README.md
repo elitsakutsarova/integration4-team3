@@ -138,13 +138,15 @@ After our consult, I changed a lot of things in test5 like:
 - If they click on Journal, it shows them the journal page (no account journal page screen) ✔️
 
 ## Add sharing (of memos, [journals] -> done, events, spots...)
-- Implement option to share an event
-- Implement option to share a spot
-- Show success message when an event has been successfully shared
-- Show success message when a spot has been successfully shared
-- Implement option to share a memo
-- Show success message when a memo has been successfully shared
-- When the user clicks on the share button on the journal -> it goes to Create recap page
+- Implement option to share an event ✔️
+- Implement option to share a spot ✔️
+- Implement option to share a location ✔️
+- Show success message when an event has been successfully shared ✔️
+- Show success message when a spot has been successfully shared ✔️
+- Show success message when a location has been successfully shared ✔️
+- Implement option to share a memo ✔️
+- Show success message when a memo has been successfully shared ✔️
+- When the user clicks on the share button on the journal -> it goes to Create recap page ✔️
 
 
 
