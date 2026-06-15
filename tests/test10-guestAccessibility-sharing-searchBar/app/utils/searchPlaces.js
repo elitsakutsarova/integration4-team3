@@ -7,6 +7,7 @@ import { discoverEventPath, discoverPlacePath } from './appPaths';
 import { buildLocationDetailHref } from './locationHref';
 
 const SEARCH_SUGGESTIONS = ['Festival', 'Grote Markt', 'Club Vaag'];
+const NO_RESULTS_SUGGESTIONS = ['Festival', 'Grote Markt', 'Cafe'];
 const DEFAULT_SPOT_IMAGE = '/discover/caffe-mundi.jpg';
 
 function uniqueDiscoverPlaces() {
@@ -48,6 +49,7 @@ function discoverPlaceToSpot(place) {
     categories: full.categories ?? [],
     image: full.image ?? DEFAULT_SPOT_IMAGE,
     href: locationHref ?? discoverPlacePath(full.id),
+    faveId: full.id,
     recentId: full.placeId ?? `discover/${full.id}`,
     recentName: full.title,
     recentAddress: full.mapsQuery || `${full.location}, Antwerpen`,
@@ -71,6 +73,7 @@ function photonPlaceToSpot(place) {
     tags: [formatPhotonTag(place.category)],
     image: DEFAULT_SPOT_IMAGE,
     href,
+    faveId: null,
     recentId: place.id,
     recentName: place.name,
     recentAddress: place.address || 'Antwerpen, Belgium',
@@ -84,6 +87,10 @@ function formatPhotonTag(category) {
 
 export function getSearchSuggestions() {
   return SEARCH_SUGGESTIONS;
+}
+
+export function getNoResultsSuggestions() {
+  return NO_RESULTS_SUGGESTIONS;
 }
 
 export function searchDiscoverSpots(query) {
@@ -160,5 +167,20 @@ export function eventToRecentEntry(event) {
     name: event.title,
     address: event.location,
     href,
+  };
+}
+
+export function queryToRecentEntry(query) {
+  const trimmed = query.trim();
+  if (trimmed.length < 2) return null;
+
+  const key = trimmed.toLowerCase();
+
+  return {
+    id: `query/${key}`,
+    placeId: `query/${key}`,
+    name: trimmed,
+    address: 'Search again',
+    query: trimmed,
   };
 }

@@ -7200,17 +7200,21 @@ html img {
 
 /* ─── Unified search page ─────────────────────────── */
 .search-page {
-  min-height: 100dvh;
+  height: 100dvh;
+  min-height: 0;
   background: #fff;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .search-page-shell {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 100dvh;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
   background: linear-gradient(180deg, #fff 26%, rgba(255, 255, 255, 0) 42%);
 }
 
@@ -7289,9 +7293,11 @@ html img {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
   gap: 18px;
   padding: 12px 16px calc(24px + env(safe-area-inset-bottom, 0px));
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -7437,6 +7443,11 @@ html img {
   cursor: pointer;
 }
 
+.search-spot-card .discover-fave-btn,
+.search-event-card .discover-fave-btn {
+  pointer-events: auto;
+}
+
 .search-spot-card .discover-learn-more,
 .search-event-card .discover-learn-more {
   pointer-events: none;
@@ -7456,8 +7467,6 @@ html img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex: 1;
   gap: 12px;
   text-align: center;
   padding: 24px 0 32px;
@@ -7477,11 +7486,51 @@ html img {
 }
 
 .search-page-empty-copy {
-  margin: 8px 0 0;
+  margin: 0;
   max-width: 216px;
   font-size: 14px;
   line-height: 1.4;
   color: #9ca3af;
+}
+
+.search-page-no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 8px 0 24px;
+}
+
+.search-page-no-results .search-page-count {
+  align-self: flex-start;
+  width: 100%;
+}
+
+.search-page-no-results-art {
+  width: min(100%, 341px);
+  height: auto;
+}
+
+.search-page-no-results-title {
+  margin: 0;
+  max-width: 298px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #797979;
+}
+
+.search-page-no-results-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+.search-page-suggestions--no-results {
+  justify-content: center;
+  width: 100%;
+  max-width: 320px;
 }
 
 @media (min-width: 768px) {

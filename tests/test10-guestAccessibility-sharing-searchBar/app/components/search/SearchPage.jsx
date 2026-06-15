@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
 import { EventCard, PlaceCard } from '../discover/DiscoverCards';
+import { useAuth } from '../../context/AuthContext';
 import { goBack, paths } from '../../utils/appPaths';
 import {
   buildGroupedSearchResults,
   eventToRecentEntry,
+  getNoResultsSuggestions,
   getSearchSuggestions,
+  queryToRecentEntry,
   spotToRecentEntry,
 } from '../../utils/searchPlaces';
 import { addRecentSearch, loadRecentSearches } from '../../utils/searchRecentStore';
@@ -58,6 +61,7 @@ function SearchSpotCard({ spot, onSelect }) {
       }}
     >
       <PlaceCard
+        layout="list"
         item={{
           id: spot.id,
           title: spot.title,
@@ -65,19 +69,59 @@ function SearchSpotCard({ spot, onSelect }) {
           tags: spot.tags,
           image: spot.image,
         }}
+        faveId={spot.faveId}
+        showFave={Boolean(spot.faveId)}
       />
     </div>
   );
 }
 
+function SearchNoResults({ query, onSuggestionClick }) {
+  const suggestions = getNoResultsSuggestions();
+
+  return (
+    <section className="search-page-no-results">
+      <p className="search-page-count">0 results found</p>
+
+      <img
+        src={NO_SEARCHES_ILLUSTRATION}
+        alt=""
+        className="search-page-no-results-art"
+        aria-hidden="true"
+      />
+
+      <h3 className="search-page-no-results-title">
+        Hmm, looks like we can&apos;t find anything for &ldquo;{query}&rdquo;.
+      </h3>
+
+      <p className="search-page-no-results-subtitle">Try searching for:</p>
+
+      <div className="search-page-suggestions search-page-suggestions--no-results">
+        {suggestions.map(term => (
+          <button
+            key={term}
+            type="button"
+            className="search-page-suggestion"
+            onClick={() => onSuggestionClick(term)}
+          >
+            {term}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function SearchPage() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const userId = user?.id ?? null;
   const searchFetcher = useFetcher({ key: 'place-search-page' });
   const inputRef = useRef(null);
 
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [recentSearches, setRecentSearches] = useState(() => loadRecentSearches());
+  const [recentSearches, setRecentSearches] = useState([]);
 
   const trimmedQuery = query.trim();
   const showResults = trimmedQuery.length >= 2;
@@ -97,6 +141,11 @@ export default function SearchPage() {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+    setRecentSearches(loadRecentSearches(userId));
+  }, [userId, authLoading]);
+
+  useEffect(() => {
     if (trimmedQuery.length < 2) return undefined;
 
     const timer = setTimeout(() => {
@@ -107,12 +156,22 @@ export default function SearchPage() {
   }, [trimmedQuery, searchFetcher.load]);
 
   function saveRecent(entry) {
-    addRecentSearch(entry);
-    setRecentSearches(loadRecentSearches());
+    if (authLoading || !entry) return;
+    setRecentSearches(addRecentSearch(userId, entry));
   }
 
   function handleSelectRecent(result) {
-    if (!result?.href) return;
+    if (!result) return;
+
+    if (result.query) {
+      setQuery(result.query);
+      saveRecent(result);
+      inputRef.current?.focus();
+      return;
+    }
+
+    if (!result.href) return;
+    saveRecent(result);
     navigate(result.href);
   }
 
@@ -130,7 +189,14 @@ export default function SearchPage() {
 
   function handleSuggestionClick(term) {
     setQuery(term);
+    const entry = queryToRecentEntry(term);
+    if (entry) saveRecent(entry);
     inputRef.current?.focus();
+  }
+
+  function handleSearchSubmit() {
+    const entry = queryToRecentEntry(trimmedQuery);
+    if (entry) saveRecent(entry);
   }
 
   const showRecentList = !showResults && recentSearches.length > 0;
@@ -168,6 +234,12 @@ export default function SearchPage() {
                 onChange={event => setQuery(event.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleSearchSubmit();
+                  }
+                }}
                 aria-label="Search Antwerp places, spots and events"
               />
               <span className="search-page-mic" aria-hidden="true">
@@ -225,9 +297,7 @@ export default function SearchPage() {
               )}
 
               {!isSearching && !hasGroupedResults && !searchError && (
-                <p className="search-page-status">
-                  No spots or events found for &ldquo;{trimmedQuery}&rdquo;.
-                </p>
+                <SearchNoResults query={trimmedQuery} onSuggestionClick={handleSuggestionClick} />
               )}
 
               {groupedResults.spots.length > 0 && (
@@ -263,7 +333,7 @@ export default function SearchPage() {
                           }
                         }}
                       >
-                        <EventCard item={event} layout="list" />
+                        <EventCard item={event} layout="list" showFave />
                       </div>
                     ))}
                   </div>

@@ -54,7 +54,7 @@ export function CategoryIcon({ name }) {
   );
 }
 
-export function EventCard({ item, layout = 'carousel' }) {
+export function EventCard({ item, layout = 'carousel', showFave = true }) {
   const cardClass = layout === 'list'
     ? 'discover-event-card discover-event-card--list'
     : 'discover-event-card';
@@ -72,7 +72,9 @@ export function EventCard({ item, layout = 'carousel' }) {
             Live event
           </span>
         )}
-        <DiscoverFavoriteButton type="event" itemId={item.id} label={item.title} />
+        {showFave && (
+          <DiscoverFavoriteButton type="event" itemId={item.id} label={item.title} />
+        )}
         <div className="discover-event-card-tags">
           {item.tags.map(tag => (
             <span key={tag} className="discover-tag">{tag}</span>
@@ -103,7 +105,8 @@ export function EventCard({ item, layout = 'carousel' }) {
   );
 }
 
-export function PlaceCard({ item, layout = 'carousel' }) {
+export function PlaceCard({ item, layout = 'carousel', faveId, showFave = true }) {
+  const favoriteItemId = faveId ?? item.id;
   const cardClass = layout === 'list'
     ? 'discover-place-card discover-place-card--list'
     : 'discover-place-card';
@@ -115,7 +118,9 @@ export function PlaceCard({ item, layout = 'carousel' }) {
         <span className="discover-tag discover-tag--on-image">{item.tags[0]}</span>
       </div>
       <div className="discover-place-card-body">
-        <DiscoverFavoriteButton type="place" itemId={item.id} label={item.title} />
+        {showFave && favoriteItemId && (
+          <DiscoverFavoriteButton type="place" itemId={favoriteItemId} label={item.title} />
+        )}
         <h3 className="discover-place-card-title">{item.title}</h3>
         <p className="discover-event-card-meta">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
