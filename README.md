@@ -127,10 +127,10 @@ After our consult, I changed a lot of things in test5 like:
 - Implement option to share the recap ✔️
 - Show success message when a recap has been successfully shared ✔️
 
-## Other
+## Test 10:
 
+- implement guest UX when user has no account
 - add sharing (of memos, [journals] -> done, events, etc...)
 - fix search bar
-- implement guest UX when user has no account
 
 ## Deployment

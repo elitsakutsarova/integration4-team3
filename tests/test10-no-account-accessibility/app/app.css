@@ -3977,6 +3977,106 @@ html img {
   margin-top: 8px;
 }
 
+/* ─── Sticker reveal overlay (guest QR scan → map) ─── */
+.sticker-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  /* map stays fully visible — tap anywhere outside card to close */
+}
+
+.sticker-reveal-sheet {
+  position: absolute;
+  bottom: calc(var(--nav-h-safe) + 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 32px), 361px);
+}
+
+.sticker-reveal-sticker {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* bottom half overlaps the card */
+  margin-bottom: -72px;
+}
+
+.sticker-reveal-sticker-inner {
+  animation: collect-pop .55s cubic-bezier(.34, 1.56, .64, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sticker-reveal-sticker-inner .sticker-img,
+.sticker-reveal-sticker-inner .diary-sticker-img {
+  width: 148px;
+  height: 148px;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.24));
+}
+
+.sticker-reveal-sticker-shadow {
+  width: 100px;
+  height: 14px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.14);
+  filter: blur(4px);
+}
+
+.sticker-reveal-card {
+  position: relative;
+  z-index: 1;
+  padding: 80px 20px 24px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 6px 36px rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.sticker-reveal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 16px;
+}
+
+.sticker-reveal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.sticker-reveal-btn {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+}
+
+.sticker-reveal-btn--ghost {
+  background: #fff;
+  color: var(--dark);
+  border: 1.5px solid #d8d8de;
+}
+
+.sticker-reveal-btn--primary {
+  background: var(--blue, #1952ff);
+  color: #fff;
+}
+
 /* ─── Stickers gallery (/stickers) ──────────────────── */
 .stickers-page {
   min-height: 100vh;
@@ -4169,6 +4269,190 @@ html img {
   color: var(--dark);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.stickers-page--guest {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.stickers-page--guest .stickers-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ─── Guest stickers CTA ──────────────────────────── */
+.stickers-guest-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--nav-h-safe);
+  z-index: 20;
+  padding: 20px 24px calc(20px + env(safe-area-inset-bottom));
+  background: #fff;
+  text-align: center;
+}
+
+.stickers-guest-cta::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 56px;
+  background: linear-gradient(to top, #fff 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
+@media (min-width: 520px) {
+  .stickers-guest-cta {
+    left: 50%;
+    right: auto;
+    width: 100%;
+    max-width: 640px;
+    transform: translateX(-50%);
+  }
+}
+
+.stickers-guest-cta-copy {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--dark);
+  margin-bottom: 14px;
+}
+
+.stickers-guest-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 280px;
+  min-height: 48px;
+  border-radius: 999px;
+  background: var(--blue, #1952ff);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.stickers-guest-cta-login {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--mid);
+}
+
+.stickers-guest-cta-login a {
+  color: var(--blue, #1952ff);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ─── Guest profile (/profile without account) ──────── */
+.profile-page--guest {
+  padding-bottom: calc(var(--nav-h-safe) + 24px);
+}
+
+.profile-identity--guest {
+  padding-top: max(28px, env(safe-area-inset-top));
+}
+
+.guest-collection-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid #ececf0;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.guest-collection-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #f4f4f7;
+  color: var(--mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guest-collection-card-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.guest-collection-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.guest-collection-card-meta {
+  font-size: 13px;
+  color: var(--mid);
+}
+
+.guest-collection-card-chevron {
+  font-size: 24px;
+  line-height: 1;
+  color: #b8b8c2;
+}
+
+.guest-create-account {
+  margin-top: 28px;
+  padding: 22px 18px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #f7f8ff 0%, #eef2ff 100%);
+  border: 1px solid #dfe6ff;
+  text-align: center;
+}
+
+.guest-create-account-copy {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--dark);
+  margin-bottom: 14px;
+}
+
+.guest-create-account-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--blue, #1952ff);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.guest-create-account-login {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--mid);
+}
+
+.guest-create-account-login a {
+  color: var(--blue, #1952ff);
+  font-weight: 600;
+  text-decoration: none;
 }
 
 /* ─── Connect devices (WebRTC) ─────────────────────── */

@@ -6,6 +6,7 @@ import { useCollectedStickers, useCollectedStickersLoading } from '../context/Co
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
+import { useStickers } from '../context/StickerCatalogContext';
 
 // mock-data
 import { getAchievementStates } from '../data/achievementStickers';
@@ -26,11 +27,79 @@ function BackIcon() {
   );
 }
 
+function LockIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+
+function GuestStickerCollection({ catalog, collected, loading }) {
+  const collectedIds = new Set(collected.map(sticker => sticker.id));
+
+  return (
+    <div className="stickers-page stickers-page--guest">
+      <header className="stickers-header">
+        <Link to={paths.profile} className="stickers-back-btn" aria-label="Back to profile">
+          <BackIcon />
+        </Link>
+        <h1 className="stickers-title">Stickers</h1>
+        <span className="stickers-header-spacer" aria-hidden="true" />
+      </header>
+
+      <div className="stickers-tabs stickers-tabs--guest" role="tablist" aria-label="Sticker views">
+        <span className="stickers-tab stickers-tab--active" role="tab" aria-selected="true">
+          Collection
+        </span>
+      </div>
+
+      <div className="stickers-content" role="tabpanel">
+        {loading ? (
+          <p className="stickers-empty">Loading…</p>
+        ) : (
+          <div className="stickers-grid stickers-grid--collection stickers-grid--guest-locked">
+            {catalog.map(item => {
+              const owned = collectedIds.has(item.id);
+              const ownedSticker = collected.find(sticker => sticker.id === item.id) ?? item;
+              return (
+                <div
+                  key={item.id}
+                  className={`stickers-tile stickers-tile--collection${owned ? '' : ' stickers-tile--locked-slot'}`}
+                >
+                  {owned ? (
+                    <StickerVisual src={ownedSticker.src} emoji={ownedSticker.emoji} label={ownedSticker.label} />
+                  ) : (
+                    <span className="stickers-locked-icon" aria-hidden="true">
+                      <LockIcon />
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="stickers-guest-cta">
+        <p className="stickers-guest-cta-copy">
+          Create an account to keep {collected.length === 1 ? 'this sticker' : 'these stickers'} forever.
+        </p>
+        <Link to={paths.register} className="stickers-guest-cta-btn">
+          Create account
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function StickersGallery() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = searchParams.get('tab') === 'achievements' ? 'achievements' : 'collection';
 
   const { user } = useAuth();
+  const catalog = useStickers();
   const collected = useCollectedStickers();
   const loading = useCollectedStickersLoading();
   const { createdCount } = useCreatedMemos();
@@ -40,6 +109,10 @@ export default function StickersGallery() {
     memoCount: createdCount,
     favesCount: savedMemosCount + discoverFavesCount,
   });
+
+  if (!user) {
+    return <GuestStickerCollection catalog={catalog} collected={collected} loading={loading} />;
+  }
 
   function switchTab(next) {
     setSearchParams(next === 'achievements' ? { tab: 'achievements' } : {}, { replace: true });

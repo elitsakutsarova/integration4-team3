@@ -8,6 +8,7 @@ import MemoLocationPicker from './MemoLocationPicker';
 import MapHomeChrome from './MapHomeChrome';
 import BottomNav from './BottomNav';
 import MemorySheet from './MemorySheet';
+import StickerRevealSheet from './StickerRevealSheet';
 
 import { MOCK_MEMORIES, INITIAL_EVENTS } from '../data/mockUser';
 import { GROTE_MARKT_CLUSTER_MEMORIES } from '../data/groteMarktClusterMemories';
@@ -22,6 +23,7 @@ import {
   placePendingPin,
   syncMemoryLayers,
 } from '../utils/mapPins';
+import { clearStickerReveal, readStickerReveal } from '../utils/stickerReveal';
 
 const DEMO_MEMORIES = [...MOCK_MEMORIES, ...GROTE_MARKT_CLUSTER_MEMORIES];
 
@@ -74,6 +76,7 @@ export default function MapView({ savedMemos = [], active = true }) {
 
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [memoryAnchor, setMemoryAnchor] = useState(null);
+  const [revealedSticker, setRevealedSticker] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [eventLocationHrefs, setEventLocationHrefs] = useState(() => new Map());
@@ -139,10 +142,18 @@ export default function MapView({ savedMemos = [], active = true }) {
       return;
     }
 
+    const pendingReveal = readStickerReveal();
+    if (pendingReveal) setRevealedSticker(pendingReveal);
+
     const map = mapRef.current;
     if (!map) return;
     requestAnimationFrame(() => map.invalidateSize());
   }, [active, setSearchParams]);
+
+  function dismissStickerReveal() {
+    clearStickerReveal();
+    setRevealedSticker(null);
+  }
 
   useEffect(() => {
     if (!active || !selectedMemory) return;
@@ -455,6 +466,10 @@ export default function MapView({ savedMemos = [], active = true }) {
           hidden={draftMemo.pickLocation}
           onClose={handleFormClose}
         />
+      )}
+
+      {revealedSticker && (
+        <StickerRevealSheet sticker={revealedSticker} onClose={dismissStickerReveal} />
       )}
         </>
       )}

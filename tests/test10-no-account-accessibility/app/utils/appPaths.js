@@ -98,8 +98,23 @@ export function loginPathWithRedirect(returnPath) {
 /** Guest-accessible routes (QR collect flow must work without logging in). */
 const PUBLIC_APP_PATHS = new Set([paths.login, paths.register, paths.collect]);
 
+const GUEST_APP_PATHS = new Set([
+  paths.home,
+  paths.collect,
+  paths.profile,
+  paths.stickers,
+  paths.discover,
+]);
+
 export function isPublicAppPath(pathname) {
   return PUBLIC_APP_PATHS.has(pathname);
+}
+
+export function isGuestAccessiblePath(pathname) {
+  if (GUEST_APP_PATHS.has(pathname)) return true;
+  if (pathname.startsWith('/discover')) return true;
+  if (pathname.startsWith('/location')) return true;
+  return false;
 }
 
 export const FALLBACK_HOME = paths.home;

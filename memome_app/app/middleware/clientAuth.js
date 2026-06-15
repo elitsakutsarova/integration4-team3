@@ -9,13 +9,18 @@
  */
 
 import { redirect } from 'react-router';
-import { isPublicAppPath, loginPathWithRedirect, paths } from '../utils/appPaths';
+import {
+  isGuestAccessiblePath,
+  isPublicAppPath,
+  loginPathWithRedirect,
+  paths,
+} from '../utils/appPaths';
 import { bootstrapAuthSession, getAuthSnapshot } from '../utils/authSession';
 
-/** App-wide auth — skips login/register. Attach to root route. */
+/** App-wide auth — skips login/register and guest-accessible routes. Attach to root route. */
 export async function requireAppAuthMiddleware({ request }, next) {
   const { pathname } = new URL(request.url);
-  if (isPublicAppPath(pathname)) {
+  if (isPublicAppPath(pathname) || isGuestAccessiblePath(pathname)) {
     return next();
   }
   return requireAuthClientMiddleware({ request }, next);

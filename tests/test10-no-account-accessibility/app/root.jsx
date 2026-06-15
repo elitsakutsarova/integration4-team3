@@ -28,7 +28,7 @@ import { SavedMemosProvider } from "./context/SavedMemosContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { appAuthMiddleware } from "./middleware/clientAuth";
 import { bootstrapAuthSession, isAuthBootstrapped } from "./utils/authSession";
-import { isPublicAppPath } from "./utils/appPaths";
+import { isGuestAccessiblePath, isPublicAppPath } from "./utils/appPaths";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
 import { loadStickersFromPublic } from "./utils/stickers.server";
 import { getSafeFallbackPath, FALLBACK_JOURNALS } from "./utils/appPaths";
@@ -113,14 +113,16 @@ export default function App() {
   const { user, loading } = useAuth();
   const { pathname } = useLocation();
   const isPublic = isPublicAppPath(pathname);
+  const isGuestRoute = isGuestAccessiblePath(pathname);
+  const allowGuest = isPublic || isGuestRoute;
 
   const bootstrapped = isAuthBootstrapped();
 
-  if (!isPublic && !bootstrapped && loading) {
+  if (!allowGuest && !bootstrapped && loading) {
     return <AuthLoading />;
   }
 
-  if (!isPublic && bootstrapped && !user) {
+  if (!allowGuest && bootstrapped && !user) {
     return <AuthLoading />;
   }
 

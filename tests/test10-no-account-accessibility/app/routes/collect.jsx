@@ -2,7 +2,7 @@
 // when the user scans a sticker QR code, it automatically gives them a random digital sticker and show them the result
 
 import { useEffect } from 'react';
-import { Link, useLoaderData, useNavigate, useRevalidator } from 'react-router';
+import { Link, redirect, useLoaderData, useNavigate, useRevalidator } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -16,9 +16,14 @@ import {
 } from '../utils/collectClaimCache';
 import * as authStore from '../utils/authStore';
 import { collectScanPath, paths } from '../utils/appPaths';
+import { writeStickerReveal } from '../utils/stickerReveal';
 
 export function meta() {
   return [{ title: 'MemMe — Collect sticker' }];
+}
+
+function isGuestSession(sessionUser) {
+  return !sessionUser?.id;
 }
 
 // Open page → claim once per ?scan= key (cached in sessionStorage so refresh does not re-claim).
@@ -27,10 +32,21 @@ export async function clientLoader({ request }) {
 
   const scan = getScanKey(request);
   const cached = readCollectCache(scan);
-  if (cached) return { scan, result: cached };
+  if (cached) {
+    // Cached = this scan key was already processed in this browser session.
+    // Guests always go to the map; don't re-show the popup (sticker already revealed).
+    if (isGuestSession(session)) throw redirect(paths.home);
+    return { scan, result: cached };
+  }
 
   const result = await claimRandomSticker(session);
   writeCollectCache(scan, result);
+
+  if (isGuestSession(session)) {
+    // Fresh claim — write the reveal popup only if a new sticker was earned.
+    if (result.sticker) writeStickerReveal(result.sticker);
+    throw redirect(paths.home);
+  }
 
   return { scan, result, shouldRevalidateRoot: Boolean(result.sticker) };
 }

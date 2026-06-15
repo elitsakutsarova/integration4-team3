@@ -1,1 +1,1 @@
-export { default, clientMiddleware } from './account-layout.shared';
+export { default } from './account-layout.shared';
