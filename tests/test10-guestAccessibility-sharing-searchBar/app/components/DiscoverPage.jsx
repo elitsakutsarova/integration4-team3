@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { CategoryIcon, EventCard, PlaceCard } from './discover/DiscoverCards';
+import SearchOpenButton from './search/SearchOpenButton';
 import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../data/discoverContent';
 import { paths } from '../utils/appPaths';
 
@@ -28,11 +29,10 @@ function SectionHeader({ id, title, highlightWidth, underlined, viewAllTo }) {
 
 export default function DiscoverPage({ happeningNow, upcoming, places }) {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
 
   const filters = useMemo(
-    () => ({ category: activeCategory, query: searchQuery }),
-    [activeCategory, searchQuery],
+    () => ({ category: activeCategory, query: '' }),
+    [activeCategory],
   );
 
   const filteredHappeningNow = useMemo(
@@ -56,26 +56,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
           <div className="discover-grid-pattern" />
         </div>
 
-        <label className="discover-search">
-          <svg className="discover-search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-            <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          <input
-            type="search"
-            className="discover-search-input"
-            placeholder="Search Antwerp..."
-            value={searchQuery}
-            onChange={event => setSearchQuery(event.target.value)}
-            aria-label="Search Antwerp"
-          />
-          <button type="button" className="discover-search-mic" aria-label="Voice search">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="1.8" />
-              <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </button>
-        </label>
+        <SearchOpenButton className="discover-search discover-search--trigger" variant="discover" />
       </header>
 
       <div className="discover-filters" role="tablist" aria-label="Discover categories">

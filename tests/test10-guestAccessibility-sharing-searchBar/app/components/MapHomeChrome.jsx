@@ -1,4 +1,5 @@
 import { MAP_CATEGORIES } from '../utils/mapFilters';
+import SearchOpenButton from './search/SearchOpenButton';
 
 function CategoryIcon({ id }) {
   if (id === 'Food') {
@@ -34,8 +35,6 @@ function CategoryIcon({ id }) {
 }
 
 export default function MapHomeChrome({
-  searchQuery,
-  onSearchChange,
   activeCategory,
   onCategoryChange,
 }) {
@@ -45,30 +44,7 @@ export default function MapHomeChrome({
         <span /><span /><span /><span /><span /><span />
       </div>
 
-      <form
-        className="map-search-bar"
-        role="search"
-        onSubmit={event => event.preventDefault()}
-      >
-        <svg className="map-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
-          <circle cx="11" cy="11" r="8" />
-          <line x1="21" y1="21" x2="16.65" y2="16.65" />
-        </svg>
-        <input
-          type="search"
-          className="map-search-input"
-          placeholder="Search Antwerp..."
-          value={searchQuery}
-          onChange={event => onSearchChange(event.target.value)}
-          aria-label="Search Antwerp"
-        />
-        <button type="button" className="map-search-mic" aria-label="Voice search">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" />
-          </svg>
-        </button>
-      </form>
+      <SearchOpenButton className="map-search-bar map-search-bar--trigger" variant="map" />
 
       <div className="map-category-row" role="toolbar" aria-label="Map categories">
         {MAP_CATEGORIES.map(category => {

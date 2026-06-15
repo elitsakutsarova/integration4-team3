@@ -5,6 +5,7 @@ import { TRAVEL_DIARY } from '../data/mockUser';
 
 export const paths = {
   home: href('/'),
+  search: href('/search'),
   discover: href('/discover'),
   discoverHappeningNow: href('/discover/happening-now'),
   discoverUpcoming: href('/discover/upcoming'),
@@ -100,6 +101,7 @@ const PUBLIC_APP_PATHS = new Set([paths.login, paths.register, paths.collect]);
 
 const GUEST_APP_PATHS = new Set([
   paths.home,
+  paths.search,
   paths.collect,
   paths.profile,
   paths.stickers,

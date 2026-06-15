@@ -148,9 +148,12 @@ After our consult, I changed a lot of things in test5 like:
 - Show success message when a memo has been successfully shared ✔️
 - When the user clicks on the share button on the journal -> it goes to Create recap page ✔️
 
+## Fix search bar
 
+- Add the microphone feature to the search bar
+- Implement special screen for “no-results” on search when there are no results
+- In the search bar, show how many results were found (on top)
+- In the event detail page when you click on the detail you can add it to your calendar
 
-
-- fix search bar
 
 ## Deployment
