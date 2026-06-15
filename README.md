@@ -107,8 +107,29 @@ After our consult, I changed a lot of things in test5 like:
 - Implement server-backed account/feedback actions, and client-side preferences for language, privacy, and avatars
 
 ### Test 9:
-- add Journal page
-- add sharing (of memos, journals, events, etc...)
+
+## Create Journals page:
+
+## A) Journals page
+- Create the Journals page ✔️ 
+- Implement an empty state for users who haven’t added memos yet ✔️
+- If the user clicks on “New Travel Diary” -> create a page “Create Journal” ✔️
+- If the user clicks on “Add memos” -> create a page “Add memories”; the top right blue element keeps count ✔️
+- Add a warning message when the user tries to leave the page without saving their journal ✔️
+- What happens when the user wants to share a journal itself? Not a recap -> ask and implement ?
+
+
+## B) Journal page (when an user clicks on a specific journal)
+
+- Create a Journal (overview) page with all the memos the user has created during their (specific) trip -> the stickers should be some default stickers + collected stickers + achievement stickers ✔️
+- If the user clicks on “Edit journal” -> create an edit page where the Users can edit the title in real time, add a description, add and remove memos, or choose to delete the journal entirely. They can also delete the description once they have added it. When they add memos, it sends them to the journals page -> Add memories page ✔️
+- If the user clicks on “Create recap” -> send them to a “Select memos” page where they can select up to 9 memos. When they click on “Select x memos (out of 9)” -> send them to “Choose recap” page where they can choose between 3 different styles for their recap ✔️
+- Implement option to share the recap ✔️
+- Show success message when a recap has been successfully shared ✔️
+
+## Other
+
+- add sharing (of memos, [journals] -> done, events, etc...)
 - fix search bar
 - implement guest UX when user has no account
 

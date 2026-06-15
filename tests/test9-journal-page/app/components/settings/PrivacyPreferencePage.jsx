@@ -1,0 +1,104 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { goBack, paths } from '../../utils/appPaths';
+import {
+  getPrivacyPreferences,
+  PRIVACY_SETTINGS,
+  togglePrivacyPreference,
+} from '../../utils/privacyPreference';
+import { privacyAssets } from '../../utils/privacyAssets';
+import { settingsAssets } from '../../utils/settingsAssets';
+
+function PrivacyToggle({ enabled, onToggle, label }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={enabled}
+      aria-label={`${label} ${enabled ? 'on' : 'off'}`}
+      className={`privacy-toggle${enabled ? ' privacy-toggle--on' : ' privacy-toggle--off'}`}
+      onClick={onToggle}
+    >
+      {enabled ? <span className="privacy-toggle-label">ON</span> : null}
+      <span className="privacy-toggle-thumb" aria-hidden="true" />
+    </button>
+  );
+}
+
+export default function PrivacyPreferencePage() {
+  const navigate = useNavigate();
+  const [preferences, setPreferences] = useState(getPrivacyPreferences);
+
+  function handleBack() {
+    goBack(navigate, paths.profileSettings);
+  }
+
+  function handleToggle(settingId) {
+    setPreferences(togglePrivacyPreference(settingId));
+  }
+
+  return (
+    <div className="settings-page privacy-page">
+      <header className="settings-hero settings-hero--privacy">
+        <div className="settings-hero-deco" aria-hidden="true">
+          <img className="settings-hero-mask" src={settingsAssets.maskGroup} alt="" />
+          <img className="privacy-hero-grid" src={settingsAssets.grid} alt="" />
+          <img className="privacy-hero-wave" src={privacyAssets.vector552} alt="" />
+          <img className="privacy-hero-icon" src={privacyAssets.privacyPageIcon} alt="" />
+        </div>
+
+        <div className="settings-title-row">
+          <button
+            type="button"
+            className="settings-back-btn"
+            onClick={handleBack}
+            aria-label="Back to settings"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M15 6l-6 6 6 6"
+                stroke="#1952ff"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <h1 className="settings-title">
+            <span className="settings-title-highlight settings-title-highlight--privacy" aria-hidden="true" />
+            Privacy
+          </h1>
+        </div>
+      </header>
+
+      <div className="privacy-content">
+        <h2 className="privacy-section-label">Permissions &amp; Data</h2>
+
+        <div className="privacy-options-box">
+          {PRIVACY_SETTINGS.map((setting, index) => {
+            const enabled = preferences[setting.id];
+            const iconSrc = privacyAssets[setting.iconKey];
+
+            return (
+              <div
+                key={setting.id}
+                className={`privacy-option${index < PRIVACY_SETTINGS.length - 1 ? ' privacy-option--bordered' : ''}`}
+              >
+                <img className="privacy-option-icon" src={iconSrc} alt="" aria-hidden="true" />
+                <div className="privacy-option-copy">
+                  <span className="privacy-option-label">{setting.label}</span>
+                  <span className="privacy-option-description">{setting.description}</span>
+                </div>
+                <PrivacyToggle
+                  enabled={enabled}
+                  label={setting.label}
+                  onToggle={() => handleToggle(setting.id)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
