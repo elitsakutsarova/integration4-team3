@@ -5972,6 +5972,13 @@ html img {
 .discover-detail-fave { right: 16px; top: 16px; }
 .discover-detail-share--left { right: 72px; }
 
+.discover-detail-share-btn {
+  border-radius: 50%;
+  background: #1952ff;
+  color: #fff;
+  box-shadow: none;
+}
+
 .discover-detail-badge {
   position: absolute;
   right: 20px;
