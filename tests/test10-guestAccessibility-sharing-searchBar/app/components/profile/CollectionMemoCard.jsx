@@ -2,18 +2,19 @@
 
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+import DiscoverShareIcon from '../discover/DiscoverShareIcon';
 import { useSavedMemos } from '../../context/SavedMemosContext';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
 import { resolveNavigableLocationHref } from '../../utils/navigableLocation';
 
-function MemoHeartButton({ memoId, label }) {
+function MemoHeartButton({ memoId, label, className = '' }) {
   const { isSaved, toggleMemo } = useSavedMemos();
   const saved = isSaved(memoId);
 
   return (
     <button
       type="button"
-      className={`collection-memo-heart${saved ? ' collection-memo-heart--saved' : ''}`}
+      className={`collection-memo-heart${saved ? ' collection-memo-heart--saved' : ''}${className ? ` ${className}` : ''}`}
       aria-label={saved ? `Remove ${label} from favourites` : `Save ${label} to favourites`}
       aria-pressed={saved}
       onClick={() => toggleMemo(memoId)}
@@ -30,7 +31,58 @@ function MemoHeartButton({ memoId, label }) {
   );
 }
 
-export default function CollectionMemoCard({ memo, variant = 'favourite', showHeart = true }) {
+function CreatedMemoMedia({ memo, onShare, showHeart }) {
+  const hasMedia = Boolean(memo.mediaPreview?.url);
+
+  return (
+    <div className="collection-memo-polaroid">
+      <span className="collection-memo-polaroid-layer collection-memo-polaroid-layer--back" aria-hidden="true" />
+      <span className="collection-memo-polaroid-layer collection-memo-polaroid-layer--mid" aria-hidden="true" />
+
+      <div className="collection-memo-media collection-memo-media--created">
+        {hasMedia ? (
+          memo.mediaPreview.isVideo
+            ? <video src={memo.mediaPreview.url} className="collection-memo-img" muted playsInline />
+            : <img src={memo.mediaPreview.url} alt="" className="collection-memo-img" />
+        ) : (
+          <div className="collection-memo-placeholder">
+            {(memo.tags ?? []).slice(0, 1).map(tag => (
+              <span key={tag} className="collection-memo-placeholder-tag">{tag}</span>
+            ))}
+            <span className="collection-memo-placeholder-label">Memo</span>
+          </div>
+        )}
+
+        {onShare && (
+          <button
+            type="button"
+            className="collection-memo-share-btn"
+            aria-label={`Share memo at ${memo.location}`}
+            onClick={onShare}
+          >
+            <DiscoverShareIcon />
+          </button>
+        )}
+
+        {showHeart && (
+          <MemoHeartButton
+            memoId={memo.id}
+            label={memo.location}
+            className="collection-memo-heart--created"
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function CollectionMemoCard({
+  memo,
+  variant = 'favourite',
+  showHeart = true,
+  onShare,
+  layout = 'horizontal',
+}) {
   const navigate = useNavigate();
   const [locationHref, setLocationHref] = useState(null);
   const hasMedia = Boolean(memo.mediaPreview?.url);
@@ -66,6 +118,46 @@ export default function CollectionMemoCard({ memo, variant = 'favourite', showHe
     if (locationHref) navigate(locationHref);
   }
 
+  if (variant === 'created') {
+    return (
+      <article className={`collection-memo-card collection-memo-card--created collection-memo-card--${layout}`}>
+        <CreatedMemoMedia memo={memo} onShare={onShare} showHeart={showHeart} />
+
+        <div className="collection-memo-quote-bar">
+          <p className="collection-memo-quote-bar-text">&ldquo;{memo.quote}&rdquo;</p>
+        </div>
+
+        <div className="collection-memo-footer">
+          <span className="collection-memo-location">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 21s7-4.5 7-10a7 7 0 1 0-14 0c0 5.5 7 10 7 10z" stroke="currentColor" strokeWidth="1.8" />
+              <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+            </svg>
+            {locationHref ? (
+              <button type="button" className="collection-memo-location-link" onClick={handleLocationClick}>
+                {memo.location}
+              </button>
+            ) : (
+              <span className="collection-memo-location-text">{memo.location}</span>
+            )}
+          </span>
+
+          {canOpenMaps && (
+            <a
+              href={buildGoogleMapsDirectionsUrl(memo.ll[0], memo.ll[1])}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="collection-memo-cta"
+              onClick={handleTakeMeThere}
+            >
+              Take me there
+            </a>
+          )}
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article className={`collection-memo-card${hasMedia ? '' : ' collection-memo-card--text-only'}`}>
       <div className="collection-memo-media">
@@ -84,15 +176,6 @@ export default function CollectionMemoCard({ memo, variant = 'favourite', showHe
 
         {showHeart && (
           <MemoHeartButton memoId={memo.id} label={memo.location} />
-        )}
-
-        {variant === 'created' && (
-          <button type="button" className="collection-memo-edit" aria-label="Edit memo" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" strokeWidth="2" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="2" />
-            </svg>
-          </button>
         )}
 
         {(memo.tags ?? []).length > 0 && hasMedia && (

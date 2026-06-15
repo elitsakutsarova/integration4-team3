@@ -2,8 +2,12 @@
 
 import { useNavigate } from 'react-router';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
+import DiscoverShareIcon from './DiscoverShareIcon';
+import DiscoverShareSuccess from './DiscoverShareSuccess';
+import ShareSheet from '../diary/ShareSheet';
 import FeaturedMemosSection from '../memos/FeaturedMemosSection';
 import { buildMemoArchiveHref } from '../../utils/locationHref';
+import { useDiscoverShare } from '../../hooks/useDiscoverShare';
 
 function CategoryBadge({ type }) {
   if (type === 'food') {
@@ -26,6 +30,18 @@ function CategoryBadge({ type }) {
 
 export default function PlaceDetailPage({ place, featuredMemos = [], totalMemoCount = 0 }) {
   const navigate = useNavigate();
+  const {
+    showSheet,
+    openSheet,
+    closeSheet,
+    showSuccess,
+    closeSuccess,
+    sharing,
+    handleShare,
+  } = useDiscoverShare({
+    title: place.title,
+    text: `Check out ${place.title} on MemMe`,
+  });
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place.mapsQuery)}`;
   const archiveHref = buildMemoArchiveHref({
     placeId: place.placeId,
@@ -52,12 +68,13 @@ export default function PlaceDetailPage({ place, featuredMemos = [], totalMemoCo
             </svg>
           </button>
 
-          <button type="button" className="discover-detail-icon-btn discover-detail-share discover-detail-share--left" aria-label="Share">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7" stroke="#1952ff" strokeWidth="2" />
-              <polyline points="16 6 12 2 8 6" stroke="#1952ff" strokeWidth="2" />
-              <line x1="12" y1="2" x2="12" y2="15" stroke="#1952ff" strokeWidth="2" />
-            </svg>
+          <button
+            type="button"
+            className="discover-detail-icon-btn discover-detail-share discover-detail-share--left discover-detail-share-btn"
+            onClick={openSheet}
+            aria-label="Share place"
+          >
+            <DiscoverShareIcon />
           </button>
 
           <DiscoverFavoriteButton
@@ -115,6 +132,21 @@ export default function PlaceDetailPage({ place, featuredMemos = [], totalMemoCo
           />
         </div>
       </div>
+
+      {showSheet && (
+        <ShareSheet
+          title="Share place"
+          countLabel={place.title}
+          onClose={closeSheet}
+          onShareApp={handleShare}
+          onShareContact={handleShare}
+          disabled={sharing}
+        />
+      )}
+
+      {showSuccess && (
+        <DiscoverShareSuccess variant="place" onClose={closeSuccess} />
+      )}
     </div>
   );
 }

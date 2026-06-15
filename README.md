@@ -116,7 +116,6 @@ After our consult, I changed a lot of things in test5 like:
 - If the user clicks on “New Travel Diary” -> create a page “Create Journal” ✔️
 - If the user clicks on “Add memos” -> create a page “Add memories”; the top right blue element keeps count ✔️
 - Add a warning message when the user tries to leave the page without saving their journal ✔️
-- What happens when the user wants to share a journal itself? Not a recap -> ask and implement ?
 
 
 ## B) Journal page (when an user clicks on a specific journal)
@@ -138,8 +137,20 @@ After our consult, I changed a lot of things in test5 like:
 - If they click on Profile, it shows them the profile (no account profile screen) ✔️
 - If they click on Journal, it shows them the journal page (no account journal page screen) ✔️
 
+## Add sharing (of memos, [journals] -> done, events, spots...)
+- Implement option to share an event ✔️
+- Implement option to share a spot ✔️
+- Implement option to share a location ✔️
+- Show success message when an event has been successfully shared ✔️
+- Show success message when a spot has been successfully shared ✔️
+- Show success message when a location has been successfully shared ✔️
+- Implement option to share a memo ✔️
+- Show success message when a memo has been successfully shared ✔️
+- When the user clicks on the share button on the journal -> it goes to Create recap page ✔️
 
-- add sharing (of memos, [journals] -> done, events, etc...)
+
+
+
 - fix search bar
 
 ## Deployment

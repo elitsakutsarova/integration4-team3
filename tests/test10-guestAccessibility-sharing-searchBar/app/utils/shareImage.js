@@ -60,6 +60,35 @@ function loadImage(src) {
   });
 }
 
+/** Draw image into a box without stretching (object-fit: cover). */
+function drawImageCover(ctx, img, x, y, w, h) {
+  const sw = img.naturalWidth;
+  const sh = img.naturalHeight;
+  if (!sw || !sh) return;
+
+  const destRatio = w / h;
+  const srcRatio = sw / sh;
+
+  let sx;
+  let sy;
+  let sWidth;
+  let sHeight;
+
+  if (srcRatio > destRatio) {
+    sHeight = sh;
+    sWidth = sh * destRatio;
+    sx = (sw - sWidth) / 2;
+    sy = 0;
+  } else {
+    sWidth = sw;
+    sHeight = sw / destRatio;
+    sx = 0;
+    sy = (sh - sHeight) / 2;
+  }
+
+  ctx.drawImage(img, sx, sy, sWidth, sHeight, x, y, w, h);
+}
+
 function resolveStickerSrc(sticker, stickerCatalog) {
   if (sticker.src) return sticker.src;
   const def = getStickerDef(sticker.stickerId, stickerCatalog);
@@ -136,6 +165,17 @@ export async function renderMemoCardImage(memory, stickers = [], stickerCatalog 
   ctx.fillRect(photoX, photoY, photoW, photoH);
 
   await drawStickers(ctx, stickers, photoX, photoY, photoW, photoH, stickerCatalog);
+
+  const mediaSrc = memory.mediaPreview?.url;
+  if (mediaSrc) {
+    try {
+      const url = mediaSrc.startsWith('/') ? `${window.location.origin}${mediaSrc}` : mediaSrc;
+      const img = await loadImage(url);
+      drawImageCover(ctx, img, photoX, photoY, photoW, photoH);
+    } catch {
+      /* keep placeholder */
+    }
+  }
 
   y = photoY + photoH + 100;
 
@@ -284,7 +324,7 @@ async function drawMemoPhotoTile(ctx, memo, slot, x, y, w) {
     try {
       const url = src.startsWith('/') ? `${window.location.origin}${src}` : src;
       const img = await loadImage(url);
-      ctx.drawImage(img, x + 8, y + 8, w - 20, photoH - 24);
+      drawImageCover(ctx, img, x + 8, y + 8, w - 20, photoH - 24);
     } catch {
       ctx.fillStyle = '#d8d8dc';
       ctx.fillRect(x + 8, y + 8, w - 20, photoH - 24);
@@ -498,6 +538,15 @@ export async function buildMemoShareFiles(
     files.push(file);
   }
   return files;
+}
+
+/** Share one created memo as a polaroid image card. */
+export async function shareSingleMemo(memo) {
+  const file = await renderMemoCardImage(memo, [], []);
+  return shareImageFiles([file], {
+    title: memo.location || 'My memo',
+    text: memo.quote ? `"${memo.quote}"` : 'Check out my memory on MemMe',
+  });
 }
 
 /**
