@@ -3722,6 +3722,224 @@ html, body {
   margin-top: 8px;
 }
 
+/* ─── Sticker reveal overlay (guest QR scan → map) ─── */
+.sticker-reveal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px calc(var(--nav-h-safe) + 16px);
+  background: rgba(18, 18, 22, 0.58);
+  backdrop-filter: blur(2px);
+}
+
+.sticker-reveal-sheet {
+  width: min(100%, 360px);
+}
+
+.sticker-reveal-stage {
+  position: relative;
+  padding-top: 72px;
+}
+
+.sticker-reveal-shadow {
+  position: absolute;
+  top: 198px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 148px;
+  height: 15px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.sticker-reveal-sticker {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  width: 168px;
+  height: 168px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: collect-pop .55s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.sticker-reveal-sticker .sticker-img,
+.sticker-reveal-sticker .diary-sticker-img {
+  width: 148px;
+  height: 148px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
+}
+
+.sticker-reveal-card {
+  position: relative;
+  z-index: 1;
+  margin-top: 88px;
+  padding: 88px 20px 24px;
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
+  text-align: center;
+}
+
+.sticker-reveal-card::before {
+  content: '';
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 22px solid #fff;
+}
+
+.sticker-reveal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 16px;
+}
+
+.sticker-reveal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.sticker-reveal-btn {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+}
+
+.sticker-reveal-btn--ghost {
+  background: #fff;
+  color: var(--dark);
+  border: 1px solid #d8d8de;
+}
+
+.sticker-reveal-btn--primary {
+  background: var(--blue, #1952ff);
+  color: #fff;
+}
+
+/* ─── Guest profile (/profile without account) ──────── */
+.profile-page--guest {
+  padding-bottom: calc(var(--nav-h-safe) + 24px);
+}
+
+.profile-identity--guest {
+  padding-top: max(28px, env(safe-area-inset-top));
+}
+
+.guest-collection-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: #fff;
+  border: 1px solid #ececf0;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.guest-collection-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #f4f4f7;
+  color: var(--mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guest-collection-card-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.guest-collection-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.guest-collection-card-meta {
+  font-size: 13px;
+  color: var(--mid);
+}
+
+.guest-collection-card-chevron {
+  font-size: 24px;
+  line-height: 1;
+  color: #b8b8c2;
+}
+
+.guest-create-account {
+  margin-top: 28px;
+  padding: 22px 18px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #f7f8ff 0%, #eef2ff 100%);
+  border: 1px solid #dfe6ff;
+  text-align: center;
+}
+
+.guest-create-account-copy {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--dark);
+  margin-bottom: 14px;
+}
+
+.guest-create-account-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: var(--blue, #1952ff);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.guest-create-account-login {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--mid);
+}
+
+.guest-create-account-login a {
+  color: var(--blue, #1952ff);
+  font-weight: 600;
+  text-decoration: none;
+}
+
 /* ─── Stickers gallery (/stickers) ──────────────────── */
 .stickers-page {
   min-height: 100vh;
@@ -3914,6 +4132,70 @@ html, body {
   color: var(--dark);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.stickers-page--guest {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.stickers-tabs--guest {
+  grid-template-columns: 1fr;
+}
+
+.stickers-tabs--guest .stickers-tab {
+  cursor: default;
+}
+
+.stickers-grid--guest-locked {
+  padding-bottom: 120px;
+}
+
+.stickers-tile--locked-slot {
+  background: #f3f3f6;
+  border: 1px dashed #d5d5dc;
+  opacity: 1;
+  filter: none;
+}
+
+.stickers-locked-icon {
+  color: #b4b4be;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stickers-guest-cta {
+  position: sticky;
+  bottom: var(--nav-h-safe);
+  margin-top: auto;
+  padding: 16px 18px calc(16px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.96);
+  border-top: 1px solid #ececf0;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.stickers-guest-cta-copy {
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.stickers-guest-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: var(--blue, #1952ff);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
 }
 
 /* ─── Connect devices (WebRTC) ─────────────────────── */

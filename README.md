@@ -127,10 +127,19 @@ After our consult, I changed a lot of things in test5 like:
 - Implement option to share the recap ✔️
 - Show success message when a recap has been successfully shared ✔️
 
-## Other
+## Test 10:
+
+## Implement guest UX when user has no account:
+
+* No account + user scans a sticker:
+- First the user sees the “New sticker unlocked” screen ✔️
+- If they click on “View in collection” -> it takes them to screen “Stickers-collection-locked” (they can check the collection and achievement stickers but they are locked) ✔️
+- If they click on “Close” it shows them the map (no account map screen) ✔️
+- If they click on Profile, it shows them the profile (no account profile screen) ✔️
+- If they click on Journal, it shows them the journal page (no account journal page screen) ✔️
+
 
 - add sharing (of memos, [journals] -> done, events, etc...)
 - fix search bar
-- implement guest UX when user has no account
 
 ## Deployment

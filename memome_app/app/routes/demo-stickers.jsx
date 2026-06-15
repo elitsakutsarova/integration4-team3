@@ -5,6 +5,9 @@ import { Link, useLoaderData } from 'react-router';
 import QrCode from '../components/QrCode';
 import { paths } from '../utils/appPaths';
 import { loadDevShareOrigin } from '../utils/devShareOrigin';
+import { requireAuthMiddleware } from '../middleware/clientAuth';
+
+export const clientMiddleware = requireAuthMiddleware;
 
 const STICKER_ART = '/physicalStickers/physicalSticker.svg';
 

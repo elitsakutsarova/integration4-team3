@@ -66,10 +66,26 @@ export function loginPathWithRedirect(returnPath) {
   return `${paths.login}?${new URLSearchParams({ redirectTo: safe }).toString()}`;
 }
 
-const PUBLIC_APP_PATHS = new Set([paths.login, paths.register]);
+const PUBLIC_APP_PATHS = new Set([paths.login, paths.register, paths.collect]);
+
+/** Routes guests may use after scanning a physical sticker QR (no account). */
+const GUEST_APP_PATHS = new Set([
+  paths.home,
+  paths.collect,
+  paths.profile,
+  paths.stickers,
+  paths.discover,
+]);
 
 export function isPublicAppPath(pathname) {
   return PUBLIC_APP_PATHS.has(pathname);
+}
+
+export function isGuestAccessiblePath(pathname) {
+  if (GUEST_APP_PATHS.has(pathname)) return true;
+  if (pathname.startsWith('/discover')) return true;
+  if (pathname.startsWith('/location')) return true;
+  return false;
 }
 
 export const FALLBACK_HOME = paths.home;

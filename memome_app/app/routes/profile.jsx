@@ -16,6 +16,63 @@ export function meta() {
   ];
 }
 
+function LockIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <rect x="3" y="11" width="18" height="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+
+function GuestProfile({ stickerCount }) {
+  return (
+    <div className="profile-page profile-page--guest">
+      <section className="profile-identity profile-identity--guest">
+        <div className="profile-avatar profile-avatar--placeholder">
+          <img
+            className="profile-avatar-image profile-avatar-image--placeholder"
+            src={settingsAssets.avatarPlaceholder}
+            alt=""
+          />
+        </div>
+        <div className="profile-info">
+          <h1 className="profile-username">@guest</h1>
+        </div>
+      </section>
+
+      <section className="profile-section">
+        <h2 className="profile-section-label">Collections</h2>
+        <Link to={paths.stickers} className="guest-collection-card">
+          <span className="guest-collection-card-icon" aria-hidden="true">
+            <LockIcon />
+          </span>
+          <span className="guest-collection-card-copy">
+            <span className="guest-collection-card-title">Your sticker collection</span>
+            <span className="guest-collection-card-meta">
+              {stickerCount} {stickerCount === 1 ? 'sticker' : 'stickers'}
+            </span>
+          </span>
+          <span className="guest-collection-card-chevron" aria-hidden="true">›</span>
+        </Link>
+      </section>
+
+      <section className="guest-create-account">
+        <p className="guest-create-account-copy">
+          Create an account to save your stickers, publish memos, and build travel diaries.
+        </p>
+        <Link to={paths.register} className="guest-create-account-btn">
+          Create account
+        </Link>
+        <p className="guest-create-account-login">
+          Already have an account?{' '}
+          <Link to={paths.login}>Log in</Link>
+        </p>
+      </section>
+    </div>
+  );
+}
+
 export default function Profile() {
   const collectedStickers = useCollectedStickers();
   const { createdCount, ready: createdReady } = useCreatedMemos();
@@ -24,6 +81,10 @@ export default function Profile() {
   const { user } = useAuth();
   const avatarUrl = useUserAvatar(user?.id);
   const hasCustomAvatar = Boolean(avatarUrl);
+
+  if (!user) {
+    return <GuestProfile stickerCount={collectedStickers.length} />;
+  }
 
   const favouritesCount = savedMemosCount + discoverFavesCount;
   const favouritesReady = savedReady && discoverReady;

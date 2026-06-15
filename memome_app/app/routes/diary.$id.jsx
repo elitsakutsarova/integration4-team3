@@ -2,6 +2,9 @@ import { redirect } from 'react-router';
 import TravelDiaryViewer from '../components/TravelDiaryViewer';
 import { TRAVEL_DIARY } from '../data/mockUser';
 import { diaryPath } from '../utils/appPaths';
+import { requireAuthMiddleware } from '../middleware/clientAuth';
+
+export const clientMiddleware = requireAuthMiddleware;
 
 export function meta() {
   return [
