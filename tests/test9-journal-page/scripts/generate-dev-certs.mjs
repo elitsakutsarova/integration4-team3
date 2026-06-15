@@ -17,8 +17,25 @@ const cnfPath = path.join(certDir, 'openssl.cnf');
 
 const checkOnly = process.argv.includes('--check');
 
+function readCertSanIps() {
+  try {
+    const out = execSync(`openssl x509 -in "${certPath}" -noout -text`, { encoding: 'utf8' });
+    return [...out.matchAll(/IP Address:([0-9.]+)/g)].map((match) => match[1]);
+  } catch {
+    return [];
+  }
+}
+
 if (checkOnly && fs.existsSync(keyPath) && fs.existsSync(certPath)) {
-  process.exit(0);
+  const currentIps = lanIpv4Addresses();
+  const certIps = readCertSanIps();
+  const missing = currentIps.filter((ip) => !certIps.includes(ip));
+  if (missing.length === 0) {
+    process.exit(0);
+  }
+  console.warn(
+    `Dev cert is missing current LAN IP(s): ${missing.join(', ')}. Regenerating…`,
+  );
 }
 
 function lanIpv4Addresses() {

@@ -137,16 +137,15 @@ export default function RecapTemplateCard({
             <p className="rtc-subtitle-text">{subtitle}</p>
           </div>
 
-          {/* 3×3 memo collage */}
+          {/* Memo collage — only selected memos, no empty placeholders */}
           <div className="rtc-collage">
-            {[0, 1, 2].map((row) => (
+            {Array.from({ length: Math.ceil(tiles.length / 3) }, (_, row) => (
               <div key={row} className="rtc-row">
                 {[0, 1, 2].map((col) => {
                   const index = row * 3 + col;
                   const memo = tiles[index];
-                  return (
-                    <RecapTile key={`${row}-${col}`} memo={memo} index={index} />
-                  );
+                  if (!memo) return <div key={col} className="rtc-cell rtc-cell--empty" aria-hidden="true" />;
+                  return <RecapTile key={col} memo={memo} index={index} />;
                 })}
               </div>
             ))}

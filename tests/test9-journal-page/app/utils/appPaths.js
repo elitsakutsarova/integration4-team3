@@ -95,7 +95,8 @@ export function loginPathWithRedirect(returnPath) {
   return `${paths.login}?${new URLSearchParams({ redirectTo: safe }).toString()}`;
 }
 
-const PUBLIC_APP_PATHS = new Set([paths.login, paths.register]);
+/** Guest-accessible routes (QR collect flow must work without logging in). */
+const PUBLIC_APP_PATHS = new Set([paths.login, paths.register, paths.collect]);
 
 export function isPublicAppPath(pathname) {
   return PUBLIC_APP_PATHS.has(pathname);

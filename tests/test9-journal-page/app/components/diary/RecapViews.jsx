@@ -1,12 +1,13 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import CreateJournalDecorations from '../journals/CreateJournalDecorations';
 import JournalMemoPickCard from '../journals/JournalMemoPickCard';
-import RecapTemplateCard from '../journals/RecapTemplateCard';
-import ShareSheet from './ShareSheet';
+import RecapShareSheet from './RecapShareSheet';
+import RecapShareSuccess from './RecapShareSuccess';
 import { MEMO_TAG_OPTIONS } from '../../data/memoTags';
 import {
   RECAP_MAX_MEMOS,
   RECAP_STYLES,
+  orderSelectedMemories,
 } from '../../utils/recapTemplates';
 import {
   downloadRecapImageFile,
@@ -14,6 +15,126 @@ import {
   shareImageFiles,
   shareToInstagram,
 } from '../../utils/shareImage';
+
+function getClosestStyleIndex(container, slideElements) {
+  const containerCenter = container.scrollLeft + container.clientWidth / 2;
+  let closestIndex = 0;
+  let closestDistance = Infinity;
+
+  slideElements.forEach((slide, index) => {
+    if (!slide) return;
+    const slideCenter = slide.offsetLeft + slide.offsetWidth / 2;
+    const distance = Math.abs(containerCenter - slideCenter);
+    if (distance < closestDistance) {
+      closestDistance = distance;
+      closestIndex = index;
+    }
+  });
+
+  return closestIndex;
+}
+
+function scrollStyleIntoView(container, slide) {
+  if (!container || !slide) return;
+  const targetLeft = slide.offsetLeft - (container.clientWidth - slide.offsetWidth) / 2;
+  container.scrollTo({ left: targetLeft, behavior: 'smooth' });
+}
+
+function useRecapCarouselDrag(carouselRef) {
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return undefined;
+
+    let isDragging = false;
+    let startX = 0;
+    let scrollLeft = 0;
+
+    function onPointerDown(event) {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      isDragging = true;
+      startX = event.clientX;
+      scrollLeft = carousel.scrollLeft;
+      carousel.setPointerCapture(event.pointerId);
+      carousel.classList.add('recap-style-carousel--dragging');
+    }
+
+    function onPointerMove(event) {
+      if (!isDragging) return;
+      event.preventDefault();
+      const delta = event.clientX - startX;
+      carousel.scrollLeft = scrollLeft - delta;
+    }
+
+    function endDrag(event) {
+      if (!isDragging) return;
+      isDragging = false;
+      carousel.classList.remove('recap-style-carousel--dragging');
+      if (carousel.hasPointerCapture(event.pointerId)) {
+        carousel.releasePointerCapture(event.pointerId);
+      }
+    }
+
+    carousel.addEventListener('pointerdown', onPointerDown);
+    carousel.addEventListener('pointermove', onPointerMove);
+    carousel.addEventListener('pointerup', endDrag);
+    carousel.addEventListener('pointercancel', endDrag);
+
+    return () => {
+      carousel.removeEventListener('pointerdown', onPointerDown);
+      carousel.removeEventListener('pointermove', onPointerMove);
+      carousel.removeEventListener('pointerup', endDrag);
+      carousel.removeEventListener('pointercancel', endDrag);
+    };
+  }, [carouselRef]);
+}
+
+function useRecapPreviewFiles(journal, selectedMemories) {
+  const [previewFiles, setPreviewFiles] = useState({});
+  const [previewUrls, setPreviewUrls] = useState({});
+  const [loading, setLoading] = useState(true);
+  const selectedKey = selectedMemories.map((memo) => memo.id).join(',');
+
+  useEffect(() => {
+    let cancelled = false;
+    const createdUrls = [];
+
+    async function generate() {
+      setLoading(true);
+      const files = {};
+      const urls = {};
+
+      for (const style of RECAP_STYLES) {
+        const file = await renderStyledRecapImage(journal, selectedMemories, style.id);
+        if (cancelled) return;
+        files[style.id] = file;
+        const url = URL.createObjectURL(file);
+        createdUrls.push(url);
+        urls[style.id] = url;
+      }
+
+      if (!cancelled) {
+        setPreviewFiles(files);
+        setPreviewUrls(urls);
+        setLoading(false);
+      }
+    }
+
+    if (selectedMemories.length) {
+      generate();
+    } else {
+      setPreviewFiles({});
+      setPreviewUrls({});
+      setLoading(false);
+    }
+
+    return () => {
+      cancelled = true;
+      createdUrls.forEach(URL.revokeObjectURL);
+    };
+  }, [journal.id, journal.title, selectedKey]);
+
+  return { previewFiles, previewUrls, loading };
+}
 
 const FILTER_OPTIONS = [
   { id: 'all', label: 'All' },
@@ -147,18 +268,44 @@ export function RecapChooseStyleView({
 }) {
   const [styleId, setStyleId] = useState(RECAP_STYLES[0].id);
   const [showSheet, setShowSheet] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const carouselRef = useRef(null);
+  const slideRefs = useRef([]);
 
   const selectedMemories = useMemo(
-    () => {
-      const selectedSet = new Set(selectedIds.map(String));
-      return memories.filter((memo) => selectedSet.has(String(memo.id)));
-    },
+    () => orderSelectedMemories(memories, selectedIds),
     [memories, selectedIds],
   );
 
+  const { previewFiles, previewUrls, loading: previewsLoading } = useRecapPreviewFiles(
+    journal,
+    selectedMemories,
+  );
+
+  const activeStyleIndex = RECAP_STYLES.findIndex((style) => style.id === styleId);
+
+  useRecapCarouselDrag(carouselRef);
+
+  const handleCarouselScroll = useCallback(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    const closestIndex = getClosestStyleIndex(carousel, slideRefs.current);
+    const nextStyleId = RECAP_STYLES[closestIndex]?.id;
+    if (nextStyleId && nextStyleId !== styleId) {
+      setStyleId(nextStyleId);
+    }
+  }, [styleId]);
+
+  const selectStyle = useCallback((index) => {
+    const style = RECAP_STYLES[index];
+    if (!style) return;
+    setStyleId(style.id);
+    scrollStyleIntoView(carouselRef.current, slideRefs.current[index]);
+  }, []);
+
   async function buildRecapFile() {
-    return renderStyledRecapImage(journal, selectedMemories, styleId);
+    return previewFiles[styleId] ?? renderStyledRecapImage(journal, selectedMemories, styleId);
   }
 
   async function handleDownload() {
@@ -176,27 +323,42 @@ export function RecapChooseStyleView({
     setSharing(true);
     try {
       const file = await buildRecapFile();
-      let message;
+
+      if (appId === 'download') {
+        await downloadRecapImageFile(file);
+        setShowSheet(false);
+        return;
+      }
+
+      let shared = false;
       if (appId === 'instagram') {
-        message = await shareToInstagram([file], {
+        const message = await shareToInstagram([file], {
           title: `${journal.title} — Trip Recap`,
           text: `My ${journal.title} recap!`,
         });
+        shared = Boolean(message);
       } else {
         const result = await shareImageFiles([file], {
           title: `${journal.title} — Trip Recap`,
           text: `My ${journal.title} recap!`,
         });
-        message = result.message ?? 'The trip recap was successfully shared!';
+        shared = result.method !== 'cancelled';
       }
+
       setShowSheet(false);
-      if (message) onShared?.(message);
+      if (shared) {
+        setShowSuccess(true);
+      }
     } catch (err) {
       console.error(err);
       onShared?.('Could not share — try downloading the image instead.');
     } finally {
       setSharing(false);
     }
+  }
+
+  async function handleShareContact() {
+    await handleShareApp('messages');
   }
 
   return (
@@ -229,37 +391,74 @@ export function RecapChooseStyleView({
         </div>
       )}
     >
-      <div className="recap-style-carousel" role="listbox" aria-label="Recap styles">
-        {RECAP_STYLES.map((style) => {
-          const active = style.id === styleId;
-          return (
-            <button
-              key={style.id}
-              type="button"
-              role="option"
-              aria-selected={active}
-              className={`recap-style-option${active ? ' recap-style-option--active' : ''}`}
-              onClick={() => setStyleId(style.id)}
-            >
-              <RecapTemplateCard
-                journal={journal}
-                memories={selectedMemories}
-                styleId={style.id}
-                compact
+      <div className="recap-style-picker">
+        <div
+          ref={carouselRef}
+          className="recap-style-carousel"
+          role="listbox"
+          aria-label="Recap styles"
+          onScroll={handleCarouselScroll}
+        >
+          {RECAP_STYLES.map((style, index) => {
+            const active = style.id === styleId;
+            const previewUrl = previewUrls[style.id];
+            return (
+              <div
+                key={style.id}
+                ref={(element) => {
+                  slideRefs.current[index] = element;
+                }}
+                role="option"
+                aria-selected={active}
+                className={`recap-style-slide${active ? ' recap-style-slide--active' : ''}`}
+              >
+                {previewsLoading || !previewUrl ? (
+                  <div className="recap-style-preview recap-style-preview--loading" aria-hidden="true">
+                    Generating preview…
+                  </div>
+                ) : (
+                  <img
+                    src={previewUrl}
+                    alt={`${style.label} recap`}
+                    className="recap-style-preview"
+                    draggable={false}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="recap-style-steps" role="tablist" aria-label="Recap style steps">
+          {RECAP_STYLES.map((style, index) => {
+            const active = index === activeStyleIndex;
+            return (
+              <button
+                key={style.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-label={style.label}
+                className={`recap-style-step${active ? ' recap-style-step--active' : ''}`}
+                onClick={() => selectStyle(index)}
               />
-            </button>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {showSheet && (
-        <ShareSheet
-          title="Share recap"
+        <RecapShareSheet
+          journalTitle={journal.title}
           onClose={() => setShowSheet(false)}
           onShareApp={handleShareApp}
-          onShareContact={() => handleShareApp('messages')}
+          onShareContact={handleShareContact}
           disabled={sharing}
         />
+      )}
+
+      {showSuccess && (
+        <RecapShareSuccess onClose={() => setShowSuccess(false)} />
       )}
     </RecapFlowShell>
   );

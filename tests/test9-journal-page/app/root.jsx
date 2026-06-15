@@ -13,7 +13,7 @@ import {
 } from "react-router";
 
 import "./app.css";
-import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
+import { isAllowedDevOrigin, resolveDevRedirectOrigin } from "./config";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthLoading from "./components/auth/AuthLoading";
 import { CreatedMemosProvider } from "./context/CreatedMemosContext";
@@ -44,7 +44,10 @@ export async function clientLoader({ serverLoader }) {
   if (import.meta.env.DEV && typeof window !== 'undefined') {
     const { origin, pathname, search, hash } = window.location;
     if (!isAllowedDevOrigin(origin)) {
-      const target = new URL(`${pathname}${search}${hash}`, APP_ORIGIN).href;
+      const target = new URL(
+        `${pathname}${search}${hash}`,
+        resolveDevRedirectOrigin(origin),
+      ).href;
       if (new URL(target).origin !== origin) {
         throw redirect(target);
       }

@@ -1,10 +1,28 @@
 /** When true, dev server listens on LAN and root clientLoader does not force localhost. */
 export const ALLOW_LAN = import.meta.env.VITE_ALLOW_LAN === 'true';
 
-/** Canonical app origin for auth redirects (localhost in dev). */
+/**
+ * Canonical origin for dev redirects on desktop (localhost).
+ * With VITE_ALLOW_LAN=true, phones opening your LAN IP are never redirected here.
+ * VITE_APP_ORIGIN does not need to match your LAN IP for QR codes to work.
+ */
 export const APP_ORIGIN =
   import.meta.env.VITE_APP_ORIGIN ??
   (ALLOW_LAN ? 'https://localhost:5173' : 'http://localhost:5173');
+
+/** Never bounce a LAN session to localhost when ALLOW_LAN is enabled. */
+export function resolveDevRedirectOrigin(currentOrigin) {
+  if (!import.meta.env.DEV || !ALLOW_LAN) return APP_ORIGIN;
+
+  try {
+    const host = new URL(currentOrigin).hostname;
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return currentOrigin;
+  } catch {
+    /* ignore */
+  }
+
+  return APP_ORIGIN;
+}
 
 export function appUrl(path = '/') {
   const normalized = path.startsWith('/') ? path : `/${path}`;

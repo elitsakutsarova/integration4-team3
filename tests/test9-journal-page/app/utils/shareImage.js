@@ -230,17 +230,46 @@ async function drawAsset(ctx, src, x, y, w, h) {
   }
 }
 
+async function drawStarSticker(ctx, x, y, size) {
+  ctx.save();
+  ctx.translate(x + size / 2, y + size / 2);
+  ctx.rotate(-8.92 * (Math.PI / 180));
+  ctx.translate(-(x + size / 2), -(y + size / 2));
+  await drawAsset(ctx, RECAP_ASSETS.starUnion, x, y, size, size);
+  await drawAsset(
+    ctx,
+    RECAP_ASSETS.starInner,
+    x + size * 0.04,
+    y + size * 0.04,
+    size * 0.88,
+    size * 0.84,
+  );
+  ctx.fillStyle = '#1e1e1e';
+  ctx.font = `bold ${Math.round(size * 0.057)}px "Space Grotesk", sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText('This could be', x + size / 2, y + size * 0.58);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `bold ${Math.round(size * 0.088)}px "Space Grotesk", sans-serif`;
+  ctx.fillText('YOU!', x + size / 2, y + size * 0.82);
+  ctx.restore();
+}
+
+function photoFrameRotation(slot) {
+  return slot.tilt === 'left' ? -7.37 : 5.97;
+}
+
 async function drawMemoPhotoTile(ctx, memo, slot, x, y, w) {
   const photoH = 150;
   const accentH = photoH - 8;
   const accentW = w - 10;
+  const frameRot = photoFrameRotation(slot);
 
   ctx.save();
   ctx.translate(x + w / 2, y + photoH / 2);
-  ctx.rotate((slot.rotate ?? -7) * (Math.PI / 180) * 0.12);
+  ctx.rotate(frameRot * (Math.PI / 180));
   ctx.translate(-(x + w / 2), -(y + photoH / 2));
 
-  ctx.fillStyle = slot.accent;
+  ctx.fillStyle = slot.accentBg;
   ctx.fillRect(x + 8, y + 10, accentW, accentH);
 
   ctx.fillStyle = '#ffffff';
@@ -274,22 +303,27 @@ async function drawMemoPhotoTile(ctx, memo, slot, x, y, w) {
   ctx.fillText(day, x + 10, y + photoH - 6);
 
   const quote = memo.quote?.trim() || 'A memory from this trip';
+  ctx.save();
+  ctx.translate(x + w / 2, y + photoH + 28);
+  ctx.rotate((slot.captionRot ?? 0) * (Math.PI / 180));
   ctx.fillStyle = slot.captionBg;
   const captionW = w - 4;
-  ctx.fillRect(x, y + photoH + 10, captionW, 38);
+  ctx.fillRect(-captionW / 2, -18, captionW, 38);
   ctx.fillStyle = '#1e1e1e';
   ctx.font = 'bold 18px "Space Grotesk", sans-serif';
-  wrapText(ctx, truncateText(ctx, quote, captionW - 12), x + 8, y + photoH + 30, captionW - 12, 20);
+  ctx.textAlign = 'left';
+  wrapText(ctx, truncateText(ctx, quote, captionW - 12), -captionW / 2 + 8, -2, captionW - 12, 20);
+  ctx.restore();
 }
 
 function drawMemoQuoteTile(ctx, memo, slot, x, y, w) {
   const stripH = 170;
-  ctx.fillStyle = slot.accent;
+  ctx.fillStyle = slot.accentBg;
   ctx.fillRect(x + w / 2 - 8, y + 4, 16, stripH);
 
   ctx.save();
   ctx.translate(x + w / 2, y + 70);
-  ctx.rotate(-0.1);
+  ctx.rotate((slot.captionRot ?? -4) * (Math.PI / 180));
   ctx.fillStyle = slot.captionBg;
   ctx.fillRect(-(w - 16) / 2, -36, w - 16, 88);
   ctx.fillStyle = '#1e1e1e';
@@ -342,9 +376,9 @@ export async function renderStyledRecapImage(diary, memories, styleId) {
   ctx.lineWidth = 16;
   ctx.strokeRect(frameInnerX, frameInnerY, frameInnerW, frameInnerH);
 
-  await drawAsset(ctx, RECAP_ASSETS.grid, frameInnerX, frameInnerY, frameInnerW, frameInnerH);
+  await drawAsset(ctx, RECAP_ASSETS.grid, frameInnerX, frameInnerY, frameInnerW, 460);
   await drawAsset(ctx, RECAP_ASSETS.pixelCorner, frameInnerX + 16, frameInnerY + 16, 72, 72);
-  await drawAsset(ctx, RECAP_ASSETS.starSticker, frameInnerX + 36, frameInnerY + 8, 180, 180);
+  await drawStarSticker(ctx, frameInnerX + 20, frameInnerY + 80, 140);
 
   const sheetX = frameInnerX + 20;
   const sheetY = frameInnerY + 20;
@@ -407,7 +441,7 @@ export async function renderStyledRecapImage(diary, memories, styleId) {
     }
   }
 
-  await drawAsset(ctx, RECAP_ASSETS.memoLogo, sheetX + sheetW - 120, sheetY + sheetH - 70, 36, 48);
+  await drawAsset(ctx, RECAP_ASSETS.memoSubtract, sheetX + sheetW - 120, sheetY + sheetH - 70, 36, 48);
   ctx.fillStyle = '#1e1e1e';
   ctx.font = 'bold 34px "Space Grotesk", sans-serif';
   ctx.textAlign = 'right';
@@ -418,19 +452,9 @@ export async function renderStyledRecapImage(diary, memories, styleId) {
   return canvasToFile(canvas, `recap-${diary.id}-${styleId}.png`);
 }
 
-/** Download recap PNG — uses native share on mobile when anchor download is unavailable */
+/** Download recap PNG directly — no share sheet */
 export async function downloadRecapImageFile(file) {
   if (!file) throw new Error('No recap image to download');
-
-  const payload = { files: [file], title: file.name };
-  if (typeof navigator !== 'undefined' && navigator.canShare?.(payload)) {
-    try {
-      await navigator.share(payload);
-      return { method: 'share', message: 'Recap ready to save from the share sheet.' };
-    } catch (err) {
-      if (err.name === 'AbortError') return { method: 'cancelled', message: null };
-    }
-  }
 
   const url = URL.createObjectURL(file);
   try {

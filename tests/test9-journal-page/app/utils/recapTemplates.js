@@ -60,7 +60,22 @@ export const RECAP_STYLES = [
 ];
 
 export function getRecapStyle(styleId) {
-  return RECAP_STYLES.find((s) => s.id === styleId) ?? RECAP_STYLES[0];
+  const style = RECAP_STYLES.find((s) => s.id === styleId) ?? RECAP_STYLES[0];
+  return {
+    sheetBg: '#ffffff',
+    titleSticker: '#f9ff75',
+    rowDivider: style.frameBorder,
+    ...style,
+  };
+}
+
+/** Keep the user's selection order and cap at RECAP_MAX_MEMOS. */
+export function orderSelectedMemories(memories, selectedIds) {
+  const memoById = new Map(memories.map((memo) => [String(memo.id), memo]));
+  return selectedIds
+    .map((id) => memoById.get(String(id)))
+    .filter(Boolean)
+    .slice(0, RECAP_MAX_MEMOS);
 }
 
 export function formatRecapMemoDay(dateLabel) {
