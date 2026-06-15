@@ -10,7 +10,7 @@ import { resolveAccountAuthId } from './userCollectionsStoreHelpers';
 const COLLECTION_COMPLETE = 'collection_complete';
 
 // fetches the list of all possible stickers from manifest.json
-async function loadDigitalCatalogClient() {
+export async function loadDigitalStickerCatalog() {
   if (typeof window === 'undefined') return [];
   try {
     const res = await fetch('/digitalStickers/manifest.json', { cache: 'no-store' });
@@ -61,7 +61,7 @@ async function claimViaSupabase() {
   const payload = data ?? {};
   if (payload.error) return { error: normalizeClaimError(payload.error) };
 
-  const catalog = await loadDigitalCatalogClient();
+  const catalog = await loadDigitalStickerCatalog();
   return {
     sticker: stickerDefFromCatalog(catalog, payload.stickerId),
     claimedAt: payload.claimedAt,
@@ -70,7 +70,7 @@ async function claimViaSupabase() {
 
 // for guests
 async function claimRandomStickerGuest() {
-  const catalog = await loadDigitalCatalogClient();
+  const catalog = await loadDigitalStickerCatalog();
   const owned = new Set(getLocalOwnedStickerIds());
   const eligible = catalog.filter(sticker => !owned.has(sticker.id));
 
@@ -110,7 +110,7 @@ export async function claimRandomSticker(sessionUser = null) {
 // returns a list of sticker objects; if logged in: fetches from Supabase
 // if guest -> reads from localStorafe
 export async function fetchCollectedStickers(authUserId) {
-  const catalog = await loadDigitalCatalogClient();
+  const catalog = await loadDigitalStickerCatalog();
   const byId = new Map();
   const accountId = await resolveAccountAuthId(authUserId);
 

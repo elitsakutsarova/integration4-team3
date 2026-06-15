@@ -4360,65 +4360,109 @@ html img {
   padding-bottom: calc(var(--nav-h-safe) + 24px);
 }
 
+.profile-guest-hero {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.profile-guest-hero-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.profile-guest-hero-grid {
+  position: absolute;
+  right: 0;
+  top: -2px;
+  width: 100px;
+  height: auto;
+  transform: rotate(180deg);
+}
+
+.profile-guest-hero-mask {
+  position: absolute;
+  left: -54px;
+  top: -4px;
+  width: min(448px, 120%);
+  height: auto;
+  opacity: 0.9;
+}
+
+.profile-header--guest {
+  position: relative;
+  z-index: 1;
+}
+
 .profile-identity--guest {
-  padding-top: max(28px, env(safe-area-inset-top));
+  position: relative;
+  z-index: 1;
+  padding: 8px 24px 20px;
 }
 
-.guest-collection-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
+.profile-avatar--guest {
+  width: 114px;
+  height: 119px;
+}
+
+.profile-avatar-image--guest {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.profile-collections--guest {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.collection-card--guest-locked {
+  background: #d2d2d2;
+  border: none;
+  box-shadow: none;
+  color: #6b6b78;
+  cursor: default;
+  pointer-events: none;
+}
+
+.collection-card--guest-locked svg {
+  color: #8a8a96;
+  opacity: 0.85;
+}
+
+.collection-card--guest-active {
   background: #fff;
-  border: 1px solid #ececf0;
-  border-radius: 16px;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8e8ec;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
-.guest-collection-card-icon {
+.collection-card-sticker-preview {
   width: 42px;
   height: 42px;
-  border-radius: 12px;
-  background: #f4f4f7;
-  color: var(--mid);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  object-fit: contain;
 }
 
-.guest-collection-card-copy {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.profile-diaries--guest {
+  padding-bottom: 12px;
 }
 
-.guest-collection-card-title {
-  font-size: 15px;
+.profile-section-title--guest {
+  font-size: 20px;
   font-weight: 700;
   color: var(--dark);
+  margin-bottom: 0;
 }
 
-.guest-collection-card-meta {
-  font-size: 13px;
-  color: var(--mid);
-}
-
-.guest-collection-card-chevron {
-  font-size: 24px;
-  line-height: 1;
-  color: #b8b8c2;
+.profile-guest-wave {
+  display: block;
+  width: min(315px, 90%);
+  height: auto;
+  margin-top: 8px;
 }
 
 .guest-create-account {
-  margin-top: 28px;
-  padding: 22px 18px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, #f7f8ff 0%, #eef2ff 100%);
-  border: 1px solid #dfe6ff;
+  margin-top: 8px;
+  padding: 24px 24px 8px;
   text-align: center;
 }
 
@@ -4427,16 +4471,20 @@ html img {
   line-height: 1.5;
   color: var(--dark);
   margin-bottom: 14px;
+  max-width: 220px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .guest-create-account-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 22px;
+  width: 100%;
+  max-width: 275px;
+  min-height: 48px;
   border-radius: 999px;
-  background: var(--blue, #1952ff);
+  background: var(--blue, #3535ff);
   color: #fff;
   font-size: 15px;
   font-weight: 700;
@@ -4444,13 +4492,13 @@ html img {
 }
 
 .guest-create-account-login {
-  margin-top: 12px;
+  margin-top: 14px;
   font-size: 13px;
   color: var(--mid);
 }
 
 .guest-create-account-login a {
-  color: var(--blue, #1952ff);
+  color: var(--blue, #3535ff);
   font-weight: 600;
   text-decoration: none;
 }

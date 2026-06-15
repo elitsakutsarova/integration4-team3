@@ -143,12 +143,15 @@ export default function MapView({ savedMemos = [], active = true }) {
     }
 
     const pendingReveal = readStickerReveal();
-    if (pendingReveal) setRevealedSticker(pendingReveal);
+    if (pendingReveal) {
+      setRevealedSticker(pendingReveal);
+      revalidator.revalidate();
+    }
 
     const map = mapRef.current;
     if (!map) return;
     requestAnimationFrame(() => map.invalidateSize());
-  }, [active, setSearchParams]);
+  }, [active, setSearchParams, revalidator]);
 
   function dismissStickerReveal() {
     clearStickerReveal();

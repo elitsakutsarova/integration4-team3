@@ -1,5 +1,5 @@
 // this page is a protected digital sticker album where users can browse the stickers they've collected 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
@@ -7,11 +7,14 @@ import { useCollectedStickers, useCollectedStickersLoading } from '../context/Co
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
-import { useStickers } from '../context/StickerCatalogContext';
 
 // mock-data
 import { ACHIEVEMENTS, getAchievementStates } from '../data/achievementStickers';
 import { paths } from '../utils/appPaths';
+import {
+  fetchCollectedStickers,
+  loadDigitalStickerCatalog,
+} from '../utils/collectibleStore';
 
 export function meta() {
   return [
@@ -28,8 +31,34 @@ function BackIcon() {
   );
 }
 
-function GuestStickerCollection({ catalog, collected, loading }) {
+function GuestStickerCollection({ collected: initialCollected, loading: initialLoading }) {
   const [tab, setTab] = useState('collection');
+  const [catalog, setCatalog] = useState([]);
+  const [collected, setCollected] = useState(initialCollected);
+  const [loading, setLoading] = useState(initialLoading);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadGuestStickers() {
+      const [catalogData, collectedData] = await Promise.all([
+        loadDigitalStickerCatalog(),
+        fetchCollectedStickers(null),
+      ]);
+
+      if (cancelled) return;
+      setCatalog(catalogData);
+      setCollected(collectedData);
+      setLoading(false);
+    }
+
+    void loadGuestStickers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const collectedIds = new Set(collected.map(sticker => sticker.id));
 
   return (
@@ -125,7 +154,6 @@ export default function StickersGallery() {
   const tab = searchParams.get('tab') === 'achievements' ? 'achievements' : 'collection';
 
   const { user } = useAuth();
-  const catalog = useStickers();
   const collected = useCollectedStickers();
   const loading = useCollectedStickersLoading();
   const { createdCount } = useCreatedMemos();
@@ -137,7 +165,7 @@ export default function StickersGallery() {
   });
 
   if (!user) {
-    return <GuestStickerCollection catalog={catalog} collected={collected} loading={loading} />;
+    return <GuestStickerCollection collected={collected} loading={loading} />;
   }
 
   function switchTab(next) {
