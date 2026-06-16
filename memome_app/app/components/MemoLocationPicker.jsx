@@ -1,5 +1,8 @@
+// location picker modal for creating a memory
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
+import { paths } from '../utils/appPaths';
 import {
   ANTWERP_BOUNDS_LEAFLET,
   createCustomPlace,
@@ -46,10 +49,9 @@ export default function MemoLocationPicker({
   const markersRef = useRef([]);
   const selectedMarkerRef = useRef(null);
   const initTokenRef = useRef(0);
-  const placesRef = useRef([]);
-  const queryRef = useRef('');
 
   const [query, setQuery] = useState(initialName);
+  const [mapReady, setMapReady] = useState(false);
   const [selected, setSelected] = useState(() => {
     if (initialName && Number.isFinite(initialLat) && Number.isFinite(initialLng)) {
       return { name: initialName, lat: initialLat, lng: initialLng, id: 'initial' };
@@ -62,15 +64,12 @@ export default function MemoLocationPicker({
   const searchError = query.trim().length >= 2 ? searchFetcher.data?.error : null;
   const isSearching = searchFetcher.state !== 'idle' && query.trim().length >= 2;
 
-  placesRef.current = searchPlaces;
-  queryRef.current = query;
-
   useEffect(() => {
     const q = query.trim();
     if (q.length < 2) return undefined;
 
     const timer = setTimeout(() => {
-      searchFetcher.load(`/api/location-search?q=${encodeURIComponent(q)}`);
+      searchFetcher.load(`${paths.apiLocationSearch}?q=${encodeURIComponent(q)}`);
     }, SEARCH_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
@@ -132,12 +131,13 @@ export default function MemoLocationPicker({
   useEffect(() => {
     const L = leafletRef.current;
     const map = mapRef.current;
-    if (L && map) refreshMarkers(L, map, selected, searchPlaces, query);
-  }, [searchPlaces, query, selected]);
+    if (L && map && mapReady) refreshMarkers(L, map, selected, searchPlaces, query);
+  }, [searchPlaces, query, selected, mapReady]);
 
   const attachMap = useCallback((node) => {
     if (!node) {
       initTokenRef.current += 1;
+      setMapReady(false);
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -183,7 +183,7 @@ export default function MemoLocationPicker({
       mapRef.current = map;
 
       addBasemapControl(L, map, { defaultLayer: 'openfreemap' });
-      refreshMarkers(L, map, startSelected, placesRef.current, queryRef.current);
+      setMapReady(true);
 
       map.on('click', (e) => {
         if (!e.latlng) return;

@@ -1,10 +1,14 @@
+// reusable component for memo sharing
+
 import { useCallback, useSyncExternalStore } from 'react';
 import { getStickerDef } from '../../utils/stickers';
 import { getStickersForPage, subscribeStickerLayouts } from '../../utils/stickerTracker';
 import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
 import StickerVisual from './StickerVisual';
 
+// renders one sticker on top of the memo photo
 function PlacedStickerPreview({ sticker, stickerCatalog }) {
+  // finds the sticker definition
   const def = getStickerDef(sticker.stickerId, stickerCatalog);
   return (
     <span
@@ -20,6 +24,8 @@ function PlacedStickerPreview({ sticker, stickerCatalog }) {
   );
 }
 
+// custom hook -> returns all stickers that belong to this diary page
+// automatically updates when stickers change
 function usePageStickers(diaryId, pageIndex, pageLayout) {
   const subscribe = useCallback(
     onStoreChange => subscribeStickerLayouts((changedDiaryId, changedPage) => {
@@ -38,6 +44,7 @@ function usePageStickers(diaryId, pageIndex, pageLayout) {
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
+// renders a selectable memory
 export default function MemoShareCard({
   memory,
   pageIndex,
@@ -73,6 +80,7 @@ export default function MemoShareCard({
   );
 }
 
+// share the entire diary by creating a recap or copying a diary link
 export function ShareWholeDiaryCard({ onCreateRecap, onCopyLink }) {
   return (
     <div className="share-whole-card">
@@ -87,15 +95,3 @@ export function ShareWholeDiaryCard({ onCreateRecap, onCopyLink }) {
   );
 }
 
-export function StickerOverlay({ pageIndex, diaryId, pageLayout }) {
-  const stickerCatalog = useDiaryStickerCatalog();
-  const stickers = getStickersForPage(diaryId, pageIndex, pageLayout);
-  if (!stickers.length) return null;
-  return (
-    <>
-      {stickers.map(s => (
-        <PlacedStickerPreview key={s.uid} sticker={s} stickerCatalog={stickerCatalog} />
-      ))}
-    </>
-  );
-}

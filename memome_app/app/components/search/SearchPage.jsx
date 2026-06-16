@@ -1,5 +1,8 @@
+// main search page component
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
+import BackChevron from '../BackChevron';
 import { EventCard, PlaceCard } from '../discover/DiscoverCards';
 import { useAuth } from '../../context/AuthContext';
 import { useSpeechSearch } from '../../hooks/useSpeechSearch';
@@ -172,7 +175,7 @@ export default function SearchPage() {
     if (trimmedQuery.length < 2) return undefined;
 
     const timer = setTimeout(() => {
-      searchFetcher.load(`/api/location-search?q=${encodeURIComponent(trimmedQuery)}`);
+      searchFetcher.load(`${paths.apiLocationSearch}?q=${encodeURIComponent(trimmedQuery)}`);
     }, SEARCH_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
@@ -251,16 +254,7 @@ export default function SearchPage() {
           )}
 
           <div className="search-page-header-row">
-            <button
-              type="button"
-              className="search-page-back"
-              onClick={handleBack}
-              aria-label="Go back"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M15 6l-6 6 6 6" stroke="#1952ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
+            <BackChevron className="search-page-back" onClick={handleBack} label="Go back" />
 
             <label className="search-page-bar">
               <svg className="search-page-bar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">

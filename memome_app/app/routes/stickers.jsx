@@ -1,6 +1,8 @@
 // this page is a protected digital sticker album where users can browse the stickers they've collected 
+
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import GuestAuthCta from '../components/GuestAuthCta';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
@@ -134,16 +136,7 @@ function GuestStickerCollection({ collected: initialCollected, loading: initialL
       </div>
 
       <div className="stickers-guest-cta">
-        <p className="stickers-guest-cta-copy">
-          Create account or log in to get access to other stickers
-        </p>
-        <Link to={paths.register} className="stickers-guest-cta-btn">
-          Create Account
-        </Link>
-        <p className="stickers-guest-cta-login">
-          Already have an account?{' '}
-          <Link to={paths.login}>Log in</Link>
-        </p>
+        <GuestAuthCta copy="Create account or log in to get access to other stickers" />
       </div>
     </div>
   );

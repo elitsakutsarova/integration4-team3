@@ -1,6 +1,9 @@
+// settings page for changing the app language
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { goBack, paths } from '../../utils/appPaths';
+import { SettingsBackButton } from './SettingsSubpageHeader';
 import {
   getLanguagePreference,
   LANGUAGE_OPTIONS,
@@ -54,22 +57,7 @@ export default function LanguagePreferencePage() {
         </div>
 
         <div className="settings-title-row">
-          <button
-            type="button"
-            className="settings-back-btn"
-            onClick={handleBack}
-            aria-label="Back to settings"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M15 6l-6 6 6 6"
-                stroke="#1952ff"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+          <SettingsBackButton onClick={handleBack} label="Back to settings" />
           <h1 className="settings-title">
             <span className="settings-title-highlight settings-title-highlight--language" aria-hidden="true" />
             Language

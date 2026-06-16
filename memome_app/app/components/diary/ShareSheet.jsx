@@ -1,3 +1,5 @@
+// custom share menu that appears when the user presses a share button
+
 const CONTACTS = [
   { name: 'Ella Fanning', color: '#e8c4b8' },
   { name: 'Mike Townsend', color: '#b8c8e8' },
@@ -67,4 +69,3 @@ export default function ShareSheet({ title, countLabel, onClose, onShareApp, onS
   );
 }
 
-export { CONTACTS, APPS };

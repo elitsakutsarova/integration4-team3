@@ -1,6 +1,7 @@
 // event detail page component for the discover page
 
 import { useNavigate } from 'react-router';
+import BackChevron from '../BackChevron';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 import DiscoverShareIcon from './DiscoverShareIcon';
 import DiscoverShareSuccess from './DiscoverShareSuccess';
@@ -79,11 +80,7 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
           <img src={event.image} alt="" className="discover-detail-hero-img" />
           <div className="discover-detail-hero-wave" aria-hidden="true" />
 
-          <button type="button" className="discover-detail-icon-btn discover-detail-back" onClick={() => navigate(-1)} aria-label="Back">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M15 6l-6 6 6 6" stroke="#1952ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+          <BackChevron className="discover-detail-icon-btn discover-detail-back" onClick={() => navigate(-1)} />
 
           <button
             type="button"

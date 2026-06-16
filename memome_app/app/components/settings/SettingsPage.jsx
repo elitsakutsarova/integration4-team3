@@ -1,11 +1,13 @@
+// main Settings screen -> from here the user navigates to the other settings pages
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
-import { paths } from '../../utils/appPaths';
-import { goBack } from '../../utils/appPaths';
+import { paths, goBack } from '../../utils/appPaths';
 import { getLanguageLabel, getLanguagePreference } from '../../utils/languagePreference';
 import { settingsAssets } from '../../utils/settingsAssets';
 import LogoutConfirmModal from './LogoutConfirmModal';
+import { SettingsBackButton } from './SettingsSubpageHeader';
 
 function SettingsRowIcon({ children }) {
   return <span className="settings-row-icon">{children}</span>;
@@ -86,22 +88,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="settings-title-row">
-          <button
-            type="button"
-            className="settings-back-btn"
-            onClick={handleBack}
-            aria-label="Back to profile"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M15 6l-6 6 6 6"
-                stroke="#1952ff"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+          <SettingsBackButton onClick={handleBack} label="Back to profile" />
           <h1 className="settings-title">
             <span className="settings-title-highlight" aria-hidden="true" />
             Settings

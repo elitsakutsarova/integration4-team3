@@ -78,6 +78,7 @@ export default function CreateJournalPage() {
   const [warningOpen, setWarningOpen] = useState(false);
   const leaveTargetRef = useRef(paths.journals);
   const isSubmittingRef = useRef(false);
+  const isDiscardingRef = useRef(false);
 
   const errors = useMemo(
     () => (showErrors ? validateCreateJournalDraft(draft) : {}),
@@ -96,6 +97,7 @@ export default function CreateJournalPage() {
   const blocker = useBlocker(
     ({ nextLocation }) =>
       !isSubmittingRef.current
+      && !isDiscardingRef.current
       && isDirty
       && !CREATE_FLOW_PATHS.has(nextLocation.pathname),
   );
@@ -137,6 +139,7 @@ export default function CreateJournalPage() {
   }
 
   function handleDiscard() {
+    isDiscardingRef.current = true;
     resetDraft();
     setWarningOpen(false);
     if (blocker.state === 'blocked') {
