@@ -1,25 +1,7 @@
-/** Shared Supabase env — VITE_* vars are substituted at build time by Vite for both client and server */
+/** Shared Supabase env — Vite exposes VITE_* vars via import.meta.env on client and SSR */
 
 function env(name) {
-  try {
-    // Try import.meta.env first (available in both client and server bundles after Vite build)
-    if (typeof import.meta !== 'undefined' && import.meta.env && name in import.meta.env) {
-      return import.meta.env[name] || '';
-    }
-  } catch {
-    // import.meta might not be available in some contexts
-  }
-
-  try {
-    // Fallback to process.env for Node.js runtime
-    if (typeof process !== 'undefined' && process.env && name in process.env) {
-      return process.env[name] || '';
-    }
-  } catch {
-    // process might not be available in some contexts
-  }
-
-  return '';
+  return import.meta.env[name] ?? '';
 }
 
 export function getSupabaseUrl() {
