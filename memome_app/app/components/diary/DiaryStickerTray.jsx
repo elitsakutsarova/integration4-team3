@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useRef } from 'react';
-import gsap from 'gsap';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { getGsapSync, preloadGsap } from '../../utils/gsapClient';
 import { pixelToPercent } from '../../utils/stickerTracker';
 import StickerVisual, { createStickerCloneNode } from './StickerVisual';
 import { useCollectedStickers, useCollectedStickersLoading } from '../../context/CollectedStickersContext';
@@ -46,6 +46,10 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
   const dragRef = useRef(null);
   const lastStartRef = useRef(0);
 
+  useEffect(() => {
+    preloadGsap();
+  }, []);
+
   const attachTrayRef = useCallback((node) => {
     if (trayRef) trayRef.current = node;
     if (!node) clearDragSession(dragRef);
@@ -70,6 +74,8 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
       clientX <= zoneRect.right &&
       clientY >= zoneRect.top &&
       clientY <= zoneRect.bottom;
+
+    const gsap = getGsapSync();
 
     if (onPage) {
       const { x, y } = pixelToPercent(clientX, clientY, zoneRect);
@@ -113,13 +119,14 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
 
     const clone = createStickerCloneNode(stickerDef);
     document.body.appendChild(clone);
+    const gsap = getGsapSync();
     gsap.set(clone, { x: e.clientX, y: e.clientY, xPercent: -50, yPercent: -50 });
 
     const pointerId = e.pointerId;
 
     const onMove = ev => {
       if (ev.pointerId !== pointerId) return;
-      gsap.set(clone, { x: ev.clientX, y: ev.clientY, xPercent: -50, yPercent: -50 });
+      getGsapSync().set(clone, { x: ev.clientX, y: ev.clientY, xPercent: -50, yPercent: -50 });
     };
 
     const onEnd = ev => {

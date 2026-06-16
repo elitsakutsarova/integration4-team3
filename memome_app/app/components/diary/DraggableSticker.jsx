@@ -1,5 +1,5 @@
-import { useCallback, useRef } from 'react';
-import gsap from 'gsap';
+import { useCallback, useEffect, useRef } from 'react';
+import { getGsapSync, preloadGsap } from '../../utils/gsapClient';
 import { clampPercent, updateStickerPosition } from '../../utils/stickerTracker';
 import { getStickerDef } from '../../utils/stickers';
 import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
@@ -28,6 +28,10 @@ export default function DraggableSticker({
   const onDragStartRef = useRef(onDragStart);
   const onDragEndRef = useRef(onDragEnd);
   const dragRef = useRef(null);
+
+  useEffect(() => {
+    preloadGsap();
+  }, []);
 
   stickerRef.current = sticker;
   onMoveRef.current = onMove;
@@ -87,6 +91,8 @@ export default function DraggableSticker({
       onDragEndRef.current?.();
       return;
     }
+
+    const gsap = getGsapSync();
 
     gsap.set(el, { scale: 1 });
 
@@ -167,7 +173,7 @@ export default function DraggableSticker({
         if (Math.hypot(dx, dy) < 6) return;
         session.dragging = true;
         onDragStartRef.current?.();
-        gsap.to(el, { scale: 1.12, duration: 0.15, ease: 'power2.out' });
+        getGsapSync().to(el, { scale: 1.12, duration: 0.15, ease: 'power2.out' });
         if (ev.cancelable) ev.preventDefault();
       }
 
@@ -176,7 +182,7 @@ export default function DraggableSticker({
       const x = ((centerX - zoneRect.left) / zoneRect.width) * 100;
       const y = ((centerY - zoneRect.top) / zoneRect.height) * 100;
 
-      gsap.set(el, {
+      getGsapSync().set(el, {
         left: `${clampPercent(x)}%`,
         top: `${clampPercent(y)}%`,
         x: 0,
