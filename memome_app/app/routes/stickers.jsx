@@ -1,4 +1,5 @@
 // this page is a protected digital sticker album where users can browse the stickers they've collected 
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
@@ -6,11 +7,14 @@ import { useCollectedStickers, useCollectedStickersLoading } from '../context/Co
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
-import { useStickers } from '../context/StickerCatalogContext';
 
 // mock-data
-import { getAchievementStates } from '../data/achievementStickers';
+import { ACHIEVEMENTS, getAchievementStates } from '../data/achievementStickers';
 import { paths } from '../utils/appPaths';
+import {
+  fetchCollectedStickers,
+  loadDigitalStickerCatalog,
+} from '../utils/collectibleStore';
 
 export function meta() {
   return [
@@ -27,16 +31,34 @@ function BackIcon() {
   );
 }
 
-function LockIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <rect x="3" y="11" width="18" height="11" rx="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
+function GuestStickerCollection({ collected: initialCollected, loading: initialLoading }) {
+  const [tab, setTab] = useState('collection');
+  const [catalog, setCatalog] = useState([]);
+  const [collected, setCollected] = useState(initialCollected);
+  const [loading, setLoading] = useState(initialLoading);
 
-function GuestStickerCollection({ catalog, collected, loading }) {
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadGuestStickers() {
+      const [catalogData, collectedData] = await Promise.all([
+        loadDigitalStickerCatalog(),
+        fetchCollectedStickers(null),
+      ]);
+
+      if (cancelled) return;
+      setCatalog(catalogData);
+      setCollected(collectedData);
+      setLoading(false);
+    }
+
+    void loadGuestStickers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const collectedIds = new Set(collected.map(sticker => sticker.id));
 
   return (
@@ -49,46 +71,79 @@ function GuestStickerCollection({ catalog, collected, loading }) {
         <span className="stickers-header-spacer" aria-hidden="true" />
       </header>
 
-      <div className="stickers-tabs stickers-tabs--guest" role="tablist" aria-label="Sticker views">
-        <span className="stickers-tab stickers-tab--active" role="tab" aria-selected="true">
+      <div className="stickers-tabs" role="tablist" aria-label="Sticker views">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'collection'}
+          className={`stickers-tab${tab === 'collection' ? ' stickers-tab--active' : ''}`}
+          onClick={() => setTab('collection')}
+        >
           Collection
-        </span>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'achievements'}
+          className={`stickers-tab${tab === 'achievements' ? ' stickers-tab--active' : ''}`}
+          onClick={() => setTab('achievements')}
+        >
+          Achievements
+        </button>
       </div>
 
-      <div className="stickers-content" role="tabpanel">
-        {loading ? (
-          <p className="stickers-empty">Loading…</p>
-        ) : (
-          <div className="stickers-grid stickers-grid--collection stickers-grid--guest-locked">
-            {catalog.map(item => {
-              const owned = collectedIds.has(item.id);
-              const ownedSticker = collected.find(sticker => sticker.id === item.id) ?? item;
-              return (
+      <div className="stickers-scroll">
+        <div className="stickers-content" role="tabpanel">
+          {tab === 'collection' && (
+            loading ? (
+              <p className="stickers-empty">Loading…</p>
+            ) : (
+              <div className="stickers-grid stickers-grid--collection">
+                {catalog.map(item => {
+                  const owned = collectedIds.has(item.id);
+                  const ownedSticker = collected.find(s => s.id === item.id) ?? item;
+                  return (
+                    <div
+                      key={item.id}
+                      className={`stickers-tile stickers-tile--collection${owned ? '' : ' stickers-tile--locked'}`}
+                    >
+                      <StickerVisual src={ownedSticker.src} emoji={ownedSticker.emoji} label={ownedSticker.label} />
+                    </div>
+                  );
+                })}
+              </div>
+            )
+          )}
+
+          {tab === 'achievements' && (
+            <div className="stickers-grid stickers-grid--achievements">
+              {ACHIEVEMENTS.map(item => (
                 <div
                   key={item.id}
-                  className={`stickers-tile stickers-tile--collection${owned ? '' : ' stickers-tile--locked-slot'}`}
+                  className="stickers-tile stickers-tile--achievement stickers-tile--locked"
                 >
-                  {owned ? (
-                    <StickerVisual src={ownedSticker.src} emoji={ownedSticker.emoji} label={ownedSticker.label} />
-                  ) : (
-                    <span className="stickers-locked-icon" aria-hidden="true">
-                      <LockIcon />
-                    </span>
-                  )}
+                  <div className="stickers-tile-art">
+                    <StickerVisual src={item.src} emoji={item.emoji} label={item.label} />
+                  </div>
+                  <span className="stickers-achievement-label">{item.label}</span>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="stickers-guest-cta">
         <p className="stickers-guest-cta-copy">
-          Create an account to keep {collected.length === 1 ? 'this sticker' : 'these stickers'} forever.
+          Create account or log in to get access to other stickers
         </p>
         <Link to={paths.register} className="stickers-guest-cta-btn">
-          Create account
+          Create Account
         </Link>
+        <p className="stickers-guest-cta-login">
+          Already have an account?{' '}
+          <Link to={paths.login}>Log in</Link>
+        </p>
       </div>
     </div>
   );
@@ -99,7 +154,6 @@ export default function StickersGallery() {
   const tab = searchParams.get('tab') === 'achievements' ? 'achievements' : 'collection';
 
   const { user } = useAuth();
-  const catalog = useStickers();
   const collected = useCollectedStickers();
   const loading = useCollectedStickersLoading();
   const { createdCount } = useCreatedMemos();
@@ -111,7 +165,7 @@ export default function StickersGallery() {
   });
 
   if (!user) {
-    return <GuestStickerCollection catalog={catalog} collected={collected} loading={loading} />;
+    return <GuestStickerCollection collected={collected} loading={loading} />;
   }
 
   function switchTab(next) {

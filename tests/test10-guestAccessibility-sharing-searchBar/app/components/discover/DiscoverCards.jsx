@@ -105,7 +105,7 @@ export function EventCard({ item, layout = 'carousel', showFave = true }) {
   );
 }
 
-export function PlaceCard({ item, layout = 'carousel', faveId, showFave = true }) {
+export function PlaceCard({ item, layout = 'carousel', faveId, showFave = true, faveMeta }) {
   const favoriteItemId = faveId ?? item.id;
   const cardClass = layout === 'list'
     ? 'discover-place-card discover-place-card--list'
@@ -119,7 +119,12 @@ export function PlaceCard({ item, layout = 'carousel', faveId, showFave = true }
       </div>
       <div className="discover-place-card-body">
         {showFave && favoriteItemId && (
-          <DiscoverFavoriteButton type="place" itemId={favoriteItemId} label={item.title} />
+          <DiscoverFavoriteButton
+            type="place"
+            itemId={favoriteItemId}
+            label={item.title}
+            meta={faveMeta}
+          />
         )}
         <h3 className="discover-place-card-title">{item.title}</h3>
         <p className="discover-event-card-meta">

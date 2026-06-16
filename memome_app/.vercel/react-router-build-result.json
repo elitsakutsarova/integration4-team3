@@ -12,6 +12,7 @@
     "routeIdToServerBundleId": {
       "root": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/home": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/search": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/discover._index": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/discover.happening-now": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/discover.upcoming": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -31,6 +32,11 @@
       "routes/profile.favourites.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.favourites.spots": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.favourites.events": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/journals": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/journals.create": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/journals.create.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/journals.$id.edit": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/journals.$id.edit.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/register": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -68,6 +74,13 @@
         "parentId": "routes/main-shell",
         "file": "app/routes/home.jsx",
         "index": true,
+        "config": {}
+      },
+      "routes/search": {
+        "id": "routes/search",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/search.jsx",
+        "path": "search",
         "config": {}
       },
       "routes/discover-layout": {
@@ -224,6 +237,41 @@
         "path": "events",
         "config": {}
       },
+      "routes/journals": {
+        "id": "routes/journals",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/journals.jsx",
+        "path": "journals",
+        "config": {}
+      },
+      "routes/journals.create": {
+        "id": "routes/journals.create",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/journals.create.jsx",
+        "path": "journals/create",
+        "config": {}
+      },
+      "routes/journals.create.memos": {
+        "id": "routes/journals.create.memos",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/journals.create.memos.jsx",
+        "path": "journals/create/memos",
+        "config": {}
+      },
+      "routes/journals.$id.edit": {
+        "id": "routes/journals.$id.edit",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/journals.$id.edit.jsx",
+        "path": "journals/:id/edit",
+        "config": {}
+      },
+      "routes/journals.$id.edit.memos": {
+        "id": "routes/journals.$id.edit.memos",
+        "parentId": "routes/main-shell",
+        "file": "app/routes/journals.$id.edit.memos.jsx",
+        "path": "journals/:id/edit/memos",
+        "config": {}
+      },
       "routes/login": {
         "id": "routes/login",
         "parentId": "root",
@@ -369,6 +417,12 @@
         "file": "routes/home.jsx",
         "index": true
       },
+      "routes/search": {
+        "id": "routes/search",
+        "parentId": "routes/main-shell",
+        "file": "routes/search.jsx",
+        "path": "search"
+      },
       "routes/discover-layout": {
         "id": "routes/discover-layout",
         "parentId": "routes/main-shell",
@@ -501,6 +555,36 @@
         "file": "routes/profile.favourites.events.jsx",
         "path": "events"
       },
+      "routes/journals": {
+        "id": "routes/journals",
+        "parentId": "routes/main-shell",
+        "file": "routes/journals.jsx",
+        "path": "journals"
+      },
+      "routes/journals.create": {
+        "id": "routes/journals.create",
+        "parentId": "routes/main-shell",
+        "file": "routes/journals.create.jsx",
+        "path": "journals/create"
+      },
+      "routes/journals.create.memos": {
+        "id": "routes/journals.create.memos",
+        "parentId": "routes/main-shell",
+        "file": "routes/journals.create.memos.jsx",
+        "path": "journals/create/memos"
+      },
+      "routes/journals.$id.edit": {
+        "id": "routes/journals.$id.edit",
+        "parentId": "routes/main-shell",
+        "file": "routes/journals.$id.edit.jsx",
+        "path": "journals/:id/edit"
+      },
+      "routes/journals.$id.edit.memos": {
+        "id": "routes/journals.$id.edit.memos",
+        "parentId": "routes/main-shell",
+        "file": "routes/journals.$id.edit.memos.jsx",
+        "path": "journals/:id/edit/memos"
+      },
       "routes/login": {
         "id": "routes/login",
         "parentId": "root",
@@ -626,6 +710,10 @@
                 "index": true
               },
               {
+                "file": "routes/search.jsx",
+                "path": "search"
+              },
+              {
                 "file": "routes/discover-layout.jsx",
                 "children": [
                   {
@@ -718,6 +806,26 @@
                   }
                 ],
                 "path": "profile"
+              },
+              {
+                "file": "routes/journals.jsx",
+                "path": "journals"
+              },
+              {
+                "file": "routes/journals.create.jsx",
+                "path": "journals/create"
+              },
+              {
+                "file": "routes/journals.create.memos.jsx",
+                "path": "journals/create/memos"
+              },
+              {
+                "file": "routes/journals.$id.edit.jsx",
+                "path": "journals/:id/edit"
+              },
+              {
+                "file": "routes/journals.$id.edit.memos.jsx",
+                "path": "journals/:id/edit/memos"
               }
             ],
             "path": ""

@@ -3,6 +3,7 @@ import { index, route } from "@react-router/dev/routes";
 export default [
   route("", "routes/main-shell.jsx", [
     index("routes/home.jsx"),
+    route("search", "routes/search.jsx"),
     route("discover", "routes/discover-layout.jsx", [
       index("routes/discover._index.jsx"),
       route("happening-now", "routes/discover.happening-now.jsx"),
@@ -28,6 +29,11 @@ export default [
         route("events", "routes/profile.favourites.events.jsx"),
       ]),
     ]),
+    route("journals", "routes/journals.jsx"),
+    route("journals/create", "routes/journals.create.jsx"),
+    route("journals/create/memos", "routes/journals.create.memos.jsx"),
+    route("journals/:id/edit", "routes/journals.$id.edit.jsx"),
+    route("journals/:id/edit/memos", "routes/journals.$id.edit.memos.jsx"),
   ]),
   route("login", "routes/login.jsx"),
   route("register", "routes/register.jsx"),

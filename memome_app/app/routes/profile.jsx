@@ -16,53 +16,86 @@ export function meta() {
   ];
 }
 
-function LockIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <rect x="3" y="11" width="18" height="11" rx="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  );
-}
+function GuestProfile({ collectedStickers }) {
+  const featuredSticker = collectedStickers[0];
 
-function GuestProfile({ stickerCount }) {
   return (
     <div className="profile-page profile-page--guest">
-      <section className="profile-identity profile-identity--guest">
-        <div className="profile-avatar profile-avatar--placeholder">
-          <img
-            className="profile-avatar-image profile-avatar-image--placeholder"
-            src={settingsAssets.avatarPlaceholder}
-            alt=""
-          />
+      <div className="profile-guest-hero">
+        <div className="profile-guest-hero-deco" aria-hidden="true">
+          <img className="profile-guest-hero-grid" src={settingsAssets.topGrid} alt="" />
+          <img className="profile-guest-hero-mask" src={settingsAssets.maskGroup} alt="" />
         </div>
-        <div className="profile-info">
-          <h1 className="profile-username">@guest</h1>
-        </div>
-      </section>
+
+        <header className="profile-header profile-header--guest">
+          <Link to={paths.login} className="profile-settings-btn" aria-label="Settings">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </Link>
+        </header>
+
+        <section className="profile-identity profile-identity--guest">
+          <div className="profile-avatar profile-avatar--guest">
+            <img
+              className="profile-avatar-image profile-avatar-image--guest"
+              src={settingsAssets.avatarPlaceholder}
+              alt=""
+            />
+          </div>
+          <div className="profile-info">
+            <h1 className="profile-username">@?????</h1>
+          </div>
+        </section>
+      </div>
 
       <section className="profile-section">
         <h2 className="profile-section-label">Collections</h2>
-        <Link to={paths.stickers} className="guest-collection-card">
-          <span className="guest-collection-card-icon" aria-hidden="true">
-            <LockIcon />
-          </span>
-          <span className="guest-collection-card-copy">
-            <span className="guest-collection-card-title">Your sticker collection</span>
-            <span className="guest-collection-card-meta">
-              {stickerCount} {stickerCount === 1 ? 'sticker' : 'stickers'}
-            </span>
-          </span>
-          <span className="guest-collection-card-chevron" aria-hidden="true">›</span>
-        </Link>
+        <div className="profile-collections profile-collections--guest">
+          <div className="collection-card collection-card--guest-locked" aria-disabled="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>Memos</span>
+          </div>
+          <div className="collection-card collection-card--guest-locked" aria-disabled="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            <span>Favorites</span>
+          </div>
+          <Link to={paths.stickers} className="collection-card collection-card--link collection-card--guest-active">
+            {featuredSticker ? (
+              <img
+                className="collection-card-sticker-preview"
+                src={featuredSticker.src}
+                alt=""
+              />
+            ) : (
+              <img
+                className="collection-card-sticker-preview"
+                src={settingsAssets.greenStar}
+                alt=""
+              />
+            )}
+            <span>Stickers</span>
+          </Link>
+        </div>
+      </section>
+
+      <section className="profile-section profile-diaries profile-diaries--guest">
+        <h2 className="profile-section-title profile-section-title--guest">Remember the time when...</h2>
+        <img className="profile-guest-wave" src={settingsAssets.vector507} alt="" aria-hidden="true" />
       </section>
 
       <section className="guest-create-account">
         <p className="guest-create-account-copy">
-          Create an account to save your stickers, publish memos, and build travel diaries.
+          Create account or log in to add memos
         </p>
         <Link to={paths.register} className="guest-create-account-btn">
-          Create account
+          Create Account
         </Link>
         <p className="guest-create-account-login">
           Already have an account?{' '}
@@ -83,7 +116,7 @@ export default function Profile() {
   const hasCustomAvatar = Boolean(avatarUrl);
 
   if (!user) {
-    return <GuestProfile stickerCount={collectedStickers.length} />;
+    return <GuestProfile collectedStickers={collectedStickers} />;
   }
 
   const favouritesCount = savedMemosCount + discoverFavesCount;

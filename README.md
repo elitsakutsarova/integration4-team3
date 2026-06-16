@@ -151,8 +151,8 @@ After our consult, I changed a lot of things in test5 like:
 ## Fix search bar
 
 - Add the microphone feature to the search bar
-- Implement special screen for “no-results” on search when there are no results
-- In the search bar, show how many results were found (on top)
+- Implement special screen for “no-results” on search when there are no results ✔️
+- In the search bar, show how many results were found (on top) ✔️
 - In the event detail page when you click on the detail you can add it to your calendar
 
 

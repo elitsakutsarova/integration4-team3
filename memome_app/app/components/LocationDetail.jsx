@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import BottomNav from './BottomNav';
+import DiscoverShareIcon from './discover/DiscoverShareIcon';
+import DiscoverShareSuccess from './discover/DiscoverShareSuccess';
+import ShareSheet from './diary/ShareSheet';
 import FeaturedMemosSection from './memos/FeaturedMemosSection';
 import { buildMemoArchiveHref } from '../utils/locationHref';
 import { goBack } from '../utils/appPaths';
 import { fetchPhotonPlaceDetail, resolvePhotonPoiAt } from '../utils/locationPhoton';
 import { fetchPlaceImageUrl } from '../utils/placeImage';
 import { parsePhotonPlaceId } from '../utils/placeId';
+import { useDiscoverShare } from '../hooks/useDiscoverShare';
 
 function HeroMedia({ imageUrl, placeName, categoryLabel }) {
   if (imageUrl) {
@@ -34,6 +38,18 @@ export default function LocationDetail({ place: initialPlace, featuredMemos = []
   const navigate = useNavigate();
   const [place, setPlace] = useState(initialPlace);
   const [imageUrl, setImageUrl] = useState(null);
+  const {
+    showSheet,
+    openSheet,
+    closeSheet,
+    showSuccess,
+    closeSuccess,
+    sharing,
+    handleShare,
+  } = useDiscoverShare(() => ({
+    title: place.name,
+    text: place.description || `Check out ${place.name} on MemMe`,
+  }));
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
   const archiveHref = buildMemoArchiveHref({
     placeId: place.id,
@@ -90,19 +106,6 @@ export default function LocationDetail({ place: initialPlace, featuredMemos = []
     goBack(navigate, '/');
   }
 
-  function handleShare() {
-    const shareData = {
-      title: place.name,
-      text: place.description,
-      url: window.location.href,
-    };
-    if (navigator.share) {
-      void navigator.share(shareData);
-      return;
-    }
-    void navigator.clipboard?.writeText(window.location.href);
-  }
-
   return (
     <div className="loc-detail-page">
       <div className="loc-detail-scroll">
@@ -117,12 +120,13 @@ export default function LocationDetail({ place: initialPlace, featuredMemos = []
               <polyline points="15 18 9 12 15 6" />
             </svg>
           </button>
-          <button type="button" className="loc-detail-icon-btn loc-detail-share" onClick={handleShare} aria-label="Share">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-              <polyline points="16 6 12 2 8 6" />
-              <line x1="12" y1="2" x2="12" y2="15" />
-            </svg>
+          <button
+            type="button"
+            className="loc-detail-icon-btn loc-detail-share loc-detail-share-btn"
+            onClick={openSheet}
+            aria-label="Share location"
+          >
+            <DiscoverShareIcon />
           </button>
         </div>
 
@@ -185,6 +189,21 @@ export default function LocationDetail({ place: initialPlace, featuredMemos = []
       </div>
 
       <BottomNav />
+
+      {showSheet && (
+        <ShareSheet
+          title="Share location"
+          countLabel={place.name}
+          onClose={closeSheet}
+          onShareApp={handleShare}
+          onShareContact={handleShare}
+          disabled={sharing}
+        />
+      )}
+
+      {showSuccess && (
+        <DiscoverShareSuccess variant="location" onClose={closeSuccess} />
+      )}
     </div>
   );
 }

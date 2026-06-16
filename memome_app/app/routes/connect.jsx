@@ -5,9 +5,6 @@ import { paths } from '../utils/appPaths';
 import { loadDevShareOrigin } from '../utils/devShareOrigin';
 import { connectToRoom } from '../utils/webrtc/peerConnection.js';
 import { validateConnectMessage, validateConnectRoom } from '../utils/validators';
-import { requireAuthMiddleware } from '../middleware/clientAuth';
-
-export const clientMiddleware = requireAuthMiddleware;
 
 function randomRoomCode() {
   return Math.random().toString(36).slice(2, 8).toUpperCase();

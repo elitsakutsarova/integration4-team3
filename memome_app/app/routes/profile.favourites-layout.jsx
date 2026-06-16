@@ -1,7 +1,4 @@
 import FavouritesLayout from '../components/profile/FavouritesLayout';
-import { requireAuthMiddleware } from '../middleware/clientAuth';
-
-export const clientMiddleware = requireAuthMiddleware;
 
 export function meta() {
   return [

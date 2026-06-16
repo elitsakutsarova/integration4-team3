@@ -4,6 +4,7 @@ export function DiscoverFavoriteButton({
   type,
   itemId,
   label,
+  meta,
   className = 'discover-fave-btn',
 }) {
   const { isFaved, toggleFave } = useDiscoverFaves();
@@ -18,7 +19,7 @@ export function DiscoverFavoriteButton({
       onClick={event => {
         event.preventDefault();
         event.stopPropagation();
-        toggleFave(type, itemId);
+        toggleFave(type, itemId, meta);
       }}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">

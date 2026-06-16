@@ -5,14 +5,6 @@ import { paths } from '../utils/appPaths';
 
 export default function StickerRevealSheet({ sticker, onClose }) {
   useEffect(() => {
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, []);
-
-  useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === 'Escape') onClose();
     }
@@ -31,27 +23,32 @@ export default function StickerRevealSheet({ sticker, onClose }) {
         aria-modal="true"
         onClick={event => event.stopPropagation()}
       >
-        <div className="sticker-reveal-stage">
-          <div className="sticker-reveal-shadow" aria-hidden="true" />
-          <div className="sticker-reveal-sticker">
+        <div className="sticker-reveal-sticker" aria-hidden="true">
+          <div className="sticker-reveal-sticker-inner">
             <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
           </div>
-          <div className="sticker-reveal-card">
-            <p id="sticker-reveal-title" className="sticker-reveal-title">
-              New sticker unlocked!
-            </p>
-            <div className="sticker-reveal-actions">
-              <button type="button" className="sticker-reveal-btn sticker-reveal-btn--ghost" onClick={onClose}>
-                Close
-              </button>
-              <Link
-                to={paths.stickers}
-                className="sticker-reveal-btn sticker-reveal-btn--primary"
-                onClick={onClose}
-              >
-                View in collection
-              </Link>
-            </div>
+          <div className="sticker-reveal-sticker-shadow" />
+        </div>
+
+        <div className="sticker-reveal-card">
+          <p id="sticker-reveal-title" className="sticker-reveal-title">
+            New sticker unlocked!
+          </p>
+          <div className="sticker-reveal-actions">
+            <button
+              type="button"
+              className="sticker-reveal-btn sticker-reveal-btn--ghost"
+              onClick={onClose}
+            >
+              Close
+            </button>
+            <Link
+              to={paths.stickers}
+              className="sticker-reveal-btn sticker-reveal-btn--primary"
+              onClick={onClose}
+            >
+              View in collection
+            </Link>
           </div>
         </div>
       </div>

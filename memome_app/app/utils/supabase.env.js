@@ -1,11 +1,7 @@
-/** Shared Supabase env — Vite exposes VITE_* vars via import.meta.env on client, process.env on server */
+/** Shared Supabase env — Vite exposes VITE_* vars via import.meta.env on client and SSR */
 
 function env(name) {
-  // On server-side, use process.env; on client-side, use import.meta.env
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[name] ?? '';
-  }
-  return import.meta.env?.[name] ?? '';
+  return import.meta.env[name] ?? '';
 }
 
 export function getSupabaseUrl() {

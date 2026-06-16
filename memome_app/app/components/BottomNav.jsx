@@ -1,6 +1,6 @@
-import { Link, useLocation } from 'react-router';
-import { diaryPath, paths } from '../utils/appPaths';
-import { TRAVEL_DIARY } from '../data/mockUser';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { homePathWithAddMemo, paths } from '../utils/appPaths';
+import { journalAssets } from '../utils/journalAssets';
 
 function NavItem({ id, label, active, to, onClick, children }) {
   const isActive = active === id;
@@ -33,12 +33,21 @@ function NavItem({ id, label, active, to, onClick, children }) {
 
 export default function BottomNav({ onAddClick }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   const active =
     pathname.startsWith('/profile') || pathname.startsWith('/stickers') ? 'profile'
-    : pathname.startsWith('/diary') ? 'journal'
+    : pathname.startsWith('/journals') || pathname.startsWith('/diary') ? 'journal'
     : pathname.startsWith('/discover') || pathname.startsWith('/location') ? 'discover'
     : 'home';
+
+  function handleAddClick() {
+    if (onAddClick) {
+      onAddClick();
+      return;
+    }
+    navigate(homePathWithAddMemo());
+  }
 
   return (
     <nav className="bottom-nav" aria-label="Main navigation">
@@ -59,16 +68,18 @@ export default function BottomNav({ onAddClick }) {
       <button
         type="button"
         className="nav-add-btn"
-        onClick={onAddClick}
+        onClick={handleAddClick}
         aria-label="Add memo"
       >
-        <svg className="nav-add-pixel" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
-          <rect x="11" y="4" width="6" height="20" fill="white" />
-          <rect x="4" y="11" width="20" height="6" fill="white" />
-        </svg>
+        <img
+          className="nav-add-icon"
+          src={journalAssets.addMenu}
+          alt=""
+          aria-hidden="true"
+        />
       </button>
 
-      <NavItem id="journal" label="Journal" active={active} to={diaryPath(TRAVEL_DIARY.id)}>
+      <NavItem id="journal" label="Journals" active={active} to={paths.journals}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
