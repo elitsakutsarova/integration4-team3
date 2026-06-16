@@ -1,3 +1,5 @@
+// connects mic button, query state, and when to show/hide the listening overlay UI
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
 import { EventCard, PlaceCard } from '../discover/DiscoverCards';

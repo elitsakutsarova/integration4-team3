@@ -1,3 +1,5 @@
+// listens to microphone, handles errors and streams transcript text to the parent component
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 function getSpeechRecognitionCtor() {

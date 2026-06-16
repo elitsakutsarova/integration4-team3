@@ -1,3 +1,5 @@
+// “Listening…” UI (ripples + copy + mic icon)
+
 function MicIcon({ className = '' }) {
   return (
     <svg
