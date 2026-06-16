@@ -1,8 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
 import { EventCard, PlaceCard } from '../discover/DiscoverCards';
 import { useAuth } from '../../context/AuthContext';
+import { useSpeechSearch } from '../../hooks/useSpeechSearch';
 import { goBack, paths } from '../../utils/appPaths';
+import SearchListeningView from './SearchListeningView';
 import {
   buildGroupedSearchResults,
   eventToRecentEntry,
@@ -129,6 +131,19 @@ export default function SearchPage() {
   const [isFocused, setIsFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
 
+  const handleSpeechTranscript = useCallback((transcript) => {
+    if (transcript) setQuery(transcript);
+  }, []);
+
+  const {
+    isListening,
+    isSupported,
+    error: speechError,
+    startListening,
+    stopListening,
+    toggleListening,
+  } = useSpeechSearch({ onTranscript: handleSpeechTranscript });
+
   const trimmedQuery = query.trim();
   const showResults = trimmedQuery.length >= 2;
   const suggestions = getSearchSuggestions();
@@ -145,6 +160,8 @@ export default function SearchPage() {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  useEffect(() => () => stopListening(), [stopListening]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -205,20 +222,39 @@ export default function SearchPage() {
     if (entry) saveRecent(entry);
   }
 
-  const showRecentList = !showResults && recentSearches.length > 0;
-  const showSuggestions = isFocused && !showResults;
-  const showEmptyState = !showResults && !showRecentList;
+  const showRecentList = !isListening && !showResults && recentSearches.length > 0;
+  const showSuggestions = !isListening && isFocused && !showResults;
+  const showEmptyState = !isListening && !showResults && !showRecentList;
   const hasGroupedResults = groupedResults.total > 0;
+
+  function handleMicClick() {
+    if (!isSupported) {
+      startListening();
+      return;
+    }
+    toggleListening();
+  }
+
+  function handleBack() {
+    stopListening();
+    goBack(navigate, paths.home);
+  }
 
   return (
     <div className="search-page">
       <div className="search-page-shell">
-        <header className="search-page-header">
+        <header className={`search-page-header${isListening ? ' search-page-header--listening' : ''}`}>
+          {isListening && (
+            <div className="search-page-pixel-deco" aria-hidden="true">
+              <span /><span /><span /><span /><span /><span />
+            </div>
+          )}
+
           <div className="search-page-header-row">
             <button
               type="button"
               className="search-page-back"
-              onClick={() => goBack(navigate, paths.home)}
+              onClick={handleBack}
               aria-label="Go back"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -248,18 +284,27 @@ export default function SearchPage() {
                 }}
                 aria-label="Search Antwerp places, spots and events"
               />
-              <span className="search-page-mic" aria-hidden="true">
+              <button
+                type="button"
+                className={`search-page-mic${isListening ? ' search-page-mic--active' : ''}`}
+                onMouseDown={event => event.preventDefault()}
+                onClick={handleMicClick}
+                aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
+                aria-pressed={isListening}
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="1.8" />
                   <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                 </svg>
-              </span>
+              </button>
             </label>
           </div>
         </header>
 
-        <main className="search-page-body">
-          {showSuggestions && (
+        <main className={`search-page-body${isListening ? ' search-page-body--listening' : ''}`}>
+          {isListening && <SearchListeningView error={speechError} />}
+
+          {!isListening && showSuggestions && (
             <section className="search-page-section">
               <h2 className="search-page-section-title">Try searching for</h2>
               <div className="search-page-suggestions">
@@ -278,7 +323,7 @@ export default function SearchPage() {
             </section>
           )}
 
-          {showRecentList && (
+          {!isListening && showRecentList && (
             <section className="search-page-section">
               <h2 className="search-page-section-title">Recent searches</h2>
               <div className="search-page-results">
@@ -291,7 +336,7 @@ export default function SearchPage() {
             </section>
           )}
 
-          {showResults && (
+          {!isListening && showResults && (
             <section className="search-page-section search-page-section--results">
               {isSearching && <p className="search-page-status">Searching…</p>}
               {searchError && <p className="search-page-status search-page-status--error">{searchError}</p>}
@@ -348,7 +393,7 @@ export default function SearchPage() {
             </section>
           )}
 
-          {showEmptyState && (
+          {!isListening && showEmptyState && (
             <section className="search-page-empty">
               <p className="search-page-section-title search-page-section-title--inline">
                 {isFocused ? 'Recent searches' : 'No recent searches yet'}
