@@ -1,5 +1,6 @@
 import { Outlet, useLoaderData, useLocation } from 'react-router';
 import MapView from '../components/MapView';
+import DesktopNav from '../components/DesktopNav';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { fetchMemos } from '../utils/memoStore';
 
@@ -22,6 +23,7 @@ export default function MainShell() {
 
   return (
     <div className="main-shell">
+      <DesktopNav />
       <MapView savedMemos={memos} active={isHome} />
       <div className={`main-shell-content${isHome ? ' main-shell-content--hidden' : ''}`}>
         <Outlet />

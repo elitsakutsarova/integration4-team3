@@ -26,12 +26,6 @@ function isGuestSession(sessionUser) {
   return !sessionUser?.id;
 }
 
-function redirectGuestToMapReveal(result, { writeReveal = true } = {}) {
-  if (!result?.sticker) return null;
-  if (writeReveal) writeStickerReveal(result.sticker);
-  return redirect(paths.home);
-}
-
 // Open page → claim once per ?scan= key (cached in sessionStorage so refresh does not re-claim).
 export async function clientLoader({ request }) {
   const session = await authStore.getSession();
@@ -39,20 +33,20 @@ export async function clientLoader({ request }) {
   const scan = getScanKey(request);
   const cached = readCollectCache(scan);
   if (cached) {
-    const guestRedirect = isGuestSession(session)
-      ? redirectGuestToMapReveal(cached, { writeReveal: false })
-      : null;
-    if (guestRedirect) throw guestRedirect;
+    // Cached = this scan key was already processed in this browser session.
+    // Guests always go to the map; don't re-show the popup (sticker already revealed).
+    if (isGuestSession(session)) throw redirect(paths.home);
     return { scan, result: cached };
   }
 
   const result = await claimRandomSticker(session);
   writeCollectCache(scan, result);
 
-  const guestRedirect = isGuestSession(session)
-    ? redirectGuestToMapReveal(result, { writeReveal: true })
-    : null;
-  if (guestRedirect) throw guestRedirect;
+  if (isGuestSession(session)) {
+    // Fresh claim — write the reveal popup only if a new sticker was earned.
+    if (result.sticker) writeStickerReveal(result.sticker);
+    throw redirect(paths.home);
+  }
 
   return { scan, result, shouldRevalidateRoot: Boolean(result.sticker) };
 }

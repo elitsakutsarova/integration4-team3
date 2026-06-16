@@ -1,7 +1,4 @@
 import PrivacyPreferencePage from '../components/settings/PrivacyPreferencePage';
-import { requireAuthMiddleware } from '../middleware/clientAuth';
-
-export const clientMiddleware = requireAuthMiddleware;
 
 export function meta() {
   return [

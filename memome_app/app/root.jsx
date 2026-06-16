@@ -13,12 +13,18 @@ import {
 } from "react-router";
 
 import "./app.css";
-import { APP_ORIGIN, isAllowedDevOrigin } from "./config";
+import { isAllowedDevOrigin, resolveDevRedirectOrigin } from "./config";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthLoading from "./components/auth/AuthLoading";
 import { CreatedMemosProvider } from "./context/CreatedMemosContext";
+import {
+  CreateJournalProvider,
+  CustomJournalsProvider,
+} from "./context/CreateJournalContext";
+import { EditJournalProvider } from "./context/EditJournalContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
 import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
+import DiscoverSavedModal from "./components/discover/DiscoverSavedModal";
 import { SavedMemosProvider } from "./context/SavedMemosContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { appAuthMiddleware } from "./middleware/clientAuth";
@@ -26,7 +32,7 @@ import { bootstrapAuthSession, isAuthBootstrapped } from "./utils/authSession";
 import { isGuestAccessiblePath, isPublicAppPath } from "./utils/appPaths";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
 import { loadStickersFromPublic } from "./utils/stickers.server";
-import { getSafeFallbackPath } from "./utils/appPaths";
+import { getSafeFallbackPath, FALLBACK_JOURNALS } from "./utils/appPaths";
 
 // loads stickers from public/stickers (server-side)
 export async function loader() {
@@ -39,7 +45,10 @@ export async function clientLoader({ serverLoader }) {
   if (import.meta.env.DEV && typeof window !== 'undefined') {
     const { origin, pathname, search, hash } = window.location;
     if (!isAllowedDevOrigin(origin)) {
-      const target = new URL(`${pathname}${search}${hash}`, APP_ORIGIN).href;
+      const target = new URL(
+        `${pathname}${search}${hash}`,
+        resolveDevRedirectOrigin(origin),
+      ).href;
       if (new URL(target).origin !== origin) {
         throw redirect(target);
       }
@@ -121,13 +130,20 @@ export default function App() {
   return (
     <CollectedStickersProvider collectedStickers={collectedStickers}>
       <CreatedMemosProvider>
-        <DiscoverFavesProvider>
-          <SavedMemosProvider>
-            <StickerCatalogProvider stickers={stickers}>
-              <Outlet />
-            </StickerCatalogProvider>
-          </SavedMemosProvider>
-        </DiscoverFavesProvider>
+        <CustomJournalsProvider>
+          <CreateJournalProvider>
+            <EditJournalProvider>
+              <DiscoverFavesProvider>
+                <SavedMemosProvider>
+                  <StickerCatalogProvider stickers={stickers}>
+                    <Outlet />
+                    <DiscoverSavedModal />
+                  </StickerCatalogProvider>
+                </SavedMemosProvider>
+              </DiscoverFavesProvider>
+            </EditJournalProvider>
+          </CreateJournalProvider>
+        </CustomJournalsProvider>
       </CreatedMemosProvider>
     </CollectedStickersProvider>
   );
@@ -140,6 +156,18 @@ export function ErrorBoundary() {
 
   if (isRouteErrorResponse(error) && (error.status === 404 || error.status === 400)) {
     return <Navigate to={getSafeFallbackPath(pathname)} replace />;
+  }
+
+  if (error instanceof Response && error.status >= 300 && error.status < 400) {
+    const location = error.headers.get('Location');
+    if (location) return <Navigate to={location} replace />;
+  }
+
+  if (
+    pathname.startsWith('/diary/')
+    || /^\/journals\/[^/]+\/edit/.test(pathname)
+  ) {
+    return <Navigate to={FALLBACK_JOURNALS} replace />;
   }
 
   let message = "Oops!";

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { getGsap, loadGsap } from '../../utils/gsapClient.js';
+import { useCallback, useRef } from 'react';
+import gsap from 'gsap';
 import { clampPercent, updateStickerPosition } from '../../utils/stickerTracker';
 import { getStickerDef } from '../../utils/stickers';
 import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
@@ -28,10 +28,6 @@ export default function DraggableSticker({
   const onDragStartRef = useRef(onDragStart);
   const onDragEndRef = useRef(onDragEnd);
   const dragRef = useRef(null);
-
-  useEffect(() => {
-    void loadGsap();
-  }, []);
 
   stickerRef.current = sticker;
   onMoveRef.current = onMove;
@@ -92,8 +88,7 @@ export default function DraggableSticker({
       return;
     }
 
-    const gsap = getGsap();
-    if (gsap) gsap.set(el, { scale: 1 });
+    gsap.set(el, { scale: 1 });
 
     const elRect = el.getBoundingClientRect();
     const centerX = elRect.left + elRect.width / 2;
@@ -102,50 +97,40 @@ export default function DraggableSticker({
 
     const tray = trayRef?.current;
     if (tray && isInsideRect(centerX, centerY, tray.getBoundingClientRect())) {
-      const finishReturn = () => {
-        onReturnToTrayRef.current(uid);
-        if (gsap) gsap.set(el, { scale: 1, opacity: 1 });
-        onDragEndRef.current?.();
-      };
-      if (gsap) {
-        gsap.to(el, {
-          scale: 0.5,
-          opacity: 0,
-          duration: 0.22,
-          ease: 'power2.in',
-          onComplete: finishReturn,
-        });
-      } else {
-        finishReturn();
-      }
+      gsap.to(el, {
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.22,
+        ease: 'power2.in',
+        onComplete: () => {
+          onReturnToTrayRef.current(uid);
+          gsap.set(el, { scale: 1, opacity: 1 });
+          onDragEndRef.current?.();
+        },
+      });
       return;
     }
 
     const zoneRect = dropZone.getBoundingClientRect();
     if (!isInsideRect(centerX, centerY, zoneRect)) {
-      const finishReturn = () => {
-        onReturnToTrayRef.current(uid);
-        if (gsap) gsap.set(el, { scale: 1, opacity: 1 });
-        onDragEndRef.current?.();
-      };
-      if (gsap) {
-        gsap.to(el, {
-          scale: 0.5,
-          opacity: 0,
-          duration: 0.22,
-          ease: 'power2.in',
-          onComplete: finishReturn,
-        });
-      } else {
-        finishReturn();
-      }
+      gsap.to(el, {
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.22,
+        ease: 'power2.in',
+        onComplete: () => {
+          onReturnToTrayRef.current(uid);
+          gsap.set(el, { scale: 1, opacity: 1 });
+          onDragEndRef.current?.();
+        },
+      });
       return;
     }
 
     const x = clampPercent(((centerX - zoneRect.left) / zoneRect.width) * 100);
     const y = clampPercent(((centerY - zoneRect.top) / zoneRect.height) * 100);
     onMoveRef.current(uid, x, y);
-    if (gsap) gsap.set(el, { x: 0, y: 0 });
+    gsap.set(el, { x: 0, y: 0 });
     onDragEndRef.current?.();
   };
 
@@ -182,8 +167,7 @@ export default function DraggableSticker({
         if (Math.hypot(dx, dy) < 6) return;
         session.dragging = true;
         onDragStartRef.current?.();
-        const gsap = getGsap();
-        if (gsap) gsap.to(el, { scale: 1.12, duration: 0.15, ease: 'power2.out' });
+        gsap.to(el, { scale: 1.12, duration: 0.15, ease: 'power2.out' });
         if (ev.cancelable) ev.preventDefault();
       }
 
@@ -192,18 +176,12 @@ export default function DraggableSticker({
       const x = ((centerX - zoneRect.left) / zoneRect.width) * 100;
       const y = ((centerY - zoneRect.top) / zoneRect.height) * 100;
 
-      const gsap = getGsap();
-      if (gsap) {
-        gsap.set(el, {
-          left: `${clampPercent(x)}%`,
-          top: `${clampPercent(y)}%`,
-          x: 0,
-          y: 0,
-        });
-      } else {
-        el.style.left = `${clampPercent(x)}%`;
-        el.style.top = `${clampPercent(y)}%`;
-      }
+      gsap.set(el, {
+        left: `${clampPercent(x)}%`,
+        top: `${clampPercent(y)}%`,
+        x: 0,
+        y: 0,
+      });
 
       if (diaryId != null) {
         if (session.persistTimer) clearTimeout(session.persistTimer);

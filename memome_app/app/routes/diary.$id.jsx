@@ -1,25 +1,39 @@
-import { redirect } from 'react-router';
-import TravelDiaryViewer from '../components/TravelDiaryViewer';
-import { TRAVEL_DIARY } from '../data/mockUser';
-import { diaryPath } from '../utils/appPaths';
-import { requireAuthMiddleware } from '../middleware/clientAuth';
-
-export const clientMiddleware = requireAuthMiddleware;
+import { Navigate } from 'react-router';
+import JournalDetailPage from '../components/journals/JournalDetailPage';
+import { useCreatedMemos } from '../context/CreatedMemosContext';
+import { useCustomJournals } from '../context/CreateJournalContext';
+import { findJournalById } from '../utils/journalBuilder';
+import { paths } from '../utils/appPaths';
 
 export function meta() {
   return [
-    { title: `MemoMe — ${TRAVEL_DIARY.title}` },
-    { name: 'description', content: 'Flip through your Antwerp travel diary.' },
+    { title: 'MemoMe — Journal' },
+    { name: 'description', content: 'Your travel journal memories and stickers.' },
   ];
 }
 
-export function loader({ params }) {
-  if (params.id !== TRAVEL_DIARY.id) {
-    throw redirect(diaryPath(TRAVEL_DIARY.id));
-  }
-  return null;
-}
+export default function DiaryDetail({ params }) {
+  const { createdMemos, ready } = useCreatedMemos();
+  const { customJournals } = useCustomJournals();
+  const journal = findJournalById(createdMemos, params.id, customJournals);
 
-export default function DiaryDetail() {
-  return <TravelDiaryViewer />;
+  if (!ready) {
+    return (
+      <div className="journal-detail-page journal-detail-page--loading">
+        <p>Loading your journal…</p>
+      </div>
+    );
+  }
+
+  if (!journal) {
+    return <Navigate to={paths.journals} replace />;
+  }
+
+  return (
+    <JournalDetailPage
+      journal={journal}
+      memories={journal.memos}
+      backTo={paths.journals}
+    />
+  );
 }

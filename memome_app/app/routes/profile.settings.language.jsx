@@ -1,7 +1,4 @@
 import LanguagePreferencePage from '../components/settings/LanguagePreferencePage';
-import { requireAuthMiddleware } from '../middleware/clientAuth';
-
-export const clientMiddleware = requireAuthMiddleware;
 
 export function meta() {
   return [

@@ -24,6 +24,7 @@ import {
 import { EditJournalProvider } from "./context/EditJournalContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
 import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
+import DiscoverSavedModal from "./components/discover/DiscoverSavedModal";
 import { SavedMemosProvider } from "./context/SavedMemosContext";
 import { StickerCatalogProvider } from "./context/StickerCatalogContext";
 import { appAuthMiddleware } from "./middleware/clientAuth";
@@ -136,6 +137,7 @@ export default function App() {
                 <SavedMemosProvider>
                   <StickerCatalogProvider stickers={stickers}>
                     <Outlet />
+                    <DiscoverSavedModal />
                   </StickerCatalogProvider>
                 </SavedMemosProvider>
               </DiscoverFavesProvider>

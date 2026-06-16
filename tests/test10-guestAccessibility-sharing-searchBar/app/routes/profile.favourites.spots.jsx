@@ -10,7 +10,7 @@ import { resolveDiscoverFaveItems } from '../utils/resolveDiscoverFaveItems';
 export async function clientLoader() {
   const { user } = getAuthSnapshot();
   const faves = await fetchDiscoverFaves(user?.id ?? null);
-  const favouritePlaces = resolveDiscoverFaveItems(faves, 'place');
+  const favouritePlaces = resolveDiscoverFaveItems(faves, 'place', user?.id ?? null);
   return { favouritePlaces };
 }
 

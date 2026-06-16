@@ -68,6 +68,14 @@ function inAntwerpBounds(lat, lng) {
   return lat >= 51.05 && lat <= 51.40 && lng >= 4.15 && lng <= 4.65;
 }
 
+function formatPhotonAddress(props) {
+  const streetLine = [props.housenumber, props.street].filter(Boolean).join(' ').trim();
+  const cityLine = [props.postcode, props.city || props.locality].filter(Boolean).join(' ').trim();
+  const parts = [streetLine, cityLine].filter(part => part.length > 0);
+  if (parts.length > 0) return parts.join(', ');
+  return 'Antwerpen, Belgium';
+}
+
 function photonToPlace(feature) {
   const coords = feature.geometry?.coordinates;
   if (!Array.isArray(coords) || coords.length < 2) return null;
@@ -85,6 +93,7 @@ function photonToPlace(feature) {
     name,
     lat,
     lng,
+    address: formatPhotonAddress(props),
     category: props.osm_value || props.type || 'place',
   };
 }

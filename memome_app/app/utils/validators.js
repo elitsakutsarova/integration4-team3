@@ -338,8 +338,10 @@ export function validateDiscoverFaveId(raw) {
   if (!id || id.length > LIMITS.discoverFaveId) {
     return validationError('id', 'Invalid favourite reference');
   }
-  if (!DISCOVER_FAVE_ID_RE.test(id)) return validationError('id', 'Invalid favourite reference');
-  return { value: id };
+  if (isPhotonPlaceId(id) || DISCOVER_FAVE_ID_RE.test(id)) {
+    return { value: id };
+  }
+  return validationError('id', 'Invalid favourite reference');
 }
 
 export function validateFeedbackPayload({ name, email, subject, message }) {

@@ -90,10 +90,9 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
   const [eventLocationHrefs, setEventLocationHrefs] = useState(() => new Map());
 
-  const filterOptions = { category: activeCategory, query: searchQuery };
+  const filterOptions = { category: activeCategory, query: '' };
 
   const savedMemosRef = useRef(savedMemos);
   savedMemosRef.current = savedMemos;
@@ -148,7 +147,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const pendingMemo = pendingMemoRef.current;
   const mergedMemos = pendingMemo ? [pendingMemo, ...savedMemos] : savedMemos;
   const memoFingerprint = dbMemoFingerprint(mergedMemos);
-  const filterFingerprint = `${memoFingerprint}|${activeCategory}|${searchQuery}`;
+  const filterFingerprint = `${memoFingerprint}|${activeCategory}`;
 
   useEffect(() => {
     if (!active) {
@@ -261,10 +260,10 @@ export default function MapView({ savedMemos = [], active = true }) {
     }).filter(Boolean);
 
     const featured = eventMarkersRef.current[0];
-    if (featured && active && activeCategory === 'All' && !searchQuery.trim()) {
+    if (featured && active && activeCategory === 'All') {
       featured.openPopup();
     }
-  }, [active, activeCategory, searchQuery, eventLocationHrefs]);
+  }, [active, activeCategory, eventLocationHrefs]);
 
   useEffect(() => {
     const dbMemos = (savedMemos ?? []).filter(m => m.fromDb);
@@ -478,8 +477,6 @@ export default function MapView({ savedMemos = [], active = true }) {
       {active && (
         <>
       <MapHomeChrome
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
       />

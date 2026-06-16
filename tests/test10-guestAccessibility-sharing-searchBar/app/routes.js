@@ -3,6 +3,7 @@ import { index, route } from "@react-router/dev/routes";
 export default [
   route("", "routes/main-shell.jsx", [
     index("routes/home.jsx"),
+    route("search", "routes/search.jsx"),
     route("discover", "routes/discover-layout.jsx", [
       index("routes/discover._index.jsx"),
       route("happening-now", "routes/discover.happening-now.jsx"),

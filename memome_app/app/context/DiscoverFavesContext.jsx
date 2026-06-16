@@ -16,6 +16,8 @@ import {
   fetchDiscoverFaves,
   removeDiscoverFave,
 } from '../utils/discoverFavesStore';
+import { isPhotonPlaceId } from '../utils/placeId';
+import { savePhotonFaveSnapshot } from '../utils/photonFaveSnapshots';
 
 const DiscoverFavesContext = createContext(null);
 
@@ -53,20 +55,37 @@ export function DiscoverFavesProvider({ children }) {
     [faves],
   );
 
-  const saveFave = useCallback(async (type, id) => {
+  const saveFave = useCallback(async (type, id, meta) => {
+    const savedAt = new Date().toISOString();
+    setSavedNotice(type);
+    setFaves(prev => {
+      if (prev.some(item => item.type === type && item.id === id)) return prev;
+      return [...prev, { type, id, savedAt }];
+    });
+
+    if (type === 'place' && isPhotonPlaceId(id) && meta) {
+      savePhotonFaveSnapshot(userId, id, meta);
+    }
+
     const result = await addDiscoverFave(userId, {
       type,
       id,
-      savedAt: new Date().toISOString(),
+      savedAt,
     });
 
     if (result.added) {
       setFaves(result.faves);
       syncFavesCount(result.faves.length);
-      setSavedNotice(type);
+      return true;
     }
 
-    return result.added;
+    setSavedNotice(null);
+    if (result.faves) {
+      setFaves(result.faves);
+    } else {
+      setFaves(prev => prev.filter(item => !(item.type === type && item.id === id)));
+    }
+    return false;
   }, [userId]);
 
   const removeFave = useCallback(async (type, id) => {
@@ -75,12 +94,12 @@ export function DiscoverFavesProvider({ children }) {
     syncFavesCount(next.length);
   }, [userId]);
 
-  const toggleFave = useCallback(async (type, id) => {
+  const toggleFave = useCallback(async (type, id, meta) => {
     if (isFaved(type, id)) {
       await removeFave(type, id);
       return false;
     }
-    return saveFave(type, id);
+    return saveFave(type, id, meta);
   }, [isFaved, removeFave, saveFave]);
 
   const dismissSavedNotice = useCallback(() => {

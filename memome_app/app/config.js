@@ -13,6 +13,24 @@ export const APP_ORIGIN =
   getEnv('VITE_APP_ORIGIN') ??
   (ALLOW_LAN ? 'https://localhost:5173' : 'http://localhost:5173');
 
+/** Never bounce a LAN session to localhost when ALLOW_LAN is enabled. */
+export function resolveDevRedirectOrigin(currentOrigin) {
+  const isDev =
+    typeof process !== 'undefined'
+      ? process.env.NODE_ENV === 'development'
+      : import.meta.env.DEV;
+  if (!isDev || !ALLOW_LAN) return APP_ORIGIN;
+
+  try {
+    const host = new URL(currentOrigin).hostname;
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return currentOrigin;
+  } catch {
+    /* ignore */
+  }
+
+  return APP_ORIGIN;
+}
+
 export function appUrl(path = '/') {
   const normalized = path.startsWith('/') ? path : `/${path}`;
   if (ALLOW_LAN && typeof window !== 'undefined' && window.location?.origin) {

@@ -2,9 +2,6 @@
 
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import CreatedMemosPage from '../components/profile/CreatedMemosPage';
-import { requireAuthMiddleware } from '../middleware/clientAuth';
-
-export const clientMiddleware = requireAuthMiddleware;
 
 export function meta() {
   return [
