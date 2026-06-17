@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { Link, redirect, useLoaderData, useNavigate, useRevalidator } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
+import { useCollectedStickersActions } from '../context/CollectedStickersContext';
 import {
   COLLECTION_COMPLETE,
   claimRandomSticker,
@@ -112,12 +113,14 @@ export default function CollectSticker() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { revalidate } = useRevalidator();
+  const { addCollectedSticker } = useCollectedStickersActions();
   const display = resolveClaimDisplay(result, Boolean(user));
 
   useEffect(() => {
+    if (!result.sticker) return;
+    addCollectedSticker(result.sticker);
     if (shouldRevalidateRoot) revalidate();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldRevalidateRoot]);
+  }, [result.sticker, shouldRevalidateRoot, addCollectedSticker, revalidate]);
 
   function handleScanAgain() {
     navigate(collectScanPath(Date.now()));

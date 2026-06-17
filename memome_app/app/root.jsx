@@ -146,7 +146,7 @@ export default function App() {
   }
 
   return (
-    <CollectedStickersProvider collectedStickers={collectedStickers}>
+    <CollectedStickersProvider initialStickers={collectedStickers}>
       <CreatedMemosProvider initialMemos={createdMemos}>
         <CustomJournalsProvider>
           <CreateJournalProvider>

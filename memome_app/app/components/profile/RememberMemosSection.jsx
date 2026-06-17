@@ -19,12 +19,12 @@ function RememberEmptyState({ showAddCta }) {
   return (
     <div className="profile-remember-empty">
       <div className="profile-remember-empty-art" aria-hidden="true">
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--star" src={accountAssets.emptyStar} alt="" />
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--group1" src={accountAssets.emptyGroup1} alt="" />
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--group2" src={accountAssets.emptyGroup2} alt="" />
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--group3" src={accountAssets.emptyGroup3} alt="" />
         <img className="profile-remember-empty-deco profile-remember-empty-deco--group4" src={accountAssets.emptyGroup4} alt="" />
+        <img className="profile-remember-empty-deco profile-remember-empty-deco--group2" src={accountAssets.emptyGroup2} alt="" />
         <img className="profile-remember-empty-map" src={accountAssets.mapIllustration} alt="" />
+        <img className="profile-remember-empty-deco profile-remember-empty-deco--group1" src={accountAssets.emptyGroup1} alt="" />
+        <img className="profile-remember-empty-deco profile-remember-empty-deco--group3" src={accountAssets.emptyGroup3} alt="" />
+        <img className="profile-remember-empty-deco profile-remember-empty-deco--star" src={accountAssets.emptyStar} alt="" />
       </div>
 
       <p className="profile-remember-empty-heading">No memos yet!</p>

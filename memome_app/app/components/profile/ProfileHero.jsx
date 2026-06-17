@@ -3,6 +3,11 @@ import { paths } from '../../utils/appPaths';
 import { settingsAssets } from '../../utils/settingsAssets';
 import { accountAssets } from '../../utils/accountAssets';
 
+function tagClassName(tag) {
+  const slug = tag.toLowerCase().replace(/\s+/g, '-');
+  return `profile-tag profile-tag--${slug}`;
+}
+
 export default function ProfileHero({
   username,
   tags = [],
@@ -11,11 +16,19 @@ export default function ProfileHero({
   settingsHref = paths.profileSettings,
 }) {
   return (
-    <div className="profile-account-hero">
+    <section className="profile-account-hero" aria-label="Profile">
       <div className="profile-account-hero-deco" aria-hidden="true">
         <img className="profile-account-hero-mask" src={settingsAssets.maskGroup} alt="" />
-        <img className="profile-account-hero-grid profile-account-hero-grid--blue" src={accountAssets.blueTopGrid} alt="" />
-        <img className="profile-account-hero-grid profile-account-hero-grid--green" src={accountAssets.greenTopGrid} alt="" />
+        <img
+          className="profile-account-hero-grid profile-account-hero-grid--blue"
+          src={accountAssets.blueTopGrid}
+          alt=""
+        />
+        <img
+          className="profile-account-hero-grid profile-account-hero-grid--green"
+          src={accountAssets.greenTopGrid}
+          alt=""
+        />
       </div>
 
       <header className="profile-header profile-header--account">
@@ -27,7 +40,7 @@ export default function ProfileHero({
         </Link>
       </header>
 
-      <section className="profile-identity profile-identity--account">
+      <div className="profile-identity profile-identity--account">
         <div
           className={`profile-avatar profile-avatar--account${hasCustomAvatar ? ' profile-avatar--photo' : ' profile-avatar--placeholder'}`}
         >
@@ -42,12 +55,12 @@ export default function ProfileHero({
           {tags.length > 0 && (
             <div className="profile-tags">
               {tags.map((tag) => (
-                <span key={tag} className="profile-tag">{tag}</span>
+                <span key={tag} className={tagClassName(tag)}>{tag}</span>
               ))}
             </div>
           )}
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

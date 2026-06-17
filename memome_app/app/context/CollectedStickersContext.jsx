@@ -1,15 +1,86 @@
-import { createContext, useContext, useMemo } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { useLocation } from 'react-router';
+import { useAuth } from './AuthContext';
+import { fetchCollectedStickers } from '../utils/collectibleStore';
+import { paths } from '../utils/appPaths';
 
-const CollectedStickersContext = createContext({
-  collectedStickers: [],
-  loading: false,
-});
+const CollectedStickersContext = createContext(null);
 
-/** Stickers come from the root loader — no client-side fetching needed. */
-export function CollectedStickersProvider({ collectedStickers = [], children }) {
+function mergeCollectedStickers(fetched, existing) {
+  const merged = new Map();
+
+  for (const sticker of fetched) {
+    merged.set(sticker.id, sticker);
+  }
+
+  for (const sticker of existing) {
+    if (!merged.has(sticker.id)) {
+      merged.set(sticker.id, sticker);
+    }
+  }
+
+  return [...merged.values()];
+}
+
+function shouldRefreshCollectedStickers(pathname) {
+  return (
+    pathname === paths.profile
+    || pathname === paths.stickers
+    || pathname === paths.collect
+  );
+}
+
+export function CollectedStickersProvider({ initialStickers = [], children }) {
+  const { user } = useAuth();
+  const { pathname } = useLocation();
+  const userId = user?.id ?? null;
+  const [collectedStickers, setCollectedStickers] = useState(initialStickers);
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    fetchCollectedStickers(userId).then(setCollectedStickers);
+  }, [userId]);
+
+  useEffect(() => {
+    if (!shouldRefreshCollectedStickers(pathname)) return;
+    fetchCollectedStickers(userId).then((fetched) => {
+      setCollectedStickers((prev) => mergeCollectedStickers(fetched, prev));
+    });
+  }, [pathname, userId]);
+
+  const addCollectedSticker = useCallback((sticker) => {
+    if (!sticker?.id) return;
+    setCollectedStickers((prev) => {
+      if (prev.some((item) => item.id === sticker.id)) return prev;
+      return [...prev, sticker];
+    });
+  }, []);
+
+  const refreshCollectedStickers = useCallback(async ({ silent = false } = {}) => {
+    const fetched = await fetchCollectedStickers(userId);
+    setCollectedStickers((prev) => (silent ? mergeCollectedStickers(fetched, prev) : fetched));
+  }, [userId]);
+
   const value = useMemo(
-    () => ({ collectedStickers, loading: false }),
-    [collectedStickers],
+    () => ({
+      collectedStickers,
+      loading: false,
+      addCollectedSticker,
+      refreshCollectedStickers,
+    }),
+    [collectedStickers, addCollectedSticker, refreshCollectedStickers],
   );
 
   return (
@@ -19,10 +90,23 @@ export function CollectedStickersProvider({ collectedStickers = [], children }) 
   );
 }
 
+function useCollectedStickersContext() {
+  const ctx = useContext(CollectedStickersContext);
+  if (!ctx) {
+    throw new Error('useCollectedStickers must be used within CollectedStickersProvider');
+  }
+  return ctx;
+}
+
 export function useCollectedStickers() {
-  return useContext(CollectedStickersContext).collectedStickers;
+  return useCollectedStickersContext().collectedStickers;
 }
 
 export function useCollectedStickersLoading() {
-  return useContext(CollectedStickersContext).loading;
+  return useCollectedStickersContext().loading;
+}
+
+export function useCollectedStickersActions() {
+  const { addCollectedSticker, refreshCollectedStickers } = useCollectedStickersContext();
+  return { addCollectedSticker, refreshCollectedStickers };
 }
