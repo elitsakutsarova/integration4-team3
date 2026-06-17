@@ -156,8 +156,6 @@ After our consult, I changed a lot of things in test5 like:
 - In the event detail page when you click on the detail you can add it to your calendar
 
 
-- fix search bar
-
 ## Deployment
 
 - deploying

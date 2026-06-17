@@ -5705,6 +5705,10 @@ html img {
   text-underline-offset: 2px;
 }
 
+.discover-location-text {
+  display: block;
+}
+
 .discover-learn-more {
   position: absolute;
   right: 8px;
@@ -6109,6 +6113,24 @@ html img {
   box-shadow: 0 0 8px rgba(43, 43, 44, 0.08);
   font-size: 13px;
   color: #a4a2a2;
+}
+
+.discover-detail-info-card--action {
+  width: 100%;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: box-shadow 0.15s ease;
+}
+
+.discover-detail-info-card--action:hover {
+  box-shadow: 0 0 12px rgba(43, 43, 44, 0.14);
+}
+
+.discover-detail-info-card--action:focus-visible {
+  outline: 2px solid #1952ff;
+  outline-offset: 2px;
 }
 
 .discover-detail-info-card svg {

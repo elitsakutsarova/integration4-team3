@@ -7,7 +7,7 @@ import DiscoverShareIcon from './DiscoverShareIcon';
 import DiscoverShareSuccess from './DiscoverShareSuccess';
 import ShareSheet from '../diary/ShareSheet';
 import FeaturedMemosSection from '../memos/FeaturedMemosSection';
-import { buildLocationDetailHref, buildMemoArchiveHref } from '../../utils/locationHref';
+import { addEventToCalendar } from '../../utils/eventCalendar';
 import { useDiscoverShare } from '../../hooks/useDiscoverShare';
 
 function CategoryBadge({ type }) {
@@ -40,7 +40,13 @@ function CategoryBadge({ type }) {
   );
 }
 
-export default function EventDetailPage({ event, featuredMemos = [], totalMemoCount = 0 }) {
+export default function EventDetailPage({
+  event,
+  featuredMemos = [],
+  totalMemoCount = 0,
+  venueHref = null,
+  archiveHref = null,
+}) {
   const navigate = useNavigate();
   const {
     showSheet,
@@ -55,19 +61,10 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
     text: `Check out ${event.title} on MemMe`,
   });
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.mapsQuery)}`;
-  const venueHref = buildLocationDetailHref({
-    placeId: event.placeId,
-    lat: event.ll?.[0],
-    lng: event.ll?.[1],
-    name: event.venueName,
-  });
-  const archiveHref = buildMemoArchiveHref({
-    placeId: event.placeId,
-    lat: event.ll?.[0],
-    lng: event.ll?.[1],
-    name: event.venueName ?? event.location,
-    title: event.title,
-  });
+
+  function handleAddToCalendar() {
+    addEventToCalendar(event);
+  }
 
   return (
     <div className="discover-detail-page">
@@ -101,7 +98,12 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
           <h1 className="discover-detail-title">{event.title}</h1>
 
           <div className="discover-detail-info-row">
-            <div className="discover-detail-info-card">
+            <button
+              type="button"
+              className="discover-detail-info-card discover-detail-info-card--action"
+              onClick={handleAddToCalendar}
+              aria-label={`Add ${event.title} to calendar`}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.8" />
                 <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="1.8" />
@@ -111,7 +113,7 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
                 <strong>{event.dateLabel}</strong>
                 <span>{event.timeRange}</span>
               </div>
-            </div>
+            </button>
 
             <div className="discover-detail-info-card">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -126,7 +128,7 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
                     {event.venueAddress}
                   </Link>
                 ) : (
-                  <span className="discover-location-link">{event.venueAddress}</span>
+                  <span className="discover-location-text">{event.venueAddress}</span>
                 )}
               </div>
             </div>
