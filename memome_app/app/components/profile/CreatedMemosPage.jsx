@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import BottomNav from '../BottomNav';
 import ShareSheet from '../diary/ShareSheet';
 import DiscoverShareSuccess from '../discover/DiscoverShareSuccess';
-import CollectionMemoCard from './CollectionMemoCard';
+import CreatedMemoCard from './CreatedMemoCard';
 import CreatedMemoCategoryChips from './CreatedMemoCategoryChips';
 import CreatedMemosPageHeader from './CreatedMemosPageHeader';
 import { useMemoShare } from '../../hooks/useMemoShare';
@@ -35,13 +35,10 @@ export default function CreatedMemosPage({ memos }) {
       <div className="collection-scroll">
         {filteredMemos.length > 0 ? (
           <div className="collection-memo-list collection-memo-list--created">
-            {filteredMemos.map((memo, index) => (
-              <CollectionMemoCard
+            {filteredMemos.map((memo) => (
+              <CreatedMemoCard
                 key={memo.id}
                 memo={memo}
-                variant="created"
-                showHeart
-                layout={index % 2 === 0 ? 'horizontal' : 'vertical'}
                 onShare={() => openShare(memo)}
               />
             ))}

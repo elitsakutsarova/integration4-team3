@@ -153,11 +153,22 @@ After our consult, I changed a lot of things in test5 like:
 - Add the microphone feature to the search bar
 - Implement special screen for “no-results” on search when there are no results ✔️
 - In the search bar, show how many results were found (on top) ✔️
-- In the event detail page when you click on the detail you can add it to your calendar
+- In the event detail page when you click on the detail you can add it to your calendar ✔️
+
+
+## Test 11 -> Update Profile/Account 
+* From now on we are working only in the folder memome_app -> that folder is the one being deployed to Vercel
+
+- Change the Account page to have the design ✔️
+- Add featured memos instead of the journal under the collection ✔️
+- Implement the empty state for users who haven’t added any memos yet inside the Account page ✔️
+- Implement option to share a memo ✔️
+- Show success message when a memo has been successfully shared ✔️
+- Implement the empty state for users who haven’t added any memos yet inside Created memos
+- Implement the empty state for users who haven’t added any memos/events/spots to Favourites yet
+- If the user choose to edit a memo they’ve created -> create a “Edit memo” page where they can edit the details of the memo.
+- If a user tries to leave the page while editing a memo, send a warning message “Are you sure you want to close this page without saving your edits?”
+- Show a success message when an user successfully edits a memo (same format as the post one)
 
 
 ## Deployment
-
-- deploying
-- deploying 2
-- deploying 3

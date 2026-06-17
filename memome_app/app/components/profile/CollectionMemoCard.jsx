@@ -1,7 +1,6 @@
 // this component displays a memo card in the collection page
 
 import { Link } from 'react-router';
-import DiscoverShareIcon from '../discover/DiscoverShareIcon';
 import { useSavedMemos } from '../../context/SavedMemosContext';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
 
@@ -29,57 +28,9 @@ function MemoHeartButton({ memoId, label, className = '' }) {
   );
 }
 
-function CreatedMemoMedia({ memo, onShare, showHeart }) {
-  const hasMedia = Boolean(memo.mediaPreview?.url);
-
-  return (
-    <div className="collection-memo-polaroid">
-      <span className="collection-memo-polaroid-layer collection-memo-polaroid-layer--back" aria-hidden="true" />
-      <span className="collection-memo-polaroid-layer collection-memo-polaroid-layer--mid" aria-hidden="true" />
-
-      <div className="collection-memo-media collection-memo-media--created">
-        {hasMedia ? (
-          memo.mediaPreview.isVideo
-            ? <video src={memo.mediaPreview.url} className="collection-memo-img" muted playsInline />
-            : <img src={memo.mediaPreview.url} alt="" className="collection-memo-img" />
-        ) : (
-          <div className="collection-memo-placeholder">
-            {(memo.tags ?? []).slice(0, 1).map(tag => (
-              <span key={tag} className="collection-memo-placeholder-tag">{tag}</span>
-            ))}
-            <span className="collection-memo-placeholder-label">Memo</span>
-          </div>
-        )}
-
-        {onShare && (
-          <button
-            type="button"
-            className="collection-memo-share-btn"
-            aria-label={`Share memo at ${memo.location}`}
-            onClick={onShare}
-          >
-            <DiscoverShareIcon />
-          </button>
-        )}
-
-        {showHeart && (
-          <MemoHeartButton
-            memoId={memo.id}
-            label={memo.location}
-            className="collection-memo-heart--created"
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function CollectionMemoCard({
   memo,
-  variant = 'favourite',
   showHeart = true,
-  onShare,
-  layout = 'horizontal',
 }) {
   const locationHref = memo.locationHref ?? null;
   const hasMedia = Boolean(memo.mediaPreview?.url);
@@ -92,46 +43,6 @@ export default function CollectionMemoCard({
       return;
     }
     openGoogleMapsDirections(memo.ll[0], memo.ll[1], event);
-  }
-
-  if (variant === 'created') {
-    return (
-      <article className={`collection-memo-card collection-memo-card--created collection-memo-card--${layout}`}>
-        <CreatedMemoMedia memo={memo} onShare={onShare} showHeart={showHeart} />
-
-        <div className="collection-memo-quote-bar">
-          <p className="collection-memo-quote-bar-text">&ldquo;{memo.quote}&rdquo;</p>
-        </div>
-
-        <div className="collection-memo-footer">
-          <span className="collection-memo-location">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 21s7-4.5 7-10a7 7 0 1 0-14 0c0 5.5 7 10 7 10z" stroke="currentColor" strokeWidth="1.8" />
-              <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-            </svg>
-            {locationHref ? (
-              <Link to={locationHref} className="collection-memo-location-link">
-                {memo.location}
-              </Link>
-            ) : (
-              <span className="collection-memo-location-text">{memo.location}</span>
-            )}
-          </span>
-
-          {canOpenMaps && (
-            <a
-              href={buildGoogleMapsDirectionsUrl(memo.ll[0], memo.ll[1])}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="collection-memo-cta"
-              onClick={handleTakeMeThere}
-            >
-              Take me there
-            </a>
-          )}
-        </div>
-      </article>
-    );
   }
 
   return (
