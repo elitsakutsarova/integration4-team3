@@ -2,6 +2,8 @@
  * Renders memo/diary pages to PNG blobs for real sharing (Instagram, etc.)
  */
 
+import { markContentShared } from './achievementProgressStore';
+import * as authStore from './authStore';
 import {
   RECAP_ASSETS,
   RECAP_SLOTS,
@@ -89,33 +91,35 @@ function drawImageCover(ctx, img, x, y, w, h) {
   ctx.drawImage(img, sx, sy, sWidth, sHeight, x, y, w, h);
 }
 
-function resolveStickerSrc(sticker, stickerCatalog) {
-  if (sticker.src) return sticker.src;
+function resolveStickerVisual(sticker, stickerCatalog) {
   const def = getStickerDef(sticker.stickerId, stickerCatalog);
-  return def?.src ?? null;
+  if (!def) return null;
+  return { src: def.src ?? null, emoji: def.emoji ?? null };
 }
 
 async function drawStickers(ctx, stickers, photoX, photoY, photoW, photoH, stickerCatalog) {
   const size = Math.round(photoW * 0.24);
 
   for (const s of stickers) {
+    const visual = resolveStickerVisual(s, stickerCatalog);
+    if (!visual) continue;
+
     const sx = photoX + (s.x / 100) * photoW;
     const sy = photoY + (s.y / 100) * photoH;
-    const src = resolveStickerSrc(s, stickerCatalog);
 
-    if (src) {
+    if (visual.src) {
       try {
-        const img = await loadImage(src.startsWith('/') ? `${window.location.origin}${src}` : src);
+        const img = await loadImage(visual.src.startsWith('/') ? `${window.location.origin}${visual.src}` : visual.src);
         ctx.drawImage(img, sx - size / 2, sy - size / 2, size, size);
       } catch {
         /* skip failed image */
       }
-    } else if (s.emoji) {
+    } else if (visual.emoji) {
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       const fontSize = Math.round(photoW * 0.14);
       ctx.font = `${fontSize}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
-      ctx.fillText(s.emoji, sx, sy);
+      ctx.fillText(visual.emoji, sx, sy);
     }
   }
 }
@@ -553,6 +557,11 @@ export async function shareSingleMemo(memo) {
  * Share image files via native share sheet (Instagram appears on mobile)
  * or download as fallback on desktop.
  */
+async function recordShareAchievement() {
+  const session = await authStore.getSession();
+  if (session?.id) markContentShared(session.id);
+}
+
 export async function shareImageFiles(files, { title, text } = {}) {
   if (!files.length) throw new Error('No images to share');
 
@@ -561,6 +570,7 @@ export async function shareImageFiles(files, { title, text } = {}) {
   if (typeof navigator !== 'undefined' && navigator.canShare?.(payload)) {
     try {
       await navigator.share(payload);
+      await recordShareAchievement();
       return { method: 'native', message: 'Opened share sheet — pick Instagram to post!' };
     } catch (err) {
       if (err.name === 'AbortError') return { method: 'cancelled', message: null };
@@ -577,6 +587,7 @@ export async function shareImageFiles(files, { title, text } = {}) {
     a.click();
     URL.revokeObjectURL(url);
   }
+  await recordShareAchievement();
   return {
     method: 'download',
     message: files.length === 1

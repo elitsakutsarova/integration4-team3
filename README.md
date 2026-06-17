@@ -169,6 +169,7 @@ After our consult, I changed a lot of things in test5 like:
 - If the user choose to edit a memo they’ve created -> create a “Edit memo” page where they can edit the details of the memo.
 - If a user tries to leave the page while editing a memo, send a warning message “Are you sure you want to close this page without saving your edits?”
 - Show a success message when an user successfully edits a memo (same format as the post one)
-
+- Add the correct digital stickers to account stickers ✔️
+- Add the correct achievement stickers to account achievement stickers ✔️
 
 ## Deployment

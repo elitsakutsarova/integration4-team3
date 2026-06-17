@@ -8,17 +8,18 @@ import StickerVisual from './StickerVisual';
 
 // renders one sticker on top of the memo photo
 function PlacedStickerPreview({ sticker, stickerCatalog }) {
-  // finds the sticker definition
   const def = getStickerDef(sticker.stickerId, stickerCatalog);
+  if (!def) return null;
+
   return (
     <span
       className="share-memo-sticker"
       style={{ left: `${sticker.x}%`, top: `${sticker.y}%` }}
     >
       <StickerVisual
-        src={sticker.src ?? def?.src}
-        emoji={sticker.emoji ?? def?.emoji}
-        label={def?.label ?? sticker.label}
+        src={def.src}
+        emoji={def.emoji}
+        label={def.label}
       />
     </span>
   );

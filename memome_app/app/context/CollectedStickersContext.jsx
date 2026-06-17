@@ -35,6 +35,7 @@ function shouldRefreshCollectedStickers(pathname) {
     pathname === paths.profile
     || pathname === paths.stickers
     || pathname === paths.collect
+    || pathname.startsWith('/journals')
   );
 }
 

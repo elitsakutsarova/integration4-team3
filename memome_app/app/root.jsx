@@ -17,6 +17,7 @@ import "./app.css";
 import { isAllowedDevOrigin, resolveDevRedirectOrigin } from "./config";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthLoading from "./components/auth/AuthLoading";
+import AchievementProgressSync from "./components/AchievementProgressSync";
 import { CreatedMemosProvider } from "./context/CreatedMemosContext";
 import {
   CreateJournalProvider,
@@ -103,7 +104,7 @@ export const links = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Playfair+Display:ital@1&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Playfair+Display:ital@1&family=Press+Start+2P&display=swap",
   },
 ];
 
@@ -147,6 +148,7 @@ export default function App() {
 
   return (
     <CollectedStickersProvider initialStickers={collectedStickers}>
+      <AchievementProgressSync />
       <CreatedMemosProvider initialMemos={createdMemos}>
         <CustomJournalsProvider>
           <CreateJournalProvider>

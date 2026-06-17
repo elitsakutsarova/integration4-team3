@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { getGsapSync, preloadGsap } from '../../utils/gsapClient';
 import { pixelToPercent } from '../../utils/stickerTracker';
 import StickerVisual, { createStickerCloneNode } from './StickerVisual';
 import { useCollectedStickers, useCollectedStickersLoading } from '../../context/CollectedStickersContext';
-import { useStickers, useStickersLoading } from '../../context/StickerCatalogContext';
 
 function clearDragSession(dragRef) {
   const session = dragRef.current;
@@ -27,19 +26,8 @@ function clearDragSession(dragRef) {
 }
 
 export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDropOnPage }) {
-  const catalogStickers = useStickers();
-  const catalogLoading = useStickersLoading();
-  const collectedStickers = useCollectedStickers();
-  const collectedLoading = useCollectedStickersLoading();
-
-  const stickers = useMemo(() => {
-    const byId = new Map();
-    for (const sticker of catalogStickers) byId.set(sticker.id, sticker);
-    for (const sticker of collectedStickers) byId.set(sticker.id, sticker);
-    return [...byId.values()];
-  }, [catalogStickers, collectedStickers]);
-
-  const loading = catalogLoading || collectedLoading;
+  const stickers = useCollectedStickers();
+  const loading = useCollectedStickersLoading();
   const onDropRef = useRef(onDropOnPage);
   onDropRef.current = onDropOnPage;
 

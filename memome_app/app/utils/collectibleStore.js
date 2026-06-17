@@ -179,4 +179,13 @@ export function clearGuestStickerCache() {
   clearLocalCollected();
 }
 
+/** Re-resolve sticker src/label from manifest (fixes stale sessionStorage cache). */
+export async function hydrateCollectResult(result) {
+  if (!result?.sticker?.id) return result;
+  const catalog = await loadDigitalStickerCatalog();
+  const fresh = stickerDefFromCatalog(catalog, result.sticker.id);
+  if (!fresh) return result;
+  return { ...result, sticker: fresh };
+}
+
 export { COLLECTION_COMPLETE };

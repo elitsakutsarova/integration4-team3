@@ -1,8 +1,33 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getGsapSync, preloadGsap } from '../../utils/gsapClient';
 import { pixelToPercent } from '../../utils/stickerTracker';
 import StickerVisual, { createStickerCloneNode } from '../diary/StickerVisual';
 import { useJournalStickerDock } from '../../hooks/useJournalStickerDock';
+
+const DOCK_HEIGHT_KEY = 'journal-sticker-dock-height';
+const MIN_DOCK_HEIGHT = 40;
+const MAX_DOCK_HEIGHT_CAP = 360;
+
+function getMaxDockHeight() {
+  if (typeof window === 'undefined') return MAX_DOCK_HEIGHT_CAP;
+  return Math.min(window.innerHeight * 0.55, MAX_DOCK_HEIGHT_CAP);
+}
+
+function getDefaultDockHeight() {
+  if (typeof window === 'undefined') return 200;
+  return Math.min(window.innerHeight * 0.42, MAX_DOCK_HEIGHT_CAP);
+}
+
+function clampDockHeight(height) {
+  return Math.max(MIN_DOCK_HEIGHT, Math.min(getMaxDockHeight(), height));
+}
+
+function readStoredDockHeight() {
+  if (typeof window === 'undefined') return getDefaultDockHeight();
+  const stored = Number(localStorage.getItem(DOCK_HEIGHT_KEY));
+  if (!Number.isFinite(stored) || stored <= 0) return getDefaultDockHeight();
+  return clampDockHeight(stored);
+}
 
 function clearDragSession(dragRef) {
   const session = dragRef.current;
@@ -25,6 +50,26 @@ function clearDragSession(dragRef) {
   dragRef.current = null;
 }
 
+function clearResizeSession(resizeRef) {
+  const session = resizeRef.current;
+  if (!session) return;
+
+  const { handle, onMove, onEnd, pointerId } = session;
+  if (handle) {
+    handle.removeEventListener('pointermove', onMove);
+    handle.removeEventListener('pointerup', onEnd);
+    handle.removeEventListener('pointercancel', onEnd);
+    if (pointerId != null) {
+      try {
+        handle.releasePointerCapture(pointerId);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  resizeRef.current = null;
+}
+
 export default function JournalStickerDock({
   dropZoneRef,
   trayRef,
@@ -35,12 +80,27 @@ export default function JournalStickerDock({
   const onDropRef = useRef(onDropOnPage);
   onDropRef.current = onDropOnPage;
 
+  const [dockHeight, setDockHeight] = useState(readStoredDockHeight);
+  const dockHeightRef = useRef(dockHeight);
+  dockHeightRef.current = dockHeight;
+
   const dragRef = useRef(null);
+  const resizeRef = useRef(null);
   const lastStartRef = useRef(0);
 
   useEffect(() => {
     preloadGsap();
   }, []);
+
+  useEffect(() => {
+    const onResize = () => {
+      setDockHeight((height) => clampDockHeight(height));
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => () => clearResizeSession(resizeRef), []);
 
   const attachTrayRef = useCallback((node) => {
     if (trayRef) trayRef.current = node;
@@ -143,9 +203,61 @@ export default function JournalStickerDock({
     btn.addEventListener('pointercancel', onEnd);
   }, [endDrag, pageIndex, dropZoneRef]);
 
+  const startResize = useCallback((e) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    e.stopPropagation();
+    if (e.cancelable) e.preventDefault();
+
+    if (resizeRef.current) clearResizeSession(resizeRef);
+
+    const handle = e.currentTarget;
+    try {
+      handle.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+
+    const pointerId = e.pointerId;
+    const startY = e.clientY;
+    const startHeight = dockHeightRef.current;
+
+    const onMove = (ev) => {
+      if (ev.pointerId !== pointerId) return;
+      const delta = startY - ev.clientY;
+      setDockHeight(clampDockHeight(startHeight + delta));
+    };
+
+    const onEnd = (ev) => {
+      if (ev.pointerId !== pointerId) return;
+      clearResizeSession(resizeRef);
+      localStorage.setItem(DOCK_HEIGHT_KEY, String(dockHeightRef.current));
+    };
+
+    resizeRef.current = { handle, pointerId, onMove, onEnd };
+    handle.addEventListener('pointermove', onMove, { passive: false });
+    handle.addEventListener('pointerup', onEnd);
+    handle.addEventListener('pointercancel', onEnd);
+  }, []);
+
+  const isCollapsed = dockHeight <= MIN_DOCK_HEIGHT + 8;
+
   return (
-    <div ref={attachTrayRef} className="journal-sticker-dock" aria-label="Sticker menu">
-      <div className="journal-sticker-dock-handle" aria-hidden="true" />
+    <div
+      ref={attachTrayRef}
+      className={`journal-sticker-dock${isCollapsed ? ' journal-sticker-dock--collapsed' : ''}`}
+      style={{ height: `${dockHeight}px` }}
+      aria-label="Sticker menu"
+    >
+      <div
+        className="journal-sticker-dock-handle"
+        role="separator"
+        aria-orientation="horizontal"
+        aria-label="Drag up or down to resize sticker menu"
+        aria-valuemin={MIN_DOCK_HEIGHT}
+        aria-valuemax={getMaxDockHeight()}
+        aria-valuenow={dockHeight}
+        onPointerDown={startResize}
+      />
       <div className="journal-sticker-dock-grid">
         {stickers.length === 0 ? (
           <p className="journal-sticker-dock-empty">No stickers available yet</p>

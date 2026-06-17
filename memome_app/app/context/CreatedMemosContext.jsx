@@ -40,7 +40,10 @@ function mergeCreatedMemos(fetched, existing) {
 }
 
 function shouldRefreshCreatedMemos(pathname) {
-  return pathname === paths.journals || pathname.startsWith('/diary/');
+  return pathname.startsWith('/diary/')
+    || pathname === paths.journalsCreate
+    || pathname === paths.journalsCreateMemos
+    || /^\/journals\/[^/]+\/edit/.test(pathname);
 }
 
 export function CreatedMemosProvider({ initialMemos = [], children }) {
