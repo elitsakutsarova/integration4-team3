@@ -51,5 +51,6 @@ export default [
   route("api/account", "routes/api.account.js"),
   route("api/feedback", "routes/api.feedback.js"),
   route("api/location-search", "routes/api.location-search.js"),
+  route("api/location-href", "routes/api.location-href.js"),
   route("*", "routes/catchall.jsx"),
 ];

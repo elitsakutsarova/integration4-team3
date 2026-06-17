@@ -1,8 +1,6 @@
-// header for the collection page
-
 import { useNavigate } from 'react-router';
-import { goBack } from '../../utils/appPaths';
-import { paths } from '../../utils/appPaths';
+import { goBack, paths } from '../../utils/appPaths';
+import BackChevron from '../BackChevron';
 
 export default function CollectionPageHeader({
   title,
@@ -21,16 +19,7 @@ export default function CollectionPageHeader({
 
   return (
     <header className="collection-page-header">
-      <button
-        type="button"
-        className="collection-page-back"
-        onClick={handleBack}
-        aria-label="Back"
-      >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M15 6l-6 6 6 6" stroke="#1952ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
+      <BackChevron className="collection-page-back" onClick={handleBack} />
       <h1 className="collection-page-title">{title}</h1>
     </header>
   );

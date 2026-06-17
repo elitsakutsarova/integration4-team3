@@ -1,4 +1,7 @@
+// handles the "Create a Recap" flow 
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
 import CreateJournalDecorations from '../journals/CreateJournalDecorations';
 import JournalMemoPickCard from '../journals/JournalMemoPickCard';
 import RecapShareSheet from './RecapShareSheet';
@@ -15,7 +18,10 @@ import {
   shareImageFiles,
   shareToInstagram,
 } from '../../utils/shareImage';
+import { paths } from '../../utils/appPaths';
 
+// when the user scrolls the style carousel, this finds the style card closest to the center of the screen
+// returns its index
 function getClosestStyleIndex(container, slideElements) {
   const containerCenter = container.scrollLeft + container.clientWidth / 2;
   let closestIndex = 0;
@@ -34,12 +40,14 @@ function getClosestStyleIndex(container, slideElements) {
   return closestIndex;
 }
 
+// when the user clicks on a dot underneath the carousel, it scrolls to the selected style
 function scrollStyleIntoView(container, slide) {
   if (!container || !slide) return;
   const targetLeft = slide.offsetLeft - (container.clientWidth - slide.offsetWidth) / 2;
   container.scrollTo({ left: targetLeft, behavior: 'smooth' });
 }
 
+// adds drag support to the style carousel of the recap
 function useRecapCarouselDrag(carouselRef) {
   useEffect(() => {
     const carousel = carouselRef.current;
@@ -88,6 +96,8 @@ function useRecapCarouselDrag(carouselRef) {
   }, [carouselRef]);
 }
 
+// !important
+// For every recap style, generates a preview image
 function useRecapPreviewFiles(journal, selectedMemories) {
   const [previewFiles, setPreviewFiles] = useState({});
   const [previewUrls, setPreviewUrls] = useState({});
@@ -147,6 +157,7 @@ function filterMemos(memos, filterId) {
   return memos.filter((memo) => (memo.tags ?? []).includes(filterId));
 }
 
+// reusable layout for recap flow pages
 function RecapFlowShell({ title, onBack, children, footer, headerExtra = null }) {
   return (
     <div className="recap-flow-page">
@@ -163,6 +174,7 @@ function RecapFlowShell({ title, onBack, children, footer, headerExtra = null })
   );
 }
 
+// first screen, stores selected memos
 export default function RecapSelectView({
   memories,
   onBack,
@@ -259,6 +271,7 @@ export default function RecapSelectView({
   );
 }
 
+// user already chose memos, now they choose a recap style (out of 3)
 export function RecapChooseStyleView({
   journal,
   memories,
@@ -266,6 +279,7 @@ export function RecapChooseStyleView({
   onBack,
   onShared,
 }) {
+  const navigate = useNavigate();
   const [styleId, setStyleId] = useState(RECAP_STYLES[0].id);
   const [showSheet, setShowSheet] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -278,6 +292,7 @@ export function RecapChooseStyleView({
     [memories, selectedIds],
   );
 
+  // generates preview images for each style
   const { previewFiles, previewUrls, loading: previewsLoading } = useRecapPreviewFiles(
     journal,
     selectedMemories,
@@ -318,6 +333,7 @@ export function RecapChooseStyleView({
     }
   }
 
+  // handles sharing the recap image to the user's chosen app
   async function handleShareApp(appId) {
     if (sharing) return;
     setSharing(true);
@@ -347,6 +363,7 @@ export function RecapChooseStyleView({
 
       setShowSheet(false);
       if (shared) {
+        // on success (of sharing)
         setShowSuccess(true);
       }
     } catch (err) {
@@ -458,21 +475,14 @@ export function RecapChooseStyleView({
       )}
 
       {showSuccess && (
-        <RecapShareSuccess onClose={() => setShowSuccess(false)} />
+        <RecapShareSuccess
+          onClose={() => {
+            setShowSuccess(false);
+            navigate(paths.journals);
+          }}
+        />
       )}
     </RecapFlowShell>
   );
 }
 
-/** @deprecated Use RecapChooseStyleView — kept for TravelDiaryViewer compatibility */
-export function RecapPreviewView(props) {
-  return (
-    <RecapChooseStyleView
-      journal={props.diary}
-      memories={props.memories}
-      selectedIds={props.selectedIds}
-      onBack={props.onBack}
-      onShared={props.onShared}
-    />
-  );
-}

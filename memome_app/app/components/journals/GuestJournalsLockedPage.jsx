@@ -1,7 +1,6 @@
-import { Link } from 'react-router';
 import BottomNav from '../BottomNav';
-import { paths } from '../../utils/appPaths';
 import { journalAssets } from '../../utils/journalAssets';
+import GuestAuthCta from '../GuestAuthCta';
 
 export default function GuestJournalsLockedPage() {
   return (
@@ -31,16 +30,7 @@ export default function GuestJournalsLockedPage() {
             src={journalAssets.lockedIllustration}
             alt=""
           />
-          <p className="journals-guest-panel-copy">
-            Create account or log in to create journals
-          </p>
-          <Link to={paths.register} className="journals-guest-panel-btn">
-            Create Account
-          </Link>
-          <p className="journals-guest-panel-login">
-            Already have an account?{' '}
-            <Link to={paths.login}>Log in</Link>
-          </p>
+          <GuestAuthCta copy="Create account or log in to create journals" />
         </div>
       </main>
 

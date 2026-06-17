@@ -1,11 +1,9 @@
 // this component displays a memo card in the collection page
 
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import DiscoverShareIcon from '../discover/DiscoverShareIcon';
 import { useSavedMemos } from '../../context/SavedMemosContext';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
-import { resolveNavigableLocationHref } from '../../utils/navigableLocation';
 
 function MemoHeartButton({ memoId, label, className = '' }) {
   const { isSaved, toggleMemo } = useSavedMemos();
@@ -83,27 +81,9 @@ export default function CollectionMemoCard({
   onShare,
   layout = 'horizontal',
 }) {
-  const navigate = useNavigate();
-  const [locationHref, setLocationHref] = useState(null);
+  const locationHref = memo.locationHref ?? null;
   const hasMedia = Boolean(memo.mediaPreview?.url);
   const canOpenMaps = Array.isArray(memo.ll) && memo.ll.length >= 2;
-
-  useEffect(() => {
-    let cancelled = false;
-
-    void resolveNavigableLocationHref({
-      placeId: memo.placeId,
-      lat: memo.ll?.[0],
-      lng: memo.ll?.[1],
-      name: memo.location,
-    }).then(href => {
-      if (!cancelled) setLocationHref(href);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [memo]);
 
   function handleTakeMeThere(event) {
     event.stopPropagation();
@@ -112,10 +92,6 @@ export default function CollectionMemoCard({
       return;
     }
     openGoogleMapsDirections(memo.ll[0], memo.ll[1], event);
-  }
-
-  function handleLocationClick() {
-    if (locationHref) navigate(locationHref);
   }
 
   if (variant === 'created') {
@@ -134,9 +110,9 @@ export default function CollectionMemoCard({
               <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
             </svg>
             {locationHref ? (
-              <button type="button" className="collection-memo-location-link" onClick={handleLocationClick}>
+              <Link to={locationHref} className="collection-memo-location-link">
                 {memo.location}
-              </button>
+              </Link>
             ) : (
               <span className="collection-memo-location-text">{memo.location}</span>
             )}
@@ -197,9 +173,9 @@ export default function CollectionMemoCard({
               <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
             </svg>
             {locationHref ? (
-              <button type="button" className="collection-memo-location-link" onClick={handleLocationClick}>
+              <Link to={locationHref} className="collection-memo-location-link">
                 {memo.location}
-              </button>
+              </Link>
             ) : (
               <span className="collection-memo-location-text">{memo.location}</span>
             )}

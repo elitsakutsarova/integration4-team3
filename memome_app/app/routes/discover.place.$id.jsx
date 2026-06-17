@@ -1,6 +1,7 @@
 // route for the place/location detail page in the discover
 
 import { redirect, useLoaderData } from 'react-router';
+import AuthLoading from '../components/auth/AuthLoading';
 import PlaceDetailPage from '../components/discover/PlaceDetailPage';
 import { getDiscoverPlaceById } from '../data/discoverDetails';
 import { paths } from '../utils/appPaths';
@@ -38,6 +39,14 @@ export async function clientLoader({ serverLoader }) {
 }
 
 clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
+
+export function shouldRevalidate({ currentParams, nextParams }) {
+  return currentParams.id !== nextParams.id;
+}
 
 export default function DiscoverPlaceDetail() {
   const { place, featuredMemos, totalMemoCount } = useLoaderData();

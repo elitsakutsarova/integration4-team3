@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import GuestAuthCta from '../components/GuestAuthCta';
 import { useCollectedStickers } from '../context/CollectedStickersContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
@@ -91,16 +92,7 @@ function GuestProfile({ collectedStickers }) {
       </section>
 
       <section className="guest-create-account">
-        <p className="guest-create-account-copy">
-          Create account or log in to add memos
-        </p>
-        <Link to={paths.register} className="guest-create-account-btn">
-          Create Account
-        </Link>
-        <p className="guest-create-account-login">
-          Already have an account?{' '}
-          <Link to={paths.login}>Log in</Link>
-        </p>
+        <GuestAuthCta copy="Create account or log in to add memos" />
       </section>
     </div>
   );

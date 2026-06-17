@@ -1,6 +1,5 @@
-import { Link } from 'react-router';
-import { paths } from '../utils/appPaths';
 import { addMemoAssets } from '../utils/addMemoAssets';
+import GuestAuthCta from './GuestAuthCta';
 
 function BackIcon() {
   return (
@@ -63,16 +62,7 @@ export default function GuestAddMemoLocked({ onClose }) {
           </div>
 
           <div className="guest-add-memo-panel">
-            <p className="guest-add-memo-panel-copy">
-              Create account or log in to add memories
-            </p>
-            <Link to={paths.register} className="guest-add-memo-panel-btn">
-              Create Account
-            </Link>
-            <p className="guest-add-memo-panel-login">
-              Already have an account?{' '}
-              <Link to={paths.login}>Log in</Link>
-            </p>
+            <GuestAuthCta copy="Create account or log in to add memories" />
           </div>
         </div>
       </main>

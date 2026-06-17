@@ -2,16 +2,17 @@ import {
   isRouteErrorResponse,
   Links,
   Meta,
-  Navigate,
   Outlet,
   Scripts,
   ScrollRestoration,
   useLoaderData,
   useLocation,
+  useNavigate,
   useRouteError,
   redirect,
 } from "react-router";
 
+import { useEffect } from "react";
 import "./app.css";
 import { isAllowedDevOrigin, resolveDevRedirectOrigin } from "./config";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -31,6 +32,9 @@ import { appAuthMiddleware } from "./middleware/clientAuth";
 import { bootstrapAuthSession, isAuthBootstrapped } from "./utils/authSession";
 import { isGuestAccessiblePath, isPublicAppPath } from "./utils/appPaths";
 import { fetchCollectedStickers } from "./utils/collectibleStore";
+import { fetchCreatedMemosByUser } from "./utils/memoStore";
+import { fetchSavedMemos } from "./utils/savedMemosStore";
+import { fetchDiscoverFaves } from "./utils/discoverFavesStore";
 import { loadStickersFromPublic } from "./utils/stickers.server";
 import { getSafeFallbackPath, FALLBACK_JOURNALS } from "./utils/appPaths";
 
@@ -58,16 +62,30 @@ export async function clientLoader({ serverLoader }) {
   const serverData = await serverLoader();
 
   const user = await bootstrapAuthSession();
-  const collectedStickers = await fetchCollectedStickers(user?.id ?? null);
+  const userId = user?.id ?? null;
+
+  const [collectedStickers, savedMemos, discoverFaves, createdMemos] = await Promise.all([
+    fetchCollectedStickers(userId),
+    fetchSavedMemos(userId),
+    fetchDiscoverFaves(userId),
+    fetchCreatedMemosByUser(userId),
+  ]);
 
   return {
     stickers: serverData.stickers,
     collectedStickers,
+    savedMemos,
+    discoverFaves,
+    createdMemos,
   };
 }
 
 // run the client loader while react takes over the html sent from the server
 clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
 
 export function shouldRevalidate({ formAction }) {
   return Boolean(formAction);
@@ -110,7 +128,7 @@ export function Layout({ children }) {
 }
 
 export default function App() {
-  const { stickers, collectedStickers } = useLoaderData();
+  const { stickers, collectedStickers, savedMemos, discoverFaves, createdMemos } = useLoaderData();
   const { user, loading } = useAuth();
   const { pathname } = useLocation();
   const isPublic = isPublicAppPath(pathname);
@@ -129,12 +147,12 @@ export default function App() {
 
   return (
     <CollectedStickersProvider collectedStickers={collectedStickers}>
-      <CreatedMemosProvider>
+      <CreatedMemosProvider initialMemos={createdMemos}>
         <CustomJournalsProvider>
           <CreateJournalProvider>
             <EditJournalProvider>
-              <DiscoverFavesProvider>
-                <SavedMemosProvider>
+              <DiscoverFavesProvider initialFaves={discoverFaves}>
+                <SavedMemosProvider initialSavedMemos={savedMemos}>
                   <StickerCatalogProvider stickers={stickers}>
                     <Outlet />
                     <DiscoverSavedModal />
@@ -153,22 +171,26 @@ export default function App() {
 export function ErrorBoundary() {
   const error = useRouteError();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
-  if (isRouteErrorResponse(error) && (error.status === 404 || error.status === 400)) {
-    return <Navigate to={getSafeFallbackPath(pathname)} replace />;
-  }
+  const redirectTarget = (() => {
+    if (isRouteErrorResponse(error) && (error.status === 404 || error.status === 400)) {
+      return getSafeFallbackPath(pathname);
+    }
+    if (error instanceof Response && error.status >= 300 && error.status < 400) {
+      return error.headers.get('Location');
+    }
+    if (pathname.startsWith('/diary/') || /^\/journals\/[^/]+\/edit/.test(pathname)) {
+      return FALLBACK_JOURNALS;
+    }
+    return null;
+  })();
 
-  if (error instanceof Response && error.status >= 300 && error.status < 400) {
-    const location = error.headers.get('Location');
-    if (location) return <Navigate to={location} replace />;
-  }
+  useEffect(() => {
+    if (redirectTarget) navigate(redirectTarget, { replace: true });
+  }, [redirectTarget, navigate]);
 
-  if (
-    pathname.startsWith('/diary/')
-    || /^\/journals\/[^/]+\/edit/.test(pathname)
-  ) {
-    return <Navigate to={FALLBACK_JOURNALS} replace />;
-  }
+  if (redirectTarget) return null;
 
   let message = "Oops!";
   let details = "An unexpected error occurred.";

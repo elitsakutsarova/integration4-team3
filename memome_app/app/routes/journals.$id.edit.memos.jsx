@@ -1,4 +1,5 @@
-import { Navigate } from 'react-router';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
 import AddJournalMemosPage from '../components/journals/AddJournalMemosPage';
 import CreateJournalDecorations from '../components/journals/CreateJournalDecorations';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
@@ -14,20 +15,23 @@ export function meta() {
 }
 
 export default function JournalsEditMemosRoute({ params }) {
-  const { createdMemos, ready } = useCreatedMemos();
+  const navigate = useNavigate();
+  const { createdMemos } = useCreatedMemos();
   const { customJournals } = useCustomJournals();
   const journal = findJournalById(createdMemos, params.id, customJournals);
 
-  if (!ready) {
+  useEffect(() => {
+    if (!journal) {
+      navigate(paths.journals, { replace: true });
+    }
+  }, [journal, navigate]);
+
+  if (!journal) {
     return (
       <div className="create-journal-page create-journal-page--loading">
         <p>Loading your memos…</p>
       </div>
     );
-  }
-
-  if (!journal) {
-    return <Navigate to={paths.journals} replace />;
   }
 
   return (

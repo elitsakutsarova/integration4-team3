@@ -70,6 +70,7 @@ export default function EditJournalPage({ journal }) {
   const [descriptionOpen, setDescriptionOpen] = useState(false);
   const leaveTargetRef = useRef(diaryPath(journal.id));
   const isSubmittingRef = useRef(false);
+  const isDiscardingRef = useRef(false);
   const titleInputRef = useRef(null);
   const loadedJournalIdRef = useRef('');
   const preDeleteDraftRef = useRef(null);
@@ -104,6 +105,7 @@ export default function EditJournalPage({ journal }) {
   const blocker = useBlocker(
     ({ nextLocation }) =>
       !isSubmittingRef.current
+      && !isDiscardingRef.current
       && isDirty
       && !editFlowPaths.has(nextLocation.pathname),
   );
@@ -160,6 +162,7 @@ export default function EditJournalPage({ journal }) {
   }
 
   function handleDiscard() {
+    isDiscardingRef.current = true;
     resetDraft();
     setLeaveWarningOpen(false);
     if (blocker.state === 'blocked') {
@@ -263,14 +266,16 @@ export default function EditJournalPage({ journal }) {
     const journalId = draft.journalId || journal.id;
     preDeleteDraftRef.current = null;
 
-    if (!journal.isCustom) {
-      saveCustomJournal(buildPersistedJournalRecord(journal, draft));
-    }
+    const memoIds = draft.selectedMemoIds.length > 0
+      ? draft.selectedMemoIds
+      : (journal.memoryIds ?? []);
 
-    removeCustomJournal(journalId);
+    removeCustomJournal(journalId, memoIds);
     isSubmittingRef.current = true;
+    isDiscardingRef.current = true;
     clearEditJournalDraft();
     resetDraft();
+    loadedJournalIdRef.current = '';
     setDeleteWarningOpen(false);
     navigate(paths.journals);
   }

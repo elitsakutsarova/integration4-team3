@@ -6,6 +6,8 @@ import { fetchPhotonPlaceDetail } from './locationPhoton';
 import { parseLocationRoute } from './parseLocationRoute';
 import { loadSpotMemos } from './loadSpotMemos';
 import { fallbackPathFromRequest } from './appPaths';
+import { fetchPlaceImageUrl } from './placeImage';
+import { parsePhotonPlaceId } from './placeId';
 
 /** Reject fabricated /location URLs — coords must be in Antwerp and match a real OSM place.
  *  Bounds are already verified by parseLocationRoute; we verify Photon confirms the place ID. */
@@ -28,18 +30,22 @@ export async function resolveVerifiedLocationSpot(args) {
   };
 }
 
+async function fetchImageForPlace(placeId) {
+  const parsed = parsePhotonPlaceId(placeId);
+  if (!parsed) return null;
+  return fetchPlaceImageUrl(parsed).catch(() => null);
+}
+
 export async function loadLocationPageClient(args) {
   await bootstrapAuthSession();
 
   const { place, placeId, lat, lng, locationName } = await resolveVerifiedLocationSpot(args);
-  const { featuredMemos, totalMemoCount } = await loadSpotMemos({
-    placeId,
-    lat,
-    lng,
-    locationName,
-  });
+  const [{ featuredMemos, totalMemoCount }, imageUrl] = await Promise.all([
+    loadSpotMemos({ placeId, lat, lng, locationName }),
+    fetchImageForPlace(placeId),
+  ]);
 
-  return { place, featuredMemos, totalMemoCount };
+  return { place, featuredMemos, totalMemoCount, imageUrl };
 }
 
 export async function loadLocationMemosClient(args) {

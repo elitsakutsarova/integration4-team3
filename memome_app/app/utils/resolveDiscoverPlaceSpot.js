@@ -1,4 +1,5 @@
 import { isPhotonPlaceId } from './placeId';
+import { paths } from './appPaths';
 
 const SEARCH_TIMEOUT_MS = 2500;
 
@@ -33,7 +34,7 @@ export async function resolveDiscoverPlaceSpot(place) {
 
   try {
     const response = await fetch(
-      `/api/location-search?q=${encodeURIComponent(query)}`,
+      `${paths.apiLocationSearch}?q=${encodeURIComponent(query)}`,
       {
         headers: { Accept: 'application/json' },
         signal: AbortSignal.timeout(SEARCH_TIMEOUT_MS),

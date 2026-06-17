@@ -37,6 +37,8 @@ export const paths = {
   apiMemos: href('/api/memos'),
   apiAccount: href('/api/account'),
   apiFeedback: href('/api/feedback'),
+  apiLocationSearch: href('/api/location-search'),
+  apiLocationHref: href('/api/location-href'),
 };
 
 export function discoverEventPath(id) {

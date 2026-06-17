@@ -1,7 +1,8 @@
 // change e-mail page for account settings
 
+
 import { useEffect, useState } from 'react';
-import { useFetcher, useNavigate, useRevalidator } from 'react-router';
+import { Link, useFetcher, useNavigate, useRevalidator } from 'react-router';
 import { EyeIcon, LockIcon, MailIcon } from '../auth/AuthIcons';
 import { applySignedInUser, getAuthSnapshot } from '../../utils/authSession';
 import { syncSessionProfile } from '../../utils/authStore';
@@ -49,21 +50,15 @@ export default function ChangeEmailPage() {
     goBack(navigate, paths.profileSettingsAccount);
   }
 
-  function handleCancel() {
-    navigate(paths.profileSettingsAccount);
-  }
-
   function handleSubmit(event) {
-    event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const validation = validateAccountFormData(formData, user);
     if (validation.error) {
+      event.preventDefault();
       setClientErrors(accountErrorToFieldMap(validation.error));
       return;
     }
-
     setClientErrors({});
-    fetcher.submit(formData, { method: 'post', action: paths.apiAccount });
   }
 
   return (
@@ -167,14 +162,14 @@ export default function ChangeEmailPage() {
           ) : null}
 
           <div className="settings-form-actions">
-            <button
-              type="button"
+            <Link
+              to={paths.profileSettingsAccount}
               className="settings-form-btn settings-form-btn--cancel"
-              onClick={handleCancel}
-              disabled={submitting}
+              aria-disabled={submitting}
+              onClick={submitting ? (e) => e.preventDefault() : undefined}
             >
               Cancel
-            </button>
+            </Link>
             <button
               type="submit"
               className="settings-form-btn settings-form-btn--primary"

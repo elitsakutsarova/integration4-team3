@@ -1,10 +1,10 @@
-// memo archive page component for the location detail page
+// page for viewing all memos shared by user (archive)
 
 import { useNavigate } from 'react-router';
 import BottomNav from '../BottomNav';
 import MemoArchiveCard from './MemoArchiveCard';
-import { goBack } from '../../utils/appPaths';
-import { paths } from '../../utils/appPaths';
+import { goBack, paths } from '../../utils/appPaths';
+import BackChevron from '../BackChevron';
 
 export default function MemoArchivePage({
   spotTitle,
@@ -24,11 +24,7 @@ export default function MemoArchivePage({
         <div className="memo-archive-header-grid" aria-hidden="true" />
         <div className="memo-archive-header-wave" aria-hidden="true" />
 
-        <button type="button" className="memo-archive-back" onClick={handleBack} aria-label="Back">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M15 6l-6 6 6 6" stroke="#1952ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        <BackChevron className="memo-archive-back" onClick={handleBack} />
 
         <div className="memo-archive-title-banner">
           <h1 className="memo-archive-title">Memo Archive</h1>

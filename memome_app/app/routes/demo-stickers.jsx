@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Link, useLoaderData } from 'react-router';
+import AuthLoading from '../components/auth/AuthLoading';
 import QrCode from '../components/QrCode';
 import { paths } from '../utils/appPaths';
 import { resolveDevShareOrigin } from '../utils/devNetwork.server';
@@ -28,6 +29,14 @@ export async function clientLoader({ serverLoader }) {
 }
 
 clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
+
+export function shouldRevalidate({ currentUrl, nextUrl }) {
+  return currentUrl.pathname !== nextUrl.pathname;
+}
 
 function isLocalhostOrigin(origin) {
   try {

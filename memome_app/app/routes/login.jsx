@@ -37,6 +37,18 @@ export async function clientLoader({ request }) {
 
 clientLoader.hydrate = true;
 
+export function shouldRevalidate({ currentUrl, nextUrl }) {
+  return currentUrl.search !== nextUrl.search;
+}
+
+export function HydrateFallback() {
+  return (
+    <div className="auth-page">
+      <div className="auth-card" />
+    </div>
+  );
+}
+
 export async function clientAction({ request }) {
   const formData = await request.formData();
   const validated = validateSignInPayload({

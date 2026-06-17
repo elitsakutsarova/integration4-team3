@@ -10,15 +10,14 @@ import {
 import MemMeLogo from '../components/auth/MemMeLogo';
 import {
   BackpackIcon,
-  CheckIcon,
   EyeIcon,
   HouseIcon,
   LockIcon,
   MailIcon,
-  XIcon,
 } from '../components/auth/AuthIcons';
 import { AuthSwitchLink } from '../components/auth/RequireAuth';
-import { getPasswordChecks, strengthBarCount } from '../utils/passwordRules';
+import PasswordStrengthFeedback from '../components/settings/PasswordStrengthFeedback';
+import { getPasswordChecks } from '../utils/passwordRules';
 import { registerActionError, signUpAccount } from '../utils/authActions';
 import { paths } from '../utils/appPaths';
 import { guestOnlyMiddleware } from '../middleware/clientAuth';
@@ -26,41 +25,6 @@ import { validateSignUpPayload } from '../utils/validators';
 
 export const clientMiddleware = guestOnlyMiddleware;
 
-//displays password quality/strength
-function PasswordStrength({ password }) {
-  const checks = getPasswordChecks(password);
-  const bars = strengthBarCount(checks.strength);
-  const label = checks.strength.charAt(0).toUpperCase() + checks.strength.slice(1);
-
-  return (
-    <div className="auth-password-meta">
-      <div className="auth-strength-row">
-        <div className="auth-strength-bars" aria-hidden="true">
-          {[0, 1, 2].map(i => (
-            <span
-              key={i}
-              className={`auth-strength-bar auth-strength-bar--${checks.strength}${i < bars ? ' auth-strength-bar--active' : ''}`}
-            />
-          ))}
-        </div>
-        {password.length > 0 && (
-          <span className={`auth-strength-label auth-strength-label--${checks.strength}`}>{label}</span>
-        )}
-      </div>
-
-      <ul className="auth-rule-list">
-        <li className={checks.hasMinLength ? 'auth-rule--ok' : password.length > 0 ? 'auth-rule--bad' : ''}>
-          <span className="auth-rule-icon">{checks.hasMinLength ? <CheckIcon /> : password.length > 0 ? <XIcon /> : null}</span>
-          Use at least 8 characters
-        </li>
-        <li className={checks.hasMixedCase ? 'auth-rule--ok' : password.length > 0 ? 'auth-rule--bad' : ''}>
-          <span className="auth-rule-icon">{checks.hasMixedCase ? <CheckIcon /> : password.length > 0 ? <XIcon /> : null}</span>
-          Use upper and lower case characters
-        </li>
-      </ul>
-    </div>
-  );
-}
 
 export function meta() {
   return [
@@ -191,7 +155,7 @@ export default function Register() {
                 <EyeIcon off={!showPassword} />
               </button>
             </div>
-            <PasswordStrength password={password} />
+            <PasswordStrengthFeedback password={password} variant="auth" />
           </div>
 
           <fieldset className="auth-role-fieldset">
