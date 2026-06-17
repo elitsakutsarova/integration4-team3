@@ -62,8 +62,9 @@ export default function MapView({ savedMemos = [], active = true }) {
   const fetcher = useFetcher({ key: 'create-memo' });
   const revalidator = useRevalidator();
   const { user } = useAuth();
-  const { prependCreatedMemo, refreshCreatedMemos } = useCreatedMemos();
+  const { prependCreatedMemo } = useCreatedMemos();
   const handledPublishRef = useRef(false);
+  const sawPublishSubmitRef = useRef(false);
   const initTokenRef = useRef(0);
   const mapRef = useRef(null);
   const leafletRef = useRef(null);
@@ -374,11 +375,14 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, [active, draftMemo?.lat, draftMemo?.lng, draftMemo?.pinLat, draftMemo?.pinLng]);
 
   useEffect(() => {
-    if (fetcher.state === 'submitting') {
+    if (fetcher.state === 'submitting' || fetcher.state === 'loading') {
+      sawPublishSubmitRef.current = true;
       handledPublishRef.current = false;
       return;
     }
     if (fetcher.state !== 'idle' || handledPublishRef.current) return;
+    if (!sawPublishSubmitRef.current) return;
+    sawPublishSubmitRef.current = false;
 
     if (fetcher.data?.success) {
       handledPublishRef.current = true;
@@ -390,10 +394,8 @@ export default function MapView({ savedMemos = [], active = true }) {
       }
 
       setSearchParams({}, { replace: true });
-      revalidator.revalidate();
-      void refreshCreatedMemos({ silent: true });
     }
-  }, [fetcher.state, fetcher.data, revalidator, savedMemos, setSearchParams, syncMapPins, prependCreatedMemo, refreshCreatedMemos]);
+  }, [fetcher.state, fetcher.data, setSearchParams, syncMapPins, prependCreatedMemo]);
 
   function handleAddBtnClick() {
     if (isGuestRef.current) {

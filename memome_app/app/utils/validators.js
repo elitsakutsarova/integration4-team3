@@ -4,6 +4,7 @@ import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { isInAntwerpBounds } from './locationHelpers';
 import { isPhotonPlaceId } from './placeId';
 import { getPasswordChecks } from './passwordRules';
+import { getSupabaseUrl } from './supabase.env';
 
 export const LIMITS = {
   memoQuote: 100,
@@ -257,6 +258,32 @@ export function validateMemoMediaFile(file) {
   return { value: { file, mediaType, mime } };
 }
 
+export function validateMemoUploadedMedia({ mediaUrl, mediaType, userId }) {
+  if (!mediaUrl) return { value: null };
+
+  const url = stripControlChars(mediaUrl).trim();
+  if (!url || !userId) return validationError('media', 'Invalid media');
+
+  if (!isSafeHttpsUrl(url)) return validationError('media', 'Invalid media URL');
+
+  const supabaseUrl = getSupabaseUrl();
+  if (!supabaseUrl) return validationError('media', 'Invalid media URL');
+
+  try {
+    const parsed = new URL(url);
+    const expectedHost = new URL(supabaseUrl).host;
+    if (parsed.host !== expectedHost) return validationError('media', 'Invalid media URL');
+
+    const prefix = `/storage/v1/object/public/memo-media/${userId}/`;
+    if (!parsed.pathname.startsWith(prefix)) return validationError('media', 'Invalid media URL');
+  } catch {
+    return validationError('media', 'Invalid media URL');
+  }
+
+  const type = mediaType === 'video' ? 'video' : 'image';
+  return { value: { media_url: url, media_type: type } };
+}
+
 export function validateCreateMemoInput(input) {
   const quoteResult = validateMemoQuote(input.quote);
   if (quoteResult.field) return quoteResult;
@@ -273,8 +300,15 @@ export function validateCreateMemoInput(input) {
 
   const media = input.media instanceof File && input.media.size > 0
     ? validateMemoMediaFile(input.media)
-    : { value: null };
+    : validateMemoUploadedMedia({
+      mediaUrl: input.mediaUrl,
+      mediaType: input.mediaType,
+      userId: input.userId,
+    });
   if (media.field) return media;
+
+  const uploadedMedia = media.value?.media_url ? media.value : null;
+  const fileMedia = media.value?.file ? media.value : null;
 
   return {
     quote: quoteResult.value,
@@ -283,7 +317,8 @@ export function validateCreateMemoInput(input) {
     location: locationResult.value,
     placeId: placeIdResult.value,
     tags: tagsResult.value,
-    media: media.value,
+    media: fileMedia,
+    uploadedMedia,
   };
 }
 

@@ -7,7 +7,7 @@
 // UI -> memo service (this file) -> Supabase Database + Storage
 
 import { isSupabaseConfigured } from './supabase.env';
-import { isSafeHttpsUrl, validateCreateMemoInput } from './validators';
+import { isSafeHttpsUrl, validateCreateMemoInput, validateMemoMediaFile } from './validators';
 
 async function getBrowserSupabaseClient() {
   const { getSupabaseBrowserClient } = await import('./supabase.client');
@@ -87,6 +87,20 @@ async function uploadMemoMedia(client, userId, media) {
     media_url: data.publicUrl,
     media_type: media.mediaType,
   };
+}
+
+/** Upload memo media from the browser (faster than posting the file through the app server). */
+export async function uploadMemoMediaForUser(file, userId) {
+  if (!userId) return { error: 'auth_required' };
+
+  const validated = validateMemoMediaFile(file);
+  if (validated.field) return { error: validated.message };
+  if (!validated.value) return { error: 'Media is required.' };
+
+  const client = await getBrowserSupabaseClient();
+  if (!client) return { error: 'Could not connect to Supabase.' };
+
+  return uploadMemoMedia(client, userId, validated.value);
 }
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────
@@ -172,6 +186,8 @@ export async function createMemo(
     location = DEFAULT_LOCATION,
     placeId = null,
     media = null,
+    mediaUrl = null,
+    mediaType = null,
   },
   serverContext = null,
 ) {
@@ -199,13 +215,19 @@ export async function createMemo(
     location,
     placeId,
     media,
+    mediaUrl,
+    mediaType,
+    userId,
   });
   if (validated.field) return { error: validated.message };
 
   let media_url = null;
   let media_type = null;
 
-  if (validated.media) {
+  if (validated.uploadedMedia) {
+    media_url = validated.uploadedMedia.media_url;
+    media_type = validated.uploadedMedia.media_type;
+  } else if (validated.media) {
     const uploadResult = await uploadMemoMedia(client, userId, validated.media);
     if (uploadResult.error) return uploadResult;
     media_url = uploadResult.media_url ?? null;

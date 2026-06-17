@@ -1,25 +1,132 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { paths } from '../utils/appPaths';
+import { addMemoFormAssets } from '../utils/addMemoFormAssets';
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { hasChosenMemoLocation } from '../utils/memoDraft';
+import SectionTitle from './SectionTitle';
 import { validateMemoMediaFile } from '../utils/validators';
 
+const QUOTE_MAX = 100;
+const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
+
+function TrashIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 6h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M8 6V4h8v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M6 6l1 14h10l1-14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function MemoTagIcon({ tag }) {
+  if (tag === 'Food') {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path d="M3 11h18M6 11V5a2 2 0 0 1 2-2h1v8M11 3v8M16 11V7a2 2 0 0 1 2-2h1v6" />
+      </svg>
+    );
+  }
+  if (tag === 'Nightlife') {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path d="M8 22h8M12 11v11M7 11l5-8 5 8H7z" />
+      </svg>
+    );
+  }
+  if (tag === 'Fashion') {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path d="M6 2l3 4h6l3-4M6 6l-2 16h16L18 6" />
+      </svg>
+    );
+  }
+  if (tag === 'Art & Culture') {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
+      </svg>
+    );
+  }
+  if (tag === 'Music') {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path d="M9 18V5l12-2v13" />
+        <circle cx="6" cy="18" r="3" />
+        <circle cx="18" cy="16" r="3" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <path d="M4 4h16v16H4z" />
+      <path d="M9 9h6v6H9z" />
+    </svg>
+  );
+}
+
+function UploadIdleIcon() {
+  return (
+    <svg width="37" height="37" viewBox="0 0 37 37" fill="none" aria-hidden="true">
+      <circle cx="18.5" cy="18.5" r="18.5" fill="#E8E8EC" />
+      <path d="M18.5 11v10M13.5 16l5-5 5 5" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11 24h15" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function UploadErrorIcon() {
+  return (
+    <svg width="37" height="37" viewBox="0 0 37 37" fill="none" aria-hidden="true">
+      <circle cx="18.5" cy="18.5" r="18.5" fill="#E8E8EC" />
+      <path d="M18.5 12v10" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="18.5" cy="26" r="1.5" fill="#9CA3AF" />
+    </svg>
+  );
+}
+
+function MediaLoadingIcon({ isVideo }) {
+  if (isVideo) {
+    return (
+      <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true">
+        <rect x="4" y="10" width="38" height="26" rx="4" stroke="#9CA3AF" strokeWidth="2" />
+        <path d="M20 18l10 5-10 5V18z" fill="#9CA3AF" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true">
+      <rect x="6" y="10" width="34" height="26" rx="4" stroke="#9CA3AF" strokeWidth="2" />
+      <circle cx="16" cy="19" r="3" fill="#9CA3AF" />
+      <path d="M6 30l9-9 7 7 6-6 12 12" stroke="#9CA3AF" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default function NewMemoForm({ draft, fetcher, hidden = false, onClose }) {
-  const [showUploadZone, setShowUploadZone] = useState(false);
   const [mediaPreview, setMediaPreview] = useState(null);
-  const [mediaError, setMediaError] = useState('');
+  const [mediaPhase, setMediaPhase] = useState('idle');
+  const [loadProgress, setLoadProgress] = useState(0);
+  const [loadingIsVideo, setLoadingIsVideo] = useState(false);
   const [selectedTags, setSelectedTags] = useState([]);
   const [quote, setQuote] = useState('');
   const [quoteTouched, setQuoteTouched] = useState(false);
   const [showLocationError, setShowLocationError] = useState(false);
   const [searchParams] = useSearchParams();
   const fileRef = useRef(null);
+  const cameraRef = useRef(null);
   const mediaPreviewRef = useRef(null);
+  const loadTimerRef = useRef(null);
   mediaPreviewRef.current = mediaPreview;
 
-  const mediaState = mediaPreview ? 'preview' : showUploadZone ? 'zone' : 'idle';
-  const locationLabel = draft?.locationName?.trim() || 'Choose Location';
+  const locationLabel = draft?.locationName?.trim() || 'Choose location';
+  const locationHint = hasChosenMemoLocation(draft)
+    ? 'Location selected'
+    : 'Pick from map or use current location';
   const hasLocationName = Boolean(draft?.locationName?.trim());
 
   const isSubmitting = fetcher.state !== 'idle';
@@ -32,7 +139,8 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     : null;
 
   const hasLocation = hasChosenMemoLocation(draft);
-  const canSubmit = selectedTags.length > 0 && quoteValid && !mediaError && !isSubmitting;
+  const mediaBlocking = mediaPhase === 'loading';
+  const canSubmit = selectedTags.length > 0 && quoteValid && !mediaBlocking && !isSubmitting;
   const publishActive = canSubmit && hasLocation;
 
   const locationPickerHref = useMemo(() => {
@@ -43,6 +151,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
 
   useEffect(() => {
     return () => {
+      if (loadTimerRef.current) clearInterval(loadTimerRef.current);
       if (mediaPreviewRef.current?.url) URL.revokeObjectURL(mediaPreviewRef.current.url);
     };
   }, []);
@@ -51,6 +160,13 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     if (hasLocation) setShowLocationError(false);
   }, [hasLocation]);
 
+  function clearLoadTimer() {
+    if (loadTimerRef.current) {
+      clearInterval(loadTimerRef.current);
+      loadTimerRef.current = null;
+    }
+  }
+
   function handleFormSubmit(event) {
     if (!hasLocation) {
       event.preventDefault();
@@ -58,56 +174,164 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     }
   }
 
-  function applyMediaFile(file) {
+  async function applyMediaFile(file) {
     if (!file) return;
+
+    if (file.size > MEDIA_MAX_BYTES) {
+      setMediaPhase('oversize');
+      setMediaPreview(null);
+      if (fileRef.current) fileRef.current.value = '';
+      if (cameraRef.current) cameraRef.current.value = '';
+      return;
+    }
 
     const result = validateMemoMediaFile(file);
     if (result.field) {
-      setMediaError(result.message);
+      if (result.message.includes('10 MB')) {
+        setMediaPhase('oversize');
+      }
       setMediaPreview(null);
-      setShowUploadZone(true);
       if (fileRef.current) fileRef.current.value = '';
+      if (cameraRef.current) cameraRef.current.value = '';
       return;
     }
     if (!result.value) return;
 
-    setMediaError('');
+    const isVideo = result.value.mediaType === 'video';
+    setLoadingIsVideo(isVideo);
+    setMediaPhase('loading');
+    setLoadProgress(0);
+
+    clearLoadTimer();
+    loadTimerRef.current = setInterval(() => {
+      setLoadProgress((prev) => {
+        if (prev >= 92) return prev;
+        return prev + Math.random() * 14 + 4;
+      });
+    }, 120);
+
+    const minDelay = new Promise((resolve) => {
+      setTimeout(resolve, 450);
+    });
+    await minDelay;
+
     if (mediaPreview?.url) URL.revokeObjectURL(mediaPreview.url);
     const url = URL.createObjectURL(file);
-    setShowUploadZone(false);
-    setMediaPreview({ url, isVideo: result.value.mediaType === 'video' });
-  }
-
-  function handleMediaAreaClick() {
-    if (mediaState === 'idle') setShowUploadZone(true);
-  }
-
-  function handleUploadClick(e) {
-    e.stopPropagation();
-    fileRef.current?.click();
+    clearLoadTimer();
+    setLoadProgress(100);
+    setMediaPreview({ url, isVideo, file });
+    setMediaPhase('preview');
   }
 
   function handleFileChange(e) {
     applyMediaFile(e.target.files?.[0]);
   }
 
-  function handleEditMedia(e) {
-    e.stopPropagation();
+  function handleCameraChange(e) {
+    const file = e.target.files?.[0];
+    if (file && fileRef.current) {
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      fileRef.current.files = transfer.files;
+    }
+    applyMediaFile(file);
+  }
+
+  function handleUploadClick() {
     fileRef.current?.click();
   }
 
-  function handleRemoveMedia(e) {
-    e.stopPropagation();
-    if (mediaPreview) URL.revokeObjectURL(mediaPreview.url);
+  function handleCameraClick() {
+    cameraRef.current?.click();
+  }
+
+  function handleRemoveMedia() {
+    if (mediaPreview?.url) URL.revokeObjectURL(mediaPreview.url);
     setMediaPreview(null);
-    setShowUploadZone(false);
-    setMediaError('');
+    setMediaPhase('idle');
+    setLoadProgress(0);
     if (fileRef.current) fileRef.current.value = '';
+    if (cameraRef.current) cameraRef.current.value = '';
   }
 
   function toggleTag(tag) {
-    setSelectedTags(prev =>
-      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag],
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  }
+
+  function renderMediaZone() {
+    if (mediaPhase === 'preview' && mediaPreview) {
+      return (
+        <div className="memo-form-media-preview">
+          <div className="memo-form-media-preview-media">
+            {mediaPreview.isVideo ? (
+              <video src={mediaPreview.url} className="memo-form-media-preview-img" controls playsInline />
+            ) : (
+              <img src={mediaPreview.url} alt="Selected media" className="memo-form-media-preview-img" />
+            )}
+            <button
+              type="button"
+              className="memo-form-media-preview-remove"
+              onClick={handleRemoveMedia}
+              aria-label="Remove media"
+            >
+              <TrashIcon />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (mediaPhase === 'loading') {
+      return (
+        <div className="memo-form-media-loading">
+          <MediaLoadingIcon isVideo={loadingIsVideo} />
+          <p className="memo-form-media-loading-percent">{Math.round(loadProgress)}%</p>
+          <div className="memo-form-media-progress" aria-hidden="true">
+            <div
+              className="memo-form-media-progress-fill"
+              style={{ width: `${Math.min(100, loadProgress)}%` }}
+            />
+          </div>
+          <p className="memo-form-media-loading-copy">Uploading your media...</p>
+        </div>
+      );
+    }
+
+    if (mediaPhase === 'oversize') {
+      return (
+        <div className="memo-form-media-error">
+          <UploadErrorIcon />
+          <p className="memo-form-media-error-title">Oops! File is too large</p>
+          <p className="memo-form-media-error-copy">
+            The file exceeds 10 MB limit. Please select a smaller file.
+          </p>
+          <button type="button" className="memo-form-media-upload-btn" onClick={handleUploadClick}>
+            Upload file
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="memo-form-media-idle">
+        <button type="button" className="memo-form-media-idle-upload" onClick={handleUploadClick}>
+          <UploadIdleIcon />
+        </button>
+        <button type="button" className="memo-form-media-idle-link" onClick={handleUploadClick}>
+          Tap to upload a file
+        </button>
+        <p className="memo-form-media-idle-hint">Add one image or video up to 10 MB.</p>
+        <div className="memo-form-media-divider" aria-hidden="true">
+          <span className="memo-form-media-divider-line" />
+          <span className="memo-form-media-divider-label">OR</span>
+          <span className="memo-form-media-divider-line" />
+        </div>
+        <button type="button" className="memo-form-media-camera-btn" onClick={handleCameraClick}>
+          Open camera
+        </button>
+      </div>
     );
   }
 
@@ -121,176 +345,129 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
       role="dialog"
       aria-modal={!hidden}
       aria-hidden={hidden}
-      aria-label="New Memo"
+      aria-label="Add memo"
     >
       <input type="hidden" name="intent" value="create-memo" />
       <input type="hidden" name="lat" value={draft?.lat ?? ''} />
       <input type="hidden" name="lng" value={draft?.lng ?? ''} />
       <input type="hidden" name="location" value={draft?.locationName?.trim() ?? ''} />
       <input type="hidden" name="placeId" value={draft?.placeId ?? ''} />
-      {selectedTags.map(tag => (
+      {selectedTags.map((tag) => (
         <input key={tag} type="hidden" name="tags" value={tag} />
       ))}
 
-      <div className="form-sheet">
-
-        <div className="form-header">
-          <button type="button" className="form-close-btn" onClick={onClose} aria-label="Close">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="1" y1="1" x2="13" y2="13" />
-              <line x1="13" y1="1" x2="1" y2="13" />
-            </svg>
-          </button>
-          <h2 className="form-title">New Memo</h2>
-          <div className="form-header-spacer" />
-        </div>
-
-        <div className="form-scrollable">
-
-          <div className="form-media-section">
-            {mediaState === 'preview' && mediaPreview ? (
-              <div className="form-media-preview-wrap">
-                {mediaPreview.isVideo
-                  ? <video src={mediaPreview.url} className="form-media-img" controls playsInline />
-                  : <img src={mediaPreview.url} alt="Selected media" className="form-media-img" />
-                }
-                <button type="button" className="form-media-delete" onClick={handleRemoveMedia} aria-label="Delete media">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                    <path d="M10 11v6M14 11v6" />
-                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                  </svg>
-                </button>
-                <button type="button" className="form-media-edit" onClick={handleEditMedia} aria-label="Change media">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                  </svg>
-                </button>
+      <div className="form-sheet memo-form-sheet">
+        <div className="memo-form-scroll">
+          <header className="memo-form-header">
+            <div className="memo-form-hero-deco" aria-hidden="true">
+              <div className="memo-form-grid-gradient" />
+              <div className="memo-form-grid-pattern" />
+              <div className="memo-form-pixel-deco">
+                <span /><span /><span /><span />
               </div>
-            ) : (
-              <div
-                className="form-media-area"
-                onClick={handleMediaAreaClick}
-                role={mediaState === 'idle' ? 'button' : undefined}
-                tabIndex={mediaState === 'idle' ? 0 : undefined}
-                onKeyDown={mediaState === 'idle' ? e => e.key === 'Enter' && handleMediaAreaClick() : undefined}
-              >
-                {mediaState === 'idle' && (
-                  <div className="form-media-placeholder">
-                    <div className="form-media-btn">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                      </svg>
-                      <span>Media</span>
-                    </div>
-                  </div>
-                )}
-
-                {mediaState === 'zone' && (
-                  <div className="form-upload-zone" onClick={e => e.stopPropagation()}>
-                    <p className="form-upload-size">10 MB maximum media size</p>
-                    <button type="button" className="form-upload-btn" onClick={handleUploadClick}>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="16 16 12 12 8 16" />
-                        <line x1="12" y1="12" x2="12" y2="21" />
-                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-                      </svg>
-                      Upload media
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-            <span className="form-media-hint">max. 1 photo or video, up to 10 MB (optional)</span>
-          </div>
-
-          <input
-            ref={fileRef}
-            type="file"
-            name="media"
-            accept="image/*,video/*"
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-            aria-hidden="true"
-          />
-
-          {mediaError && (
-            <div className="auth-banner auth-banner--warning" role="alert">
-              {mediaError}
             </div>
-          )}
 
-          <div className="form-section">
-            <span className="form-label">What moment happened here?*</span>
-            <p className="form-sublabel">Share your memory of this place</p>
-            <textarea
-              className={`form-textarea${quoteFeedback?.tone === 'error' ? ' form-textarea--error' : ''}${quoteFeedback?.tone === 'success' ? ' form-textarea--success' : ''}`}
-              name="quote"
-              placeholder="I had the best kebab at 4AM here..."
-              maxLength={100}
-              value={quote}
-              onChange={e => setQuote(e.target.value)}
-              onBlur={() => setQuoteTouched(true)}
-              aria-label="Memory quote"
-              aria-invalid={quoteFeedback?.tone === 'error'}
-            />
-            <div className="form-field-meta">
+            <div className="memo-form-title-bar">
+              <button type="button" className="memo-form-back-btn" onClick={onClose} aria-label="Close">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <h2 className="memo-form-title">Add memo</h2>
+              <img className="memo-form-camera-deco" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
+            </div>
+          </header>
+
+          <div className="memo-form-media-zone">{renderMediaZone()}</div>
+
+          <div className="memo-form-body">
+          <section className="memo-form-section">
+            <div className="memo-form-section-heading">
+              <SectionTitle>Tell your story</SectionTitle>
+            </div>
+            <p className="memo-form-section-copy">Describe a moment that happened here</p>
+            <div className="memo-form-quote-wrap">
+              <textarea
+                className={`memo-form-textarea${quoteFeedback?.tone === 'error' ? ' memo-form-textarea--error' : ''}${quoteFeedback?.tone === 'success' ? ' memo-form-textarea--success' : ''}`}
+                name="quote"
+                placeholder="I had the best kebab at 4 am here..."
+                maxLength={QUOTE_MAX}
+                value={quote}
+                onChange={(e) => setQuote(e.target.value)}
+                onBlur={() => setQuoteTouched(true)}
+                aria-label="Memory quote"
+                aria-invalid={quoteFeedback?.tone === 'error'}
+              />
+              {quote.length > 0 && (
+                <p className="memo-form-char-counter" aria-live="polite">
+                  {quote.length}/{QUOTE_MAX} characters used
+                </p>
+              )}
+            </div>
+            <div className="memo-form-field-meta">
               {quoteFeedback && (
-                <p className={`form-field-feedback form-field-feedback--${quoteFeedback.tone}`} role="status">
-                  <span className="form-field-feedback-icon" aria-hidden="true">
-                    {quoteFeedback.tone === 'success' ? '✓' : '✕'}
-                  </span>
+                <p className={`memo-form-field-feedback memo-form-field-feedback--${quoteFeedback.tone}`} role="status">
                   {quoteFeedback.message}
                 </p>
               )}
-              <p className="form-char-hint">max. 100 characters</p>
+              <p className="memo-form-char-hint">max. {QUOTE_MAX} characters</p>
             </div>
-          </div>
+          </section>
 
-          <div className="form-section">
-            <span className="form-label">Tags*</span>
-            <p className="form-sublabel">Pick one or more</p>
-            <div className="form-tag-list" role="group" aria-label="Memo tags">
-              {MEMO_TAG_OPTIONS.map(tag => {
-                const selected = selectedTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    className={`form-tag-chip${selected ? ' form-tag-chip--selected' : ''}`}
-                    aria-pressed={selected}
-                    onClick={() => toggleTag(tag)}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+          <section className="memo-form-section">
+            <div className="memo-form-section-heading">
+              <SectionTitle>Tag your moment</SectionTitle>
             </div>
-          </div>
+            <p className="memo-form-section-copy">Help others find similar experiences</p>
+            <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
+              <div className="memo-form-tag-row">
+                {MEMO_TAG_OPTIONS.map((tag) => {
+                  const selected = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      className={`memo-form-tag-chip${selected ? ' memo-form-tag-chip--selected' : ''}`}
+                      aria-pressed={selected}
+                      onClick={() => toggleTag(tag)}
+                    >
+                      <MemoTagIcon tag={tag} />
+                      <span>{tag}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
 
-          <Link to={locationPickerHref} replace className="form-location-row">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-              <circle cx="12" cy="10" r="3" />
-            </svg>
-            <span className="form-location-copy">
-              <span className={`form-location-label${hasLocationName ? '' : ' form-location-label--muted'}`}>
-                {locationLabel}
-              </span>
-              {showLocationError && !hasLocation ? (
-                <p className="form-field-feedback form-field-feedback--error" role="status">
-                  <span className="form-field-feedback-icon" aria-hidden="true">✕</span>
-                  Choose a location before publishing.
-                </p>
-              ) : null}
-            </span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </Link>
+          <section className="memo-form-section memo-form-section--location">
+            <div className="memo-form-section-heading">
+              <SectionTitle>Add location</SectionTitle>
+            </div>
+            <p className="memo-form-section-copy">Help others find great locations</p>
+            <Link to={locationPickerHref} replace className="memo-form-location-card">
+              <div className="memo-form-location-icon" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
+              <div className="memo-form-location-copy">
+                <span className={`memo-form-location-label${hasLocationName ? '' : ' memo-form-location-label--muted'}`}>
+                  {locationLabel}
+                </span>
+                <span className="memo-form-location-sub">{locationHint}</span>
+                {showLocationError && !hasLocation ? (
+                  <span className="memo-form-location-error" role="status">
+                    Choose a location before publishing.
+                  </span>
+                ) : null}
+              </div>
+              <svg className="memo-form-location-chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="#1952FF" strokeWidth="2" aria-hidden="true">
+                <path d="M1 1l5 6-5 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          </section>
 
           {actionError === 'auth_required' && (
             <div className="auth-banner auth-banner--warning" role="alert">
@@ -307,21 +484,39 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             </div>
           )}
 
+          <div className="memo-form-footer">
+            <button
+              type="submit"
+              className={`memo-form-publish-btn${publishActive ? ' memo-form-publish-btn--active' : ''}`}
+              disabled={!canSubmit}
+            >
+              {isSubmitting ? 'Publishing…' : 'Publish'}
+            </button>
+          </div>
+          </div>
         </div>
 
-        <div className="form-footer">
-          <button
-            type="submit"
-            className={`form-publish-btn${publishActive ? ' form-publish-btn--active' : ''}`}
-            disabled={!canSubmit}
-          >
-            {isSubmitting ? 'Publishing…' : 'Publish'}
-          </button>
-        </div>
-
+        <input
+          ref={fileRef}
+          type="file"
+          name="media"
+          accept="image/*,video/*"
+          onChange={handleFileChange}
+          className="memo-form-file-input"
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+        <input
+          ref={cameraRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          onChange={handleCameraChange}
+          className="memo-form-file-input"
+          aria-hidden="true"
+          tabIndex={-1}
+        />
       </div>
     </fetcher.Form>
   );
 }
-
-//{/* disabled blocks submission without location error; active class shows visual state */}

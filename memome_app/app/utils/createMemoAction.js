@@ -18,6 +18,8 @@ export async function createMemoAction(request, serverContext = null) {
 
   const tags = formData.getAll('tags').map(String);
   const media = formData.get('media');
+  const mediaUrl = stripControlChars(formData.get('mediaUrl')).trim();
+  const mediaType = stripControlChars(formData.get('mediaType')).trim();
   const result = await createMemo(
     {
       quote: formData.get('quote'),
@@ -26,7 +28,9 @@ export async function createMemoAction(request, serverContext = null) {
       location: formData.get('location'),
       placeId: formData.get('placeId'),
       tags,
-      media: media instanceof File ? media : null,
+      media: media instanceof File && media.size > 0 ? media : null,
+      mediaUrl: mediaUrl || null,
+      mediaType: mediaType || null,
     },
     serverContext,
   );
