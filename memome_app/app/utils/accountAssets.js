@@ -14,6 +14,7 @@ export const accountAssets = {
   createdMemosIcon: `${HAS_ACCOUNT}/created_memos_icon.svg`,
   favouritesIcon: `${HAS_ACCOUNT}/favourites_icon.svg`,
   stickersIcon: `${HAS_ACCOUNT}/stickers_icon.svg`,
+  noFavouritesIllustration: `${HAS_ACCOUNT}/no_favourites_yet_illustration.svg`,
   emptyStar: asset(NO_ACCOUNT_ADD_MEMO, 'Star 23.svg'),
   emptyGroup1: asset(NO_ACCOUNT_ADD_MEMO, 'Group 2085666422.svg'),
   emptyGroup2: asset(NO_ACCOUNT_ADD_MEMO, 'Group 2085666423.svg'),

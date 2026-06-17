@@ -6,6 +6,7 @@ import ShareSheet from '../diary/ShareSheet';
 import DiscoverShareSuccess from '../discover/DiscoverShareSuccess';
 import CreatedMemoCard from './CreatedMemoCard';
 import CreatedMemoCategoryChips from './CreatedMemoCategoryChips';
+import CreatedMemosEmptyState from './CreatedMemosEmptyState';
 import CreatedMemosPageHeader from './CreatedMemosPageHeader';
 import { useMemoShare } from '../../hooks/useMemoShare';
 import { filterMapMemories } from '../../utils/mapFilters';
@@ -32,7 +33,7 @@ export default function CreatedMemosPage({ memos }) {
       <CreatedMemosPageHeader />
       <CreatedMemoCategoryChips value={category} onChange={setCategory} />
 
-      <div className="collection-scroll">
+      <div className="collection-scroll collection-scroll--created-memos">
         {filteredMemos.length > 0 ? (
           <div className="collection-memo-list collection-memo-list--created">
             {filteredMemos.map((memo) => (
@@ -43,12 +44,10 @@ export default function CreatedMemosPage({ memos }) {
               />
             ))}
           </div>
+        ) : memos.length === 0 ? (
+          <CreatedMemosEmptyState />
         ) : (
-          <p className="collection-empty">
-            {category === 'All'
-              ? "You haven't created any memos yet. Tap + on the map to share your first memory."
-              : 'No memos in this category yet.'}
-          </p>
+          <p className="collection-empty">No memos in this category yet.</p>
         )}
       </div>
 

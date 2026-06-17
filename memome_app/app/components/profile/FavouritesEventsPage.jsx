@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { EventCard } from '../discover/DiscoverCards';
 import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../../data/discoverContent';
 import CollectionSortChips from './CollectionSortChips';
+import FavouritesEmptyState from './FavouritesEmptyState';
 
 const EVENT_FILTER_OPTIONS = DISCOVER_CATEGORIES.map(category => ({
   id: category.id,
@@ -27,17 +28,17 @@ export default function FavouritesEventsPage({ favouriteEvents }) {
         onChange={setCategory}
       />
 
-      <div className="collection-scroll">
+      <div className="collection-scroll collection-scroll--favourites">
         {filteredItems.length > 0 ? (
           <div className="collection-discover-list">
             {filteredItems.map(item => (
               <EventCard key={item.id} item={item} layout="list" />
             ))}
           </div>
+        ) : favouriteEvents.length === 0 ? (
+          <FavouritesEmptyState kind="events" />
         ) : (
-          <p className="collection-empty">
-            No favourite events yet. Save events from Discover to see them here.
-          </p>
+          <p className="collection-empty">No events in this category yet.</p>
         )}
       </div>
     </>
