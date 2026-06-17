@@ -19,7 +19,11 @@ function MicIcon({ className = '' }) {
   );
 }
 
-export default function SearchListeningView({ error }) {
+export default function SearchListeningView({
+  error,
+  title = 'Listening...',
+  copy = 'Searching by place name, event name, memo or address.',
+}) {
   return (
     <section className="search-listening" aria-live="polite">
       <div className="search-listening-visual" aria-hidden="true">
@@ -32,10 +36,8 @@ export default function SearchListeningView({ error }) {
         </div>
       </div>
 
-      <h2 className="search-listening-title">Listening...</h2>
-      <p className="search-listening-copy">
-        Searching by place name, event name, memo or address.
-      </p>
+      <h2 className="search-listening-title">{title}</h2>
+      <p className="search-listening-copy">{copy}</p>
 
       {error && (
         <p className="search-listening-error" role="alert">

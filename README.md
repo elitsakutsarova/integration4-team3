@@ -172,8 +172,8 @@ After our consult, I changed a lot of things in test5 like:
 ## Test 12 -> Update the "Add a memo" form
 
 - Re-design the form ✔️
-- Re-design the “Choose location” page
-- Check if the microphone feature can be implemented -> if yes, add it.
+- Re-design the “Choose location” page ✔️
+- Add the microphone feature ✔️
 - Implement special screen for “no-results” on search (location) when there are no results if it makes sense for this screen (cos map/locations)
 - Show success message when an user successfully posts a memo
 - Add a filter against bad words in the description
