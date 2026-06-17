@@ -32,7 +32,9 @@ export default function FavouritesLayout() {
         ))}
       </div>
 
-      <Outlet />
+      <div className="collection-body collection-body--favourites">
+        <Outlet />
+      </div>
 
       <BottomNav />
     </div>

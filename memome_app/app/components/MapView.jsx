@@ -20,6 +20,7 @@ import { readDraftMemo } from '../utils/memoDraft';
 import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
 import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
+import { resolveNavigableLocationHrefs } from '../utils/navigableLocation';
 import {
   buildEventMarker,
   placePendingPin,
@@ -54,7 +55,7 @@ function dbMemoFingerprint(savedMemos) {
     .join(',');
 }
 
-export default function MapView({ savedMemos = [], active = true, eventLocationHrefs = {} }) {
+export default function MapView({ savedMemos = [], active = true }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const draftMemo = readDraftMemo(searchParams);
@@ -89,6 +90,8 @@ export default function MapView({ savedMemos = [], active = true, eventLocationH
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [eventLocationHrefs, setEventLocationHrefs] = useState({});
+  const eventHrefsFetchRef = useRef(false);
 
   const filterOptions = { category: activeCategory, query: '' };
 
@@ -203,10 +206,19 @@ export default function MapView({ savedMemos = [], active = true, eventLocationH
   }, [savedMemos, memoFingerprint]);
 
   useEffect(() => {
-    if (revalidator.state !== 'idle') return;
-    syncMapPins();
-  }, [revalidator.state, filterFingerprint, syncMapPins]);
+    if (!active || eventHrefsFetchRef.current) return;
+    eventHrefsFetchRef.current = true;
 
+    let cancelled = false;
+    resolveNavigableLocationHrefs(INITIAL_EVENTS).then((hrefMap) => {
+      if (cancelled) return;
+      setEventLocationHrefs(Object.fromEntries(hrefMap));
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [active]);
 
   useEffect(() => {
     const L = leafletRef.current;
@@ -237,63 +249,14 @@ export default function MapView({ savedMemos = [], active = true, eventLocationH
   }, [active, activeCategory, eventLocationHrefs]);
 
   useEffect(() => {
-    const dbMemos = (savedMemos ?? []).filter(m => m.fromDb);
-    const count = dbMemos.length;
+    if (revalidator.state !== 'idle') return;
+    syncMapPins();
+  }, [revalidator.state, filterFingerprint, syncMapPins]);
 
-    if (prevDbMemoCountRef.current === null) {
-      prevDbMemoCountRef.current = count;
-      return;
-    }
-
-    const map = mapRef.current;
-    if (map && count > prevDbMemoCountRef.current && dbMemos[0]?.ll) {
-      map.setView(dbMemos[0].ll, Math.max(map.getZoom(), 15), { animate: true });
-    }
-    prevDbMemoCountRef.current = count;
-  }, [savedMemos]);
-
-  useEffect(() => {
-    if (draftMemo) return;
-    if (!pendingMarkerRef.current) return;
-    pendingMarkerRef.current.remove();
-    pendingMarkerRef.current = null;
-  }, [draftMemo]);
-
-  useEffect(() => {
-    if (!active || !draftMemo) return;
-
-    const L = leafletRef.current;
-    const map = mapRef.current;
-    if (!L || !map) return;
-
-    const latlng = { lat: draftMemo.pinLat, lng: draftMemo.pinLng };
-    placePendingPin(L, map, latlng, pendingMarkerRef, suppressClickRef, openFormRef);
-    map.setView([latlng.lat, latlng.lng], Math.max(map.getZoom(), 13), { animate: false });
-  }, [active, draftMemo?.lat, draftMemo?.lng, draftMemo?.pinLat, draftMemo?.pinLng]);
-
-  useEffect(() => {
-    if (fetcher.state === 'submitting') {
-      handledPublishRef.current = false;
-      return;
-    }
-    if (fetcher.state !== 'idle' || handledPublishRef.current) return;
-
-    if (fetcher.data?.success) {
-      handledPublishRef.current = true;
-
-      if (fetcher.data.memo) {
-        pendingMemoRef.current = fetcher.data.memo;
-        prependCreatedMemo(fetcher.data.memo);
-        syncMapPins();
-      }
-
-      setSearchParams({}, { replace: true });
-      revalidator.revalidate();
-      void refreshCreatedMemos({ silent: true });
-    }
-  }, [fetcher.state, fetcher.data, revalidator, savedMemos, setSearchParams, syncMapPins, prependCreatedMemo, refreshCreatedMemos]);
+  const mapContainerRef = useRef(null);
 
   const attachMapContainer = useCallback((node) => {
+    mapContainerRef.current = node;
     if (!node) {
       initTokenRef.current += 1;
       if (mapRef.current) {
@@ -306,7 +269,13 @@ export default function MapView({ savedMemos = [], active = true, eventLocationH
       }
       return;
     }
-    if (mapRef.current) return;
+  }, []);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const node = mapContainerRef.current;
+    if (!node || mapRef.current) return;
 
     const token = initTokenRef.current;
 
@@ -367,7 +336,64 @@ export default function MapView({ savedMemos = [], active = true, eventLocationH
     }
 
     void init();
-  }, []);
+  }, [active]);
+
+  useEffect(() => {
+    const dbMemos = (savedMemos ?? []).filter(m => m.fromDb);
+    const count = dbMemos.length;
+
+    if (prevDbMemoCountRef.current === null) {
+      prevDbMemoCountRef.current = count;
+      return;
+    }
+
+    const map = mapRef.current;
+    if (map && count > prevDbMemoCountRef.current && dbMemos[0]?.ll) {
+      map.setView(dbMemos[0].ll, Math.max(map.getZoom(), 15), { animate: true });
+    }
+    prevDbMemoCountRef.current = count;
+  }, [savedMemos]);
+
+  useEffect(() => {
+    if (draftMemo) return;
+    if (!pendingMarkerRef.current) return;
+    pendingMarkerRef.current.remove();
+    pendingMarkerRef.current = null;
+  }, [draftMemo]);
+
+  useEffect(() => {
+    if (!active || !draftMemo) return;
+
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+
+    const latlng = { lat: draftMemo.pinLat, lng: draftMemo.pinLng };
+    placePendingPin(L, map, latlng, pendingMarkerRef, suppressClickRef, openFormRef);
+    map.setView([latlng.lat, latlng.lng], Math.max(map.getZoom(), 13), { animate: false });
+  }, [active, draftMemo?.lat, draftMemo?.lng, draftMemo?.pinLat, draftMemo?.pinLng]);
+
+  useEffect(() => {
+    if (fetcher.state === 'submitting') {
+      handledPublishRef.current = false;
+      return;
+    }
+    if (fetcher.state !== 'idle' || handledPublishRef.current) return;
+
+    if (fetcher.data?.success) {
+      handledPublishRef.current = true;
+
+      if (fetcher.data.memo) {
+        pendingMemoRef.current = fetcher.data.memo;
+        prependCreatedMemo(fetcher.data.memo);
+        syncMapPins();
+      }
+
+      setSearchParams({}, { replace: true });
+      revalidator.revalidate();
+      void refreshCreatedMemos({ silent: true });
+    }
+  }, [fetcher.state, fetcher.data, revalidator, savedMemos, setSearchParams, syncMapPins, prependCreatedMemo, refreshCreatedMemos]);
 
   function handleAddBtnClick() {
     if (isGuestRef.current) {

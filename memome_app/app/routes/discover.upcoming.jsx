@@ -21,6 +21,22 @@ export async function loader() {
   };
 }
 
+export async function clientLoader() {
+  return {
+    title: 'Upcoming',
+    highlightWidth: '116px',
+    decoration: 'upcoming',
+    items: UPCOMING_ALL,
+    itemType: 'event',
+  };
+}
+
+clientLoader.hydrate = true;
+
+export function shouldRevalidate() {
+  return false;
+}
+
 export default function DiscoverUpcoming() {
   const listProps = useLoaderData();
   return <DiscoverListPage {...listProps} />;

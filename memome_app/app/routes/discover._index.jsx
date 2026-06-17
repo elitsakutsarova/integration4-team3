@@ -23,6 +23,20 @@ export async function loader() {
   };
 }
 
+export async function clientLoader() {
+  return {
+    happeningNow: HAPPENING_NOW,
+    upcoming: UPCOMING,
+    places: PLACES_WORTH_MEMO,
+  };
+}
+
+clientLoader.hydrate = true;
+
+export function shouldRevalidate() {
+  return false;
+}
+
 export default function DiscoverIndex() {
   const { happeningNow, upcoming, places } = useLoaderData();
   return (

@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { Link, useLoaderData, useSearchParams } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';
 import GuestAuthCta from '../components/GuestAuthCta';
+import AchievementStickerTile from '../components/profile/AchievementStickerTile';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
-import { useCreatedMemos } from '../context/CreatedMemosContext';
-import { useDiscoverFaves } from '../context/DiscoverFavesContext';
-import { useSavedMemos } from '../context/SavedMemosContext';
-import { ACHIEVEMENTS, getAchievementStates } from '../data/achievementStickers';
+import { ACHIEVEMENT_TOTAL, getAchievementStates } from '../data/achievementStickers';
+import { useOwnedStickerCount } from '../hooks/useOwnedStickerCount';
 import { paths } from '../utils/appPaths';
 import {
   fetchCollectedStickers,
@@ -48,11 +47,24 @@ function BackIcon() {
   );
 }
 
+function StickersCountBadge({ tab, totalCount, achievementUnlocked }) {
+  const label = tab === 'achievements'
+    ? `${achievementUnlocked}/${ACHIEVEMENT_TOTAL}`
+    : `${totalCount} sticker${totalCount === 1 ? '' : 's'}`;
+
+  return (
+    <div className="stickers-count-row">
+      <p className="stickers-count-badge">{label}</p>
+    </div>
+  );
+}
+
 function GuestStickerCollection() {
   const { guestCatalog: catalog, guestCollected: collected } = useLoaderData();
   const [tab, setTab] = useState('collection');
 
   const collectedIds = new Set(collected.map(sticker => sticker.id));
+  const guestAchievements = getAchievementStates(null, collected.length);
 
   return (
     <div className="stickers-page stickers-page--guest">
@@ -85,6 +97,12 @@ function GuestStickerCollection() {
         </button>
       </div>
 
+      <StickersCountBadge
+        tab={tab}
+        totalCount={collectedIds.size}
+        achievementUnlocked={0}
+      />
+
       <div className="stickers-scroll">
         <div className="stickers-content" role="tabpanel">
           {tab === 'collection' && (
@@ -106,16 +124,8 @@ function GuestStickerCollection() {
 
           {tab === 'achievements' && (
             <div className="stickers-grid stickers-grid--achievements">
-              {ACHIEVEMENTS.map(item => (
-                <div
-                  key={item.id}
-                  className="stickers-tile stickers-tile--achievement stickers-tile--locked"
-                >
-                  <div className="stickers-tile-art">
-                    <StickerVisual src={item.src} emoji={item.emoji} label={item.label} />
-                  </div>
-                  <span className="stickers-achievement-label">{item.label}</span>
-                </div>
+              {guestAchievements.map(item => (
+                <AchievementStickerTile key={item.id} item={item} />
               ))}
             </div>
           )}
@@ -136,13 +146,7 @@ export default function StickersGallery() {
   const { user } = useAuth();
   const collected = useCollectedStickers();
   const loading = useCollectedStickersLoading();
-  const { createdCount } = useCreatedMemos();
-  const { memosCount: savedMemosCount } = useSavedMemos();
-  const { favesCount: discoverFavesCount } = useDiscoverFaves();
-  const achievements = getAchievementStates(user, collected.length, {
-    memoCount: createdCount,
-    favesCount: savedMemosCount + discoverFavesCount,
-  });
+  const { totalCount, achievementUnlocked, achievements } = useOwnedStickerCount();
 
   if (!user) {
     return <GuestStickerCollection />;
@@ -183,48 +187,48 @@ export default function StickersGallery() {
           </button>
         </div>
 
-        <div className="stickers-content" role="tabpanel">
-          {tab === 'collection' && (
-            <>
-              {loading ? (
-                <p className="stickers-empty">Loading…</p>
-              ) : collected.length === 0 ? (
-                <div className="stickers-empty-block">
-                  <p className="stickers-empty">No stickers yet.</p>
-                  <p className="stickers-empty-hint">
-                    Scan the MemMe collect QR to add random stickers to your collection.
-                  </p>
-                  <Link to={paths.demoStickers} className="stickers-empty-link">
-                    Open demo sticker QRs
-                  </Link>
-                </div>
-              ) : (
-                <div className="stickers-grid stickers-grid--collection">
-                  {collected.map(sticker => (
-                    <div key={sticker.id} className="stickers-tile stickers-tile--collection">
-                      <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
+        <StickersCountBadge
+          tab={tab}
+          totalCount={totalCount}
+          achievementUnlocked={achievementUnlocked}
+        />
 
-          {tab === 'achievements' && (
-            <div className="stickers-grid stickers-grid--achievements">
-              {achievements.map(item => (
-                <div
-                  key={item.id}
-                  className={`stickers-tile stickers-tile--achievement${item.unlocked ? '' : ' stickers-tile--locked'}`}
-                >
-                  <div className="stickers-tile-art">
-                    <StickerVisual src={item.src} emoji={item.emoji} label={item.label} />
+        <div className="stickers-scroll">
+          <div className="stickers-content" role="tabpanel">
+            {tab === 'collection' && (
+              <>
+                {loading ? (
+                  <p className="stickers-empty">Loading…</p>
+                ) : collected.length === 0 ? (
+                  <div className="stickers-empty-block">
+                    <p className="stickers-empty">No stickers yet.</p>
+                    <p className="stickers-empty-hint">
+                      Scan the MemMe collect QR to add random stickers to your collection.
+                    </p>
+                    <Link to={paths.demoStickers} className="stickers-empty-link">
+                      Open demo sticker QRs
+                    </Link>
                   </div>
-                  <span className="stickers-achievement-label">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
+                ) : (
+                  <div className="stickers-grid stickers-grid--collection">
+                    {collected.map(sticker => (
+                      <div key={sticker.id} className="stickers-tile stickers-tile--collection">
+                        <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {tab === 'achievements' && (
+              <div className="stickers-grid stickers-grid--achievements">
+                {achievements.map(item => (
+                  <AchievementStickerTile key={item.id} item={item} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
   );

@@ -5,9 +5,11 @@ import { useEffect } from 'react';
 import { Link, redirect, useLoaderData, useNavigate, useRevalidator } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
+import { useCollectedStickersActions } from '../context/CollectedStickersContext';
 import {
   COLLECTION_COMPLETE,
   claimRandomSticker,
+  hydrateCollectResult,
 } from '../utils/collectibleStore';
 import {
   getScanKey,
@@ -16,6 +18,7 @@ import {
 } from '../utils/collectClaimCache';
 import * as authStore from '../utils/authStore';
 import { collectScanPath, paths } from '../utils/appPaths';
+import { markPhysicalStickerScanned } from '../utils/achievementProgressStore';
 import { writeStickerReveal } from '../utils/stickerReveal';
 
 export function meta() {
@@ -33,14 +36,23 @@ export async function clientLoader({ request }) {
   const scan = getScanKey(request);
   const cached = readCollectCache(scan);
   if (cached) {
+    const result = await hydrateCollectResult(cached);
+    writeCollectCache(scan, result);
+    if (result.sticker) {
+      markPhysicalStickerScanned(session?.id ?? 'guest');
+    }
     // Cached = this scan key was already processed in this browser session.
     // Guests always go to the map; don't re-show the popup (sticker already revealed).
     if (isGuestSession(session)) throw redirect(paths.home);
-    return { scan, result: cached };
+    return { scan, result };
   }
 
-  const result = await claimRandomSticker(session);
+  const result = await hydrateCollectResult(await claimRandomSticker(session));
   writeCollectCache(scan, result);
+
+  if (result.sticker) {
+    markPhysicalStickerScanned(session?.id ?? 'guest');
+  }
 
   if (isGuestSession(session)) {
     // Fresh claim — write the reveal popup only if a new sticker was earned.
@@ -112,12 +124,14 @@ export default function CollectSticker() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { revalidate } = useRevalidator();
+  const { addCollectedSticker } = useCollectedStickersActions();
   const display = resolveClaimDisplay(result, Boolean(user));
 
   useEffect(() => {
+    if (!result.sticker) return;
+    addCollectedSticker(result.sticker);
     if (shouldRevalidateRoot) revalidate();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldRevalidateRoot]);
+  }, [result.sticker, shouldRevalidateRoot, addCollectedSticker, revalidate]);
 
   function handleScanAgain() {
     navigate(collectScanPath(Date.now()));

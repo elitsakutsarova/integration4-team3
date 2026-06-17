@@ -22,6 +22,23 @@ export async function loader() {
   };
 }
 
+export async function clientLoader() {
+  return {
+    title: 'Places worth a memo',
+    highlightWidth: '229px',
+    underlined: true,
+    decoration: 'places',
+    items: PLACES_WORTH_MEMO_ALL,
+    itemType: 'place',
+  };
+}
+
+clientLoader.hydrate = true;
+
+export function shouldRevalidate() {
+  return false;
+}
+
 export default function DiscoverPlaces() {
   const listProps = useLoaderData();
   return <DiscoverListPage {...listProps} />;

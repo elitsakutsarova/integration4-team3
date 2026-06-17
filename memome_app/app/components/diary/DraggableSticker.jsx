@@ -216,6 +216,7 @@ export default function DraggableSticker({
   };
 
   const def = getStickerDef(sticker.stickerId, stickerCatalog);
+  if (!def) return null;
 
   return (
     <div
@@ -228,9 +229,9 @@ export default function DraggableSticker({
       data-y={sticker.y}
     >
       <StickerVisual
-        src={sticker.src ?? def?.src}
-        emoji={sticker.emoji ?? def?.emoji}
-        label={def?.label}
+        src={def.src}
+        emoji={def.emoji}
+        label={def.label}
       />
     </div>
   );

@@ -21,6 +21,22 @@ export async function loader() {
   };
 }
 
+export async function clientLoader() {
+  return {
+    title: 'Happening now',
+    highlightWidth: '172px',
+    decoration: 'live',
+    items: HAPPENING_NOW_ALL,
+    itemType: 'event',
+  };
+}
+
+clientLoader.hydrate = true;
+
+export function shouldRevalidate() {
+  return false;
+}
+
 export default function DiscoverHappeningNow() {
   const listProps = useLoaderData();
   return <DiscoverListPage {...listProps} />;

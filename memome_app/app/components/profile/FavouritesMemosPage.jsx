@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { MEMO_TAG_OPTIONS } from '../../data/memoTags';
 import CollectionMemoCard from './CollectionMemoCard';
 import CollectionSortChips from './CollectionSortChips';
+import FavouritesEmptyState from './FavouritesEmptyState';
 
 const MEMO_FILTER_OPTIONS = [
   { id: 'all', label: 'All' },
@@ -28,17 +29,17 @@ export default function FavouritesMemosPage({ favouriteMemos }) {
         onChange={setMemoFilter}
       />
 
-      <div className="collection-scroll">
+      <div className="collection-scroll collection-scroll--favourites">
         {filteredMemos.length > 0 ? (
           <div className="collection-memo-list">
             {filteredMemos.map(memo => (
-              <CollectionMemoCard key={memo.id} memo={memo} variant="favourite" />
+              <CollectionMemoCard key={memo.id} memo={memo} />
             ))}
           </div>
+        ) : favouriteMemos.length === 0 ? (
+          <FavouritesEmptyState kind="memos" />
         ) : (
-          <p className="collection-empty">
-            No favourite memos yet. Tap the heart on a map memo to save it here.
-          </p>
+          <p className="collection-empty">No memos in this category yet.</p>
         )}
       </div>
     </>

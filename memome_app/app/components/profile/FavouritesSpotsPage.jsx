@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { PlaceCard } from '../discover/DiscoverCards';
 import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../../data/discoverContent';
 import CollectionSortChips from './CollectionSortChips';
+import FavouritesEmptyState from './FavouritesEmptyState';
 
 const SPOT_FILTER_OPTIONS = DISCOVER_CATEGORIES.map(category => ({
   id: category.id,
@@ -27,17 +28,17 @@ export default function FavouritesSpotsPage({ favouritePlaces }) {
         onChange={setCategory}
       />
 
-      <div className="collection-scroll">
+      <div className="collection-scroll collection-scroll--favourites">
         {filteredItems.length > 0 ? (
           <div className="collection-discover-list collection-discover-list--places">
             {filteredItems.map(item => (
               <PlaceCard key={item.id} item={item} layout="list" />
             ))}
           </div>
+        ) : favouritePlaces.length === 0 ? (
+          <FavouritesEmptyState kind="spots" />
         ) : (
-          <p className="collection-empty">
-            No favourite spots yet. Save places from Discover to see them here.
-          </p>
+          <p className="collection-empty">No spots in this category yet.</p>
         )}
       </div>
     </>

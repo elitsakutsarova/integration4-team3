@@ -1,5 +1,25 @@
 [
-  { "id": "digital-sticker-01", "src": "/digitalStickers/digitalSticker1.png", "label": "Antwerp Collectible I" },
-  { "id": "digital-sticker-02", "src": "/digitalStickers/digitalSticker2.png", "label": "Antwerp Collectible II" },
-  { "id": "digital-sticker-03", "src": "/digitalStickers/digitalSticker3.png", "label": "Antwerp Collectible III" }
+  { "id": "digital-sticker-01", "src": "/digitalStickers/sticker1.svg", "label": "Collectible 1" },
+  { "id": "digital-sticker-02", "src": "/digitalStickers/sticker2.svg", "label": "Collectible 2" },
+  { "id": "digital-sticker-03", "src": "/digitalStickers/sticker3.svg", "label": "Collectible 3" },
+  { "id": "digital-sticker-04", "src": "/digitalStickers/sticker4.svg", "label": "Collectible 4" },
+  { "id": "digital-sticker-05", "src": "/digitalStickers/sticker5.svg", "label": "Collectible 5" },
+  { "id": "digital-sticker-06", "src": "/digitalStickers/sticker6.svg", "label": "Collectible 6" },
+  { "id": "digital-sticker-07", "src": "/digitalStickers/sticker7.svg", "label": "Collectible 7" },
+  { "id": "digital-sticker-08", "src": "/digitalStickers/sticker8.svg", "label": "Collectible 8" },
+  { "id": "digital-sticker-09", "src": "/digitalStickers/sticker9.svg", "label": "Collectible 9" },
+  { "id": "digital-sticker-10", "src": "/digitalStickers/sticker10.svg", "label": "Collectible 10" },
+  { "id": "digital-sticker-11", "src": "/digitalStickers/sticker11.svg", "label": "Collectible 11" },
+  { "id": "digital-sticker-12", "src": "/digitalStickers/sticker12.svg", "label": "Collectible 12" },
+  { "id": "digital-sticker-13", "src": "/digitalStickers/sticker13.svg", "label": "Collectible 13" },
+  { "id": "digital-sticker-14", "src": "/digitalStickers/sticker14.svg", "label": "Collectible 14" },
+  { "id": "digital-sticker-15", "src": "/digitalStickers/sticker15.svg", "label": "Collectible 15" },
+  { "id": "digital-sticker-16", "src": "/digitalStickers/sticker16.svg", "label": "Collectible 16" },
+  { "id": "digital-sticker-17", "src": "/digitalStickers/sticker17.svg", "label": "Collectible 17" },
+  { "id": "digital-sticker-18", "src": "/digitalStickers/sticker18.svg", "label": "Collectible 18" },
+  { "id": "digital-sticker-19", "src": "/digitalStickers/sticker21.svg", "label": "Collectible 21" },
+  { "id": "digital-sticker-20", "src": "/digitalStickers/sticker22.svg", "label": "Collectible 22" },
+  { "id": "digital-sticker-21", "src": "/digitalStickers/sticker23.svg", "label": "Collectible 23" },
+  { "id": "digital-sticker-22", "src": "/digitalStickers/sticker24.svg", "label": "Collectible 24" },
+  { "id": "digital-sticker-23", "src": "/digitalStickers/sticker25.svg", "label": "Collectible 25" }
 ]
