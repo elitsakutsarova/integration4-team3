@@ -47,15 +47,26 @@ export function updateCustomJournal(userId, journalId, updates) {
   return updated;
 }
 
-export function deleteCustomJournal(userId, journalId) {
+export function deleteCustomJournal(userId, journalId, memoIds = []) {
   if (!userId || !journalId) return false;
 
   const all = readAll();
   const rows = Array.isArray(all[userId]) ? all[userId] : [];
-  const next = rows.filter((journal) => journal.id !== journalId);
-  if (next.length === rows.length) return false;
+  const tombstone = {
+    id: journalId,
+    deleted: true,
+    memoIds: memoIds.map(String),
+    deletedAt: new Date().toISOString(),
+  };
 
-  all[userId] = next;
+  const index = rows.findIndex((journal) => journal.id === journalId);
+  if (index >= 0) {
+    rows[index] = tombstone;
+  } else {
+    rows.unshift(tombstone);
+  }
+
+  all[userId] = rows;
   writeAll(all);
   return true;
 }

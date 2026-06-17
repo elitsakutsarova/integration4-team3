@@ -15,7 +15,7 @@ import {
 import CreateJournalWarningModal from './CreateJournalWarningModal';
 import { CalendarIcon, JournalMemoMiniCard } from './JournalMemoPickCard';
 
-const CREATE_FLOW_PATHS = new Set(['/journals/create', '/journals/create/memos']);
+const CREATE_FLOW_PATHS = new Set([paths.journalsCreate, paths.journalsCreateMemos]);
 
 function DateField({ id, value, onChange, hasError, max }) {
   const inputRef = useRef(null);

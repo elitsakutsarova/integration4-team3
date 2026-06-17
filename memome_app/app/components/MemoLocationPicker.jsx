@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher } from 'react-router';
 import { paths } from '../utils/appPaths';
+import { useDebounceCallback } from '../hooks/useDebounceCallback';
 import {
   ANTWERP_BOUNDS_LEAFLET,
   createCustomPlace,
@@ -64,16 +65,9 @@ export default function MemoLocationPicker({
   const searchError = query.trim().length >= 2 ? searchFetcher.data?.error : null;
   const isSearching = searchFetcher.state !== 'idle' && query.trim().length >= 2;
 
-  useEffect(() => {
-    const q = query.trim();
-    if (q.length < 2) return undefined;
-
-    const timer = setTimeout(() => {
-      searchFetcher.load(`${paths.apiLocationSearch}?q=${encodeURIComponent(q)}`);
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => clearTimeout(timer);
-  }, [query, searchFetcher.load]);
+  const triggerSearch = useDebounceCallback((q) => {
+    searchFetcher.load(`${paths.apiLocationSearch}?q=${encodeURIComponent(q)}`);
+  }, SEARCH_DEBOUNCE_MS);
 
   const suggestions = searchPlaces;
   const canConfirm = Boolean(selected?.name && Number.isFinite(selected.lat) && Number.isFinite(selected.lng));
@@ -258,7 +252,12 @@ export default function MemoLocationPicker({
             className="loc-picker-search"
             placeholder="Where did your memory happen?"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => {
+              const value = e.target.value;
+              setQuery(value);
+              const trimmed = value.trim();
+              if (trimmed.length >= 2) triggerSearch(trimmed);
+            }}
             aria-label="Search location"
             autoComplete="off"
           />

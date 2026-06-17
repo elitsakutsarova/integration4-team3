@@ -266,14 +266,16 @@ export default function EditJournalPage({ journal }) {
     const journalId = draft.journalId || journal.id;
     preDeleteDraftRef.current = null;
 
-    if (!journal.isCustom) {
-      saveCustomJournal(buildPersistedJournalRecord(journal, draft));
-    }
+    const memoIds = draft.selectedMemoIds.length > 0
+      ? draft.selectedMemoIds
+      : (journal.memoryIds ?? []);
 
-    removeCustomJournal(journalId);
+    removeCustomJournal(journalId, memoIds);
     isSubmittingRef.current = true;
+    isDiscardingRef.current = true;
     clearEditJournalDraft();
     resetDraft();
+    loadedJournalIdRef.current = '';
     setDeleteWarningOpen(false);
     navigate(paths.journals);
   }

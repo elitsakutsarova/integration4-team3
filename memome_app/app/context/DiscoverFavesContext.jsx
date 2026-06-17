@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useAuth } from './AuthContext';
@@ -25,29 +26,25 @@ function syncFavesCount(count) {
   patchAuthUserCollections({ faves: count });
 }
 
-export function DiscoverFavesProvider({ children }) {
+export function DiscoverFavesProvider({ initialFaves = [], children }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
-  const [faves, setFaves] = useState([]);
-  const [ready, setReady] = useState(false);
+  const [faves, setFaves] = useState(initialFaves);
   const [savedNotice, setSavedNotice] = useState(null);
+  const mountedRef = useRef(false);
 
+  // Initial data comes from the root clientLoader (no fetch on mount).
+  // Re-fetch only when userId changes after mount — handles login/logout
+  // transitions that don't trigger a full page reload.
   useEffect(() => {
-    let cancelled = false;
-    setReady(false);
-
-    async function loadFaves() {
-      const next = await fetchDiscoverFaves(userId);
-      if (cancelled) return;
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    fetchDiscoverFaves(userId).then(next => {
       setFaves(next);
       if (userId) syncFavesCount(next.length);
-      setReady(true);
-    }
-
-    void loadFaves();
-    return () => {
-      cancelled = true;
-    };
+    });
   }, [userId]);
 
   const isFaved = useCallback(
@@ -110,7 +107,7 @@ export function DiscoverFavesProvider({ children }) {
     () => ({
       faves,
       favesCount: faves.length,
-      ready,
+      ready: true,
       isFaved,
       saveFave,
       removeFave,
@@ -118,7 +115,7 @@ export function DiscoverFavesProvider({ children }) {
       savedNotice,
       dismissSavedNotice,
     }),
-    [dismissSavedNotice, faves, isFaved, ready, removeFave, saveFave, savedNotice, toggleFave],
+    [dismissSavedNotice, faves, isFaved, removeFave, saveFave, savedNotice, toggleFave],
   );
 
   return (

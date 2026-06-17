@@ -1,6 +1,7 @@
 // route for the memo archive page at a location
 
 import { useLoaderData } from 'react-router';
+import AuthLoading from '../components/auth/AuthLoading';
 import MemoArchivePage from '../components/memos/MemoArchivePage';
 import { loadLocationMemosClient } from '../utils/locationPage';
 
@@ -17,6 +18,14 @@ export async function clientLoader(args) {
 }
 
 clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
+
+export function shouldRevalidate({ currentParams, nextParams }) {
+  return currentParams.osmType !== nextParams.osmType || currentParams.osmId !== nextParams.osmId;
+}
 
 export default function LocationMemoArchiveRoute() {
   const { spotTitle, locationName, memos, memoCount } = useLoaderData();

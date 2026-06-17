@@ -19,6 +19,10 @@ export function clientLoader({ request }) {
 
 clientLoader.hydrate = true;
 
+export function HydrateFallback() {
+  return null;
+}
+
 export default function CatchallRoute() {
   return null;
 }

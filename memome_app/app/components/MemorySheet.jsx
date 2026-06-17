@@ -1,10 +1,10 @@
 // memory sheet component for the map view
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useFetcher } from 'react-router';
 import { useSavedMemos } from '../context/SavedMemosContext';
-import { resolveNavigableLocationHref } from '../utils/navigableLocation';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../utils/googleMaps';
+import { paths } from '../utils/appPaths';
 
 function MemoFavoriteButton({ memoId, label }) {
   const { isSaved, toggleMemo } = useSavedMemos();
@@ -53,32 +53,26 @@ function measurePlacement(anchor, sheet) {
 }
 
 export default function MemorySheet({ pin, anchor, onClose }) {
-  const navigate = useNavigate();
   const sheetRef = useRef(null);
-  const [locationHref, setLocationHref] = useState(null);
   const [placement, setPlacement] = useState(null);
+  const fetcher = useFetcher({ key: `location-href-${pin?.id}` });
 
+  const locationHref = fetcher.data?.href ?? null;
+
+  // Trigger the href lookup whenever the selected pin changes.
+  // The keyed fetcher caches results per pin.id, so revisiting the same pin is instant.
   useEffect(() => {
-    if (!pin) {
-      setLocationHref(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    void resolveNavigableLocationHref({
-      placeId: pin.placeId,
-      lat: pin.ll?.[0],
-      lng: pin.ll?.[1],
-      name: pin.location,
-    }).then(href => {
-      if (!cancelled) setLocationHref(href);
+    if (!pin || fetcher.state !== 'idle' || fetcher.data !== undefined) return;
+    const params = new URLSearchParams({
+      placeId: pin.placeId ?? '',
+      lat: String(pin.ll?.[0] ?? ''),
+      lng: String(pin.ll?.[1] ?? ''),
+      name: pin.location ?? '',
     });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [pin]);
+    fetcher.load(`${paths.apiLocationHref}?${params}`);
+    // fetcher is intentionally omitted — it is stable and its state is read inside
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pin?.id]);
 
   useLayoutEffect(() => {
     if (!anchor || !sheetRef.current) {
@@ -101,14 +95,6 @@ export default function MemorySheet({ pin, anchor, onClose }) {
       return;
     }
     openGoogleMapsDirections(pin.ll[0], pin.ll[1], event);
-  }
-
-  function handleLocationClick(event) {
-    event.stopPropagation();
-    if (!locationHref) return;
-
-    onClose();
-    if (locationHref) navigate(locationHref);
   }
 
   const sheetStyle = placement
@@ -179,9 +165,13 @@ export default function MemorySheet({ pin, anchor, onClose }) {
                 <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
               </svg>
               {locationHref ? (
-                <button type="button" className="memory-sheet-location-name" onClick={handleLocationClick}>
+                <Link
+                  to={locationHref}
+                  className="memory-sheet-location-name"
+                  onClick={onClose}
+                >
                   {pin.location}
-                </button>
+                </Link>
               ) : (
                 <span className="memory-sheet-location-name memory-sheet-location-name--plain">
                   {pin.location}

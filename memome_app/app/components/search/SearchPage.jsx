@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
+import { useDebounceCallback } from '../../hooks/useDebounceCallback';
 import BackChevron from '../BackChevron';
 import { EventCard, PlaceCard } from '../discover/DiscoverCards';
 import { useAuth } from '../../context/AuthContext';
@@ -171,15 +172,9 @@ export default function SearchPage() {
     setRecentSearches(loadRecentSearches(userId));
   }, [userId, authLoading]);
 
-  useEffect(() => {
-    if (trimmedQuery.length < 2) return undefined;
-
-    const timer = setTimeout(() => {
-      searchFetcher.load(`${paths.apiLocationSearch}?q=${encodeURIComponent(trimmedQuery)}`);
-    }, SEARCH_DEBOUNCE_MS);
-
-    return () => clearTimeout(timer);
-  }, [trimmedQuery, searchFetcher.load]);
+  const triggerSearch = useDebounceCallback((q) => {
+    searchFetcher.load(`${paths.apiLocationSearch}?q=${encodeURIComponent(q)}`);
+  }, SEARCH_DEBOUNCE_MS);
 
   function saveRecent(entry) {
     if (authLoading || !entry) return;
@@ -267,7 +262,12 @@ export default function SearchPage() {
                 className="search-page-input"
                 placeholder="Search Antwerp..."
                 value={query}
-                onChange={event => setQuery(event.target.value)}
+                onChange={event => {
+                  const value = event.target.value;
+                  setQuery(value);
+                  const trimmed = value.trim();
+                  if (trimmed.length >= 2) triggerSearch(trimmed);
+                }}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onKeyDown={(event) => {

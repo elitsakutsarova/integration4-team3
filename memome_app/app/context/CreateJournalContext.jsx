@@ -80,9 +80,9 @@ export function CustomJournalsProvider({ children }) {
     return updated;
   }, [userId]);
 
-  const removeCustomJournal = useCallback((journalId) => {
+  const removeCustomJournal = useCallback((journalId, memoIds = []) => {
     if (!userId) return false;
-    const removed = deleteCustomJournal(userId, journalId);
+    const removed = deleteCustomJournal(userId, journalId, memoIds);
     if (removed) setCustomJournals(getCustomJournals(userId));
     return removed;
   }, [userId]);

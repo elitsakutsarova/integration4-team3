@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import DraggableSticker from '../diary/DraggableSticker';
 import RecapSelectView, { RecapChooseStyleView } from '../diary/RecapViews';
 import { diaryPath, paths } from '../../utils/appPaths';
@@ -36,7 +36,6 @@ export default function JournalDetailPage({
   memories,
   backTo = paths.journals,
 }) {
-  const navigate = useNavigate();
   const diaryId = journal.id;
 
   const [pageStickers, setPageStickers] = useState(() => ({
@@ -74,10 +73,6 @@ export default function JournalDetailPage({
       return { ...prev, [targetPageIndex]: next };
     });
   }, [diaryId]);
-
-  function handleEditJournal() {
-    navigate(paths.journalsEdit(journal.id));
-  }
 
   const placedStickers = (pageStickers[JOURNAL_CANVAS_PAGE] ?? []).map((s) => (
     <DraggableSticker
@@ -182,17 +177,16 @@ export default function JournalDetailPage({
           <div className="journal-detail-wave" aria-hidden="true" />
 
           <div className="journal-detail-actions">
-            <button
-              type="button"
+            <Link
+              to={paths.journalsEdit(journal.id)}
               className="journal-detail-action journal-detail-action--edit"
-              onClick={handleEditJournal}
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
               </svg>
               <span>Edit journal</span>
-            </button>
+            </Link>
             <button
               type="button"
               className="journal-detail-action journal-detail-action--recap"

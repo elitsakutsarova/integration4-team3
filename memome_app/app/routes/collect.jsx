@@ -53,6 +53,14 @@ export async function clientLoader({ request }) {
 
 clientLoader.hydrate = true;
 
+export function HydrateFallback() {
+  return (
+    <div className="collect-page">
+      <div className="collect-card" />
+    </div>
+  );
+}
+
 /**
  * Only re-run the claim when this route's URL changes (e.g. ?scan= for rescan).
  * Root loader revalidation (login, sticker sync) must not re-claim here — that

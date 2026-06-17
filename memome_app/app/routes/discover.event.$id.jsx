@@ -1,6 +1,7 @@
 // route for the event detail page in the discover
 
 import { redirect, useLoaderData } from 'react-router';
+import AuthLoading from '../components/auth/AuthLoading';
 import EventDetailPage from '../components/discover/EventDetailPage';
 import { getDiscoverEventById } from '../data/discoverDetails';
 import { paths } from '../utils/appPaths';
@@ -54,6 +55,14 @@ export async function clientLoader({ serverLoader }) {
 }
 
 clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
+
+export function shouldRevalidate({ currentParams, nextParams }) {
+  return currentParams.id !== nextParams.id;
+}
 
 export default function DiscoverEventDetail() {
   const { event, featuredMemos, totalMemoCount } = useLoaderData();

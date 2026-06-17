@@ -1,6 +1,7 @@
 // route for the location detail page 
 
 import { useLoaderData } from 'react-router';
+import AuthLoading from '../components/auth/AuthLoading';
 import LocationDetail from '../components/LocationDetail';
 import { loadLocationPageClient } from '../utils/locationPage';
 
@@ -18,13 +19,22 @@ export async function clientLoader(args) {
 
 clientLoader.hydrate = true;
 
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
+
+export function shouldRevalidate({ currentParams, nextParams }) {
+  return currentParams.osmType !== nextParams.osmType || currentParams.osmId !== nextParams.osmId;
+}
+
 export default function LocationPage() {
-  const { place, featuredMemos, totalMemoCount } = useLoaderData();
+  const { place, featuredMemos, totalMemoCount, imageUrl } = useLoaderData();
   return (
     <LocationDetail
       place={place}
       featuredMemos={featuredMemos}
       totalMemoCount={totalMemoCount}
+      imageUrl={imageUrl}
     />
   );
 }

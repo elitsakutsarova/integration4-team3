@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useCreateJournal } from '../../context/CreateJournalContext';
 import { useEditJournal } from '../../context/EditJournalContext';
 import { useCreatedMemos } from '../../context/CreatedMemosContext';
@@ -56,16 +56,15 @@ export default function AddJournalMemosPage({ flow = 'create', journalId = null 
 
   return (
     <>
-      <button
-        type="button"
+      <Link
+        to={backPath}
         className="create-journal-back"
-        onClick={() => navigate(backPath)}
         aria-label={isEditFlow ? 'Back to edit journal' : 'Back to create journal'}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-      </button>
+      </Link>
 
       <div className="create-journal-pick-count" aria-live="polite">
         <span className="create-journal-pick-count-dot" aria-hidden="true" />

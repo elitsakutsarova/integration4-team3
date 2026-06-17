@@ -4,6 +4,7 @@
 
 import { buildPhotonPlaceId } from './placeId';
 import { distanceKm } from './memoQueries';
+import { paths } from './appPaths';
 
 const PHOTON_REVERSE_URL = 'https://photon.komoot.io/reverse';
 const USER_AGENT = 'MemoMe/1.0 (+https://github.com/devine-integration; location detail)';
@@ -156,7 +157,7 @@ async function fetchReverseFeatures(lat, lng) {
 }
 
 async function searchPlacesByName(query) {
-  const response = await fetch(`/api/location-search?q=${encodeURIComponent(query)}`, {
+  const response = await fetch(`${paths.apiLocationSearch}?q=${encodeURIComponent(query)}`, {
     headers: { Accept: 'application/json' },
     signal: AbortSignal.timeout(PHOTON_TIMEOUT_MS),
   });

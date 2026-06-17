@@ -1,6 +1,7 @@
 // handles the "Create a Recap" flow 
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
 import CreateJournalDecorations from '../journals/CreateJournalDecorations';
 import JournalMemoPickCard from '../journals/JournalMemoPickCard';
 import RecapShareSheet from './RecapShareSheet';
@@ -17,6 +18,7 @@ import {
   shareImageFiles,
   shareToInstagram,
 } from '../../utils/shareImage';
+import { paths } from '../../utils/appPaths';
 
 // when the user scrolls the style carousel, this finds the style card closest to the center of the screen
 // returns its index
@@ -277,6 +279,7 @@ export function RecapChooseStyleView({
   onBack,
   onShared,
 }) {
+  const navigate = useNavigate();
   const [styleId, setStyleId] = useState(RECAP_STYLES[0].id);
   const [showSheet, setShowSheet] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -472,7 +475,12 @@ export function RecapChooseStyleView({
       )}
 
       {showSuccess && (
-        <RecapShareSuccess onClose={() => setShowSuccess(false)} />
+        <RecapShareSuccess
+          onClose={() => {
+            setShowSuccess(false);
+            navigate(paths.journals);
+          }}
+        />
       )}
     </RecapFlowShell>
   );

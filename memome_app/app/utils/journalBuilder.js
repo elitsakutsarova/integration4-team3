@@ -130,10 +130,11 @@ function buildJournalFromAlbum(albumMemos, index, totalAlbums, now) {
 
 /** Build trip journals from the user's created memos, newest first. */
 export function buildJournalsFromMemos(memos, customJournals = []) {
-  const customMemoIds = new Set(
-    customJournals.flatMap((journal) => journal.memoIds ?? []),
+  const activeRecords = (customJournals ?? []).filter((journal) => !journal.deleted);
+  const hiddenMemoIds = new Set(
+    (customJournals ?? []).flatMap((journal) => journal.memoIds ?? []),
   );
-  const autoMemos = (memos ?? []).filter((memo) => !customMemoIds.has(memo.id));
+  const autoMemos = (memos ?? []).filter((memo) => !hiddenMemoIds.has(String(memo.id)));
   const now = Date.now();
 
   const autoJournals = !autoMemos.length
@@ -144,7 +145,7 @@ export function buildJournalsFromMemos(memos, customJournals = []) {
         )
         .reverse();
 
-  const manualJournals = (customJournals ?? []).map((record) =>
+  const manualJournals = activeRecords.map((record) =>
     buildCustomJournal(record, memos ?? []),
   );
 

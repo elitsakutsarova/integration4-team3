@@ -6,12 +6,14 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useLocation } from 'react-router';
 import { useAuth } from './AuthContext';
 import { patchAuthUserCollections } from '../utils/authSession';
 import { fetchCreatedMemosByUser } from '../utils/memoStore';
+import { paths } from '../utils/appPaths';
 
 const CreatedMemosContext = createContext(null);
 
@@ -38,82 +40,68 @@ function mergeCreatedMemos(fetched, existing) {
 }
 
 function shouldRefreshCreatedMemos(pathname) {
-  return pathname === '/journals' || pathname.startsWith('/diary/');
+  return pathname === paths.journals || pathname.startsWith('/diary/');
 }
 
-export function CreatedMemosProvider({ children }) {
+export function CreatedMemosProvider({ initialMemos = [], children }) {
   const { user } = useAuth();
   const { pathname } = useLocation();
   const userId = user?.id ?? null;
-  const [createdMemos, setCreatedMemos] = useState([]);
-  const [ready, setReady] = useState(false);
+  const [createdMemos, setCreatedMemos] = useState(initialMemos);
+  const mountedRef = useRef(false);
+
+  // Sync count to auth session whenever memos change.
+  useEffect(() => {
+    syncCreatedCount(createdMemos.length);
+  }, [createdMemos.length]);
+
+  // Initial data comes from the root clientLoader (no fetch on mount).
+  // Re-fetch only when userId changes after mount — handles login/logout
+  // transitions that don't trigger a full page reload.
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    if (!userId) {
+      setCreatedMemos([]);
+      return;
+    }
+    fetchCreatedMemosByUser(userId).then(next => setCreatedMemos(next));
+  }, [userId]);
+
+  // Silently refresh when visiting journals or diary pages to pick up
+  // any memos created since the last root loader run.
+  useEffect(() => {
+    if (!userId || !shouldRefreshCreatedMemos(pathname)) return;
+    fetchCreatedMemosByUser(userId).then(fetched => {
+      setCreatedMemos(prev => mergeCreatedMemos(fetched, prev));
+    });
+  }, [pathname, userId]);
 
   const prependCreatedMemo = useCallback((memo) => {
     if (!memo?.id) return;
-
     setCreatedMemos((prev) => {
       if (prev.some((item) => item.id === memo.id)) return prev;
       return [memo, ...prev];
     });
   }, []);
 
-  const loadCreatedMemos = useCallback(async ({ silent = false } = {}) => {
-    if (!userId) {
-      setCreatedMemos([]);
-      setReady(true);
-      return;
-    }
-
-    if (!silent) setReady(false);
+  const refreshCreatedMemos = useCallback(async ({ silent = false } = {}) => {
+    if (!userId) return;
     const fetched = await fetchCreatedMemosByUser(userId);
-    setCreatedMemos((prev) => (silent ? mergeCreatedMemos(fetched, prev) : fetched));
-    setReady(true);
+    setCreatedMemos(prev => (silent ? mergeCreatedMemos(fetched, prev) : fetched));
   }, [userId]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      if (!userId) {
-        if (!cancelled) {
-          setCreatedMemos([]);
-          setReady(true);
-        }
-        return;
-      }
-
-      if (!cancelled) setReady(false);
-      const next = await fetchCreatedMemosByUser(userId);
-      if (cancelled) return;
-      setCreatedMemos(next);
-      setReady(true);
-    }
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [userId]);
-
-  useEffect(() => {
-    if (!ready) return;
-    syncCreatedCount(createdMemos.length);
-  }, [createdMemos.length, ready]);
-
-  useEffect(() => {
-    if (!userId || !ready || !shouldRefreshCreatedMemos(pathname)) return;
-    void loadCreatedMemos({ silent: true });
-  }, [loadCreatedMemos, pathname, ready, userId]);
 
   const value = useMemo(
     () => ({
       createdMemos,
       createdCount: createdMemos.length,
-      ready,
+      ready: true,
       prependCreatedMemo,
-      refreshCreatedMemos: loadCreatedMemos,
+      refreshCreatedMemos,
     }),
-    [createdMemos, loadCreatedMemos, prependCreatedMemo, ready],
+    [createdMemos, prependCreatedMemo, refreshCreatedMemos],
   );
 
   return (

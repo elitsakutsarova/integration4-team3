@@ -20,7 +20,6 @@ import { readDraftMemo } from '../utils/memoDraft';
 import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
 import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
-import { resolveNavigableLocationHref } from '../utils/navigableLocation';
 import {
   buildEventMarker,
   placePendingPin,
@@ -55,7 +54,7 @@ function dbMemoFingerprint(savedMemos) {
     .join(',');
 }
 
-export default function MapView({ savedMemos = [], active = true }) {
+export default function MapView({ savedMemos = [], active = true, eventLocationHrefs = {} }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const draftMemo = readDraftMemo(searchParams);
@@ -90,7 +89,6 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
-  const [eventLocationHrefs, setEventLocationHrefs] = useState(() => new Map());
 
   const filterOptions = { category: activeCategory, query: '' };
 
@@ -209,33 +207,6 @@ export default function MapView({ savedMemos = [], active = true }) {
     syncMapPins();
   }, [revalidator.state, filterFingerprint, syncMapPins]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function resolveEventLocations() {
-      const hrefs = new Map();
-
-      await Promise.all(INITIAL_EVENTS.map(async pin => {
-        if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return;
-
-        const href = await resolveNavigableLocationHref({
-          placeId: pin.placeId,
-          lat: pin.ll[0],
-          lng: pin.ll[1],
-          name: pin.label,
-        });
-
-        if (href) hrefs.set(pin.id, href);
-      }));
-
-      if (!cancelled) setEventLocationHrefs(hrefs);
-    }
-
-    void resolveEventLocations();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   useEffect(() => {
     const L = leafletRef.current;
@@ -251,7 +222,7 @@ export default function MapView({ savedMemos = [], active = true }) {
       if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
       return buildEventMarker(L, map, {
         ...pin,
-        locationHref: eventLocationHrefs.get(pin.id) ?? null,
+        locationHref: eventLocationHrefs[pin.id] ?? null,
       }, {
         onLocationClick: locationHref => {
           if (locationHref) navigateRef.current(locationHref);

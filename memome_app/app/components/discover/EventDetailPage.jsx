@@ -1,6 +1,6 @@
 // event detail page component for the discover page
 
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import BackChevron from '../BackChevron';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 import DiscoverShareIcon from './DiscoverShareIcon';
@@ -69,10 +69,6 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
     title: event.title,
   });
 
-  function handleVenueClick() {
-    if (venueHref) navigate(venueHref);
-  }
-
   return (
     <div className="discover-detail-page">
       <div className="discover-detail-scroll">
@@ -126,9 +122,9 @@ export default function EventDetailPage({ event, featuredMemos = [], totalMemoCo
                 <span className="discover-detail-info-label">Venue</span>
                 <strong>{event.venueName}</strong>
                 {venueHref ? (
-                  <button type="button" className="discover-location-link" onClick={handleVenueClick}>
+                  <Link to={venueHref} className="discover-location-link">
                     {event.venueAddress}
-                  </button>
+                  </Link>
                 ) : (
                   <span className="discover-location-link">{event.venueAddress}</span>
                 )}

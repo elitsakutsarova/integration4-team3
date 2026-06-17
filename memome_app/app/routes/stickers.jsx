@@ -1,7 +1,6 @@
-// this page is a protected digital sticker album where users can browse the stickers they've collected 
-
-import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { useState } from 'react';
+import { Link, useLoaderData, useSearchParams } from 'react-router';
+import AuthLoading from '../components/auth/AuthLoading';
 import GuestAuthCta from '../components/GuestAuthCta';
 import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
@@ -9,14 +8,30 @@ import { useCollectedStickers, useCollectedStickersLoading } from '../context/Co
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
-
-// mock-data
 import { ACHIEVEMENTS, getAchievementStates } from '../data/achievementStickers';
 import { paths } from '../utils/appPaths';
 import {
   fetchCollectedStickers,
   loadDigitalStickerCatalog,
 } from '../utils/collectibleStore';
+
+export async function clientLoader() {
+  const [guestCatalog, guestCollected] = await Promise.all([
+    loadDigitalStickerCatalog(),
+    fetchCollectedStickers(null),
+  ]);
+  return { guestCatalog, guestCollected };
+}
+
+clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
+
+export function shouldRevalidate({ formAction }) {
+  return Boolean(formAction);
+}
 
 export function meta() {
   return [
@@ -33,33 +48,9 @@ function BackIcon() {
   );
 }
 
-function GuestStickerCollection({ collected: initialCollected, loading: initialLoading }) {
+function GuestStickerCollection() {
+  const { guestCatalog: catalog, guestCollected: collected } = useLoaderData();
   const [tab, setTab] = useState('collection');
-  const [catalog, setCatalog] = useState([]);
-  const [collected, setCollected] = useState(initialCollected);
-  const [loading, setLoading] = useState(initialLoading);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadGuestStickers() {
-      const [catalogData, collectedData] = await Promise.all([
-        loadDigitalStickerCatalog(),
-        fetchCollectedStickers(null),
-      ]);
-
-      if (cancelled) return;
-      setCatalog(catalogData);
-      setCollected(collectedData);
-      setLoading(false);
-    }
-
-    void loadGuestStickers();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const collectedIds = new Set(collected.map(sticker => sticker.id));
 
@@ -97,24 +88,20 @@ function GuestStickerCollection({ collected: initialCollected, loading: initialL
       <div className="stickers-scroll">
         <div className="stickers-content" role="tabpanel">
           {tab === 'collection' && (
-            loading ? (
-              <p className="stickers-empty">Loading…</p>
-            ) : (
-              <div className="stickers-grid stickers-grid--collection">
-                {catalog.map(item => {
-                  const owned = collectedIds.has(item.id);
-                  const ownedSticker = collected.find(s => s.id === item.id) ?? item;
-                  return (
-                    <div
-                      key={item.id}
-                      className={`stickers-tile stickers-tile--collection${owned ? '' : ' stickers-tile--locked'}`}
-                    >
-                      <StickerVisual src={ownedSticker.src} emoji={ownedSticker.emoji} label={ownedSticker.label} />
-                    </div>
-                  );
-                })}
-              </div>
-            )
+            <div className="stickers-grid stickers-grid--collection">
+              {catalog.map(item => {
+                const owned = collectedIds.has(item.id);
+                const ownedSticker = collected.find(s => s.id === item.id) ?? item;
+                return (
+                  <div
+                    key={item.id}
+                    className={`stickers-tile stickers-tile--collection${owned ? '' : ' stickers-tile--locked'}`}
+                  >
+                    <StickerVisual src={ownedSticker.src} emoji={ownedSticker.emoji} label={ownedSticker.label} />
+                  </div>
+                );
+              })}
+            </div>
           )}
 
           {tab === 'achievements' && (
@@ -158,7 +145,7 @@ export default function StickersGallery() {
   });
 
   if (!user) {
-    return <GuestStickerCollection collected={collected} loading={loading} />;
+    return <GuestStickerCollection />;
   }
 
   function switchTab(next) {

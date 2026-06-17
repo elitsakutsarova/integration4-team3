@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import BottomNav from './BottomNav';
 import DiscoverShareIcon from './discover/DiscoverShareIcon';
@@ -7,9 +6,6 @@ import ShareSheet from './diary/ShareSheet';
 import FeaturedMemosSection from './memos/FeaturedMemosSection';
 import { buildMemoArchiveHref } from '../utils/locationHref';
 import { goBack } from '../utils/appPaths';
-import { fetchPhotonPlaceDetail, resolvePhotonPoiAt } from '../utils/locationPhoton';
-import { fetchPlaceImageUrl } from '../utils/placeImage';
-import { parsePhotonPlaceId } from '../utils/placeId';
 import { useDiscoverShare } from '../hooks/useDiscoverShare';
 
 function HeroMedia({ imageUrl, placeName, categoryLabel }) {
@@ -34,10 +30,8 @@ function HeroMedia({ imageUrl, placeName, categoryLabel }) {
   );
 }
 
-export default function LocationDetail({ place: initialPlace, featuredMemos = [], totalMemoCount = 0 }) {
+export default function LocationDetail({ place, imageUrl = null, featuredMemos = [], totalMemoCount = 0 }) {
   const navigate = useNavigate();
-  const [place, setPlace] = useState(initialPlace);
-  const [imageUrl, setImageUrl] = useState(null);
   const {
     showSheet,
     openSheet,
@@ -59,51 +53,8 @@ export default function LocationDetail({ place: initialPlace, featuredMemos = []
     title: place.name,
   });
 
-  useEffect(() => {
-    setPlace(initialPlace);
-    setImageUrl(null);
-  }, [initialPlace]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const photonPromise = initialPlace.id
-      ? fetchPhotonPlaceDetail({
-        lat: initialPlace.lat,
-        lng: initialPlace.lng,
-        placeId: initialPlace.id,
-      })
-      : resolvePhotonPoiAt({
-        lat: initialPlace.lat,
-        lng: initialPlace.lng,
-        name: initialPlace.name,
-      });
-
-    void photonPromise.then(enriched => {
-      if (!cancelled && enriched) setPlace(enriched);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [initialPlace.id, initialPlace.lat, initialPlace.lng, initialPlace.name]);
-
-  useEffect(() => {
-    const parsed = parsePhotonPlaceId(place.id);
-    if (!parsed) return undefined;
-
-    let cancelled = false;
-    void fetchPlaceImageUrl(parsed).then(url => {
-      if (!cancelled && url) setImageUrl(url);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [place.id]);
-
   function handleBack() {
-    goBack(navigate, '/');
+    goBack(navigate);
   }
 
   return (

@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useAuth } from './AuthContext';
@@ -17,27 +18,21 @@ import {
 
 const SavedMemosContext = createContext(null);
 
-export function SavedMemosProvider({ children }) {
+export function SavedMemosProvider({ initialSavedMemos = [], children }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
-  const [savedMemos, setSavedMemos] = useState([]);
-  const [ready, setReady] = useState(false);
+  const [savedMemos, setSavedMemos] = useState(initialSavedMemos);
+  const mountedRef = useRef(false);
 
+  // Initial data comes from the root clientLoader (no fetch on mount).
+  // Re-fetch only when userId changes after mount — handles login/logout
+  // transitions that don't trigger a full page reload.
   useEffect(() => {
-    let cancelled = false;
-    setReady(false);
-
-    async function loadMemos() {
-      const next = await fetchSavedMemos(userId);
-      if (cancelled) return;
-      setSavedMemos(next);
-      setReady(true);
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
     }
-
-    void loadMemos();
-    return () => {
-      cancelled = true;
-    };
+    fetchSavedMemos(userId).then(next => setSavedMemos(next));
   }, [userId]);
 
   const isSaved = useCallback(
@@ -70,13 +65,13 @@ export function SavedMemosProvider({ children }) {
     () => ({
       savedMemos,
       memosCount: savedMemos.length,
-      ready,
+      ready: true,
       isSaved,
       saveMemo,
       removeMemo,
       toggleMemo,
     }),
-    [isSaved, ready, removeMemo, saveMemo, savedMemos, toggleMemo],
+    [isSaved, removeMemo, saveMemo, savedMemos, toggleMemo],
   );
 
   return (

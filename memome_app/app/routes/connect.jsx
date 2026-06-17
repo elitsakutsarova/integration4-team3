@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { Link, useLoaderData } from 'react-router';
+import AuthLoading from '../components/auth/AuthLoading';
 import ConnectQr from '../components/ConnectQr';
 import { paths } from '../utils/appPaths';
 import { loadDevShareOrigin } from '../utils/devShareOrigin';
@@ -22,6 +23,14 @@ export async function clientLoader({ request }) {
 
 clientLoader.hydrate = true;
 
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
+
+export function shouldRevalidate({ currentUrl, nextUrl }) {
+  return currentUrl.pathname !== nextUrl.pathname || currentUrl.search !== nextUrl.search;
+}
+
 export default function ConnectPage() {
   const { initialRoom, devShare } = useLoaderData();
   const { shareOrigin, lanUrls, isOnLocalhost } = devShare;
@@ -34,7 +43,7 @@ export default function ConnectPage() {
   const sessionRef = useRef(null);
 
   const shareUrl = shareOrigin
-    ? `${shareOrigin}/connect?room=${encodeURIComponent(room)}`
+    ? `${shareOrigin}${paths.connect}?room=${encodeURIComponent(room)}`
     : '';
 
   const disconnect = useCallback(() => {

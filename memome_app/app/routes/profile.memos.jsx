@@ -1,7 +1,11 @@
 // route for the created memos page
 
-import { useCreatedMemos } from '../context/CreatedMemosContext';
+import { useLoaderData } from 'react-router';
 import CreatedMemosPage from '../components/profile/CreatedMemosPage';
+import FavouritesLoading from '../components/profile/FavouritesLoading';
+import { getAuthSnapshot } from '../utils/authSession';
+import { fetchCreatedMemosByUser } from '../utils/memoStore';
+import { resolveNavigableLocationHref } from '../utils/navigableLocation';
 
 export function meta() {
   return [
@@ -10,7 +14,34 @@ export function meta() {
   ];
 }
 
+async function enrichWithLocationHref(memo) {
+  const locationHref = await resolveNavigableLocationHref({
+    placeId: memo.placeId,
+    lat: memo.ll?.[0],
+    lng: memo.ll?.[1],
+    name: memo.location,
+  });
+  return { ...memo, locationHref };
+}
+
+export async function clientLoader() {
+  const { user } = getAuthSnapshot();
+  const raw = await fetchCreatedMemosByUser(user?.id ?? null);
+  const memos = await Promise.all(raw.map(enrichWithLocationHref));
+  return { memos };
+}
+
+clientLoader.hydrate = true;
+
+export function HydrateFallback() {
+  return <FavouritesLoading />;
+}
+
+export function shouldRevalidate() {
+  return false;
+}
+
 export default function ProfileMemosRoute() {
-  const { createdMemos } = useCreatedMemos();
-  return <CreatedMemosPage memos={createdMemos} />;
+  const { memos } = useLoaderData();
+  return <CreatedMemosPage memos={memos} />;
 }
