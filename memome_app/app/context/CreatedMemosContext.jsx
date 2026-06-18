@@ -90,6 +90,21 @@ export function CreatedMemosProvider({ initialMemos = [], children }) {
     });
   }, []);
 
+  const updateCreatedMemo = useCallback((memo) => {
+    if (!memo?.id) return;
+    setCreatedMemos((prev) => {
+      const index = prev.findIndex((item) => item.id === memo.id);
+      if (index === -1) return [memo, ...prev];
+      const next = [...prev];
+      next[index] = {
+        ...next[index],
+        ...memo,
+        locationHref: memo.locationHref ?? next[index].locationHref,
+      };
+      return next;
+    });
+  }, []);
+
   const refreshCreatedMemos = useCallback(async ({ silent = false } = {}) => {
     if (!userId) return;
     const fetched = await fetchCreatedMemosByUser(userId);
@@ -102,9 +117,10 @@ export function CreatedMemosProvider({ initialMemos = [], children }) {
       createdCount: createdMemos.length,
       ready: true,
       prependCreatedMemo,
+      updateCreatedMemo,
       refreshCreatedMemos,
     }),
-    [createdMemos, prependCreatedMemo, refreshCreatedMemos],
+    [createdMemos, prependCreatedMemo, updateCreatedMemo, refreshCreatedMemos],
   );
 
   return (

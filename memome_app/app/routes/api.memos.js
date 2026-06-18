@@ -1,9 +1,22 @@
 import { data } from 'react-router';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { createMemoAction } from '../utils/createMemoAction';
+import { updateMemoAction } from '../utils/updateMemoAction';
 import { rateLimitActionError, RATE_LIMITS } from '../utils/rateLimit.server';
 import { isSupabaseConfigured } from '../utils/supabase.env';
 import { createClient } from '../utils/supabase.server';
+import { stripControlChars } from '../utils/validators';
+
+async function runMemoAction(request, serverContext) {
+  const formData = await request.formData();
+  const intent = stripControlChars(formData.get('intent')).trim();
+
+  if (intent === 'update-memo') {
+    return updateMemoAction(formData, serverContext);
+  }
+
+  return createMemoAction(formData, serverContext);
+}
 
 export async function clientAction({ request, serverAction }) {
   if (isSupabaseConfigured()) {
@@ -11,7 +24,14 @@ export async function clientAction({ request, serverAction }) {
   }
 
   await bootstrapAuthSession();
-  return createMemoAction(request);
+  const formData = await request.formData();
+  const intent = stripControlChars(formData.get('intent')).trim();
+
+  if (intent === 'update-memo') {
+    return updateMemoAction(formData);
+  }
+
+  return createMemoAction(formData);
 }
 
 export async function action({ request }) {
@@ -26,7 +46,7 @@ export async function action({ request }) {
     return data({ error: 'auth_required' }, { headers });
   }
 
-  const result = await createMemoAction(request, {
+  const result = await runMemoAction(request, {
     client: supabase,
     userId: authData.user.id,
   });

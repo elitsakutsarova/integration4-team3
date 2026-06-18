@@ -1,6 +1,6 @@
 import { memoPostSuccessAssets } from '../utils/memoPostSuccessAssets';
 
-export default function MemoPostSuccess({ onClose }) {
+export default function MemoPostSuccess({ description = 'Your memo was posted', onClose }) {
   return (
     <div
       className="memo-post-success-backdrop"
@@ -49,7 +49,7 @@ export default function MemoPostSuccess({ onClose }) {
             Success!
           </h2>
           <p id="memo-post-success-desc" className="memo-post-success-desc">
-            Your memo was posted
+            {description}
           </p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import DiscoverShareIcon from '../discover/DiscoverShareIcon';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
-import { homePathWithAddMemo } from '../../utils/appPaths';
+import { homePathWithAddMemo, paths, profileMemoEditPath } from '../../utils/appPaths';
 
 function MemoPhoto({ memo, className }) {
   const hasMedia = Boolean(memo.mediaPreview?.url);
@@ -25,15 +25,42 @@ function MemoPhoto({ memo, className }) {
 }
 
 function MemoEditLink({ memo }) {
-  const mapPath = Array.isArray(memo.ll) && memo.ll.length >= 2
-    ? homePathWithAddMemo(memo.ll[0], memo.ll[1])
-    : homePathWithAddMemo();
+  if (!memo.fromDb || !memo.id) {
+    const mapPath = Array.isArray(memo.ll) && memo.ll.length >= 2
+      ? homePathWithAddMemo(memo.ll[0], memo.ll[1])
+      : homePathWithAddMemo();
+
+    return (
+      <Link
+        to={mapPath}
+        className="created-memo-card__action created-memo-card__action--edit"
+        aria-label={`View memo at ${memo.location} on map`}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Link>
+    );
+  }
 
   return (
     <Link
-      to={mapPath}
+      to={profileMemoEditPath(memo.id)}
       className="created-memo-card__action created-memo-card__action--edit"
-      aria-label={`View memo at ${memo.location} on map`}
+      aria-label={`Edit memo at ${memo.location}`}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path

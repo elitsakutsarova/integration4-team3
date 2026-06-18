@@ -28,6 +28,7 @@
       "routes/profile.settings.privacy": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.settings.feedback": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.memos.$id.edit": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.favourites._index": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.favourites.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.favourites.spots": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -51,6 +52,7 @@
       "routes/api.account": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.feedback": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.location-search": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.location-href": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/catchall": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
@@ -200,6 +202,13 @@
         "parentId": "routes/account-layout.profile",
         "file": "app/routes/profile.memos.jsx",
         "path": "memos",
+        "config": {}
+      },
+      "routes/profile.memos.$id.edit": {
+        "id": "routes/profile.memos.$id.edit",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.memos.$id.edit.jsx",
+        "path": "memos/:id/edit",
         "config": {}
       },
       "routes/profile.favourites-layout": {
@@ -377,6 +386,13 @@
         "path": "api/location-search",
         "config": {}
       },
+      "routes/api.location-href": {
+        "id": "routes/api.location-href",
+        "parentId": "root",
+        "file": "app/routes/api.location-href.js",
+        "path": "api/location-href",
+        "config": {}
+      },
       "routes/catchall": {
         "id": "routes/catchall",
         "parentId": "root",
@@ -524,6 +540,12 @@
         "parentId": "routes/account-layout.profile",
         "file": "routes/profile.memos.jsx",
         "path": "memos"
+      },
+      "routes/profile.memos.$id.edit": {
+        "id": "routes/profile.memos.$id.edit",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.memos.$id.edit.jsx",
+        "path": "memos/:id/edit"
       },
       "routes/profile.favourites-layout": {
         "id": "routes/profile.favourites-layout",
@@ -675,6 +697,12 @@
         "file": "routes/api.location-search.js",
         "path": "api/location-search"
       },
+      "routes/api.location-href": {
+        "id": "routes/api.location-href",
+        "parentId": "root",
+        "file": "routes/api.location-href.js",
+        "path": "api/location-href"
+      },
       "routes/catchall": {
         "id": "routes/catchall",
         "parentId": "root",
@@ -781,6 +809,10 @@
                   {
                     "file": "routes/profile.memos.jsx",
                     "path": "memos"
+                  },
+                  {
+                    "file": "routes/profile.memos.$id.edit.jsx",
+                    "path": "memos/:id/edit"
                   },
                   {
                     "file": "routes/profile.favourites-layout.jsx",
@@ -891,6 +923,10 @@
           {
             "file": "routes/api.location-search.js",
             "path": "api/location-search"
+          },
+          {
+            "file": "routes/api.location-href.js",
+            "path": "api/location-href"
           },
           {
             "file": "routes/catchall.jsx",

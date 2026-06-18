@@ -2118,6 +2118,38 @@ html img {
   opacity: 0.9;
 }
 
+/* ─── Edit memo page ──────────────────────────────── */
+.edit-memo-page {
+  height: 100dvh;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  background: #fff;
+  padding-bottom: var(--nav-h-safe);
+}
+
+.edit-memo-header {
+  flex-shrink: 0;
+}
+
+.edit-memo-media {
+  flex-shrink: 0;
+  margin: 0 16px;
+  border: 2.5px dashed #a3baff;
+  background: #f8faff;
+  border-radius: 0;
+}
+
+.edit-memo-body {
+  padding-top: 30px;
+}
+
+.edit-memo-footer {
+  margin-top: 8px;
+  padding-bottom: 16px;
+}
+
 /* ─── Location picker (memo form) ───────────────── */
 .loc-picker-overlay {
   position: fixed;

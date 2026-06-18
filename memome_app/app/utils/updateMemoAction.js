@@ -1,23 +1,24 @@
 import { bootstrapAuthSession } from './authSession';
-import { createMemo } from './memoStore';
+import { updateMemo } from './memoStore';
 import { stripControlChars } from './validators';
 
-export async function createMemoAction(formData, serverContext = null) {
+export async function updateMemoAction(formData, serverContext = null) {
   if (!serverContext) {
     await bootstrapAuthSession();
   }
 
   const intent = stripControlChars(formData.get('intent')).trim();
-  if (intent !== 'create-memo') {
+  if (intent !== 'update-memo') {
     return { error: 'Unknown action.' };
   }
 
   const tags = formData.getAll('tags').map(String);
   const media = formData.get('media');
-  const mediaUrl = stripControlChars(formData.get('mediaUrl')).trim();
-  const mediaType = stripControlChars(formData.get('mediaType')).trim();
-  const result = await createMemo(
+  const removeMedia = stripControlChars(formData.get('removeMedia')).trim();
+
+  const result = await updateMemo(
     {
+      memoId: formData.get('memoId'),
       quote: formData.get('quote'),
       lat: formData.get('lat'),
       lng: formData.get('lng'),
@@ -25,13 +26,12 @@ export async function createMemoAction(formData, serverContext = null) {
       placeId: formData.get('placeId'),
       tags,
       media: media instanceof File && media.size > 0 ? media : null,
-      mediaUrl: mediaUrl || null,
-      mediaType: mediaType || null,
+      removeMedia,
     },
     serverContext,
   );
 
   if (result.error) return { error: result.error };
 
-  return { success: true, memo: result.memo };
+  return { success: true, memo: result.memo, kind: 'update' };
 }

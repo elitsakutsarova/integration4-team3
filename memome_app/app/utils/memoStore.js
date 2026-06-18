@@ -7,7 +7,7 @@
 // UI -> memo service (this file) -> Supabase Database + Storage
 
 import { isSupabaseConfigured } from './supabase.env';
-import { isSafeHttpsUrl, validateCreateMemoInput, validateMemoMediaFile } from './validators';
+import { isSafeHttpsUrl, validateCreateMemoInput, validateMemoMediaFile, validateUpdateMemoInput } from './validators';
 
 async function getBrowserSupabaseClient() {
   const { getSupabaseBrowserClient } = await import('./supabase.client');
@@ -44,6 +44,37 @@ async function insertMemo(client, row) {
     result = await client.from('memos').insert(rest).select(MEMO_COLUMNS_BASE).single();
   }
   return result;
+}
+
+async function updateMemoRow(client, memoId, userId, row) {
+  let result = await client
+    .from('memos')
+    .update(row)
+    .eq('id', memoId)
+    .eq('auth_id', userId)
+    .select(MEMO_COLUMNS)
+    .maybeSingle();
+
+  if (result.error && isMissingPlaceIdColumn(result.error)) {
+    const { place_id, ...rest } = row;
+    result = await client
+      .from('memos')
+      .update(rest)
+      .eq('id', memoId)
+      .eq('auth_id', userId)
+      .select(MEMO_COLUMNS_BASE)
+      .maybeSingle();
+  }
+
+  return result;
+}
+
+function mapMemoUpdateError(error) {
+  const message = String(error?.message ?? '');
+  if (message.includes('Cannot coerce the result to a single JSON object')) {
+    return 'Could not update this memo. Check that you are signed in and own this memo.';
+  }
+  return message || 'Could not update memo.';
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -174,6 +205,26 @@ export async function fetchMemosByIds(memoIds) {
   return data.map(mapMemoRowToPin);
 }
 
+/** Load one memo owned by the signed-in user. */
+export async function fetchCreatedMemoById(authUserId, memoId, serverContext = null) {
+  if (!authUserId || !memoId || !isSupabaseConfigured()) return null;
+
+  const client = serverContext?.client ?? (await getBrowserSupabaseClient());
+  if (!client) return null;
+
+  const { data, error } = await queryMemos(client, columns =>
+    client
+      .from('memos')
+      .select(columns)
+      .eq('id', memoId)
+      .eq('auth_id', authUserId)
+      .maybeSingle(),
+  );
+
+  if (error || !data) return null;
+  return mapMemoRowToPin(data);
+}
+
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
 /** Persist a new memo for the signed-in user. */
@@ -264,4 +315,101 @@ export async function createMemo(
 
   if (error) return { error: error.message };
   return { memo: mapMemoRowToPin(data) };
+}
+
+/** Update an existing memo for the signed-in user. */
+export async function updateMemo(
+  {
+    memoId,
+    quote,
+    lat,
+    lng,
+    tags,
+    location = DEFAULT_LOCATION,
+    placeId = null,
+    media = null,
+    removeMedia = false,
+  },
+  serverContext = null,
+) {
+  if (!isSupabaseConfigured()) {
+    return { error: 'Supabase is not configured.' };
+  }
+
+  const client = serverContext?.client ?? (await getBrowserSupabaseClient());
+  if (!client) return { error: 'Could not connect to Supabase.' };
+
+  let userId = serverContext?.userId ?? null;
+  if (!userId) {
+    const { data: authData, error: authError } = await client.auth.getSession();
+    if (authError || !authData?.session?.user?.id) {
+      return { error: 'auth_required' };
+    }
+    userId = authData.session.user.id;
+  }
+
+  const validated = validateUpdateMemoInput({
+    memoId,
+    quote,
+    lat,
+    lng,
+    tags,
+    location,
+    placeId,
+    media,
+    removeMedia,
+  });
+  if (validated.field) return { error: validated.message };
+
+  const existing = await fetchCreatedMemoById(userId, validated.memoId, serverContext);
+  if (!existing) return { error: 'Memo not found.' };
+
+  const { countMemosAtSpot, MAX_MEMOS_PER_SPOT } = await import('./memoQueries');
+  const spotCount = await countMemosAtSpot(
+    client,
+    {
+      placeId: validated.placeId,
+      lat: validated.lat,
+      lng: validated.lng,
+      locationName: validated.location,
+    },
+    { excludeMemoId: validated.memoId },
+  );
+
+  if (spotCount >= MAX_MEMOS_PER_SPOT) {
+    return { error: `This spot already has ${MAX_MEMOS_PER_SPOT} memos.` };
+  }
+
+  let media_url = existing.mediaPreview?.url ?? null;
+  let media_type = existing.mediaPreview?.isVideo ? 'video' : existing.mediaPreview ? 'image' : null;
+
+  if (validated.mediaPatch.action === 'remove') {
+    media_url = null;
+    media_type = null;
+  } else if (validated.mediaPatch.action === 'replace') {
+    const uploadResult = await uploadMemoMedia(client, userId, validated.mediaPatch.media);
+    if (uploadResult.error) return uploadResult;
+    media_url = uploadResult.media_url ?? null;
+    media_type = uploadResult.media_type ?? null;
+  }
+
+  const row = {
+    quote: validated.quote,
+    lat: validated.lat,
+    lng: validated.lng,
+    location: validated.location,
+    tags: validated.tags,
+    media_url,
+    media_type,
+  };
+
+  if (validated.placeId) row.place_id = validated.placeId;
+  else row.place_id = null;
+
+  const result = await updateMemoRow(client, validated.memoId, userId, row);
+
+  if (result.error) return { error: mapMemoUpdateError(result.error) };
+  if (!result.data) return { error: 'Memo not found or you do not have permission to edit it.' };
+
+  return { memo: mapMemoRowToPin(result.data) };
 }

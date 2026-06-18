@@ -21,6 +21,7 @@ export const paths = {
   profileSettingsPrivacy: href('/profile/settings/privacy'),
   profileSettingsFeedback: href('/profile/settings/feedback'),
   profileMemos: href('/profile/memos'),
+  profileMemoEdit: profileMemoEditPath,
   profileFavourites: href('/profile/favourites'),
   profileFavouritesMemos: href('/profile/favourites/memos'),
   profileFavouritesSpots: href('/profile/favourites/spots'),
@@ -59,6 +60,10 @@ export function journalsEditPath(id) {
 
 export function journalsEditMemosPath(id) {
   return href('/journals/:id/edit/memos', { id });
+}
+
+export function profileMemoEditPath(id) {
+  return href('/profile/memos/:id/edit', { id });
 }
 
 export function collectScanPath(scanKey) {

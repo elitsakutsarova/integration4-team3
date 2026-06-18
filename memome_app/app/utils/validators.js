@@ -326,6 +326,61 @@ export function validateCreateMemoInput(input) {
   };
 }
 
+export function validateMemoId(raw) {
+  const id = stripControlChars(raw).trim();
+  if (!id) return validationError('memoId', 'Memo not found');
+  if (!SAVED_MEMO_ID_RE.test(id)) return validationError('memoId', 'Invalid memo');
+  return { value: id };
+}
+
+function parseRemoveMediaFlag(raw) {
+  return raw === true || raw === 'true' || raw === '1';
+}
+
+export function validateUpdateMemoInput(input) {
+  const memoIdResult = validateMemoId(input.memoId);
+  if (memoIdResult.field) return memoIdResult;
+
+  const quoteResult = validateMemoQuote(input.quote);
+  if (quoteResult.field) return quoteResult;
+
+  const coordsResult = validateMemoCoords(input.lat, input.lng);
+  if (coordsResult.field) return coordsResult;
+
+  const tagsResult = validateMemoTags(input.tags);
+  if (tagsResult.field) return tagsResult;
+
+  const locationResult = validateMemoLocation(input.location);
+  if (locationResult.field) return locationResult;
+
+  const placeIdResult = validateMemoPlaceId(input.placeId);
+  if (placeIdResult.field) return placeIdResult;
+
+  const removeMedia = parseRemoveMediaFlag(input.removeMedia);
+  const hasNewFile = input.media instanceof File && input.media.size > 0;
+
+  let mediaPatch = { action: 'keep' };
+
+  if (hasNewFile) {
+    const mediaResult = validateMemoMediaFile(input.media);
+    if (mediaResult.field) return mediaResult;
+    mediaPatch = { action: 'replace', media: mediaResult.value };
+  } else if (removeMedia) {
+    mediaPatch = { action: 'remove' };
+  }
+
+  return {
+    memoId: memoIdResult.value,
+    quote: quoteResult.value,
+    lat: coordsResult.lat,
+    lng: coordsResult.lng,
+    location: locationResult.value,
+    placeId: placeIdResult.value,
+    tags: tagsResult.value,
+    mediaPatch,
+  };
+}
+
 export function validateSearchQuery(raw) {
   const query = clampText(raw, LIMITS.searchQuery).toLowerCase();
   if (query.length < 2) return { value: '' };
