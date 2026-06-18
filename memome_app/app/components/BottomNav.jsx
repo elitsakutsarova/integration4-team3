@@ -58,7 +58,7 @@ export default function BottomNav({ onAddClick }) {
   return (
     <nav className="bottom-nav" aria-label="Main navigation">
       <NavItem id="home" label="Home" active={active} to={paths.home}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 32 32" fill="none">
           <path d="M20 27.9992L12 25.1992L4 28.2992V6.73255L12 3.99922L20 6.79922L28 3.69922V25.2659L20 27.9992ZM18.6667 24.7326V9.13255L13.3333 7.26589V22.8659L18.6667 24.7326ZM21.3333 24.7326L25.3333 23.3992V7.59922L21.3333 9.13255V24.7326ZM6.66667 24.3992L10.6667 22.8659V7.26589L6.66667 8.59922V24.3992Z" fill="#9CA3AF" />
         </svg>
       </NavItem>

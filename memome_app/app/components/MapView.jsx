@@ -488,13 +488,13 @@ export default function MapView({ savedMemos = [], active = true }) {
         activeCategory={activeCategory}
         onCategoryChange={setActiveCategory}
       />
-
+      <div className="map-container--bottom">
       {!user && !revealedSticker && !draftMemo && !selectedMemory && !showGuestAddMemoLocked && (
         <MapGuestCta />
       )}
 
       <BottomNav onAddClick={handleAddBtnClick} />
-
+          </div>
       <button
         type="button"
         className="map-desktop-add"
