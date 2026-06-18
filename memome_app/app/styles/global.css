@@ -1,22 +1,141 @@
 /* ─── Reset ──────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_300/SunAntwerpen_300.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+}
 
-/* ─── Tokens ──────────────────────────────────────── */
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_300_italic/SunAntwerpen_300_italic.woff') format('woff');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_500/SunAntwerpen_500.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_500_italic/SunAntwerpen_500_italic.woff') format('woff');
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_700/SunAntwerpen_700.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_700_italic/SunAntwerpen_700_italic.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_800/SunAntwerpen_800.woff') format('woff');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_800_italic/SunAntwerpen_800_italic.woff') format('woff');
+  font-weight: 800;
+  font-style: italic;
+}
+
 :root {
-  --bg:          #F5F2EC;
-  --dark:        #18181F;
-  --mid:         #9090A0;
-  --light:       #E8E8EC;
-  --white:       #ffffff;
-  --blue:        #3535FF;
-  --green:       #00c853;
-  --color-yellow: #f9ff75;
-  --color-navy:   #202020;
-  --font-pixel:   'Press Start 2P', monospace;
-  --font:        'Space Grotesk', sans-serif;
-  --script:      'Playfair Display', serif;
-  --nav-h:       68px;
-  --nav-h-safe:  calc(68px + env(safe-area-inset-bottom, 0px));
+  --bg: #F5F2EC;
+  --dark: #202020;
+  --mid: #9090A0;
+  --light: #E8E8EC;
+  --white: #ffffff;
+  --blue: #3535FF;
+  --green: #00c853;
+  --yellow: #f9ff75;
+  --font: 'SunAntwerpen', sans-serif;
+  --script: 'Playfair Display', serif;
+
+  --blue-0: #F8FAFF;
+  --blue-5: #F1F4FF;
+  --blue-10: #E4EAFF;
+  --blue-20: #DBE4FE;
+  --blue-50: #D1DCFF;
+  --blue-100: #A3BAFF;
+  --blue-200: #7597FF;
+  --blue-300: #4775FF;
+  --blue-400: #1952FF;
+  --blue-500: #1442CC;
+  --blue-600: #0F3199;
+  --blue-700: #0A2166;
+  --blue-800: #051033;
+
+  --yellow-50: #FEFFE3;
+  --yellow-100: #FDFFC8;
+  --yellow-200: #FBFFAC;
+  --yellow-300: #FAFF91;
+  --yellow-400: #f9ff75;
+  --yellow-500: #C7CC5E;
+  --yellow-600: #959946;
+  --yellow-700: #64662F;
+  --yellow-800: #323317;
+
+  --pink-50: #FFF9FD;
+  --pink-100: #FFF3FC;
+  --pink-200: #FEEDFA;
+  --pink-300: #FEE7F9;
+  --pink-400: #FEE1F7;
+  --pink-450: #FFB0FC;
+  --pink-500: #CBB4C6;
+  --pink-600: #988794;
+  --pink-700: #665A63;
+  --pink-800: #332D31;
+
+  --green-50: #CCF8E8;
+  --green-100: #99F2D1;
+  --green-150: #54FFBF;
+  --green-200: #66EBB9;
+  --green-300: #33E5A2;
+  --green-400: #00DE8B;
+  --green-500: #00B26F;
+  --green-600: #008553;
+  --green-700: #005938;
+  --green-800: #002C1C;
+
+  --red-50: #FFDACC;
+  --red-100: #FFB499;
+  --red-200: #FF8F66;
+  --red-300: #FF6933;
+  --red-400: #FF4400;
+  --red-500: #CC3600;
+  --red-600: #992900;
+  --red-700: #661B00;
+  --red-800: #330E00;
+
+  --grey-0: #FFFFFF;
+  --grey-10: #F5F5F5;
+  --grey-50: #E9E9E9;
+  --grey-100: #D2D2D2;
+  --grey-150: #9CA3AF;
+  --grey-200: #797979;
+  --grey-250: #6B7280;
+  --grey-300: #202020;
+  --grey-350: #4B5563;
+
+  --nav-h: 68px;
+  --nav-h-safe: calc(68px + env(safe-area-inset-bottom, 0px));
   --settings-bottom-pad: calc(48px + var(--nav-h-safe));
   --diary-dock-h: 118px;
   --diary-dock-h-mobile: 168px;
@@ -29,7 +148,6 @@
   --desktop-nav-end: calc(var(--desktop-inset) + var(--desktop-nav-width) + var(--desktop-panel-gap));
   --desktop-map-end: calc(var(--desktop-nav-end) + var(--desktop-panel-width));
 }
-
 /* ─── Base ────────────────────────────────────────── */
 html, body {
   height: 100%;
