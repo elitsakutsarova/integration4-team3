@@ -141,9 +141,7 @@ export default function SearchPage() {
 
   const {
     isListening,
-    isSupported,
     error: speechError,
-    startListening,
     stopListening,
     toggleListening,
   } = useSpeechSearch({ onTranscript: handleSpeechTranscript });
@@ -165,7 +163,10 @@ export default function SearchPage() {
     inputRef.current?.focus();
   }, []);
 
-  useEffect(() => () => stopListening(), [stopListening]);
+  const stopListeningRef = useRef(stopListening);
+  stopListeningRef.current = stopListening;
+
+  useEffect(() => () => stopListeningRef.current(), []);
 
   useEffect(() => {
     if (authLoading) return;
@@ -226,10 +227,7 @@ export default function SearchPage() {
   const hasGroupedResults = groupedResults.total > 0;
 
   function handleMicClick() {
-    if (!isSupported) {
-      startListening();
-      return;
-    }
+    setIsFocused(true);
     toggleListening();
   }
 
@@ -251,7 +249,7 @@ export default function SearchPage() {
           <div className="search-page-header-row">
             <BackChevron className="search-page-back" onClick={handleBack} label="Go back" />
 
-            <label className="search-page-bar">
+            <div className="search-page-bar">
               <svg className="search-page-bar-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
                 <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -269,7 +267,10 @@ export default function SearchPage() {
                   if (trimmed.length >= 2) triggerSearch(trimmed);
                 }}
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
+                onBlur={() => {
+                  if (isListening) return;
+                  window.setTimeout(() => setIsFocused(false), 120);
+                }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter') {
                     event.preventDefault();
@@ -281,7 +282,10 @@ export default function SearchPage() {
               <button
                 type="button"
                 className={`search-page-mic${isListening ? ' search-page-mic--active' : ''}`}
-                onMouseDown={event => event.preventDefault()}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  event.currentTarget.focus({ preventScroll: true });
+                }}
                 onClick={handleMicClick}
                 aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
                 aria-pressed={isListening}
@@ -291,7 +295,7 @@ export default function SearchPage() {
                   <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                 </svg>
               </button>
-            </label>
+            </div>
           </div>
         </header>
 

@@ -1,3 +1,5 @@
+import '../styles/modules/map.css';
+import '../styles/modules/journals.css';
 import { useAuth } from '../context/AuthContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import GuestJournalsLockedPage from '../components/journals/GuestJournalsLockedPage';

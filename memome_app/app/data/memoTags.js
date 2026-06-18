@@ -4,4 +4,6 @@ export const MEMO_TAG_OPTIONS = [
   'Nightlife',
   'Fashion',
   'Art & Culture',
+  'Music',
+  'Random',
 ];

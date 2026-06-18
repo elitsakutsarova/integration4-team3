@@ -1,0 +1,58 @@
+/* ─── Reset ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─── Tokens ──────────────────────────────────────── */
+:root {
+  --bg:          #F5F2EC;
+  --dark:        #18181F;
+  --mid:         #9090A0;
+  --light:       #E8E8EC;
+  --white:       #ffffff;
+  --blue:        #3535FF;
+  --green:       #00c853;
+  --color-yellow: #f9ff75;
+  --color-navy:   #202020;
+  --font-pixel:   'Press Start 2P', monospace;
+  --font:        'Space Grotesk', sans-serif;
+  --script:      'Playfair Display', serif;
+  --nav-h:       68px;
+  --nav-h-safe:  calc(68px + env(safe-area-inset-bottom, 0px));
+  --settings-bottom-pad: calc(48px + var(--nav-h-safe));
+  --diary-dock-h: 118px;
+  --diary-dock-h-mobile: 168px;
+  --sticker-tray-size: 44px;
+  --sticker-placed-size: calc(var(--sticker-tray-size) * 3);
+  --desktop-inset: 16px;
+  --desktop-nav-width: 80px;
+  --desktop-panel-gap: 11px;
+  --desktop-panel-width: 378px;
+  --desktop-nav-end: calc(var(--desktop-inset) + var(--desktop-nav-width) + var(--desktop-panel-gap));
+  --desktop-map-end: calc(var(--desktop-nav-end) + var(--desktop-panel-width));
+}
+
+/* ─── Base ────────────────────────────────────────── */
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+html img {
+  max-width: 100%;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  background-color: var(--color-yellow);
+  color: var(--color-navy);
+  display: inline-block;
+  padding: 4px 8px;
+}

@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router';
-import { homePathWithAddMemo, paths } from '../utils/appPaths';
+import { guestAddMemoPath, homePathWithAddMemo, paths } from '../utils/appPaths';
 import { journalAssets } from '../utils/journalAssets';
+import { useAuth } from '../context/AuthContext';
 
 function NavItem({ id, label, active, to, onClick, children }) {
   const isActive = active === id;
@@ -34,6 +35,7 @@ function NavItem({ id, label, active, to, onClick, children }) {
 export default function BottomNav({ onAddClick }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const active =
     pathname.startsWith('/profile') || pathname.startsWith('/stickers') ? 'profile'
@@ -44,6 +46,10 @@ export default function BottomNav({ onAddClick }) {
   function handleAddClick() {
     if (onAddClick) {
       onAddClick();
+      return;
+    }
+    if (!user) {
+      navigate(guestAddMemoPath());
       return;
     }
     navigate(homePathWithAddMemo());

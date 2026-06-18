@@ -1,3 +1,7 @@
+import '../styles/modules/bottom-nav.css';
+import '../styles/modules/location-detail.css';
+import '../styles/modules/discover.css';
+import '../styles/modules/diary.css';
 // route for the location detail page 
 
 import { useLoaderData } from 'react-router';

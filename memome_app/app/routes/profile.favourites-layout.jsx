@@ -1,3 +1,4 @@
+import '../styles/modules/profile-collections.css';
 import FavouritesLayout from '../components/profile/FavouritesLayout';
 
 export function meta() {

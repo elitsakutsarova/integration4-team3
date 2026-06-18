@@ -1,3 +1,5 @@
+import '../styles/modules/stickers.css';
+import '../styles/modules/map.css';
 import { useState } from 'react';
 import { Link, useLoaderData, useSearchParams } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';

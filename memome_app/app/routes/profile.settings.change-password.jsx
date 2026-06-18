@@ -1,3 +1,5 @@
+import '../styles/modules/auth.css';
+import '../styles/modules/settings.css';
 import ChangePasswordPage from '../components/settings/ChangePasswordPage';
 
 export function meta() {

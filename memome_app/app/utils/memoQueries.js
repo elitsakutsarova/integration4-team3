@@ -104,7 +104,10 @@ export async function fetchMemosAtPlace(
     .map(mapMemoRowToPin);
 }
 
-export async function countMemosAtSpot(client, params) {
+export async function countMemosAtSpot(client, params, { excludeMemoId } = {}) {
   const memos = await fetchMemosAtPlace(client, params, { limit: MAX_MEMOS_PER_SPOT + 1 });
-  return memos.length;
+  const filtered = excludeMemoId
+    ? memos.filter((memo) => memo.id !== excludeMemoId)
+    : memos;
+  return filtered.length;
 }

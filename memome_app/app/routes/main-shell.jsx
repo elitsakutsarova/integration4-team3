@@ -1,3 +1,5 @@
+import '../styles/modules/map.css';
+import '../styles/modules/bottom-nav.css';
 import { Outlet, useLoaderData, useLocation } from 'react-router';
 import MapView from '../components/MapView';
 import DesktopNav from '../components/DesktopNav';
@@ -5,6 +7,7 @@ import AuthLoading from '../components/auth/AuthLoading';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { fetchMemos } from '../utils/memoStore';
 import { paths } from '../utils/appPaths';
+import { shouldRevalidateForFormAction } from '../utils/revalidatePolicy';
 
 export async function clientLoader() {
   await bootstrapAuthSession();
@@ -24,7 +27,7 @@ export function HydrateFallback() {
 }
 
 export function shouldRevalidate({ formAction }) {
-  return Boolean(formAction);
+  return shouldRevalidateForFormAction(formAction);
 }
 
 export default function MainShell() {

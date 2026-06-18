@@ -1,3 +1,4 @@
+import '../styles/modules/auth.css';
 // this file is the registration (sign-up) page for the web app
 
 import { useState } from 'react';

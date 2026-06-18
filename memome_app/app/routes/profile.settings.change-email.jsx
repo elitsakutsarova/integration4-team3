@@ -1,3 +1,5 @@
+import '../styles/modules/auth.css';
+import '../styles/modules/settings.css';
 import ChangeEmailPage from '../components/settings/ChangeEmailPage';
 
 export function meta() {

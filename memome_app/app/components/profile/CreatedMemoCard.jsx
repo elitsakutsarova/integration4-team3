@@ -1,7 +1,8 @@
 import { Link } from 'react-router';
 import DiscoverShareIcon from '../discover/DiscoverShareIcon';
+import { useSavedMemos } from '../../context/SavedMemosContext';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
-import { homePathWithAddMemo } from '../../utils/appPaths';
+import { homePathWithAddMemo, profileMemoEditPath } from '../../utils/appPaths';
 
 function MemoPhoto({ memo, className }) {
   const hasMedia = Boolean(memo.mediaPreview?.url);
@@ -24,16 +25,71 @@ function MemoPhoto({ memo, className }) {
   );
 }
 
+function MemoFavoriteButton({ memoId, label }) {
+  const { isSaved, toggleMemo } = useSavedMemos();
+  const saved = isSaved(memoId);
+
+  return (
+    <button
+      type="button"
+      className={`created-memo-card__action created-memo-card__action--favorite${saved ? ' created-memo-card__action--favorite-saved' : ''}`}
+      aria-label={saved ? `Remove ${label} from favourites` : `Save ${label} to favourites`}
+      aria-pressed={saved}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleMemo(memoId);
+      }}
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          fill={saved ? 'currentColor' : 'none'}
+        />
+      </svg>
+    </button>
+  );
+}
+
 function MemoEditLink({ memo }) {
-  const mapPath = Array.isArray(memo.ll) && memo.ll.length >= 2
-    ? homePathWithAddMemo(memo.ll[0], memo.ll[1])
-    : homePathWithAddMemo();
+  if (!memo.fromDb || !memo.id) {
+    const mapPath = Array.isArray(memo.ll) && memo.ll.length >= 2
+      ? homePathWithAddMemo(memo.ll[0], memo.ll[1])
+      : homePathWithAddMemo();
+
+    return (
+      <Link
+        to={mapPath}
+        className="created-memo-card__action created-memo-card__action--edit"
+        aria-label={`View memo at ${memo.location} on map`}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Link>
+    );
+  }
 
   return (
     <Link
-      to={mapPath}
+      to={profileMemoEditPath(memo.id)}
       className="created-memo-card__action created-memo-card__action--edit"
-      aria-label={`View memo at ${memo.location} on map`}
+      aria-label={`Edit memo at ${memo.location}`}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
@@ -55,7 +111,12 @@ function MemoEditLink({ memo }) {
   );
 }
 
-export default function CreatedMemoCard({ memo, onShare }) {
+export default function CreatedMemoCard({
+  memo,
+  onShare,
+  showEdit = true,
+  showFavorite = false,
+}) {
   const locationHref = memo.locationHref ?? null;
   const canOpenMaps = Array.isArray(memo.ll) && memo.ll.length >= 2;
 
@@ -81,7 +142,7 @@ export default function CreatedMemoCard({ memo, onShare }) {
         </div>
 
         <div className="created-memo-card__toolbar">
-          {onShare && (
+          {onShare ? (
             <button
               type="button"
               className="created-memo-card__action created-memo-card__action--share"
@@ -90,8 +151,11 @@ export default function CreatedMemoCard({ memo, onShare }) {
             >
               <DiscoverShareIcon />
             </button>
+          ) : (
+            <span aria-hidden="true" />
           )}
-          <MemoEditLink memo={memo} />
+          {showFavorite && <MemoFavoriteButton memoId={memo.id} label={memo.location} />}
+          {showEdit && <MemoEditLink memo={memo} />}
         </div>
       </div>
 

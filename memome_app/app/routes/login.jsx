@@ -1,3 +1,4 @@
+import '../styles/modules/auth.css';
 // route for the login page
 
 import { useEffect, useState } from 'react';

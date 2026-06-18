@@ -1,3 +1,4 @@
+import '../styles/modules/journals.css';
 import CreateJournalPage from '../components/journals/CreateJournalPage';
 import CreateJournalDecorations from '../components/journals/CreateJournalDecorations';
 

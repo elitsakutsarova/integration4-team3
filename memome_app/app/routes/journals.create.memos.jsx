@@ -1,3 +1,5 @@
+import '../styles/modules/map.css';
+import '../styles/modules/journals.css';
 import AddJournalMemosPage from '../components/journals/AddJournalMemosPage';
 import CreateJournalDecorations from '../components/journals/CreateJournalDecorations';
 

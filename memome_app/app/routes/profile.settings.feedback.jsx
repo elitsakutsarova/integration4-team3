@@ -1,3 +1,5 @@
+import '../styles/modules/auth.css';
+import '../styles/modules/settings.css';
 import SendFeedbackPage from '../components/settings/SendFeedbackPage';
 
 export function meta() {

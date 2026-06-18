@@ -1,3 +1,5 @@
+import '../styles/modules/auth.css';
+import '../styles/modules/settings.css';
 import AccountDetailsPage from '../components/settings/AccountDetailsPage';
 
 export function meta() {

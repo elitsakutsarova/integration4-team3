@@ -1,3 +1,5 @@
+import '../styles/modules/auth.css';
+import '../styles/modules/settings.css';
 import SettingsPage from '../components/settings/SettingsPage';
 
 export function meta() {

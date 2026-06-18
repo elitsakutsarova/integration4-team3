@@ -1,3 +1,4 @@
+import '../styles/modules/connect.css';
 // QR code generator and testing page for the sticker collection feature
 
 import { useState } from 'react';

@@ -1,3 +1,7 @@
+import '../styles/modules/profile.css';
+import '../styles/modules/profile-collections.css';
+import '../styles/modules/map.css';
+import '../styles/modules/diary.css';
 import { useAuth } from '../context/AuthContext';
 import GuestAuthCta from '../components/GuestAuthCta';
 import ProfileHero from '../components/profile/ProfileHero';

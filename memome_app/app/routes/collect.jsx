@@ -1,3 +1,5 @@
+import '../styles/modules/collect.css';
+import '../styles/modules/auth.css';
 // collect a sticker page
 // when the user scans a sticker QR code, it automatically gives them a random digital sticker and show them the result
 

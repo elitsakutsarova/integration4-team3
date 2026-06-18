@@ -1,3 +1,4 @@
+import '../styles/modules/journals.css';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import EditJournalPage from '../components/journals/EditJournalPage';

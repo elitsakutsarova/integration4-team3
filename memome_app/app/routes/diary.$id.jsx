@@ -1,3 +1,5 @@
+import '../styles/modules/diary.css';
+import '../styles/modules/journals.css';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import JournalDetailPage from '../components/journals/JournalDetailPage';

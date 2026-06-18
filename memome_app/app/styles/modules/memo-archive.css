@@ -1,0 +1,140 @@
+/* ─── Memo Archive page (Figma 392-48844) ─────────── */
+.memo-archive-page {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+  padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+}
+
+.memo-archive-header {
+  position: relative;
+  min-height: 150px;
+  overflow: hidden;
+}
+
+.memo-archive-header-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(196deg, rgba(209, 220, 255, 0.95) 2%, rgba(209, 220, 255, 0) 52%),
+    repeating-linear-gradient(0deg, rgba(25, 82, 255, 0.06) 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, rgba(25, 82, 255, 0.06) 0 1px, transparent 1px 24px);
+}
+
+.memo-archive-header-wave {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 120px;
+  height: 80px;
+  border: 2px dashed #1952ff;
+  border-radius: 999px 999px 0 0;
+  transform: rotate(8deg);
+  opacity: 0.55;
+}
+
+.memo-archive-back {
+  position: absolute;
+  top: 95px;
+  left: 16px;
+  z-index: 2;
+  width: 53px;
+  height: 49px;
+  border: none;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.memo-archive-title-banner {
+  position: absolute;
+  top: 86px;
+  left: 0;
+  width: min(100%, 319px);
+  padding: 23px 16px 23px 87px;
+  background: #f9ff75;
+}
+
+.memo-archive-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0.7px;
+  color: #1e1e1e;
+}
+
+.memo-archive-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px 20px;
+}
+
+.memo-archive-spot-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #000;
+}
+
+.memo-archive-spot-highlight {
+  background: #d1dcff;
+  padding: 2px 6px;
+  box-decoration-break: clone;
+}
+
+.memo-archive-count {
+  margin: 8px 0 0;
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 300;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.memo-archive-scroll {
+  padding: 0 16px 24px;
+}
+
+.memo-archive-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.memory-sheet--archive {
+  width: 100%;
+  max-width: none;
+  animation: none;
+}
+
+.memory-sheet--archive::after {
+  display: none;
+}
+
+.memo-archive-empty {
+  margin: 0;
+  padding: 24px 0 40px;
+  font-size: 15px;
+  color: #6b7280;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .featured-memos-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .memo-archive-page {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
