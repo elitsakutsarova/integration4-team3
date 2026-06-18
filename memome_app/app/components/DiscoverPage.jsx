@@ -56,28 +56,29 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
           <div className="discover-grid-pattern" />
         </div>
 
-        <SearchOpenButton className="discover-search discover-search--trigger" variant="discover" />
+        <div className="discover-search-container">
+          <SearchOpenButton className="discover-search discover-search--trigger" variant="discover" />
+
+          <div className="discover-filters" role="tablist" aria-label="Discover categories">
+            {DISCOVER_CATEGORIES.map(category => {
+              const isActive = activeCategory === category.id;
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  className={`discover-filter-chip${isActive ? ' discover-filter-chip--active' : ''}`}
+                  onClick={() => setActiveCategory(category.id)}
+                >
+                  {category.icon && <CategoryIcon name={category.icon} />}
+                  {category.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </header>
-
-      <div className="discover-filters" role="tablist" aria-label="Discover categories">
-        {DISCOVER_CATEGORIES.map(category => {
-          const isActive = activeCategory === category.id;
-          return (
-            <button
-              key={category.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              className={`discover-filter-chip${isActive ? ' discover-filter-chip--active' : ''}`}
-              onClick={() => setActiveCategory(category.id)}
-            >
-              {category.icon && <CategoryIcon name={category.icon} />}
-              {category.label}
-            </button>
-          );
-        })}
-      </div>
-
       <section className="discover-section" aria-labelledby="discover-happening-now">
         <SectionHeader
           title="Happening now"
@@ -94,6 +95,10 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
         </div>
       </section>
 
+<div className="discover-upcoming-container">
+        <svg className="discover-wave discover-wave--top" xmlns="http://www.w3.org/2000/svg" width="393" height="46" viewBox="0 0 393 46" fill="none">
+          <path d="M224.586 37.5198C149.578 38.4133 45.6965 -9.22612 0 18.5097V46H393V0.0140935C329.722 -0.83121 299.594 36.6264 224.586 37.5198Z" fill="#F1F4FF" />
+        </svg>
       <section className="discover-section discover-section--upcoming" aria-labelledby="discover-upcoming">
         <SectionHeader
           id="discover-upcoming"
@@ -109,9 +114,12 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
           )}
         </div>
       </section>
-
+        <svg className="discover-wave discover-wave--bottom" xmlns="http://www.w3.org/2000/svg" width="393" height="41" viewBox="0 0 393 41" fill="none">
+          <path d="M170.174 14.1501C246.334 17.7163 350.644 51.2886 397.691 37.5316L397.293 9.89315L-0.57586 1.97479e-05L-1.6738 26.9399C62.5377 30.8851 94.0138 10.584 170.174 14.1501Z" fill="#F1F4FF" />
+        </svg>
+      </div>
       <section className="discover-section discover-section--places" aria-labelledby="discover-places">
-        <div className="discover-pin-deco" aria-hidden="true">
+        {/* <div className="discover-pin-deco" aria-hidden="true">
           <svg className="discover-pin-line" viewBox="0 0 400 70" preserveAspectRatio="none">
             <path d="M0 55 C120 10, 220 80, 400 20" fill="none" stroke="#1952ff" strokeWidth="2" strokeDasharray="4 6" />
           </svg>
@@ -119,10 +127,10 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
             <path d="M12 1C7.03 1 3 5.03 3 10c0 7.5 9 19 9 19s9-11.5 9-19c0-4.97-4.03-9-9-9z" fill="#00b26f" stroke="#002c1c" strokeWidth="1" />
             <circle cx="12" cy="10" r="3" fill="#66ebb9" />
           </svg>
-        </div>
+        </div> */}
         <SectionHeader
           id="discover-places"
-          title="Places worth a memo"
+          title="Spots worth a memo"
           highlightWidth="229px"
           underlined
           viewAllTo={paths.discoverPlaces}

@@ -174,3 +174,37 @@ html img {
   display: inline-block;
   padding: 4px 8px;
 }
+
+a {
+  text-decoration: none;
+}
+
+h1 {
+  color: var(--grey-300, #202020);
+    font-feature-settings: 'dlig' on;
+    font-family: Antwerpen;
+    font-size: 1.75rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.25rem;
+}
+
+h2 {
+  color: var(--grey-300, #202020);
+    font-feature-settings: 'dlig' on;
+    font-family: Antwerpen;
+    font-size: 1.25rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.25rem;
+}
+
+h3 {
+  color: var(--grey-300, #202020);
+    font-feature-settings: 'dlig' on;
+    font-family: SunAntwerpen;
+    font-size: 1.25rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.25rem;
+}
