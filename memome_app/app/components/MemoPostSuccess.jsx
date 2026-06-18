@@ -1,13 +1,17 @@
 import { memoPostSuccessAssets } from '../utils/memoPostSuccessAssets';
 
-export default function MemoPostSuccess({ description = 'Your memo was posted', onClose }) {
+export default function MemoPostSuccess({
+  description = 'Your memo was posted',
+  onClose,
+  dismissible = true,
+}) {
   return (
     <div
       className="memo-post-success-backdrop"
       role="presentation"
-      onClick={onClose}
+      onClick={dismissible ? onClose : undefined}
       onKeyDown={(event) => {
-        if (event.key === 'Escape') onClose();
+        if (dismissible && event.key === 'Escape') onClose?.();
       }}
     >
       <div

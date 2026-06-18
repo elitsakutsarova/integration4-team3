@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useFetcher, useNavigate, useSearchParams } from 'react-router';
+import { Link, useBlocker, useFetcher, useNavigate, useSearchParams } from 'react-router';
 import MemoLocationPicker from './MemoLocationPicker';
 import MemoPostSuccess from './MemoPostSuccess';
+import EditMemoWarningModal from './EditMemoWarningModal';
 import SectionTitle from './SectionTitle';
 import { addMemoFormAssets } from '../utils/addMemoFormAssets';
 import { paths } from '../utils/appPaths';
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
+import { isEditMemoDirty } from '../utils/isEditMemoDirty';
 import { validateMemoMediaFile } from '../utils/validators';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 
 const QUOTE_MAX = 100;
 const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
+const SUCCESS_DISPLAY_MS = 2000;
 
 function TrashIcon() {
   return (
@@ -126,6 +129,7 @@ export default function EditMemoPage({ memo }) {
   const { updateCreatedMemo } = useCreatedMemos();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const initialHadMedia = Boolean(memo?.mediaPreview?.url);
   const initialMedia = buildInitialMedia(memo);
   const [mediaPreview, setMediaPreview] = useState(initialMedia);
   const [mediaPhase, setMediaPhase] = useState(initialMedia ? 'preview' : 'idle');
@@ -136,6 +140,7 @@ export default function EditMemoPage({ memo }) {
   const [quote, setQuote] = useState(memo.quote ?? '');
   const [quoteTouched, setQuoteTouched] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [warningOpen, setWarningOpen] = useState(false);
   const [locationDraft, setLocationDraft] = useState({
     lat: memo.ll?.[0] ?? null,
     lng: memo.ll?.[1] ?? null,
@@ -148,6 +153,9 @@ export default function EditMemoPage({ memo }) {
   const mediaPreviewRef = useRef(null);
   const loadTimerRef = useRef(null);
   const handledSubmitRef = useRef(false);
+  const isDiscardingRef = useRef(false);
+  const isSubmittingRef = useRef(false);
+  const leaveTargetRef = useRef(paths.profileMemos);
   mediaPreviewRef.current = mediaPreview;
 
   const pickLocation = searchParams.get('step') === 'location';
@@ -171,6 +179,24 @@ export default function EditMemoPage({ memo }) {
   const canSubmit = selectedTags.length > 0 && quoteValid && hasLocation && !mediaBlocking && !isSubmitting;
   const publishActive = canSubmit;
 
+  const isDirty = useMemo(
+    () => isEditMemoDirty(memo, {
+      quote,
+      selectedTags,
+      locationDraft,
+      removeMedia,
+      mediaPreview,
+      initialHadMedia,
+    }),
+    [memo, quote, selectedTags, locationDraft, removeMedia, mediaPreview, initialHadMedia],
+  );
+
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
+    if (isSubmittingRef.current || isDiscardingRef.current || !isDirty) return false;
+    if (currentLocation.pathname === nextLocation.pathname) return false;
+    return true;
+  });
+
   const locationPickerHref = useMemo(() => {
     const next = new URLSearchParams(searchParams);
     next.set('step', 'location');
@@ -184,6 +210,13 @@ export default function EditMemoPage({ memo }) {
   }, []);
 
   useEffect(() => {
+    if (blocker.state === 'blocked') {
+      leaveTargetRef.current = blocker.location?.pathname ?? paths.profileMemos;
+      setWarningOpen(true);
+    }
+  }, [blocker.state, blocker.location?.pathname]);
+
+  useEffect(() => {
     if (fetcher.state === 'submitting' || fetcher.state === 'loading') {
       handledSubmitRef.current = false;
       return;
@@ -192,9 +225,44 @@ export default function EditMemoPage({ memo }) {
     if (!fetcher.data?.success || fetcher.data?.kind !== 'update') return;
 
     handledSubmitRef.current = true;
+    isSubmittingRef.current = true;
     if (fetcher.data.memo) updateCreatedMemo(fetcher.data.memo);
     setShowSuccess(true);
   }, [fetcher.state, fetcher.data, updateCreatedMemo]);
+
+  useEffect(() => {
+    if (!showSuccess) return undefined;
+
+    const timer = window.setTimeout(() => {
+      navigate(paths.profileMemos, { replace: true });
+    }, SUCCESS_DISPLAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [showSuccess, navigate]);
+
+  function handleBack() {
+    if (!isDirty) {
+      navigate(paths.profileMemos);
+      return;
+    }
+    leaveTargetRef.current = paths.profileMemos;
+    setWarningOpen(true);
+  }
+
+  function handleContinueEditing() {
+    setWarningOpen(false);
+    if (blocker.state === 'blocked') blocker.reset();
+  }
+
+  function handleDiscard() {
+    isDiscardingRef.current = true;
+    setWarningOpen(false);
+    if (blocker.state === 'blocked') {
+      blocker.proceed();
+      return;
+    }
+    navigate(leaveTargetRef.current);
+  }
 
   function clearLoadTimer() {
     if (loadTimerRef.current) {
@@ -288,11 +356,6 @@ export default function EditMemoPage({ memo }) {
       return next;
     }, { replace: true });
   }, [setSearchParams]);
-
-  function handleSuccessClose() {
-    setShowSuccess(false);
-    navigate(paths.profileMemos);
-  }
 
   function renderMediaZone() {
     if (mediaPhase === 'preview' && mediaPreview) {
@@ -397,7 +460,7 @@ export default function EditMemoPage({ memo }) {
             <button
               type="button"
               className="memo-form-back-btn"
-              onClick={() => navigate(paths.profileMemos)}
+              onClick={handleBack}
               aria-label="Back to created memos"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -563,9 +626,15 @@ export default function EditMemoPage({ memo }) {
       {showSuccess && (
         <MemoPostSuccess
           description="Your memo was edited"
-          onClose={handleSuccessClose}
+          dismissible={false}
         />
       )}
+
+      <EditMemoWarningModal
+        open={warningOpen}
+        onContinue={handleContinueEditing}
+        onDiscard={handleDiscard}
+      />
     </>
   );
 }
