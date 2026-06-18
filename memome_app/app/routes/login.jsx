@@ -14,7 +14,8 @@ import {
 import AuthHero from '../components/auth/AuthHero';
 import { CrossCircleIcon, EyeIcon, LockIcon } from '../components/auth/AuthIcons';
 import { loginActionError, signInAccount } from '../utils/authActions';
-import { LOGIN_EMAIL_ERROR, LOGIN_PASSWORD_ERROR } from '../utils/loginErrors';
+import { LOGIN_PASSWORD_ERROR } from '../utils/loginErrors';
+import { clearPasswordResetFlow, getPasswordResetFlowEmailForLogin } from '../utils/passwordResetFlow';
 import { checkEmailRegistered } from '../utils/authStore';
 import { paths, safeInternalRedirectPath } from '../utils/appPaths';
 import { validateEmail, validateSignInPayload } from '../utils/validators';
@@ -84,12 +85,12 @@ export function meta() {
 export async function clientLoader({ request }) {
   const url = new URL(request.url);
   const redirectTo = safeInternalRedirectPath(url.searchParams.get('redirectTo')) ?? '';
-  const email = url.searchParams.get('email')?.trim() ?? '';
+  const email = getPasswordResetFlowEmailForLogin();
   return {
     authError: url.searchParams.get('authError') ?? '',
     redirectTo,
     email,
-    passwordReset: url.searchParams.get('passwordReset') === '1',
+    passwordReset: false,
   };
 }
 
@@ -137,6 +138,7 @@ export async function clientAction({ request }) {
     return loginActionError(result.error, validated.email, validated.password);
   }
 
+  clearPasswordResetFlow();
   throw redirect(paths.home);
 }
 

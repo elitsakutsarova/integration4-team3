@@ -338,7 +338,7 @@
 }
 
 .auth-btn--primary {
-  background: var(--dark);
+  background: #1952ff;
   color: #fff;
   border: none;
 }
@@ -1255,6 +1255,42 @@
   margin-top: 8px;
 }
 
+.auth-success-toast-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 16000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+@keyframes auth-success-toast-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.auth-success-toast {
+  max-width: 280px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+  text-align: center;
+  animation: auth-success-toast-enter 0.2s ease-out;
+}
+
 .forgot-password-page .auth-input-wrap--error {
   background: var(--white);
   border-color: #9ca3af;
@@ -1383,4 +1419,95 @@
 .reset-password-page .auth-input-wrap--error {
   background: var(--white);
   border-color: #9ca3af;
+}
+
+/* ─── Reset password success page ───────────────────── */
+
+.reset-password-success-page {
+  background: var(--white);
+}
+
+.reset-password-success-shell {
+  padding: 0 16px 40px;
+  align-items: center;
+}
+
+.reset-password-success-page .auth-hero {
+  min-height: 360px;
+  width: 100%;
+  margin-bottom: 0;
+  overflow: visible;
+}
+
+.reset-password-success-page .auth-hero__scene {
+  align-self: center;
+  justify-self: center;
+  padding: 24px 0 0;
+  margin-bottom: 0;
+  margin-top: 7rem;
+}
+
+.reset-success-hero-scene {
+  display: grid;
+  grid-template-areas: 'stack';
+  width: min(100%, 360px);
+  justify-items: center;
+  align-items: center;
+}
+
+.reset-success-hero-scene > * {
+  grid-area: stack;
+}
+
+.reset-success-hero-scene__path {
+  width: min(514px, 118%);
+  height: auto;
+  justify-self: center;
+  align-self: center;
+}
+
+.reset-success-hero-scene__icon {
+  width: 171px;
+  height: auto;
+  justify-self: center;
+  align-self: center;
+  z-index: 1;
+}
+
+.reset-success-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 16px;
+}
+
+.reset-success-message {
+  margin: 0;
+  max-width: 225px;
+  text-align: center;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #797979;
+}
+
+.reset-success-message__highlight {
+  background-color: var(--color-yellow, #f9ff75);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 4px;
+}
+
+.reset-success-signin {
+  width: min(275px, 100%);
+  min-height: 48px;
+  border-radius: 8px;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 20px;
+  font-weight: 400;
+  text-decoration: none;
 }

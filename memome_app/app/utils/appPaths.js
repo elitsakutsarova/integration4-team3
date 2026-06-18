@@ -13,6 +13,7 @@ export const paths = {
   login: href('/login'),
   forgotPassword: href('/forgot-password'),
   resetPassword: href('/reset-password'),
+  resetPasswordSuccess: href('/reset-password/success'),
   register: href('/register'),
   profile: href('/profile'),
   profileSettings: href('/profile/settings'),
@@ -95,9 +96,12 @@ export function homePathWithAddMemo(
   return `${paths.home}?${params.toString()}`;
 }
 
-export function resetPasswordPath(email) {
-  const params = new URLSearchParams({ email });
-  return `${paths.resetPassword}?${params.toString()}`;
+export function resetPasswordPath() {
+  return paths.resetPassword;
+}
+
+export function resetPasswordSuccessPath() {
+  return paths.resetPasswordSuccess;
 }
 
 /** Allow same-origin relative paths only — blocks open redirects. */
@@ -122,6 +126,7 @@ const PUBLIC_APP_PATHS = new Set([
   paths.login,
   paths.forgotPassword,
   paths.resetPassword,
+  paths.resetPasswordSuccess,
   paths.register,
   paths.collect,
 ]);

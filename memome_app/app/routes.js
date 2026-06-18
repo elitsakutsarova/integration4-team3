@@ -39,6 +39,7 @@ export default [
   route("login", "routes/login.jsx"),
   route("forgot-password", "routes/forgot-password.jsx"),
   route("reset-password", "routes/reset-password.jsx"),
+  route("reset-password/success", "routes/reset-password-success.jsx"),
   route("register", "routes/register.jsx"),
   route("stickers", "routes/account-layout.stickers.jsx", [
     index("routes/stickers.jsx"),

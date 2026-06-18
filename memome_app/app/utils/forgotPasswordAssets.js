@@ -12,4 +12,6 @@ export const forgotPasswordAssets = {
   questionMark: asset('question_mark.svg'),
   greenStar: asset('green_star.svg'),
   resetIcon: asset('reset-password', 'reset_icon.svg'),
+  successIcon: asset('reset-password', 'success_icon.svg'),
+  doodlePath: asset('reset-password', 'doodle_path.svg'),
 };

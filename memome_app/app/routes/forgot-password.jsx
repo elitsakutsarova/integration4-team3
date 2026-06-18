@@ -1,10 +1,11 @@
 import '../styles/modules/auth.css';
 import { useEffect, useState } from 'react';
-import { Form, redirect, useActionData, useNavigation } from 'react-router';
+import { Form, useActionData, useNavigate, useNavigation } from 'react-router';
 import AuthBackButton from '../components/auth/AuthBackButton';
 import { CrossCircleIcon } from '../components/auth/AuthIcons';
 import { requestPasswordReset } from '../utils/authStore';
 import { paths, resetPasswordPath } from '../utils/appPaths';
+import { beginPasswordResetFlow } from '../utils/passwordResetFlow';
 import { forgotPasswordAssets } from '../utils/forgotPasswordAssets';
 import { guestOnlyMiddleware } from '../middleware/clientAuth';
 import { validateEmail } from '../utils/validators';
@@ -64,7 +65,7 @@ export async function clientAction({ request }) {
     return { email, formError: result.error.message };
   }
 
-  throw redirect(resetPasswordPath(validated.value));
+  return { success: true, email: validated.value };
 }
 
 function ForgotPasswordHero() {
@@ -104,9 +105,11 @@ function ForgotPasswordHero() {
 export default function ForgotPassword() {
   const actionData = useActionData();
   const navigation = useNavigation();
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState(actionData?.email ?? '');
   const [touched, setTouched] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const serverEmailError = getActiveServerFieldError(
     actionData?.fieldErrors?.email ?? '',
@@ -124,6 +127,18 @@ export default function ForgotPassword() {
   useEffect(() => {
     if (actionData?.fieldErrors?.email) setTouched(true);
   }, [actionData?.fieldErrors?.email]);
+
+  useEffect(() => {
+    if (!actionData?.success || !actionData?.email) return;
+
+    setShowSuccessPopup(true);
+    const timer = window.setTimeout(() => {
+      beginPasswordResetFlow(actionData.email);
+      navigate(resetPasswordPath());
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [actionData?.success, actionData?.email, navigate]);
 
   return (
     <div className="auth-page forgot-password-page">
@@ -185,6 +200,14 @@ export default function ForgotPassword() {
             </button>
         </Form>
       </div>
+
+      {showSuccessPopup && (
+        <div className="auth-success-toast-backdrop" role="presentation">
+          <div className="auth-success-toast" role="status" aria-live="polite">
+            Link requested successfully
+          </div>
+        </div>
+      )}
     </div>
   );
 }

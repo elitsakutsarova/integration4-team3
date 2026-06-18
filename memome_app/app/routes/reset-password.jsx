@@ -2,25 +2,34 @@ import '../styles/modules/auth.css';
 import { useEffect, useState } from 'react';
 import {
   data,
-  redirect,
   useFetcher,
   useLoaderData,
   useNavigate,
 } from 'react-router';
 import AuthBackButton from '../components/auth/AuthBackButton';
+import AuthLoading from '../components/auth/AuthLoading';
 import { CrossCircleIcon, EyeIcon, LockIcon } from '../components/auth/AuthIcons';
 import PasswordStrengthFeedback from '../components/settings/PasswordStrengthFeedback';
-import { paths } from '../utils/appPaths';
+import { paths, resetPasswordSuccessPath } from '../utils/appPaths';
 import { forgotPasswordAssets } from '../utils/forgotPasswordAssets';
 import { guestOnlyMiddleware } from '../middleware/clientAuth';
+import { requirePasswordResetVerifiedMiddleware } from '../utils/passwordResetMiddleware';
 import { clearBrowserAuthSession, resetPassword } from '../utils/authStore';
+import {
+  canAccessResetPasswordPage,
+  completePasswordResetFlow,
+  getPasswordResetFlowEmail,
+} from '../utils/passwordResetFlow';
 import { isSupabaseConfigured } from '../utils/supabase.env';
 import { getPasswordChecks } from '../utils/passwordRules';
 import { validatePassword, validateResetPasswordPayload } from '../utils/validators';
 
 export { action } from './reset-password.server.js';
 
-export const clientMiddleware = guestOnlyMiddleware;
+export const clientMiddleware = [
+  ...guestOnlyMiddleware,
+  requirePasswordResetVerifiedMiddleware,
+];
 
 function clientFieldError(field, values) {
   const { newPassword, confirmPassword } = values;
@@ -68,17 +77,19 @@ export function meta() {
   ];
 }
 
-export async function clientLoader({ request }) {
-  const url = new URL(request.url);
-  const email = url.searchParams.get('email')?.trim() ?? '';
-  if (!email) throw redirect(paths.forgotPassword);
-  return { email };
+export async function clientLoader() {
+  return { email: getPasswordResetFlowEmail() };
 }
 
 clientLoader.hydrate = true;
 
+export function HydrateFallback() {
+  return <AuthLoading />;
+}
+
 export async function clientAction({ request, serverAction }) {
   const formData = await request.clone().formData();
+  const resetEmail = String(formData.get('email') ?? '').trim();
   const validated = validateResetPasswordPayload({
     newPassword: String(formData.get('newPassword') ?? ''),
     confirmPassword: String(formData.get('confirmPassword') ?? ''),
@@ -88,16 +99,42 @@ export async function clientAction({ request, serverAction }) {
     return data({ error: validated });
   }
 
+  const sessionEmail = getPasswordResetFlowEmail();
+  if (!canAccessResetPasswordPage() || resetEmail !== sessionEmail) {
+    return data({
+      error: {
+        field: 'form',
+        message: 'Your reset session expired. Request a new link from forgot password.',
+      },
+    });
+  }
+
+  let payload;
+
   if (!isSupabaseConfigured()) {
     const result = await resetPassword({
-      email: String(formData.get('email') ?? ''),
+      email: resetEmail,
       newPassword: validated.newPassword,
     });
     if (result.error) return data({ error: result.error });
-    return data({ success: true, kind: 'password', email: String(formData.get('email') ?? '') });
+    payload = { success: true, kind: 'password', email: resetEmail };
+  } else {
+    const serverResponse = await serverAction();
+    payload = serverResponse?.data ?? serverResponse;
+    if (payload?.error) return data({ error: payload.error });
   }
 
-  return serverAction();
+  if (payload?.success && payload?.kind === 'password') {
+    await clearBrowserAuthSession();
+    completePasswordResetFlow();
+    return data({
+      success: true,
+      kind: 'password',
+      email: payload.email ?? resetEmail,
+    });
+  }
+
+  return data(payload);
 }
 
 function mapApiFieldErrors(fetcherData) {
@@ -204,13 +241,7 @@ export default function ResetPassword() {
 
   useEffect(() => {
     if (!fetcher.data?.success || fetcher.data?.kind !== 'password') return;
-
-    const resetEmail = fetcher.data.email ?? email;
-    const params = new URLSearchParams({ passwordReset: '1', email: resetEmail });
-
-    void clearBrowserAuthSession().finally(() => {
-      navigate(`${paths.login}?${params.toString()}`, { replace: true });
-    });
+    navigate(resetPasswordSuccessPath(), { replace: true });
   }, [fetcher.data, email, navigate]);
 
   const handleSubmit = (event) => {
