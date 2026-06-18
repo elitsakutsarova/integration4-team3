@@ -106,9 +106,9 @@ export function validateUsername(raw) {
 
 export function validateUserRole(raw) {
   const role = stripControlChars(raw).trim().toLowerCase();
-  if (!role) return validationError('role', 'Please select Visitor or Local to continue');
+  if (!role) return validationError('role', 'Please select if you are a Visitor or a Local to continue');
   if (!USER_ROLES.has(role)) {
-    return validationError('role', 'Please select Visitor or Local to continue');
+    return validationError('role', 'Please select if you are a Visitor or a Local to continue');
   }
   return { value: role };
 }
@@ -159,6 +159,26 @@ export function validateChangePasswordPayload({ oldPassword, newPassword, confir
   }
 
   return { oldPassword: old, newPassword: newResult.value };
+}
+
+export const NEW_PASSWORD_SAME_AS_OLD_MESSAGE = "New password can't be the same as the old one";
+
+export function validateResetPasswordPayload({ newPassword, confirmPassword }) {
+  const newResult = validatePassword(newPassword);
+  if (newResult.field) {
+    return validationError(
+      'newPassword',
+      'Password must be at least 8 characters and include an uppercase, lowercase and number',
+    );
+  }
+
+  const confirm = String(confirmPassword ?? '');
+  if (!confirm) return validationError('confirmPassword', 'Confirm your new password');
+  if (confirm !== newResult.value) {
+    return validationError('confirmPassword', 'Passwords do not match');
+  }
+
+  return { newPassword: newResult.value };
 }
 
 export function validateChangeEmailPayload({ oldEmail, newEmail, password }) {

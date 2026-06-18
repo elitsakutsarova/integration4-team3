@@ -1,3 +1,8 @@
+// layout route for our application
+// loads shared data (memos)
+// shows UI that should exist on multiple pages (navigation + map)
+// renders child routes via Outlet
+
 import '../styles/modules/map.css';
 import '../styles/modules/bottom-nav.css';
 import { Outlet, useLoaderData, useLocation } from 'react-router';

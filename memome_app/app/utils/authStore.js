@@ -1,6 +1,8 @@
 // auth engine - logic layer
 
+import { paths } from './appPaths';
 import { clearAccountClientData } from './accountClientCleanup';
+import { LOGIN_EMAIL_ERROR, LOGIN_PASSWORD_ERROR } from './loginErrors';
 import { isSupabaseEnabled, getSupabaseBrowserClient, USERS_TABLE } from './supabase.client';
 import { mapAuthError } from './authErrors';
 import {
@@ -9,6 +11,10 @@ import {
   localChangePassword,
   localChangeUsername,
   localDeleteAccount,
+  localIsUsernameTaken,
+  localIsEmailRegistered,
+  localIsPasswordSameAsCurrent,
+  localResetPasswordByEmail,
   localSignIn,
   localSignUp,
   readLocalSession,
@@ -20,6 +26,8 @@ import {
   validateSignInPayload,
   validateSignUpPayload,
   normalizeUsername,
+  validateEmail,
+  validatePassword,
 } from './validators';
 
 /**
@@ -91,14 +99,73 @@ async function fetchProfile(authUser) {
 }
 
 async function isUsernameTaken(username) {
-  const { data, error } = await getSupabaseBrowserClient()
-    .from(USERS_TABLE)
-    .select('id')
-    .eq('username', username)
-    .maybeSingle();
+  const client = getSupabaseBrowserClient();
+  if (!client) return false;
 
-  if (error) throw error;
-  return Boolean(data);
+  const { data, error } = await client.rpc('is_username_taken', { p_username: username });
+
+  if (!error) return Boolean(data);
+
+  if (/Could not find the function|42883|PGRST202/i.test(error.message ?? '')) {
+    const { data: row, error: queryError } = await client
+      .from(USERS_TABLE)
+      .select('id')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (!queryError) return Boolean(row);
+  }
+
+  throw error;
+}
+
+export async function checkUsernameTaken(rawUsername) {
+  const validated = validateUsername(rawUsername);
+  if (validated.field) return false;
+
+  if (!isSupabaseEnabled()) {
+    return localIsUsernameTaken(validated.value);
+  }
+
+  return isUsernameTaken(validated.value);
+}
+
+async function isEmailRegistered(email) {
+  const client = getSupabaseBrowserClient();
+  if (!client) return false;
+
+  const { data, error } = await client.rpc('is_email_registered', { p_email: email });
+
+  if (!error) return Boolean(data);
+
+  if (/Could not find the function|42883|PGRST202/i.test(error.message ?? '')) {
+    const { data: row, error: queryError } = await client
+      .from(USERS_TABLE)
+      .select('id')
+      .ilike('email', email)
+      .maybeSingle();
+
+    if (!queryError) return Boolean(row);
+  }
+
+  throw error;
+}
+
+function isInvalidLoginCredentials(error) {
+  if (!error) return false;
+  if (error.code === 'invalid_credentials') return true;
+  return /invalid credentials|invalid login credentials|incorrect email or password/i.test(error.message ?? '');
+}
+
+export async function checkEmailRegistered(rawEmail) {
+  const validated = validateEmail(rawEmail);
+  if (validated.field) return false;
+
+  if (!isSupabaseEnabled()) {
+    return localIsEmailRegistered(validated.value);
+  }
+
+  return isEmailRegistered(validated.value);
 }
 
 /**
@@ -220,7 +287,7 @@ async function supabaseSignUp({ username, email, password, role }) {
     }
 
     if (isExistingUserSignUpResponse(data.user)) {
-      const user = await trySignInAfterSignUpFailure(cleanEmail, password);
+      const user = await trySignInAfterSignUpFailure(cleanEmail, cleanPassword);
       if (user) return { user };
       return { error: { field: 'email', message: 'Email already taken' } };
     }
@@ -233,26 +300,76 @@ async function supabaseSignUp({ username, email, password, role }) {
 
 async function supabaseSignIn({ email, password }) {
   const validated = validateSignInPayload({ email, password });
-  if (validated.field) return { error: validated };
+  if (validated.field) {
+    return {
+      error: {
+        ...validated,
+        email: String(email ?? '').trim().toLowerCase(),
+        password: String(password ?? ''),
+      },
+    };
+  }
 
-  const { data, error } = await getSupabaseBrowserClient().auth.signInWithPassword({
+  const client = getSupabaseBrowserClient();
+  if (!client) return { error: { field: 'form', message: 'Could not connect to Supabase.' } };
+
+  await client.auth.signOut({ scope: 'local' });
+
+  const { data, error } = await client.auth.signInWithPassword({
     email: validated.email,
     password: validated.password,
   });
 
-  if (error) {
-    if (import.meta.env.DEV) {
-      console.warn('Supabase signIn failed:', error.code ?? error.message);
+  if (!error && data.session?.user) {
+    const user = await ensureProfile(data.user);
+    return { user };
+  }
+
+  if (error && import.meta.env.DEV) {
+    console.warn('Supabase signIn failed:', error.code ?? error.message);
+  }
+
+  if (isInvalidLoginCredentials(error)) {
+    try {
+      const registered = await isEmailRegistered(validated.email);
+
+      if (!registered) {
+        return {
+          error: {
+            fieldErrors: {
+              email: LOGIN_EMAIL_ERROR,
+            },
+            email: validated.email,
+            password: validated.password,
+          },
+        };
+      }
+
+      return {
+        error: {
+          field: 'password',
+          message: LOGIN_PASSWORD_ERROR,
+          email: validated.email,
+          password: validated.password,
+        },
+      };
+    } catch {
+      return {
+        error: {
+          fieldErrors: {
+            email: LOGIN_EMAIL_ERROR,
+            password: LOGIN_PASSWORD_ERROR,
+          },
+          email: validated.email,
+          password: validated.password,
+        },
+      };
     }
-    return { error: mapAuthError(error) };
   }
 
-  if (!data.session?.user) {
-    return { error: { field: 'form', message: 'Sign in failed — no session returned.' } };
-  }
+  if (error) return { error: mapAuthError(error) };
 
-  const user = await ensureProfile(data.user);
-  return { user };
+  return { error: { field: 'form', message: 'Sign in failed — no session returned.' } };
 }
 
 function userFromAuthSession(authUser) {
@@ -282,8 +399,28 @@ async function supabaseGetSession() {
   const { data: { session } } = await client.auth.getSession();
   if (!session?.user) return null;
 
+  const { error } = await client.auth.getUser();
+  if (error) {
+    await client.auth.signOut({ scope: 'local' });
+    return null;
+  }
+
   // Fast path — don't block on DB during initial session read (avoids auth deadlock)
   return userFromAuthSession(session.user);
+}
+
+/** Drop cached browser auth after password reset so login starts clean. */
+export async function clearBrowserAuthSession() {
+  if (!isSupabaseEnabled()) {
+    clearLocalSession();
+    return;
+  }
+
+  const client = getSupabaseBrowserClient();
+  if (client) {
+    await client.auth.signOut({ scope: 'local' });
+  }
+  clearLocalSession();
 }
 
 /** Ensure public.users profile row exists for the current session. */
@@ -430,6 +567,24 @@ export async function deleteAccount({ userId }) {
 }
 
 export { clearAccountClientData };
+
+export async function requestPasswordReset(email) {
+  const validated = validateEmail(email);
+  if (validated.field) {
+    return { error: { field: 'email', message: validated.message } };
+  }
+
+  const registered = await checkEmailRegistered(validated.value);
+  if (!registered) {
+    return { error: { field: 'email', message: 'Invalid email' } };
+  }
+
+  return { success: true };
+}
+
+export async function resetPassword({ email, newPassword }) {
+  return localResetPasswordByEmail({ email, newPassword });
+}
 
 export function subscribeToAuthChanges(callback) {
   if (!isSupabaseEnabled()) return () => {};

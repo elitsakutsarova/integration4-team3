@@ -25,7 +25,7 @@ export function strengthBarCount(strength) {
   return 1;
 }
 
-/** Four-bar meter used on settings change-password (Figma). */
+/** Four-bar meter used on settings change-password and register (Figma). */
 export function strengthBarCount4(strength) {
   if (strength === 'strong') return 4;
   if (strength === 'medium') return 2;
