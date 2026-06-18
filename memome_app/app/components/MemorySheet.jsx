@@ -59,8 +59,7 @@ export default function MemorySheet({ pin, anchor, onClose }) {
 
   const locationHref = fetcher.data?.href ?? null;
 
-  // Trigger the href lookup whenever the selected pin changes.
-  // The keyed fetcher caches results per pin.id, so revisiting the same pin is instant.
+  // Lazy-load navigable location link for the selected pin (keyed fetcher caches per id).
   useEffect(() => {
     if (!pin || fetcher.state !== 'idle' || fetcher.data !== undefined) return;
     const params = new URLSearchParams({

@@ -28,6 +28,7 @@ export default function ChangeEmailPage() {
   const fieldErrors = mergeFieldErrors(clientErrors, fetcher.data);
   const formError = fieldErrors.form;
 
+  // After email change succeeds: sync session, revalidate, return to account page.
   useEffect(() => {
     if (!fetcher.data?.success || fetcher.data?.kind !== 'email') return;
 

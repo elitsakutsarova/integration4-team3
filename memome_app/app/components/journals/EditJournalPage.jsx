@@ -110,10 +110,12 @@ export default function EditJournalPage({ journal }) {
       && !editFlowPaths.has(nextLocation.pathname),
   );
 
+  // Reset submit guard on mount so useBlocker is not stuck from a prior visit.
   useEffect(() => {
     isSubmittingRef.current = false;
   }, []);
 
+  // Hydrate edit draft from journal + localStorage when opening a different journal.
   useEffect(() => {
     if (loadedJournalIdRef.current === journal.id) return;
     loadedJournalIdRef.current = journal.id;
@@ -125,6 +127,7 @@ export default function EditJournalPage({ journal }) {
     setDescriptionOpen(Boolean(workingDraft.description.trim()));
   }, [initDraft, journal]);
 
+  // useBlocker cannot open UI directly — sync blocked navigation to the warning modal.
   useEffect(() => {
     if (blocker.state === 'blocked') {
       leaveTargetRef.current = blocker.location?.pathname ?? paths.journals;
@@ -132,6 +135,7 @@ export default function EditJournalPage({ journal }) {
     }
   }, [blocker.state, blocker.location?.pathname]);
 
+  // Focus the inline title field when the user enters title-edit mode.
   useEffect(() => {
     if (editingTitle) titleInputRef.current?.focus();
   }, [editingTitle]);

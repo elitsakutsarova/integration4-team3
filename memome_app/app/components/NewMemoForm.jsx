@@ -164,6 +164,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     return `?${next.toString()}`;
   }, [searchParams]);
 
+  // Revoke blob URLs and clear fake upload timer when the form unmounts.
   useEffect(() => {
     return () => {
       if (loadTimerRef.current) clearInterval(loadTimerRef.current);
@@ -171,10 +172,12 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     };
   }, []);
 
+  // Hide location validation once a valid spot is chosen.
   useEffect(() => {
     if (hasLocation) setShowLocationError(false);
   }, [hasLocation]);
 
+  // Keep ref in sync so close handler sees latest submit state.
   useEffect(() => {
     isSubmittingRef.current = isSubmitting;
   }, [isSubmitting]);

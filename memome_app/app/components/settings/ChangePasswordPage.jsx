@@ -27,6 +27,7 @@ export default function ChangePasswordPage() {
   const fieldErrors = mergeFieldErrors(clientErrors, fetcher.data);
   const formError = fieldErrors.form;
 
+  // After password change succeeds: sync session, revalidate, return to account page.
   useEffect(() => {
     if (!fetcher.data?.success || fetcher.data?.kind !== 'password') return;
 

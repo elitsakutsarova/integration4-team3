@@ -88,10 +88,12 @@ export default function JournalStickerDock({
   const resizeRef = useRef(null);
   const lastStartRef = useRef(0);
 
+  // Warm up dynamic GSAP import before the first drag interaction.
   useEffect(() => {
     preloadGsap();
   }, []);
 
+  // Re-clamp dock height when the viewport is resized.
   useEffect(() => {
     const onResize = () => {
       setDockHeight((height) => clampDockHeight(height));
@@ -100,6 +102,7 @@ export default function JournalStickerDock({
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  // Tear down an in-progress dock resize if the component unmounts.
   useEffect(() => () => clearResizeSession(resizeRef), []);
 
   const attachTrayRef = useCallback((node) => {

@@ -9,6 +9,7 @@ export function useDebounceCallback(fn, delay) {
   const fnRef = useRef(fn);
   fnRef.current = fn;
 
+  // Clear debounce timer on unmount so a stale callback never fires.
   useEffect(() => () => clearTimeout(timerRef.current), []);
 
   return useCallback(

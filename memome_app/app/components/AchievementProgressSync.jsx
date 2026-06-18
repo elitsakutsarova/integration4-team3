@@ -8,8 +8,7 @@ import { markAppOpened } from '../utils/achievementProgressStore';
 export default function AchievementProgressSync() {
   const { user } = useAuth();
 
-  // calling markAppOpened is a side effect on the external store that shouldn't run during render
-  // keying it on user?.id means it re-fires on login/logout transitions
+  // Records first authenticated app open — side effect must not run during render.
   useEffect(() => {
     markAppOpened(user?.id ?? 'guest');
   }, [user?.id]);

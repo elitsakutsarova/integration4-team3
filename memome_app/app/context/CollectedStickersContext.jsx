@@ -46,6 +46,7 @@ export function CollectedStickersProvider({ initialStickers = [], children }) {
   const [collectedStickers, setCollectedStickers] = useState(initialStickers);
   const mountedRef = useRef(false);
 
+  // Re-fetch when userId changes after mount (login/logout without full reload).
   useEffect(() => {
     if (!mountedRef.current) {
       mountedRef.current = true;
@@ -54,6 +55,7 @@ export function CollectedStickersProvider({ initialStickers = [], children }) {
     fetchCollectedStickers(userId).then(setCollectedStickers);
   }, [userId]);
 
+  // Silently merge fresh sticker data when visiting the stickers page.
   useEffect(() => {
     if (!shouldRefreshCollectedStickers(pathname)) return;
     fetchCollectedStickers(userId).then((fetched) => {

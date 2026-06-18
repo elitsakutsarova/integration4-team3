@@ -16,6 +16,7 @@ export function useFeaturedMemosWithHrefs(memos) {
   const featured = useMemo(() => pickOldestMemos(memos), [memos]);
   const [enriched, setEnriched] = useState(featured);
 
+  // Async client enrichment — resolve location page links for featured memo cards.
   useEffect(() => {
     setEnriched(featured);
 

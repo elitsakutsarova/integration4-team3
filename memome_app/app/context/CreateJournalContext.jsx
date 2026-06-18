@@ -61,6 +61,7 @@ export function CustomJournalsProvider({ children }) {
   const userId = user?.id ?? null;
   const [customJournals, setCustomJournals] = useState([]);
 
+  // Reload custom journals from localStorage when the signed-in user changes.
   useEffect(() => {
     setCustomJournals(getCustomJournals(userId));
   }, [userId]);

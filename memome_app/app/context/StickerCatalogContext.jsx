@@ -8,8 +8,7 @@ export function StickerCatalogProvider({ stickers = [], children }) {
   const [catalog, setCatalog] = useState(stickers);
   const [loading, setLoading] = useState(!hasInitialCatalog);
 
-  // one-time async data fetch on mount
-  // the active guard handles the unmount-before-resolve race
+  // Fallback fetch when the root loader did not supply the sticker catalog.
   useEffect(() => {
     if (hasInitialCatalog) return undefined;
 

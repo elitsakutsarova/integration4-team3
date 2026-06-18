@@ -91,6 +91,7 @@ export default function Login() {
   const formError = actionData?.formError ?? authError;
   const loginLoading = navigation.state === 'submitting';
 
+  // Remove one-time authError query param after the login error is shown.
   useEffect(() => {
     if (!actionData?.formError) return;
     const url = new URL(window.location.href);

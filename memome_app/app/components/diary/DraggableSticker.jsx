@@ -29,6 +29,7 @@ export default function DraggableSticker({
   const onDragEndRef = useRef(onDragEnd);
   const dragRef = useRef(null);
 
+  // Warm up dynamic GSAP import before the first drag interaction.
   useEffect(() => {
     preloadGsap();
   }, []);

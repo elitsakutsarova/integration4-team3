@@ -49,6 +49,7 @@ function scrollStyleIntoView(container, slide) {
 
 // adds drag support to the style carousel of the recap
 function useRecapCarouselDrag(carouselRef) {
+  // Attach pointer listeners for mouse-drag scrolling on the style carousel.
   useEffect(() => {
     const carousel = carouselRef.current;
     if (!carousel) return undefined;
@@ -104,6 +105,7 @@ function useRecapPreviewFiles(journal, selectedMemories) {
   const [loading, setLoading] = useState(true);
   const selectedKey = selectedMemories.map((memo) => memo.id).join(',');
 
+  // Generate recap preview images async; revoke blob URLs on cleanup or regen.
   useEffect(() => {
     let cancelled = false;
     const createdUrls = [];

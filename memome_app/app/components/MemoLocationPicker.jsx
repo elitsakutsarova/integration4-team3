@@ -157,6 +157,7 @@ export default function MemoLocationPicker({
   const showPanelRef = useRef(showPanel);
   showPanelRef.current = showPanel;
 
+  // Reload recent place picks when the signed-in user changes.
   useEffect(() => {
     setRecentPlaces(loadLocationPickerRecents(userId));
   }, [userId]);
@@ -244,6 +245,7 @@ export default function MemoLocationPicker({
     selectPlaceRef.current?.(place);
   };
 
+  // Sync Leaflet markers when search results or the selected place change.
   useEffect(() => {
     const L = leafletRef.current;
     const map = mapRef.current;
@@ -313,6 +315,7 @@ export default function MemoLocationPicker({
     void init();
   }, [initialLat, initialLng, initialName]);
 
+  // Leaflet needs invalidateSize when the search panel resizes the map area.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapReady) return;
@@ -322,6 +325,7 @@ export default function MemoLocationPicker({
   const stopListeningRef = useRef(stopListening);
   stopListeningRef.current = stopListening;
 
+  // Stop voice search when leaving the location picker.
   useEffect(() => () => stopListeningRef.current(), []);
 
   function handleBack() {

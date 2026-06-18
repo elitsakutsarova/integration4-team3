@@ -20,6 +20,7 @@ export default function JournalsEditMemosRoute({ params }) {
   const { customJournals } = useCustomJournals();
   const journal = findJournalById(createdMemos, params.id, customJournals);
 
+  // Journal lives in client storage — redirect if the URL id is unknown.
   useEffect(() => {
     if (!journal) {
       navigate(paths.journals, { replace: true });

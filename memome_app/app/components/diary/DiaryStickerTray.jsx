@@ -34,6 +34,7 @@ export default function DiaryStickerTray({ dropZoneRef, trayRef, pageIndex, onDr
   const dragRef = useRef(null);
   const lastStartRef = useRef(0);
 
+  // Warm up dynamic GSAP import before the first drag interaction.
   useEffect(() => {
     preloadGsap();
   }, []);

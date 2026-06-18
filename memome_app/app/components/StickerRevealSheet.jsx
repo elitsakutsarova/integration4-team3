@@ -4,6 +4,7 @@ import StickerVisual from './diary/StickerVisual';
 import { paths } from '../utils/appPaths';
 
 export default function StickerRevealSheet({ sticker, onClose }) {
+  // Close the overlay when the user presses Escape.
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === 'Escape') onClose();

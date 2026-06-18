@@ -203,12 +203,14 @@ export default function EditMemoPage({ memo }) {
     return `?${next.toString()}`;
   }, [searchParams]);
 
+  // Revoke blob URLs and clear upload timer when leaving the edit page.
   useEffect(() => () => {
     if (loadTimerRef.current) clearInterval(loadTimerRef.current);
     const preview = mediaPreviewRef.current;
     if (preview?.url && !preview.isExisting) URL.revokeObjectURL(preview.url);
   }, []);
 
+  // useBlocker cannot open UI directly — sync blocked navigation to the warning modal.
   useEffect(() => {
     if (blocker.state === 'blocked') {
       leaveTargetRef.current = blocker.location?.pathname ?? paths.profileMemos;
@@ -216,6 +218,7 @@ export default function EditMemoPage({ memo }) {
     }
   }, [blocker.state, blocker.location?.pathname]);
 
+  // After a successful update fetcher response, refresh context and show success.
   useEffect(() => {
     if (fetcher.state === 'submitting' || fetcher.state === 'loading') {
       handledSubmitRef.current = false;
@@ -230,6 +233,7 @@ export default function EditMemoPage({ memo }) {
     setShowSuccess(true);
   }, [fetcher.state, fetcher.data, updateCreatedMemo]);
 
+  // Auto-return to Created Memos after the success modal is shown briefly.
   useEffect(() => {
     if (!showSuccess) return undefined;
 

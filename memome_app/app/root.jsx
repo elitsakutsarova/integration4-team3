@@ -189,6 +189,7 @@ export function ErrorBoundary() {
     return null;
   })();
 
+  // Navigation must run after render — cannot redirect from ErrorBoundary during render.
   useEffect(() => {
     if (redirectTarget) navigate(redirectTarget, { replace: true });
   }, [redirectTarget, navigate]);

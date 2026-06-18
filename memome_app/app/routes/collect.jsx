@@ -127,6 +127,7 @@ export default function CollectSticker() {
   const { addCollectedSticker } = useCollectedStickersActions();
   const display = resolveClaimDisplay(result, Boolean(user));
 
+  // Mirror loader sticker into client context and refresh root data if needed.
   useEffect(() => {
     if (!result.sticker) return;
     addCollectedSticker(result.sticker);

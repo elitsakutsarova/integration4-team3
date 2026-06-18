@@ -130,6 +130,7 @@ export function useSpeechSearch({ onTranscript }) {
 
   startEngineRef.current = startEngine;
 
+  // Detect Web Speech API support on mount; stop mic session on unmount.
   useEffect(() => {
     setIsSupported(Boolean(getSpeechRecognitionCtor()));
     return () => {

@@ -159,6 +159,7 @@ export default function SearchPage() {
     [trimmedQuery, photonPlaces],
   );
 
+  // Focus search field when the page opens.
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -166,8 +167,10 @@ export default function SearchPage() {
   const stopListeningRef = useRef(stopListening);
   stopListeningRef.current = stopListening;
 
+  // Stop voice recognition if the user leaves mid-dictation.
   useEffect(() => () => stopListeningRef.current(), []);
 
+  // Reload recent searches when auth resolves or the user logs in/out.
   useEffect(() => {
     if (authLoading) return;
     setRecentSearches(loadRecentSearches(userId));

@@ -155,6 +155,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const memoFingerprint = dbMemoFingerprint(mergedMemos);
   const filterFingerprint = `${memoFingerprint}|${activeCategory}`;
 
+  // Leaving home: reset map UI and URL params. Entering: restore sticker reveal + fix map size.
   useEffect(() => {
     if (!active) {
       setSelectedMemory(null);
@@ -180,6 +181,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     setRevealedSticker(null);
   }
 
+  // Reposition the memory popup while the user pans or zooms the map.
   useEffect(() => {
     if (!active || !selectedMemory) return;
 
@@ -203,6 +205,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     };
   }, [active, selectedMemory]);
 
+  // Drop optimistic pin once the server list includes the newly created memo.
   useEffect(() => {
     if (!pendingMemoRef.current) return;
     if (savedMemos.some(m => m.id === pendingMemoRef.current.id)) {
@@ -210,6 +213,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     }
   }, [savedMemos, memoFingerprint]);
 
+  // Resolve navigable location links for map event popups (once per map session).
   useEffect(() => {
     if (!active || eventHrefsFetchRef.current) return;
     eventHrefsFetchRef.current = true;
@@ -225,6 +229,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     };
   }, [active]);
 
+  // Rebuild Leaflet event markers when category filter or href data changes.
   useEffect(() => {
     const L = leafletRef.current;
     const map = mapRef.current;
@@ -253,6 +258,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     }
   }, [active, activeCategory, eventLocationHrefs]);
 
+  // Refresh memory pin clusters after revalidation or filter changes.
   useEffect(() => {
     if (revalidator.state !== 'idle') return;
     syncMapPins();
@@ -276,6 +282,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     }
   }, []);
 
+  // Create the Leaflet map once when the home tab becomes active.
   useEffect(() => {
     if (!active) return;
 
@@ -343,6 +350,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     void init();
   }, [active]);
 
+  // Pan to a newly saved memo when the user's memo count increases.
   useEffect(() => {
     const dbMemos = (savedMemos ?? []).filter(m => m.fromDb);
     const count = dbMemos.length;
@@ -359,6 +367,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     prevDbMemoCountRef.current = count;
   }, [savedMemos]);
 
+  // Remove the draft pin when the add-memo form is closed.
   useEffect(() => {
     if (draftMemo) return;
     if (!pendingMarkerRef.current) return;
@@ -366,6 +375,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     pendingMarkerRef.current = null;
   }, [draftMemo]);
 
+  // Place a pending pin and center the map when add-memo URL params are present.
   useEffect(() => {
     if (!active || !draftMemo || !user) return;
 
@@ -378,6 +388,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     map.setView([latlng.lat, latlng.lng], Math.max(map.getZoom(), 13), { animate: false });
   }, [active, draftMemo?.lat, draftMemo?.lng, draftMemo?.pinLat, draftMemo?.pinLng]);
 
+  // After create-memo fetcher succeeds: update pins, clear URL, show success modal.
   useEffect(() => {
     if (fetcher.state === 'submitting' || fetcher.state === 'loading') {
       sawPublishSubmitRef.current = true;
@@ -425,6 +436,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     setSearchParams({}, { replace: true });
   }
 
+  // Leaflet must recalculate size when overlays change the visible map area.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !active) return;

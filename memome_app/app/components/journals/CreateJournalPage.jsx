@@ -102,10 +102,12 @@ export default function CreateJournalPage() {
       && !CREATE_FLOW_PATHS.has(nextLocation.pathname),
   );
 
+  // Reset submit guard on mount so useBlocker is not stuck from a prior visit.
   useEffect(() => {
     isSubmittingRef.current = false;
   }, []);
 
+  // useBlocker cannot open UI directly — sync blocked navigation to the warning modal.
   useEffect(() => {
     if (blocker.state === 'blocked') {
       leaveTargetRef.current = blocker.location?.pathname ?? paths.journals;

@@ -56,6 +56,7 @@ export default function AccountDetailsPage() {
   const successMessage = SUCCESS_MESSAGES[updated] ?? null;
   const hasCustomAvatar = Boolean(avatarUrl);
 
+  // After account deletion succeeds: sign out and return to the map.
   useEffect(() => {
     if (!fetcher.data?.success || fetcher.data?.kind !== 'delete-account') return;
 
@@ -69,6 +70,7 @@ export default function AccountDetailsPage() {
     void finishDelete();
   }, [fetcher.data, navigate, signOut]);
 
+  // Surface delete-account API errors inside the confirmation modal.
   useEffect(() => {
     if (!fetcher.data?.error || fetcher.data?.success) return;
     setDeleteError(fetcher.data.error.message ?? 'Could not delete your account.');

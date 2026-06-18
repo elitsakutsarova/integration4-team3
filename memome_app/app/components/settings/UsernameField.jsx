@@ -33,10 +33,12 @@ export default function UsernameField({ username }) {
   const fieldError = clientErrors.username || serverErrors.username || serverErrors.form;
   const saving = fetcher.state !== 'idle';
 
+  // Keep draft in sync when the server username changes (e.g. after save elsewhere).
   useEffect(() => {
     setDraft(stripAt(username));
   }, [username]);
 
+  // On successful username save: update auth snapshot and exit edit mode.
   useEffect(() => {
     if (!fetcher.data?.success || fetcher.data?.kind !== 'username') return;
 
