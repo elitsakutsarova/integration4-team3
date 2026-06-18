@@ -23,7 +23,7 @@
   flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
-  padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 0;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 1rem 1rem;
 }
 
 .search-page-header-row {
@@ -39,27 +39,93 @@
   border: none;
   border-radius: 10px;
   background: #fff;
-  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
+  box-shadow: 0 0 8px rgba(43, 43, 44, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 }
 
-.search-page-bar {
+/* .map-search-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 49px;
-  padding: 4px 4px 4px 14px;
-  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 2px 4.5px rgba(43, 43, 44, 0.1);
+  padding: 0.25rem 0.25rem 0.25rem 0.875rem;
+  border-radius: 0.75rem;
+  gap: 0.625rem;
+  box-shadow: 0 2px 9.1px 0 rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+}
+
+.map-search-icon {
+  flex-shrink: 0;
+  color: var(--grey-150);
+}
+
+.map-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 15px;
+  color: var(--dark);
+  outline: none;
+  min-width: 0;
+}
+
+.map-search-input::placeholder {
+  color: #a0a0a8;
+}
+
+.map-search-mic {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: var(--blue-5);
+  color: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.map-search-bar--trigger {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  text-decoration: none;
+}
+
+.map-search-placeholder {
+  flex: 1;
+  color: #a0a0a8;
+  font-size: 15px;
+}
+
+.map-search-bar--trigger .map-search-mic {
+  pointer-events: none;
+} */
+
+.search-page-bar {
+  display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    padding: 0.25rem 0.25rem 0.25rem 0.875rem;
+    border-radius: 0.75rem;
+    gap: 0.625rem;
+box-shadow: 0 2px 9.1px 0 rgba(43, 43, 44, 0.15);
+    pointer-events: auto;
 }
 
 .search-page-bar-icon {
   flex-shrink: 0;
-  color: #1952ff;
+    color: var(--grey-150);
 }
 
 .search-page-input {
@@ -366,14 +432,15 @@
   line-height: 1.2;
   padding: 7px 8px 8px;
   align-self: flex-start;
+  background: var(--yellow-400);
 }
 
-.search-page-group-highlight {
+/* .search-page-group-highlight {
   display: block;
   height: 35px;
   background: #f9ff75;
   margin: 0 0 -35px;
-}
+} */
 
 .search-page-spots-list,
 .search-page-events-list {

@@ -1,18 +1,8 @@
-/**
- * Reusable blue back-chevron button.
- * Pass the caller's own `className` for positioning/layout styles.
- */
 export default function BackChevron({ className, onClick, label = 'Back' }) {
   return (
     <button type="button" className={className} onClick={onClick} aria-label={label}>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M15 6l-6 6 6 6"
-          stroke="#1952ff"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <path d="M26.6666 14.6663H10.44L17.8933 7.21301L16 5.33301L5.33331 15.9997L16 26.6663L17.88 24.7863L10.44 17.333H26.6666V14.6663Z" fill="#1952FF" />
       </svg>
     </button>
   );
