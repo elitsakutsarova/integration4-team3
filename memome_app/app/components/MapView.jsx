@@ -12,6 +12,7 @@ import GuestAddMemoLocked from './GuestAddMemoLocked';
 import BottomNav from './BottomNav';
 import MemorySheet from './MemorySheet';
 import StickerRevealSheet from './StickerRevealSheet';
+import MemoPostSuccess from './MemoPostSuccess';
 
 import { MOCK_MEMORIES, INITIAL_EVENTS } from '../data/mockUser';
 import { GROTE_MARKT_CLUSTER_MEMORIES } from '../data/groteMarktClusterMemories';
@@ -90,6 +91,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [memoryAnchor, setMemoryAnchor] = useState(null);
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
+  const [showPublishSuccess, setShowPublishSuccess] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [eventLocationHrefs, setEventLocationHrefs] = useState({});
   const eventHrefsFetchRef = useRef(false);
@@ -394,6 +396,7 @@ export default function MapView({ savedMemos = [], active = true }) {
       }
 
       setSearchParams({}, { replace: true });
+      setShowPublishSuccess(true);
     }
   }, [fetcher.state, fetcher.data, setSearchParams, syncMapPins, prependCreatedMemo]);
 
@@ -538,6 +541,10 @@ export default function MapView({ savedMemos = [], active = true }) {
 
       {revealedSticker && (
         <StickerRevealSheet sticker={revealedSticker} onClose={dismissStickerReveal} />
+      )}
+
+      {showPublishSuccess && (
+        <MemoPostSuccess onClose={() => setShowPublishSuccess(false)} />
       )}
         </>
       )}

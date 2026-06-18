@@ -1,6 +1,7 @@
 // pure field-level validation (format, length, required) -> no user context or network, re-usable
 
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
+import { containsProfanity, PROFANITY_ERROR_MESSAGE } from './profanityFilter';
 import { isInAntwerpBounds } from './locationHelpers';
 import { isPhotonPlaceId } from './placeId';
 import { getPasswordChecks } from './passwordRules';
@@ -204,6 +205,9 @@ export function validateSignInPayload({ email, password: rawPassword }) {
 export function validateMemoQuote(raw) {
   const quote = clampText(raw, LIMITS.memoQuote);
   if (!quote) return validationError('quote', 'Quote is required');
+  if (containsProfanity(quote)) {
+    return validationError('quote', PROFANITY_ERROR_MESSAGE);
+  }
   return { value: quote };
 }
 

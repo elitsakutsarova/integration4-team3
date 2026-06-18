@@ -6,6 +6,7 @@ import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { hasChosenMemoLocation } from '../utils/memoDraft';
 import SectionTitle from './SectionTitle';
 import { validateMemoMediaFile } from '../utils/validators';
+import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 
 const QUOTE_MAX = 100;
 const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
@@ -131,11 +132,14 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
 
   const isSubmitting = fetcher.state !== 'idle';
   const actionError = fetcher.state === 'idle' ? fetcher.data?.error : undefined;
-  const quoteValid = quote.trim().length > 0;
+  const hasProfanity = containsProfanity(quote);
+  const quoteValid = quote.trim().length > 0 && !hasProfanity;
   const quoteFeedback = quoteTouched
-    ? quoteValid
-      ? { tone: 'success', message: 'Looks great! Proceed to the next field.' }
-      : { tone: 'error', message: 'Required field! Please describe memo.' }
+    ? !quote.trim()
+      ? { tone: 'error', message: 'Required field! Please describe memo.' }
+      : hasProfanity
+        ? { tone: 'error', message: PROFANITY_ERROR_MESSAGE }
+        : { tone: 'success', message: 'Looks great! Proceed to the next field.' }
     : null;
 
   const hasLocation = hasChosenMemoLocation(draft);
@@ -171,6 +175,10 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     if (!hasLocation) {
       event.preventDefault();
       setShowLocationError(true);
+    }
+    if (hasProfanity) {
+      event.preventDefault();
+      setQuoteTouched(true);
     }
   }
 
@@ -393,7 +401,11 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
                 placeholder="I had the best kebab at 4 am here..."
                 maxLength={QUOTE_MAX}
                 value={quote}
-                onChange={(e) => setQuote(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setQuote(value);
+                  if (containsProfanity(value)) setQuoteTouched(true);
+                }}
                 onBlur={() => setQuoteTouched(true)}
                 aria-label="Memory quote"
                 aria-invalid={quoteFeedback?.tone === 'error'}

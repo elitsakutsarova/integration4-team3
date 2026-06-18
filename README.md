@@ -174,9 +174,8 @@ After our consult, I changed a lot of things in test5 like:
 - Re-design the form ✔️
 - Re-design the “Choose location” page ✔️
 - Add the microphone feature ✔️
-- Implement special screen for “no-results” on search (location) when there are no results if it makes sense for this screen (cos map/locations)
-- Show success message when an user successfully posts a memo
-- Add a filter against bad words in the description
+- Show success message when an user successfully posts a memo ✔️
+- Add a filter against bad words in the description ✔️
 - If the user chooses to edit a memo they’ve created -> create a “Edit memo” page where they can edit the details of the memo.
 - If a user tries to leave the page while editing a memo, send a warning message “Are you sure you want to close this page without saving your edits?”
 - Show a success message when an user successfully edits a memo (same format as the post one)

@@ -4168,6 +4168,96 @@ html img {
   z-index: 0;
 }
 
+/* ─── Memo post success ───────────────────────────── */
+.memo-post-success-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 18000;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.memo-post-success-card {
+  position: relative;
+  width: min(361px, 100%);
+  min-height: 285px;
+  padding: 102px 24px 40px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 0 8px rgba(43, 43, 44, 0.1);
+  text-align: center;
+  overflow: visible;
+  animation: form-enter 0.25s ease-out;
+}
+
+.memo-post-success-wave,
+.memo-post-success-grid {
+  position: absolute;
+  pointer-events: none;
+}
+
+.memo-post-success-wave {
+  left: 0;
+  top: 3%;
+}
+
+.memo-post-success-grid {
+  right: -8px;
+  top: 0;
+  width: 132px;
+  height: auto;
+  transform: rotate(-90deg);
+}
+
+.memo-post-success-hero {
+  position: absolute;
+  left: 50%;
+  top: -65px;
+  transform: translateX(-50%);
+  width: 122px;
+  height: 127px;
+}
+
+.memo-post-success-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  width: 136px;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.memo-post-success-illustration {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 122px;
+  height: auto;
+}
+
+.memo-post-success-body {
+  position: relative;
+  z-index: 1;
+}
+
+.memo-post-success-title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #202020;
+}
+
+.memo-post-success-desc {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.2;
+  color: #202020;
+}
+
 /* ─── Recap select & preview ──────────────────────── */
 .recap-select-page,
 .recap-preview-page {
