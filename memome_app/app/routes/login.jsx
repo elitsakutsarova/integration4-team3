@@ -14,15 +14,14 @@ import {
 import AuthHero from '../components/auth/AuthHero';
 import { CrossCircleIcon, EyeIcon, LockIcon } from '../components/auth/AuthIcons';
 import { loginActionError, signInAccount } from '../utils/authActions';
+import { LOGIN_EMAIL_ERROR, LOGIN_PASSWORD_ERROR } from '../utils/loginErrors';
+import { checkEmailRegistered } from '../utils/authStore';
 import { paths, safeInternalRedirectPath } from '../utils/appPaths';
 import { validateEmail, validateSignInPayload } from '../utils/validators';
 import { guestOnlyMiddleware } from '../middleware/clientAuth';
 import { loginAssets } from '../utils/loginAssets';
 
 export const clientMiddleware = guestOnlyMiddleware;
-
-const IDENTIFIER_CREDENTIAL_ERROR = 'Incorrect username or email';
-const PASSWORD_CREDENTIAL_ERROR = 'Incorrect password';
 
 function clientLoginFieldError(field, value) {
   if (field === 'email') {
@@ -42,10 +41,22 @@ function resolveFieldError(field, touched, serverErrors, value) {
   return clientLoginFieldError(field, value);
 }
 
-function getActiveServerFieldError(field, serverErrors, currentValue, submittedValue) {
+function isLoginFieldFixed(field, currentValue, submittedValue, emailRegistered) {
+  if (submittedValue === undefined) return false;
+
+  if (field === 'email') {
+    if (currentValue !== submittedValue) return true;
+    return emailRegistered === true;
+  }
+
+  return currentValue !== submittedValue;
+}
+
+function getActiveServerFieldError(field, serverErrors, currentValue, submittedValue, emailRegistered) {
   const error = serverErrors[field];
   if (!error || submittedValue === undefined) return '';
-  return currentValue === submittedValue ? error : '';
+  if (isLoginFieldFixed(field, currentValue, submittedValue, emailRegistered)) return '';
+  return error;
 }
 
 function LoginFieldError({ message, id }) {
@@ -73,9 +84,12 @@ export function meta() {
 export async function clientLoader({ request }) {
   const url = new URL(request.url);
   const redirectTo = safeInternalRedirectPath(url.searchParams.get('redirectTo')) ?? '';
+  const email = url.searchParams.get('email')?.trim() ?? '';
   return {
     authError: url.searchParams.get('authError') ?? '',
     redirectTo,
+    email,
+    passwordReset: url.searchParams.get('passwordReset') === '1',
   };
 }
 
@@ -142,15 +156,16 @@ function LoginHeroContent() {
 }
 
 export default function Login() {
-  const { authError } = useLoaderData();
+  const { authError, email: loaderEmail, passwordReset } = useLoaderData();
   const actionData = useActionData();
   const navigation = useNavigation();
   const navigate = useNavigate();
 
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState(loaderEmail);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
+  const [emailRegistered, setEmailRegistered] = useState(null);
 
   const rawFieldErrors = actionData?.fieldErrors ?? {};
   const formError = actionData?.formError ?? authError;
@@ -158,7 +173,7 @@ export default function Login() {
     formError && !Object.keys(rawFieldErrors).length && isCredentialFormError(formError),
   );
   const serverFieldErrors = credentialFormError
-    ? { email: IDENTIFIER_CREDENTIAL_ERROR, password: PASSWORD_CREDENTIAL_ERROR }
+    ? { password: LOGIN_PASSWORD_ERROR }
     : rawFieldErrors;
   const loginLoading = navigation.state === 'submitting';
 
@@ -167,12 +182,14 @@ export default function Login() {
     serverFieldErrors,
     identifier,
     actionData?.email,
+    emailRegistered,
   );
   const passwordServerError = getActiveServerFieldError(
     'password',
     serverFieldErrors,
     password,
     actionData?.password,
+    emailRegistered,
   );
   const activeFieldErrors = {
     email: identifierServerError || undefined,
@@ -192,8 +209,34 @@ export default function Login() {
   };
 
   useEffect(() => {
+    if (!serverFieldErrors.email) {
+      setEmailRegistered(null);
+      return;
+    }
+
+    const result = validateEmail(identifier);
+    if (result.field) {
+      setEmailRegistered(false);
+      return;
+    }
+
+    let cancelled = false;
+    checkEmailRegistered(identifier).then((registered) => {
+      if (!cancelled) setEmailRegistered(registered);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [identifier, serverFieldErrors.email]);
+
+  useEffect(() => {
     if (actionData?.email) setIdentifier(actionData.email);
   }, [actionData?.email]);
+
+  useEffect(() => {
+    if (loaderEmail) setIdentifier(loaderEmail);
+  }, [loaderEmail]);
 
   useEffect(() => {
     if (actionData?.fieldErrors?.email || actionData?.fieldErrors?.password) {
@@ -213,6 +256,12 @@ export default function Login() {
     <div className="auth-page login-page">
       <div className="auth-flow-shell">
         <AuthHero scene={<LoginHeroContent />} />
+
+        {passwordReset && (
+          <div className="auth-banner auth-banner--success" role="status">
+            Password updated. Sign in with your new password using the same email.
+          </div>
+        )}
 
         <Form
           method="post"
@@ -283,9 +332,9 @@ export default function Login() {
           )}
 
           <div className="login-form-actions">
-            <button type="button" className="login-forgot-link">
+            <Link to={paths.forgotPassword} className="login-forgot-link">
               Forgot password?
-            </button>
+            </Link>
 
             <button
               type="submit"

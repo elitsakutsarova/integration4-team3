@@ -2,6 +2,9 @@
 
 import * as authStore from './authStore';
 import { applySignedInUser } from './authSession';
+import { LOGIN_EMAIL_ERROR, LOGIN_PASSWORD_ERROR } from './loginErrors';
+
+export { LOGIN_EMAIL_ERROR, LOGIN_PASSWORD_ERROR };
 
 export async function signInAccount(payload) {
   const result = await authStore.signIn(payload);
@@ -20,6 +23,13 @@ export async function signUpAccount(payload) {
 }
 
 export function loginActionError(error, email = '', password = '') {
+  if (error.fieldErrors) {
+    return {
+      email: error.email ?? email,
+      password: error.password ?? password,
+      fieldErrors: error.fieldErrors,
+    };
+  }
   if (
     error.field === 'form'
     && /incorrect email or password|invalid credentials/i.test(error.message ?? '')
@@ -27,10 +37,7 @@ export function loginActionError(error, email = '', password = '') {
     return {
       email,
       password,
-      fieldErrors: {
-        email: 'Incorrect username or email',
-        password: 'Incorrect password',
-      },
+      fieldErrors: { password: LOGIN_PASSWORD_ERROR },
     };
   }
   if (error.field === 'form') {

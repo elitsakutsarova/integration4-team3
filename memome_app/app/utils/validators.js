@@ -161,6 +161,26 @@ export function validateChangePasswordPayload({ oldPassword, newPassword, confir
   return { oldPassword: old, newPassword: newResult.value };
 }
 
+export const NEW_PASSWORD_SAME_AS_OLD_MESSAGE = "New password can't be the same as the old one";
+
+export function validateResetPasswordPayload({ newPassword, confirmPassword }) {
+  const newResult = validatePassword(newPassword);
+  if (newResult.field) {
+    return validationError(
+      'newPassword',
+      'Password must be at least 8 characters and include an uppercase, lowercase and number',
+    );
+  }
+
+  const confirm = String(confirmPassword ?? '');
+  if (!confirm) return validationError('confirmPassword', 'Confirm your new password');
+  if (confirm !== newResult.value) {
+    return validationError('confirmPassword', 'Passwords do not match');
+  }
+
+  return { newPassword: newResult.value };
+}
+
 export function validateChangeEmailPayload({ oldEmail, newEmail, password }) {
   const oldResult = validateEmail(oldEmail);
   if (oldResult.field) return validationError('oldEmail', 'Enter your current email address');

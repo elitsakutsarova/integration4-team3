@@ -37,6 +37,8 @@ export default [
     route("journals/:id/edit/memos", "routes/journals.$id.edit.memos.jsx"),
   ]),
   route("login", "routes/login.jsx"),
+  route("forgot-password", "routes/forgot-password.jsx"),
+  route("reset-password", "routes/reset-password.jsx"),
   route("register", "routes/register.jsx"),
   route("stickers", "routes/account-layout.stickers.jsx", [
     index("routes/stickers.jsx"),
@@ -50,6 +52,7 @@ export default [
   route("api/stickers", "routes/api.stickers.js"),
   route("api/memos", "routes/api.memos.js"),
   route("api/account", "routes/api.account.js"),
+  route("api/reset-password", "routes/api.reset-password.js"),
   route("api/feedback", "routes/api.feedback.js"),
   route("api/location-search", "routes/api.location-search.js"),
   route("api/location-href", "routes/api.location-href.js"),

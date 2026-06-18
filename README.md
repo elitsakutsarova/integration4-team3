@@ -186,10 +186,10 @@ After our consult, I changed a lot of things in test5 like:
 
 - Re-design “Create Account page” with the new design ✔️
 - Re-design the Log-in-page with the new design ✔️
-- Let a user reset their password when they click on “Forgot password?”
+- Let a user reset their password when they click on “Forgot password?” ✔️
 - When a user request a link, give them a pop up ux message “Link requested successfully” and navigate them/send them to “Reset password” screen
 - Once they change/reset their password, they should be sent to a “Success” screen with the button to sign-in which signs them into the web-app
-- The user shouldn’t be able to register twice with the same e-mail or username
+- The user shouldn’t be able to register twice with the same e-mail or username ✔️
 
 
 ## Deployment

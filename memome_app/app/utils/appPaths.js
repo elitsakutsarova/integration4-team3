@@ -11,6 +11,8 @@ export const paths = {
   discoverUpcoming: href('/discover/upcoming'),
   discoverPlaces: href('/discover/places'),
   login: href('/login'),
+  forgotPassword: href('/forgot-password'),
+  resetPassword: href('/reset-password'),
   register: href('/register'),
   profile: href('/profile'),
   profileSettings: href('/profile/settings'),
@@ -37,6 +39,7 @@ export const paths = {
   demoStickers: href('/demo-stickers'),
   apiMemos: href('/api/memos'),
   apiAccount: href('/api/account'),
+  apiResetPassword: href('/api/reset-password'),
   apiFeedback: href('/api/feedback'),
   apiLocationSearch: href('/api/location-search'),
   apiLocationHref: href('/api/location-href'),
@@ -92,6 +95,11 @@ export function homePathWithAddMemo(
   return `${paths.home}?${params.toString()}`;
 }
 
+export function resetPasswordPath(email) {
+  const params = new URLSearchParams({ email });
+  return `${paths.resetPassword}?${params.toString()}`;
+}
+
 /** Allow same-origin relative paths only — blocks open redirects. */
 export function safeInternalRedirectPath(candidate) {
   if (typeof candidate !== 'string' || !candidate.startsWith('/') || candidate.startsWith('//')) {
@@ -110,7 +118,13 @@ export function loginPathWithRedirect(returnPath) {
 }
 
 /** Guest-accessible routes (QR collect flow must work without logging in). */
-const PUBLIC_APP_PATHS = new Set([paths.login, paths.register, paths.collect]);
+const PUBLIC_APP_PATHS = new Set([
+  paths.login,
+  paths.forgotPassword,
+  paths.resetPassword,
+  paths.register,
+  paths.collect,
+]);
 
 const GUEST_APP_PATHS = new Set([
   paths.home,

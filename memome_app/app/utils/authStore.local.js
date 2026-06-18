@@ -1,6 +1,8 @@
 /** localStorage auth fallback when Supabase is not configured. */
 
+import { LOGIN_EMAIL_ERROR, LOGIN_PASSWORD_ERROR } from './loginErrors';
 import {
+  NEW_PASSWORD_SAME_AS_OLD_MESSAGE,
   normalizeEmail,
   normalizeUsername,
   validateChangeEmailPayload,
@@ -100,6 +102,12 @@ export function localIsUsernameTaken(displayUsername) {
   return readUsers().some((u) => normalizeUsername(u.username) === cleanUsername);
 }
 
+export function localIsEmailRegistered(rawEmail) {
+  const email = normalizeEmail(rawEmail);
+  if (!email) return false;
+  return readUsers().some((user) => normalizeEmail(user.email) === email);
+}
+
 export async function localSignUp({ username, email, password, role }) {
   const validated = validateSignUpPayload({ username, email, password, role });
   if (validated.field) return { error: validated };
@@ -134,21 +142,69 @@ export async function localSignUp({ username, email, password, role }) {
 
 export async function localSignIn({ email, password }) {
   const validated = validateSignInPayload({ email, password });
-  if (validated.field) return { error: validated };
+  if (validated.field) {
+    return {
+      error: {
+        ...validated,
+        email: String(email ?? '').trim().toLowerCase(),
+        password: String(password ?? ''),
+      },
+    };
+  }
 
   const record = readUsers().find((u) => u.email === validated.email);
 
   if (!record) {
-    return { error: { field: 'email', message: 'No account found with this email' } };
+    return {
+      error: {
+        fieldErrors: {
+          email: LOGIN_EMAIL_ERROR,
+        },
+        email: validated.email,
+        password: validated.password,
+      },
+    };
   }
 
   const valid = await verifyPassword(validated.password, record.passwordHash, record.salt);
   if (!valid) {
-    return { error: { field: 'password', message: 'Incorrect password' } };
+    return {
+      error: {
+        field: 'password',
+        message: LOGIN_PASSWORD_ERROR,
+        email: validated.email,
+        password: validated.password,
+      },
+    };
   }
 
   writeLocalSession(record.id);
   return { user: toPublicUser(record) };
+}
+
+export async function localResetPasswordByEmail({ email, newPassword }) {
+  const users = readUsers();
+  const record = users.find((user) => normalizeEmail(user.email) === normalizeEmail(email));
+  if (!record?.passwordHash) {
+    return { error: { field: 'form', message: 'Could not reset password for this account.' } };
+  }
+
+  if (await verifyPassword(newPassword, record.passwordHash, record.salt)) {
+    return { error: { field: 'newPassword', message: NEW_PASSWORD_SAME_AS_OLD_MESSAGE } };
+  }
+
+  const { hash, salt } = await createPasswordRecord(newPassword);
+  record.passwordHash = hash;
+  record.salt = salt;
+  writeUsers(users);
+  return { success: true, kind: 'password' };
+}
+
+export async function localIsPasswordSameAsCurrent(email, password) {
+  const users = readUsers();
+  const record = users.find((user) => normalizeEmail(user.email) === normalizeEmail(email));
+  if (!record?.passwordHash) return false;
+  return verifyPassword(password, record.passwordHash, record.salt);
 }
 
 export async function localChangePassword({ userId, oldPassword, newPassword, confirmPassword }) {

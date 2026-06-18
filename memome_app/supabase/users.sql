@@ -88,6 +88,24 @@ $$;
 revoke all on function public.is_username_taken(text) from public;
 grant execute on function public.is_username_taken(text) to anon, authenticated;
 
+-- Forgot password: check email exists without exposing profile data
+create or replace function public.is_email_registered(p_email text)
+returns boolean
+language sql
+security definer
+set search_path = public, auth
+stable
+as $$
+  select exists (
+    select 1
+    from auth.users
+    where lower(email) = lower(trim(p_email))
+  );
+$$;
+
+revoke all on function public.is_email_registered(text) from public;
+grant execute on function public.is_email_registered(text) to anon, authenticated;
+
 -- Optional: auto-insert profile on signup (app also inserts via authStore.js)
 create or replace function public.handle_new_user()
 returns trigger

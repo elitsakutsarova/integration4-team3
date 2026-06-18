@@ -26,7 +26,7 @@
   inset: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background: var(--bg);
+  background: white;
 }
 
 .auth-card {
@@ -1095,4 +1095,292 @@
   color: #1952ff;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* ─── Forgot password page ──────────────────────────── */
+
+.auth-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #e4eaff;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.forgot-password-page .auth-flow-shell {
+  padding: 0 16px 32px;
+}
+
+.forgot-password-hero {
+  display: grid;
+  grid-template-areas: 'stack';
+  min-height: 260px;
+  margin: 0 -16px 0;
+  overflow: hidden;
+}
+
+.forgot-password-hero > * {
+  grid-area: stack;
+}
+
+.forgot-password-hero__backdrop {
+  display: grid;
+  grid-template-areas: 'stack';
+  pointer-events: none;
+}
+
+.forgot-password-hero__backdrop > * {
+  grid-area: stack;
+}
+
+.forgot-password-hero__grid {
+  justify-self: end;
+  align-self: start;
+  max-height: 242px;
+  object-fit: cover;
+  object-position: right top;
+}
+
+.forgot-password-hero__doodle {
+  justify-self: start;
+  align-self: start;
+  width: min(396px, 108%);
+  height: auto;
+  margin: 13px 0 0 -8px;
+}
+
+.forgot-password-hero__star {
+  justify-self: end;
+  align-self: start;
+  width: 47px;
+  height: 47px;
+  margin: 65px 20px 0 0;
+  transform: rotate(-26.57deg);
+}
+
+.forgot-password-hero__nav {
+  align-self: start;
+  justify-self: start;
+  z-index: 3;
+  padding: 47px 0 0 16px;
+}
+
+.forgot-password-hero__content {
+  align-self: end;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 0 16px 28px;
+  z-index: 2;
+}
+
+.forgot-password-title-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 10px;
+  transform: rotate(-6.15deg);
+}
+
+.forgot-password-title-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.forgot-password-title-line {
+  margin: 0;
+}
+
+.forgot-password-title-highlight {
+  font-family: Antwerpen, var(--font);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--color-navy);
+  background-color: var(--color-yellow);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 6px 14px;
+}
+
+.forgot-password-title__mark {
+  width: 35px;
+  height: auto;
+  align-self: center;
+}
+
+.forgot-password-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  margin: 32px 0 28px;
+}
+
+.forgot-password-intro__lead {
+  margin: 0;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--color-navy);
+  background-color: var(--color-yellow);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 4px;
+}
+
+.forgot-password-intro__hint {
+  margin: 0;
+  max-width: 280px;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.forgot-password-form {
+  gap: 24px;
+}
+
+.forgot-password-submit {
+  margin-top: 8px;
+}
+
+.forgot-password-page .auth-input-wrap--error {
+  background: var(--white);
+  border-color: #9ca3af;
+}
+
+.login-forgot-link {
+  display: inline-block;
+}
+
+/* ─── Reset password page ───────────────────────────── */
+
+.reset-password-page .auth-flow-shell {
+  padding: 0 16px 32px;
+}
+
+.reset-password-hero {
+  display: grid;
+  grid-template-areas: 'stack';
+  min-height: 240px;
+  margin: 0 -16px 0;
+  overflow: visible;
+}
+
+.reset-password-hero > * {
+  grid-area: stack;
+}
+
+.reset-password-hero__backdrop {
+  display: grid;
+  grid-template-areas: 'stack';
+  pointer-events: none;
+}
+
+.reset-password-hero__backdrop > * {
+  grid-area: stack;
+}
+
+.reset-password-hero__grid {
+  justify-self: end;
+  align-self: start;
+  max-height: 242px;
+  object-fit: cover;
+  object-position: right top;
+}
+
+.reset-password-hero__doodle {
+  justify-self: start;
+  align-self: start;
+  width: min(396px, 108%);
+  height: auto;
+  margin: 13px 0 0 -8px;
+}
+
+.reset-password-hero__nav {
+  align-self: start;
+  justify-self: start;
+  z-index: 3;
+  padding: 36px 0 0 16px;
+}
+
+.reset-password-hero__content {
+  align-self: start;
+  justify-self: center;
+  padding: 78px 16px 24px 54px;
+  z-index: 2;
+}
+
+.reset-password-title-block {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.reset-password-title {
+  margin: 0;
+  font-family: Antwerpen, var(--font);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--color-navy);
+  background-color: var(--color-yellow);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 4px 12px;
+}
+
+.reset-password-title__icon {
+  position: absolute;
+  left: calc(100% - 12px);
+  top: -32px;
+  width: 56px;
+  height: 58px;
+  pointer-events: none;
+}
+
+.reset-password-intro {
+  margin: 24px 0 32px;
+  text-align: center;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--color-navy);
+  background: linear-gradient(transparent 62%, var(--color-yellow) 62%);
+  padding: 0 4px;
+}
+
+.reset-password-page .auth-label {
+  font-size: 18px;
+  font-weight: 400;
+  color: #797979;
+}
+
+.reset-password-form {
+  gap: 24px;
+}
+
+.reset-password-submit {
+  margin-top: 16px;
+}
+
+.reset-password-page .auth-input::placeholder {
+  color: #d2d2d2;
+}
+
+.reset-password-page .auth-input-wrap--error {
+  background: var(--white);
+  border-color: #9ca3af;
 }
