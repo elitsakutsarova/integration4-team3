@@ -1,5 +1,7 @@
 // layout for the discover page
 
+import '../styles/modules/discover.css';
+import '../styles/modules/diary.css';
 import { Outlet } from 'react-router';
 import BottomNav from '../components/BottomNav';
 

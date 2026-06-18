@@ -13,7 +13,9 @@ import {
 } from "react-router";
 
 import { useEffect } from "react";
-import "./app.css";
+import "./styles/global.css";
+import "./styles/modules/auth.css";
+import "./styles/modules/discover.css";
 import { isAllowedDevOrigin, resolveDevRedirectOrigin } from "./config";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import AuthLoading from "./components/auth/AuthLoading";

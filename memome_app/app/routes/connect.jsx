@@ -1,3 +1,4 @@
+import '../styles/modules/connect.css';
 import { useCallback, useRef, useState } from 'react';
 import { Link, useLoaderData } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';

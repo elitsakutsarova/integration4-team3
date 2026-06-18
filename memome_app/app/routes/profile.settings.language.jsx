@@ -1,3 +1,5 @@
+import '../styles/modules/auth.css';
+import '../styles/modules/settings.css';
 import LanguagePreferencePage from '../components/settings/LanguagePreferencePage';
 
 export function meta() {

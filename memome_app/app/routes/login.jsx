@@ -1,5 +1,6 @@
 // route for the login page
 
+import '../styles/modules/auth.css';
 import { useEffect, useState } from 'react';
 import {
   Form,

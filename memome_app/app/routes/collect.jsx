@@ -1,6 +1,8 @@
 // collect a sticker page
 // when the user scans a sticker QR code, it automatically gives them a random digital sticker and show them the result
 
+import '../styles/modules/collect.css';
+import '../styles/modules/auth.css';
 import { useEffect } from 'react';
 import { Link, redirect, useLoaderData, useNavigate, useRevalidator } from 'react-router';
 import StickerVisual from '../components/diary/StickerVisual';

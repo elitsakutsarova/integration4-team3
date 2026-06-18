@@ -1,5 +1,7 @@
 // route for the created memos page
 
+import '../styles/modules/profile-collections.css';
+import '../styles/modules/diary.css';
 import { useLoaderData } from 'react-router';
 import CreatedMemosPage from '../components/profile/CreatedMemosPage';
 import FavouritesLoading from '../components/profile/FavouritesLoading';

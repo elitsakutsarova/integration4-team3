@@ -1,3 +1,5 @@
+import '../styles/modules/auth.css';
+import '../styles/modules/settings.css';
 import PrivacyPreferencePage from '../components/settings/PrivacyPreferencePage';
 
 export function meta() {

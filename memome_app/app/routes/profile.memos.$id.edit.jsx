@@ -1,3 +1,6 @@
+import '../styles/modules/new-memo.css';
+import '../styles/modules/auth.css';
+import '../styles/modules/profile-collections.css';
 import { data, redirect } from 'react-router';
 import { useLoaderData } from 'react-router';
 import EditMemoPage from '../components/EditMemoPage';

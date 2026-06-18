@@ -1,5 +1,8 @@
 // orchestration layer -> connects React with the Leaflet map engine
 
+import '../styles/modules/new-memo.css';
+import '../styles/modules/sticker-reveal.css';
+import '../styles/modules/auth.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useRevalidator, useSearchParams } from 'react-router';
 import { useAuth } from '../context/AuthContext';
