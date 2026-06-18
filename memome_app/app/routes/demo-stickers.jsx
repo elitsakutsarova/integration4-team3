@@ -1,6 +1,7 @@
 import '../styles/modules/connect.css';
 // QR code generator and testing page for the sticker collection feature
 
+import '../styles/modules/connect.css';
 import { useState } from 'react';
 import { Link, useLoaderData } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';

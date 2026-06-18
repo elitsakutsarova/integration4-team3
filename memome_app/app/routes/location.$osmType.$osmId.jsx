@@ -4,6 +4,10 @@ import '../styles/modules/discover.css';
 import '../styles/modules/diary.css';
 // route for the location detail page 
 
+import '../styles/modules/bottom-nav.css';
+import '../styles/modules/location-detail.css';
+import '../styles/modules/discover.css';
+import '../styles/modules/diary.css';
 import { useLoaderData } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';
 import LocationDetail from '../components/LocationDetail';

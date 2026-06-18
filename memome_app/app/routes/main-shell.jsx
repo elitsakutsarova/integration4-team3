@@ -1,6 +1,8 @@
 import '../styles/modules/map.css';
 import '../styles/modules/bottom-nav.css';
 import { Outlet, useLoaderData, useLocation } from 'react-router';
+import '../styles/modules/map.css';
+import '../styles/modules/bottom-nav.css';
 import MapView from '../components/MapView';
 import DesktopNav from '../components/DesktopNav';
 import AuthLoading from '../components/auth/AuthLoading';
