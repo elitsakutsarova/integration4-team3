@@ -178,8 +178,9 @@ After our consult, I changed a lot of things in test5 like:
 - Add a filter against bad words in the description ✔️
 - If the user chooses to edit a memo they’ve created -> create a “Edit memo” page where they can edit the details of the memo. ✔️
 - If a user tries to leave the page while editing a memo, send a warning message “Are you sure you want to close this page without saving your edits?” ✔️
+- If a user tries to leave the page while posting a memo, send a warning message “Are you sure you want to close this page without saving your edits?” ✔️
 - Show a success message when an user successfully edits a memo (same format as the post one) ✔️
-- When the guest/no-account user tries to add a memo through the map or clicks the Add memo button from the bottomNav on the map, it doesn’t let them - but if they try to add a memo through the Add memo button from the bottomNav inside Discover, Journals or Profile, it sends them to the add memo form. That’s not correct, from all possible pages they should be navigated to the “Create account or log in to add memories” page either way
+- When the guest/no-account user tries to add a memo through the map or clicks the Add memo button from the bottomNav on the map, it doesn’t let them - but if they try to add a memo through the Add memo button from the bottomNav inside Discover, Journals or Profile, it sends them to the add memo form. That’s not correct, from all possible pages they should be navigated to the “Create account or log in to add memories” page either way ✔️
 
 
 ## Deployment

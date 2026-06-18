@@ -4,9 +4,13 @@ import { paths } from '../utils/appPaths';
 import { addMemoFormAssets } from '../utils/addMemoFormAssets';
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { hasChosenMemoLocation } from '../utils/memoDraft';
+import { isNewMemoDirty } from '../utils/isNewMemoDirty';
 import SectionTitle from './SectionTitle';
+import AddMemoWarningModal from './AddMemoWarningModal';
 import { validateMemoMediaFile } from '../utils/validators';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
+
+const DESKTOP_OVERLAY_QUERY = '(min-width: 600px)';
 
 const QUOTE_MAX = 100;
 const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
@@ -117,11 +121,13 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   const [quote, setQuote] = useState('');
   const [quoteTouched, setQuoteTouched] = useState(false);
   const [showLocationError, setShowLocationError] = useState(false);
+  const [warningOpen, setWarningOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const fileRef = useRef(null);
   const cameraRef = useRef(null);
   const mediaPreviewRef = useRef(null);
   const loadTimerRef = useRef(null);
+  const isSubmittingRef = useRef(false);
   mediaPreviewRef.current = mediaPreview;
 
   const locationLabel = draft?.locationName?.trim() || 'Choose location';
@@ -147,6 +153,11 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   const canSubmit = selectedTags.length > 0 && quoteValid && !mediaBlocking && !isSubmitting;
   const publishActive = canSubmit && hasLocation;
 
+  const isDirty = useMemo(
+    () => isNewMemoDirty({ quote, selectedTags, mediaPhase, draft }),
+    [quote, selectedTags, mediaPhase, draft],
+  );
+
   const locationPickerHref = useMemo(() => {
     const next = new URLSearchParams(searchParams);
     next.set('step', 'location');
@@ -163,6 +174,33 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   useEffect(() => {
     if (hasLocation) setShowLocationError(false);
   }, [hasLocation]);
+
+  useEffect(() => {
+    isSubmittingRef.current = isSubmitting;
+  }, [isSubmitting]);
+
+  function requestClose() {
+    if (isSubmittingRef.current || !isDirty) {
+      onClose();
+      return;
+    }
+    setWarningOpen(true);
+  }
+
+  function handleContinueEditing() {
+    setWarningOpen(false);
+  }
+
+  function handleDiscard() {
+    setWarningOpen(false);
+    onClose();
+  }
+
+  function handleOverlayClick(event) {
+    if (event.target !== event.currentTarget) return;
+    if (!window.matchMedia(DESKTOP_OVERLAY_QUERY).matches) return;
+    requestClose();
+  }
 
   function clearLoadTimer() {
     if (loadTimerRef.current) {
@@ -344,6 +382,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   }
 
   return (
+    <>
     <fetcher.Form
       method="post"
       action={paths.apiMemos}
@@ -354,6 +393,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
       aria-modal={!hidden}
       aria-hidden={hidden}
       aria-label="Add memo"
+      onClick={handleOverlayClick}
     >
       <input type="hidden" name="intent" value="create-memo" />
       <input type="hidden" name="lat" value={draft?.lat ?? ''} />
@@ -376,7 +416,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             </div>
 
             <div className="memo-form-title-bar">
-              <button type="button" className="memo-form-back-btn" onClick={onClose} aria-label="Close">
+              <button type="button" className="memo-form-back-btn" onClick={requestClose} aria-label="Close">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
@@ -530,5 +570,12 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
         />
       </div>
     </fetcher.Form>
+
+    <AddMemoWarningModal
+      open={warningOpen}
+      onContinue={handleContinueEditing}
+      onDiscard={handleDiscard}
+    />
+    </>
   );
 }

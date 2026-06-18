@@ -72,6 +72,12 @@ export function collectScanPath(scanKey) {
 
 const ANTWERP_MAP_CENTER = { lat: 51.2194, lng: 4.4025 };
 
+/** Home map URL that opens the guest add-memo locked screen. */
+export function guestAddMemoPath() {
+  const params = new URLSearchParams({ guestAddMemo: '1' });
+  return `${paths.home}?${params.toString()}`;
+}
+
 /** Home map URL that opens the new-memo form at the default Antwerp center. */
 export function homePathWithAddMemo(
   lat = ANTWERP_MAP_CENTER.lat,

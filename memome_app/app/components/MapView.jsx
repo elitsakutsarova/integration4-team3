@@ -60,6 +60,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const draftMemo = readDraftMemo(searchParams);
+  const guestAddMemoParam = searchParams.get('guestAddMemo') === '1';
   const fetcher = useFetcher({ key: 'create-memo' });
   const revalidator = useRevalidator();
   const { user } = useAuth();
@@ -92,6 +93,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [showPublishSuccess, setShowPublishSuccess] = useState(false);
+  const showGuestAddMemoLocked = guestAddMemoLocked || (!user && (draftMemo || guestAddMemoParam));
   const [activeCategory, setActiveCategory] = useState('All');
   const [eventLocationHrefs, setEventLocationHrefs] = useState({});
   const eventHrefsFetchRef = useRef(false);
@@ -365,7 +367,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, [draftMemo]);
 
   useEffect(() => {
-    if (!active || !draftMemo) return;
+    if (!active || !draftMemo || !user) return;
 
     const L = leafletRef.current;
     const map = mapRef.current;
@@ -420,6 +422,7 @@ export default function MapView({ savedMemos = [], active = true }) {
       pendingMarkerRef.current.remove();
       pendingMarkerRef.current = null;
     }
+    setSearchParams({}, { replace: true });
   }
 
   useEffect(() => {
@@ -470,8 +473,8 @@ export default function MapView({ savedMemos = [], active = true }) {
       className={[
         'map-page',
         active ? '' : 'map-page--inactive',
-        guestAddMemoLocked ? 'map-page--side-panel' : '',
-        draftMemo && !draftMemo.pickLocation ? 'map-page--side-panel' : '',
+        showGuestAddMemoLocked ? 'map-page--side-panel' : '',
+        draftMemo && user && !draftMemo.pickLocation ? 'map-page--side-panel' : '',
       ].filter(Boolean).join(' ')}
     >
       <div ref={attachMapContainer} className="map-container" />
@@ -483,7 +486,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         onCategoryChange={setActiveCategory}
       />
 
-      {!user && !revealedSticker && !draftMemo && !selectedMemory && !guestAddMemoLocked && (
+      {!user && !revealedSticker && !draftMemo && !selectedMemory && !showGuestAddMemoLocked && (
         <MapGuestCta />
       )}
 
@@ -503,7 +506,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         />
       </button>
 
-      {guestAddMemoLocked && (
+      {showGuestAddMemoLocked && (
         <GuestAddMemoLocked onClose={dismissGuestAddMemoLocked} />
       )}
 
@@ -530,7 +533,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         />
       )}
 
-      {draftMemo && (
+      {draftMemo && user && (
         <NewMemoForm
           draft={draftMemo}
           fetcher={fetcher}
