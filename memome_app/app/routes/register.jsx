@@ -9,7 +9,7 @@ import {
   useActionData,
   useNavigation,
 } from 'react-router';
-import { RegisterLogo } from '../components/auth/MemMeLogo';
+import AuthHero from '../components/auth/AuthHero';
 import {
   CrossCircleIcon,
   EyeIcon,
@@ -135,24 +135,15 @@ export async function clientAction({ request }) {
   throw redirect(paths.home);
 }
 
-function RegisterHero() {
+function RegisterHeroScene() {
   return (
-    <div className="register-hero" aria-hidden="true">
-      <img className="register-hero__grid" src={createAccountAssets.grid} alt="" />
-      <div className="register-hero__accent-wrap">
-        <img className="register-hero__accent" src={createAccountAssets.accent} alt="" />
+    <>
+      <div className="register-hero__path-wrap">
+        <img className="register-hero__path" src={createAccountAssets.path} alt="" />
+        <img className="register-title-heart" src={createAccountAssets.heart} alt="" />
       </div>
-      <div className="register-hero__brand">
-        <RegisterLogo />
-      </div>
-      <div className="register-hero__scene">
-        <div className="register-hero__path-wrap">
-          <img className="register-hero__path" src={createAccountAssets.path} alt="" />
-          <img className="register-title-heart" src={createAccountAssets.heart} alt="" />
-        </div>
-        <img className="register-hero__pin" src={createAccountAssets.pin} alt="" />
-      </div>
-    </div>
+      <img className="register-hero__pin" src={createAccountAssets.pin} alt="" />
+    </>
   );
 }
 
@@ -281,9 +272,8 @@ export default function Register() {
 
   return (
     <div className="auth-page register-page">
-      <div className="register-shell">
-        <RegisterHero 
-        />
+      <div className="auth-flow-shell">
+        <AuthHero scene={<RegisterHeroScene />} />
 
         <header className="register-header">
           <div className="register-title-row">

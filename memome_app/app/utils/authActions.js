@@ -19,12 +19,26 @@ export async function signUpAccount(payload) {
   return result;
 }
 
-export function loginActionError(error, email = '') {
+export function loginActionError(error, email = '', password = '') {
+  if (
+    error.field === 'form'
+    && /incorrect email or password|invalid credentials/i.test(error.message ?? '')
+  ) {
+    return {
+      email,
+      password,
+      fieldErrors: {
+        email: 'Incorrect username or email',
+        password: 'Incorrect password',
+      },
+    };
+  }
   if (error.field === 'form') {
-    return { formError: error.message, email };
+    return { formError: error.message, email, password };
   }
   return {
     email,
+    password,
     fieldErrors: { [error.field]: error.message },
   };
 }

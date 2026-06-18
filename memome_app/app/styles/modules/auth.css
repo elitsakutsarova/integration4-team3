@@ -430,14 +430,23 @@
   padding: 0 1rem;
 }
 
-.register-shell {
+.login-page {
+  background: var(--white);
+  padding: 0 1rem;
+}
+
+.login-page .auth-hero {
+  min-height: 280px;
+}
+
+.auth-flow-shell {
   width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
 }
 
-.register-hero {
+.auth-hero {
   display: grid;
   grid-template-areas: 'stack';
   min-height: 196px;
@@ -445,11 +454,21 @@
   overflow: hidden;
 }
 
-.register-hero > * {
+.auth-hero > * {
   grid-area: stack;
 }
 
-.register-hero__grid {
+.auth-hero__backdrop {
+  display: grid;
+  grid-template-areas: 'stack';
+  pointer-events: none;
+}
+
+.auth-hero__backdrop > * {
+  grid-area: stack;
+}
+
+.auth-hero__grid {
   justify-self: end;
   align-self: start;
   max-height: 242px;
@@ -458,7 +477,7 @@
   pointer-events: none;
 }
 
-.register-hero__accent-wrap {
+.auth-hero__accent-wrap {
   justify-self: end;
   align-self: start;
   display: flex;
@@ -470,7 +489,7 @@
   z-index: 1;
 }
 
-.register-hero__brand {
+.auth-hero__brand {
   justify-self: start;
   align-self: start;
   z-index: 2;
@@ -486,7 +505,7 @@
   display: block;
 }
 
-.register-hero__scene {
+.auth-hero__scene {
   justify-self: center;
   align-self: end;
   display: flex;
@@ -500,7 +519,8 @@
 .register-hero__path-wrap {
   position: relative;
   width: min(420px, 108%);
-  margin-bottom: -7.5rem;
+  margin-bottom: -8.5rem;
+  z-index: -2;
 }
 
 .register-hero__path {
@@ -568,20 +588,23 @@
   gap: 20px;
 }
 
-.register-page .auth-label {
+.register-page .auth-label,
+.login-page .auth-label {
   font-family: 'SunAntwerpen', var(--font);
   font-size: 18px;
   font-weight: 400;
   color: #797979;
 }
 
-.register-page .auth-input-wrap {
+.register-page .auth-input-wrap,
+.login-page .auth-input-wrap {
   border-color: #9ca3af;
   border-radius: 12px;
   min-height: 48px;
 }
 
-.register-page .auth-input {
+.register-page .auth-input,
+.login-page .auth-input {
   font-family: 'SunAntwerpen', var(--font);
   font-size: 20px;
   padding-top: 12px;
@@ -740,7 +763,8 @@
   border-color: #ff4400;
 }
 
-.register-field-error {
+.register-field-error,
+.login-field-error {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -751,7 +775,8 @@
   color: #ff4400;
 }
 
-.register-field-error svg {
+.register-field-error svg,
+.login-field-error svg {
   flex-shrink: 0;
   margin-top: 1px;
   color: #ff4400;
@@ -906,6 +931,166 @@
 }
 
 .register-login-link {
+  font-weight: 800;
+  color: #1952ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ─── Log in page ───────────────────────────────────── */
+
+.login-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  margin-top: 6rem;
+}
+
+.login-page .auth-hero__scene {
+  margin-bottom: 2.5rem;
+  padding-bottom: 0;
+}
+
+.login-title {
+  font-family: Antwerpen, var(--font);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--color-navy);
+  text-align: center;
+  transform: rotate(-3.54deg);
+  background-color: var(--color-yellow);
+  padding: 6px 16px;
+  margin: 0;
+}
+
+.login-hero-scene {
+  display: grid;
+  grid-template-areas: 'stack';
+  width: 100%;
+  justify-items: center;
+  align-items: end;
+}
+
+.login-hero__doodle {
+  grid-area: stack;
+  width: min(430px, 112%);
+  height: auto;
+  margin-bottom: 52px;
+}
+
+.login-hero__photo {
+  grid-area: stack;
+  width: min(169px, 46%);
+  height: auto;
+  margin-bottom: 0;
+}
+
+.login-subtitle {
+  margin: 0;
+  text-align: center;
+}
+
+.login-subtitle-highlight {
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--color-navy);
+  background-color: var(--color-yellow);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 4px;
+}
+
+.login-form {
+  gap: 20px;
+}
+
+.login-password-wrap {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+.login-password-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  background: none;
+  border: none;
+  color: var(--mid);
+  cursor: pointer;
+}
+
+.login-form-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 4px;
+}
+
+.login-forgot-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.75;
+  color: #1952ff;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.login-submit {
+  width: min(275px, 100%);
+  align-self: center;
+  border-radius: 8px;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 20px;
+  font-weight: 400;
+  padding: 15px 20px;
+  background: #9ca3af;
+  border: 2px dashed #9ca3af;
+  color: var(--white);
+}
+
+.login-submit--ready {
+  background: #1952ff;
+  border: 2px dashed #1952ff;
+}
+
+.login-submit:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.login-page .auth-input-wrap--error {
+  background: var(--white);
+  border-color: #ff4400;
+}
+
+.login-register-prompt {
+  margin: 3.125rem 0 3.125rem;
+  text-align: center;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 16px;
+  line-height: 1.75;
+  color: #797979;
+}
+
+.login-register-prompt__lead {
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.login-register-link {
   font-weight: 800;
   color: #1952ff;
   text-decoration: underline;
