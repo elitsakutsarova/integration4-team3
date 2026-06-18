@@ -32,6 +32,28 @@ export function mapAuthError(error, fallbackField = 'form') {
     return { field: 'form', message: 'Too many attempts. Wait a few minutes, then try again.' };
   }
 
+  if (/username already taken/i.test(msg)) {
+    return { field: 'username', message: 'Username already taken' };
+  }
+
+  if (/email already taken/i.test(msg)) {
+    return { field: 'email', message: 'Email already taken' };
+  }
+
+  if (/database error saving new user/i.test(msg)) {
+    return {
+      field: 'form',
+      message: 'We could not finish creating your account. Try a different email or username.',
+    };
+  }
+
+  if (/profile already exists/i.test(msg)) {
+    if (/username/i.test(msg)) {
+      return { field: 'username', message: 'Username already taken' };
+    }
+    return { field: 'email', message: 'Email already taken' };
+  }
+
   if (/username/i.test(msg)) {
     return { field: 'username', message: msg };
   }

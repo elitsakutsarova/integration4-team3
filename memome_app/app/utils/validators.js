@@ -106,9 +106,9 @@ export function validateUsername(raw) {
 
 export function validateUserRole(raw) {
   const role = stripControlChars(raw).trim().toLowerCase();
-  if (!role) return validationError('role', 'Please select Visitor or Local to continue');
+  if (!role) return validationError('role', 'Please select if you are a Visitor or a Local to continue');
   if (!USER_ROLES.has(role)) {
-    return validationError('role', 'Please select Visitor or Local to continue');
+    return validationError('role', 'Please select if you are a Visitor or a Local to continue');
   }
   return { value: role };
 }

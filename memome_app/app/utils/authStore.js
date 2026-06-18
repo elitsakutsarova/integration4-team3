@@ -9,6 +9,7 @@ import {
   localChangePassword,
   localChangeUsername,
   localDeleteAccount,
+  localIsUsernameTaken,
   localSignIn,
   localSignUp,
   readLocalSession,
@@ -91,14 +92,35 @@ async function fetchProfile(authUser) {
 }
 
 async function isUsernameTaken(username) {
-  const { data, error } = await getSupabaseBrowserClient()
-    .from(USERS_TABLE)
-    .select('id')
-    .eq('username', username)
-    .maybeSingle();
+  const client = getSupabaseBrowserClient();
+  if (!client) return false;
 
-  if (error) throw error;
-  return Boolean(data);
+  const { data, error } = await client.rpc('is_username_taken', { p_username: username });
+
+  if (!error) return Boolean(data);
+
+  if (/Could not find the function|42883|PGRST202/i.test(error.message ?? '')) {
+    const { data: row, error: queryError } = await client
+      .from(USERS_TABLE)
+      .select('id')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (!queryError) return Boolean(row);
+  }
+
+  throw error;
+}
+
+export async function checkUsernameTaken(rawUsername) {
+  const validated = validateUsername(rawUsername);
+  if (validated.field) return false;
+
+  if (!isSupabaseEnabled()) {
+    return localIsUsernameTaken(validated.value);
+  }
+
+  return isUsernameTaken(validated.value);
 }
 
 /**
@@ -220,7 +242,7 @@ async function supabaseSignUp({ username, email, password, role }) {
     }
 
     if (isExistingUserSignUpResponse(data.user)) {
-      const user = await trySignInAfterSignUpFailure(cleanEmail, password);
+      const user = await trySignInAfterSignUpFailure(cleanEmail, cleanPassword);
       if (user) return { user };
       return { error: { field: 'email', message: 'Email already taken' } };
     }

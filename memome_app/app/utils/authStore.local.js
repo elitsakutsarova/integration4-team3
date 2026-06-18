@@ -95,6 +95,11 @@ export function clearLocalSession() {
   localStorage.removeItem(SESSION_KEY);
 }
 
+export function localIsUsernameTaken(displayUsername) {
+  const cleanUsername = normalizeUsername(displayUsername);
+  return readUsers().some((u) => normalizeUsername(u.username) === cleanUsername);
+}
+
 export async function localSignUp({ username, email, password, role }) {
   const validated = validateSignUpPayload({ username, email, password, role });
   if (validated.field) return { error: validated };

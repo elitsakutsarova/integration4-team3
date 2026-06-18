@@ -182,5 +182,14 @@ After our consult, I changed a lot of things in test5 like:
 - Show a success message when an user successfully edits a memo (same format as the post one) ✔️
 - When the guest/no-account user tries to add a memo through the map or clicks the Add memo button from the bottomNav on the map, it doesn’t let them - but if they try to add a memo through the Add memo button from the bottomNav inside Discover, Journals or Profile, it sends them to the add memo form. That’s not correct, from all possible pages they should be navigated to the “Create account or log in to add memories” page either way ✔️
 
+## Test 13 -> Update the "Create account" and "Log in" screen
+
+- Re-design “Create Account page” with the new design ✔️
+- Re-design the Log-in-page with the new design
+- Let a user reset their password when they click on “Forgot password?”
+- When a user request a link, give them a pop up ux message “Link requested successfully” and navigate them/send them to “Reset password” screen
+- Once they change/reset their password, they should be sent to a “Success” screen with the button to sign-in which signs them into the web-app
+- The user shouldn’t be able to register twice with the same e-mail or username
+
 
 ## Deployment
