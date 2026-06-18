@@ -21,6 +21,7 @@ export const paths = {
   profileSettingsPrivacy: href('/profile/settings/privacy'),
   profileSettingsFeedback: href('/profile/settings/feedback'),
   profileMemos: href('/profile/memos'),
+  profileMemoEdit: profileMemoEditPath,
   profileFavourites: href('/profile/favourites'),
   profileFavouritesMemos: href('/profile/favourites/memos'),
   profileFavouritesSpots: href('/profile/favourites/spots'),
@@ -61,11 +62,21 @@ export function journalsEditMemosPath(id) {
   return href('/journals/:id/edit/memos', { id });
 }
 
+export function profileMemoEditPath(id) {
+  return href('/profile/memos/:id/edit', { id });
+}
+
 export function collectScanPath(scanKey) {
   return `${paths.collect}?scan=${encodeURIComponent(String(scanKey))}`;
 }
 
 const ANTWERP_MAP_CENTER = { lat: 51.2194, lng: 4.4025 };
+
+/** Home map URL that opens the guest add-memo locked screen. */
+export function guestAddMemoPath() {
+  const params = new URLSearchParams({ guestAddMemo: '1' });
+  return `${paths.home}?${params.toString()}`;
+}
 
 /** Home map URL that opens the new-memo form at the default Antwerp center. */
 export function homePathWithAddMemo(

@@ -22,6 +22,7 @@ export default [
       route("settings/privacy", "routes/profile.settings.privacy.jsx"),
       route("settings/feedback", "routes/profile.settings.feedback.jsx"),
       route("memos", "routes/profile.memos.jsx"),
+      route("memos/:id/edit", "routes/profile.memos.$id.edit.jsx"),
       route("favourites", "routes/profile.favourites-layout.jsx", [
         index("routes/profile.favourites._index.jsx"),
         route("memos", "routes/profile.favourites.memos.jsx"),

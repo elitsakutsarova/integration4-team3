@@ -1,19 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router';
-import { paths } from '../utils/appPaths';
-import { addMemoFormAssets } from '../utils/addMemoFormAssets';
-import { MEMO_TAG_OPTIONS } from '../data/memoTags';
-import { hasChosenMemoLocation } from '../utils/memoDraft';
-import { isNewMemoDirty } from '../utils/isNewMemoDirty';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useBlocker, useFetcher, useNavigate, useSearchParams } from 'react-router';
+import MemoLocationPicker from './MemoLocationPicker';
+import MemoPostSuccess from './MemoPostSuccess';
+import EditMemoWarningModal from './EditMemoWarningModal';
 import SectionTitle from './SectionTitle';
-import AddMemoWarningModal from './AddMemoWarningModal';
-import { validateMemoMediaFile } from '../utils/validators';
+import { addMemoFormAssets } from '../utils/addMemoFormAssets';
+import { paths } from '../utils/appPaths';
+import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
-
-const DESKTOP_OVERLAY_QUERY = '(min-width: 600px)';
+import { isEditMemoDirty } from '../utils/isEditMemoDirty';
+import { validateMemoMediaFile } from '../utils/validators';
+import { useCreatedMemos } from '../context/CreatedMemosContext';
 
 const QUOTE_MAX = 100;
 const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
+const SUCCESS_DISPLAY_MS = 2000;
 
 function TrashIcon() {
   return (
@@ -112,29 +113,55 @@ function MediaLoadingIcon({ isVideo }) {
   );
 }
 
-export default function NewMemoForm({ draft, fetcher, hidden = false, onClose }) {
-  const [mediaPreview, setMediaPreview] = useState(null);
-  const [mediaPhase, setMediaPhase] = useState('idle');
+function buildInitialMedia(memo) {
+  if (!memo?.mediaPreview?.url) return null;
+  return {
+    url: memo.mediaPreview.url,
+    isVideo: Boolean(memo.mediaPreview.isVideo),
+    file: null,
+    isExisting: true,
+  };
+}
+
+export default function EditMemoPage({ memo }) {
+  const navigate = useNavigate();
+  const fetcher = useFetcher({ key: `edit-memo-${memo.id}` });
+  const { updateCreatedMemo } = useCreatedMemos();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialHadMedia = Boolean(memo?.mediaPreview?.url);
+  const initialMedia = buildInitialMedia(memo);
+  const [mediaPreview, setMediaPreview] = useState(initialMedia);
+  const [mediaPhase, setMediaPhase] = useState(initialMedia ? 'preview' : 'idle');
+  const [removeMedia, setRemoveMedia] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadingIsVideo, setLoadingIsVideo] = useState(false);
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [quote, setQuote] = useState('');
+  const [selectedTags, setSelectedTags] = useState(memo.tags ?? []);
+  const [quote, setQuote] = useState(memo.quote ?? '');
   const [quoteTouched, setQuoteTouched] = useState(false);
-  const [showLocationError, setShowLocationError] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [warningOpen, setWarningOpen] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [locationDraft, setLocationDraft] = useState({
+    lat: memo.ll?.[0] ?? null,
+    lng: memo.ll?.[1] ?? null,
+    name: memo.location ?? '',
+    placeId: memo.placeId ?? '',
+  });
+
   const fileRef = useRef(null);
   const cameraRef = useRef(null);
   const mediaPreviewRef = useRef(null);
   const loadTimerRef = useRef(null);
+  const handledSubmitRef = useRef(false);
+  const isDiscardingRef = useRef(false);
   const isSubmittingRef = useRef(false);
+  const leaveTargetRef = useRef(paths.profileMemos);
   mediaPreviewRef.current = mediaPreview;
 
-  const locationLabel = draft?.locationName?.trim() || 'Choose location';
-  const locationHint = hasChosenMemoLocation(draft)
-    ? 'Location selected'
-    : 'Pick from map or use current location';
-  const hasLocationName = Boolean(draft?.locationName?.trim());
+  const pickLocation = searchParams.get('step') === 'location';
+  const hasLocation = Number.isFinite(locationDraft.lat)
+    && Number.isFinite(locationDraft.lng)
+    && Boolean(locationDraft.name?.trim());
 
   const isSubmitting = fetcher.state !== 'idle';
   const actionError = fetcher.state === 'idle' ? fetcher.data?.error : undefined;
@@ -148,15 +175,27 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
         : { tone: 'success', message: 'Looks great! Proceed to the next field.' }
     : null;
 
-  const hasLocation = hasChosenMemoLocation(draft);
   const mediaBlocking = mediaPhase === 'loading';
-  const canSubmit = selectedTags.length > 0 && quoteValid && !mediaBlocking && !isSubmitting;
-  const publishActive = canSubmit && hasLocation;
+  const canSubmit = selectedTags.length > 0 && quoteValid && hasLocation && !mediaBlocking && !isSubmitting;
+  const publishActive = canSubmit;
 
   const isDirty = useMemo(
-    () => isNewMemoDirty({ quote, selectedTags, mediaPhase, draft }),
-    [quote, selectedTags, mediaPhase, draft],
+    () => isEditMemoDirty(memo, {
+      quote,
+      selectedTags,
+      locationDraft,
+      removeMedia,
+      mediaPreview,
+      initialHadMedia,
+    }),
+    [memo, quote, selectedTags, locationDraft, removeMedia, mediaPreview, initialHadMedia],
   );
+
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
+    if (isSubmittingRef.current || isDiscardingRef.current || !isDirty) return false;
+    if (currentLocation.pathname === nextLocation.pathname) return false;
+    return true;
+  });
 
   const locationPickerHref = useMemo(() => {
     const next = new URLSearchParams(searchParams);
@@ -164,42 +203,65 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     return `?${next.toString()}`;
   }, [searchParams]);
 
-  useEffect(() => {
-    return () => {
-      if (loadTimerRef.current) clearInterval(loadTimerRef.current);
-      if (mediaPreviewRef.current?.url) URL.revokeObjectURL(mediaPreviewRef.current.url);
-    };
+  useEffect(() => () => {
+    if (loadTimerRef.current) clearInterval(loadTimerRef.current);
+    const preview = mediaPreviewRef.current;
+    if (preview?.url && !preview.isExisting) URL.revokeObjectURL(preview.url);
   }, []);
 
   useEffect(() => {
-    if (hasLocation) setShowLocationError(false);
-  }, [hasLocation]);
+    if (blocker.state === 'blocked') {
+      leaveTargetRef.current = blocker.location?.pathname ?? paths.profileMemos;
+      setWarningOpen(true);
+    }
+  }, [blocker.state, blocker.location?.pathname]);
 
   useEffect(() => {
-    isSubmittingRef.current = isSubmitting;
-  }, [isSubmitting]);
-
-  function requestClose() {
-    if (isSubmittingRef.current || !isDirty) {
-      onClose();
+    if (fetcher.state === 'submitting' || fetcher.state === 'loading') {
+      handledSubmitRef.current = false;
       return;
     }
+    if (fetcher.state !== 'idle' || handledSubmitRef.current) return;
+    if (!fetcher.data?.success || fetcher.data?.kind !== 'update') return;
+
+    handledSubmitRef.current = true;
+    isSubmittingRef.current = true;
+    if (fetcher.data.memo) updateCreatedMemo(fetcher.data.memo);
+    setShowSuccess(true);
+  }, [fetcher.state, fetcher.data, updateCreatedMemo]);
+
+  useEffect(() => {
+    if (!showSuccess) return undefined;
+
+    const timer = window.setTimeout(() => {
+      navigate(paths.profileMemos, { replace: true });
+    }, SUCCESS_DISPLAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [showSuccess, navigate]);
+
+  function handleBack() {
+    if (!isDirty) {
+      navigate(paths.profileMemos);
+      return;
+    }
+    leaveTargetRef.current = paths.profileMemos;
     setWarningOpen(true);
   }
 
   function handleContinueEditing() {
     setWarningOpen(false);
+    if (blocker.state === 'blocked') blocker.reset();
   }
 
   function handleDiscard() {
+    isDiscardingRef.current = true;
     setWarningOpen(false);
-    onClose();
-  }
-
-  function handleOverlayClick(event) {
-    if (event.target !== event.currentTarget) return;
-    if (!window.matchMedia(DESKTOP_OVERLAY_QUERY).matches) return;
-    requestClose();
+    if (blocker.state === 'blocked') {
+      blocker.proceed();
+      return;
+    }
+    navigate(leaveTargetRef.current);
   }
 
   function clearLoadTimer() {
@@ -210,13 +272,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   }
 
   function handleFormSubmit(event) {
-    if (!hasLocation) {
+    if (!hasLocation || hasProfanity) {
       event.preventDefault();
-      setShowLocationError(true);
-    }
-    if (hasProfanity) {
-      event.preventDefault();
-      setQuoteTouched(true);
+      if (hasProfanity) setQuoteTouched(true);
     }
   }
 
@@ -226,6 +284,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     if (file.size > MEDIA_MAX_BYTES) {
       setMediaPhase('oversize');
       setMediaPreview(null);
+      setRemoveMedia(true);
       if (fileRef.current) fileRef.current.value = '';
       if (cameraRef.current) cameraRef.current.value = '';
       return;
@@ -233,10 +292,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
 
     const result = validateMemoMediaFile(file);
     if (result.field) {
-      if (result.message.includes('10 MB')) {
-        setMediaPhase('oversize');
-      }
+      if (result.message.includes('10 MB')) setMediaPhase('oversize');
       setMediaPreview(null);
+      setRemoveMedia(true);
       if (fileRef.current) fileRef.current.value = '';
       if (cameraRef.current) cameraRef.current.value = '';
       return;
@@ -247,64 +305,57 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     setLoadingIsVideo(isVideo);
     setMediaPhase('loading');
     setLoadProgress(0);
+    setRemoveMedia(false);
 
     clearLoadTimer();
     loadTimerRef.current = setInterval(() => {
-      setLoadProgress((prev) => {
-        if (prev >= 92) return prev;
-        return prev + Math.random() * 14 + 4;
-      });
+      setLoadProgress((prev) => (prev >= 92 ? prev : prev + Math.random() * 14 + 4));
     }, 120);
 
-    const minDelay = new Promise((resolve) => {
-      setTimeout(resolve, 450);
-    });
-    await minDelay;
+    await new Promise((resolve) => { setTimeout(resolve, 450); });
 
-    if (mediaPreview?.url) URL.revokeObjectURL(mediaPreview.url);
+    const previous = mediaPreviewRef.current;
+    if (previous?.url && !previous.isExisting) URL.revokeObjectURL(previous.url);
     const url = URL.createObjectURL(file);
     clearLoadTimer();
     setLoadProgress(100);
-    setMediaPreview({ url, isVideo, file });
+    setMediaPreview({ url, isVideo, file, isExisting: false });
     setMediaPhase('preview');
   }
 
-  function handleFileChange(e) {
-    applyMediaFile(e.target.files?.[0]);
-  }
-
-  function handleCameraChange(e) {
-    const file = e.target.files?.[0];
-    if (file && fileRef.current) {
-      const transfer = new DataTransfer();
-      transfer.items.add(file);
-      fileRef.current.files = transfer.files;
-    }
-    applyMediaFile(file);
-  }
-
-  function handleUploadClick() {
-    fileRef.current?.click();
-  }
-
-  function handleCameraClick() {
-    cameraRef.current?.click();
-  }
-
   function handleRemoveMedia() {
-    if (mediaPreview?.url) URL.revokeObjectURL(mediaPreview.url);
+    const previous = mediaPreview;
+    if (previous?.url && !previous.isExisting) URL.revokeObjectURL(previous.url);
     setMediaPreview(null);
     setMediaPhase('idle');
     setLoadProgress(0);
+    setRemoveMedia(true);
     if (fileRef.current) fileRef.current.value = '';
     if (cameraRef.current) cameraRef.current.value = '';
   }
 
   function toggleTag(tag) {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag],
     );
   }
+
+  const handleLocationConfirm = useCallback(({ name, lat, lng, placeId = '' }) => {
+    setLocationDraft({ lat, lng, name, placeId });
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('step');
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
+
+  const handleLocationBack = useCallback(() => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('step');
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   function renderMediaZone() {
     if (mediaPhase === 'preview' && mediaPreview) {
@@ -314,7 +365,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             {mediaPreview.isVideo ? (
               <video src={mediaPreview.url} className="memo-form-media-preview-img" controls playsInline />
             ) : (
-              <img src={mediaPreview.url} alt="Selected media" className="memo-form-media-preview-img" />
+              <img src={mediaPreview.url} alt="Memo media" className="memo-form-media-preview-img" />
             )}
             <button
               type="button"
@@ -335,10 +386,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
           <MediaLoadingIcon isVideo={loadingIsVideo} />
           <p className="memo-form-media-loading-percent">{Math.round(loadProgress)}%</p>
           <div className="memo-form-media-progress" aria-hidden="true">
-            <div
-              className="memo-form-media-progress-fill"
-              style={{ width: `${Math.min(100, loadProgress)}%` }}
-            />
+            <div className="memo-form-media-progress-fill" style={{ width: `${Math.min(100, loadProgress)}%` }} />
           </div>
           <p className="memo-form-media-loading-copy">Uploading your media...</p>
         </div>
@@ -350,10 +398,8 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
         <div className="memo-form-media-error">
           <UploadErrorIcon />
           <p className="memo-form-media-error-title">Oops! File is too large</p>
-          <p className="memo-form-media-error-copy">
-            The file exceeds 10 MB limit. Please select a smaller file.
-          </p>
-          <button type="button" className="memo-form-media-upload-btn" onClick={handleUploadClick}>
+          <p className="memo-form-media-error-copy">The file exceeds 10 MB limit. Please select a smaller file.</p>
+          <button type="button" className="memo-form-media-upload-btn" onClick={() => fileRef.current?.click()}>
             Upload file
           </button>
         </div>
@@ -362,10 +408,10 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
 
     return (
       <div className="memo-form-media-idle">
-        <button type="button" className="memo-form-media-idle-upload" onClick={handleUploadClick}>
+        <button type="button" className="memo-form-media-idle-upload" onClick={() => fileRef.current?.click()}>
           <UploadIdleIcon />
         </button>
-        <button type="button" className="memo-form-media-idle-link" onClick={handleUploadClick}>
+        <button type="button" className="memo-form-media-idle-link" onClick={() => fileRef.current?.click()}>
           Tap to upload a file
         </button>
         <p className="memo-form-media-idle-hint">Add one image or video up to 10 MB.</p>
@@ -374,7 +420,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
           <span className="memo-form-media-divider-label">OR</span>
           <span className="memo-form-media-divider-line" />
         </div>
-        <button type="button" className="memo-form-media-camera-btn" onClick={handleCameraClick}>
+        <button type="button" className="memo-form-media-camera-btn" onClick={() => cameraRef.current?.click()}>
           Open camera
         </button>
       </div>
@@ -383,52 +429,52 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
 
   return (
     <>
-    <fetcher.Form
-      method="post"
-      action={paths.apiMemos}
-      encType="multipart/form-data"
-      onSubmit={handleFormSubmit}
-      className={`form-overlay${hidden ? ' form-overlay--hidden' : ''}`}
-      role="dialog"
-      aria-modal={!hidden}
-      aria-hidden={hidden}
-      aria-label="Add memo"
-      onClick={handleOverlayClick}
-    >
-      <input type="hidden" name="intent" value="create-memo" />
-      <input type="hidden" name="lat" value={draft?.lat ?? ''} />
-      <input type="hidden" name="lng" value={draft?.lng ?? ''} />
-      <input type="hidden" name="location" value={draft?.locationName?.trim() ?? ''} />
-      <input type="hidden" name="placeId" value={draft?.placeId ?? ''} />
-      {selectedTags.map((tag) => (
-        <input key={tag} type="hidden" name="tags" value={tag} />
-      ))}
+      <fetcher.Form
+        method="post"
+        action={paths.apiMemos}
+        encType="multipart/form-data"
+        onSubmit={handleFormSubmit}
+        className="edit-memo-page"
+      >
+        <input type="hidden" name="intent" value="update-memo" />
+        <input type="hidden" name="memoId" value={memo.id} />
+        <input type="hidden" name="lat" value={locationDraft.lat ?? ''} />
+        <input type="hidden" name="lng" value={locationDraft.lng ?? ''} />
+        <input type="hidden" name="location" value={locationDraft.name?.trim() ?? ''} />
+        <input type="hidden" name="placeId" value={locationDraft.placeId ?? ''} />
+        {removeMedia ? <input type="hidden" name="removeMedia" value="true" /> : null}
+        {selectedTags.map((tag) => (
+          <input key={tag} type="hidden" name="tags" value={tag} />
+        ))}
 
-      <div className="form-sheet memo-form-sheet">
-        <div className="memo-form-scroll">
-          <header className="memo-form-header">
-            <div className="memo-form-hero-deco" aria-hidden="true">
-              <div className="memo-form-grid-gradient" />
-              <div className="memo-form-grid-pattern" />
-              <div className="memo-form-pixel-deco">
-                <span /><span /><span /><span />
-              </div>
+        <header className="edit-memo-header memo-form-header">
+          <div className="memo-form-hero-deco" aria-hidden="true">
+            <div className="memo-form-grid-gradient" />
+            <div className="memo-form-grid-pattern" />
+            <div className="memo-form-pixel-deco">
+              <span /><span /><span /><span />
             </div>
+          </div>
 
-            <div className="memo-form-title-bar">
-              <button type="button" className="memo-form-back-btn" onClick={requestClose} aria-label="Close">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="15 18 9 12 15 6" />
-                </svg>
-              </button>
-              <h2 className="memo-form-title">Add memo</h2>
-              <img className="memo-form-camera-deco" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
-            </div>
-          </header>
+          <div className="memo-form-title-bar">
+            <button
+              type="button"
+              className="memo-form-back-btn"
+              onClick={handleBack}
+              aria-label="Back to created memos"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <h1 className="memo-form-title">Edit memo</h1>
+            <img className="memo-form-camera-deco" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
+          </div>
+        </header>
 
-          <div className="memo-form-media-zone">{renderMediaZone()}</div>
+        <div className="edit-memo-media memo-form-media-zone">{renderMediaZone()}</div>
 
-          <div className="memo-form-body">
+        <div className="edit-memo-body memo-form-body">
           <section className="memo-form-section">
             <div className="memo-form-section-heading">
               <SectionTitle>Tell your story</SectionTitle>
@@ -505,15 +551,12 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
                 </svg>
               </div>
               <div className="memo-form-location-copy">
-                <span className={`memo-form-location-label${hasLocationName ? '' : ' memo-form-location-label--muted'}`}>
-                  {locationLabel}
+                <span className={`memo-form-location-label${locationDraft.name?.trim() ? '' : ' memo-form-location-label--muted'}`}>
+                  {locationDraft.name?.trim() || 'Choose location'}
                 </span>
-                <span className="memo-form-location-sub">{locationHint}</span>
-                {showLocationError && !hasLocation ? (
-                  <span className="memo-form-location-error" role="status">
-                    Choose a location before publishing.
-                  </span>
-                ) : null}
+                <span className="memo-form-location-sub">
+                  {hasLocation ? 'Location selected' : 'Pick from map or use current location'}
+                </span>
               </div>
               <svg className="memo-form-location-chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="#1952FF" strokeWidth="2" aria-hidden="true">
                 <path d="M1 1l5 6-5 6" strokeLinecap="round" strokeLinejoin="round" />
@@ -521,22 +564,13 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             </Link>
           </section>
 
-          {actionError === 'auth_required' && (
-            <div className="auth-banner auth-banner--warning" role="alert">
-              Log in to publish a memo.{' '}
-              <Link to={paths.login} className="auth-switch-link">Log in</Link>
-              {' or '}
-              <Link to={paths.register} className="auth-switch-link">Create an account</Link>.
-            </div>
-          )}
-
-          {actionError && actionError !== 'auth_required' && (
+          {actionError && (
             <div className="auth-banner auth-banner--warning" role="alert">
               {actionError}
             </div>
           )}
 
-          <div className="memo-form-footer">
+          <div className="memo-form-footer edit-memo-footer">
             <button
               type="submit"
               className={`memo-form-publish-btn${publishActive ? ' memo-form-publish-btn--active' : ''}`}
@@ -545,7 +579,6 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
               {isSubmitting ? 'Publishing…' : 'Publish'}
             </button>
           </div>
-          </div>
         </div>
 
         <input
@@ -553,7 +586,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
           type="file"
           name="media"
           accept="image/*,video/*"
-          onChange={handleFileChange}
+          onChange={(e) => applyMediaFile(e.target.files?.[0])}
           className="memo-form-file-input"
           aria-hidden="true"
           tabIndex={-1}
@@ -563,19 +596,45 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
           type="file"
           accept="image/*"
           capture="environment"
-          onChange={handleCameraChange}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file && fileRef.current) {
+              const transfer = new DataTransfer();
+              transfer.items.add(file);
+              fileRef.current.files = transfer.files;
+            }
+            applyMediaFile(file);
+          }}
           className="memo-form-file-input"
           aria-hidden="true"
           tabIndex={-1}
         />
-      </div>
-    </fetcher.Form>
+      </fetcher.Form>
 
-    <AddMemoWarningModal
-      open={warningOpen}
-      onContinue={handleContinueEditing}
-      onDiscard={handleDiscard}
-    />
+      {pickLocation && (
+        <MemoLocationPicker
+          initialLat={locationDraft.lat}
+          initialLng={locationDraft.lng}
+          initialName={locationDraft.name}
+          mapPinLat={locationDraft.lat}
+          mapPinLng={locationDraft.lng}
+          onBack={handleLocationBack}
+          onConfirm={handleLocationConfirm}
+        />
+      )}
+
+      {showSuccess && (
+        <MemoPostSuccess
+          description="Your memo was edited"
+          dismissible={false}
+        />
+      )}
+
+      <EditMemoWarningModal
+        open={warningOpen}
+        onContinue={handleContinueEditing}
+        onDiscard={handleDiscard}
+      />
     </>
   );
 }

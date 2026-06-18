@@ -67,6 +67,8 @@ export default function RememberMemosSection({ memos, showAddCta = true }) {
                 key={memo.id}
                 memo={memo}
                 onShare={() => openShare(memo)}
+                showFavorite
+                showEdit={false}
               />
             ))}
           </div>

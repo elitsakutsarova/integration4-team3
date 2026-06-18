@@ -20,6 +20,7 @@ alter table public.memos enable row level security;
 
 drop policy if exists "memos_select_all" on public.memos;
 drop policy if exists "memos_insert_own" on public.memos;
+drop policy if exists "memos_update_own" on public.memos;
 
 -- Everyone (guests + signed-in) can read all memos on the map
 create policy "memos_select_all"
@@ -33,5 +34,13 @@ create policy "memos_insert_own"
   to authenticated
   with check ((select auth.uid()) = auth_id);
 
+-- Signed-in users can only update their own memos
+create policy "memos_update_own"
+  on public.memos for update
+  to authenticated
+  using ((select auth.uid()) = auth_id)
+  with check ((select auth.uid()) = auth_id);
+
 grant select on public.memos to anon, authenticated;
 grant insert on public.memos to authenticated;
+grant update on public.memos to authenticated;

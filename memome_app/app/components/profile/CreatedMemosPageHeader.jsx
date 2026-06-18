@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { goBack, paths } from '../../utils/appPaths';
+import { paths } from '../../utils/appPaths';
 import BackChevron from '../BackChevron';
 
 export default function CreatedMemosPageHeader() {
@@ -14,7 +14,7 @@ export default function CreatedMemosPageHeader() {
 
       <BackChevron
         className="created-memos-back"
-        onClick={() => goBack(navigate, paths.profile)}
+        onClick={() => navigate(paths.profile)}
         label="Back to profile"
       />
 

@@ -3,6 +3,7 @@
 import { useLoaderData } from 'react-router';
 import CreatedMemosPage from '../components/profile/CreatedMemosPage';
 import FavouritesLoading from '../components/profile/FavouritesLoading';
+import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { getAuthSnapshot } from '../utils/authSession';
 import { fetchCreatedMemosByUser } from '../utils/memoStore';
 import { resolveNavigableLocationHref } from '../utils/navigableLocation';
@@ -42,6 +43,23 @@ export function shouldRevalidate() {
 }
 
 export default function ProfileMemosRoute() {
-  const { memos } = useLoaderData();
-  return <CreatedMemosPage memos={memos} />;
+  const { memos: loaderMemos } = useLoaderData();
+  const { createdMemos } = useCreatedMemos();
+
+  const mergedMemos = (() => {
+    const byId = new Map(loaderMemos.map((memo) => [memo.id, memo]));
+    for (const memo of createdMemos) {
+      const existing = byId.get(memo.id);
+      byId.set(memo.id, {
+        ...existing,
+        ...memo,
+        locationHref: memo.locationHref ?? existing?.locationHref,
+      });
+    }
+    return [...byId.values()].sort(
+      (a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime(),
+    );
+  })();
+
+  return <CreatedMemosPage memos={mergedMemos} />;
 }

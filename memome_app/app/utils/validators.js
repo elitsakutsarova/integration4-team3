@@ -1,9 +1,11 @@
 // pure field-level validation (format, length, required) -> no user context or network, re-usable
 
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
+import { containsProfanity, PROFANITY_ERROR_MESSAGE } from './profanityFilter';
 import { isInAntwerpBounds } from './locationHelpers';
 import { isPhotonPlaceId } from './placeId';
 import { getPasswordChecks } from './passwordRules';
+import { getSupabaseUrl } from './supabase.env';
 
 export const LIMITS = {
   memoQuote: 100,
@@ -203,6 +205,9 @@ export function validateSignInPayload({ email, password: rawPassword }) {
 export function validateMemoQuote(raw) {
   const quote = clampText(raw, LIMITS.memoQuote);
   if (!quote) return validationError('quote', 'Quote is required');
+  if (containsProfanity(quote)) {
+    return validationError('quote', PROFANITY_ERROR_MESSAGE);
+  }
   return { value: quote };
 }
 
@@ -257,6 +262,32 @@ export function validateMemoMediaFile(file) {
   return { value: { file, mediaType, mime } };
 }
 
+export function validateMemoUploadedMedia({ mediaUrl, mediaType, userId }) {
+  if (!mediaUrl) return { value: null };
+
+  const url = stripControlChars(mediaUrl).trim();
+  if (!url || !userId) return validationError('media', 'Invalid media');
+
+  if (!isSafeHttpsUrl(url)) return validationError('media', 'Invalid media URL');
+
+  const supabaseUrl = getSupabaseUrl();
+  if (!supabaseUrl) return validationError('media', 'Invalid media URL');
+
+  try {
+    const parsed = new URL(url);
+    const expectedHost = new URL(supabaseUrl).host;
+    if (parsed.host !== expectedHost) return validationError('media', 'Invalid media URL');
+
+    const prefix = `/storage/v1/object/public/memo-media/${userId}/`;
+    if (!parsed.pathname.startsWith(prefix)) return validationError('media', 'Invalid media URL');
+  } catch {
+    return validationError('media', 'Invalid media URL');
+  }
+
+  const type = mediaType === 'video' ? 'video' : 'image';
+  return { value: { media_url: url, media_type: type } };
+}
+
 export function validateCreateMemoInput(input) {
   const quoteResult = validateMemoQuote(input.quote);
   if (quoteResult.field) return quoteResult;
@@ -273,8 +304,15 @@ export function validateCreateMemoInput(input) {
 
   const media = input.media instanceof File && input.media.size > 0
     ? validateMemoMediaFile(input.media)
-    : { value: null };
+    : validateMemoUploadedMedia({
+      mediaUrl: input.mediaUrl,
+      mediaType: input.mediaType,
+      userId: input.userId,
+    });
   if (media.field) return media;
+
+  const uploadedMedia = media.value?.media_url ? media.value : null;
+  const fileMedia = media.value?.file ? media.value : null;
 
   return {
     quote: quoteResult.value,
@@ -283,7 +321,63 @@ export function validateCreateMemoInput(input) {
     location: locationResult.value,
     placeId: placeIdResult.value,
     tags: tagsResult.value,
-    media: media.value,
+    media: fileMedia,
+    uploadedMedia,
+  };
+}
+
+export function validateMemoId(raw) {
+  const id = stripControlChars(raw).trim();
+  if (!id) return validationError('memoId', 'Memo not found');
+  if (!SAVED_MEMO_ID_RE.test(id)) return validationError('memoId', 'Invalid memo');
+  return { value: id };
+}
+
+function parseRemoveMediaFlag(raw) {
+  return raw === true || raw === 'true' || raw === '1';
+}
+
+export function validateUpdateMemoInput(input) {
+  const memoIdResult = validateMemoId(input.memoId);
+  if (memoIdResult.field) return memoIdResult;
+
+  const quoteResult = validateMemoQuote(input.quote);
+  if (quoteResult.field) return quoteResult;
+
+  const coordsResult = validateMemoCoords(input.lat, input.lng);
+  if (coordsResult.field) return coordsResult;
+
+  const tagsResult = validateMemoTags(input.tags);
+  if (tagsResult.field) return tagsResult;
+
+  const locationResult = validateMemoLocation(input.location);
+  if (locationResult.field) return locationResult;
+
+  const placeIdResult = validateMemoPlaceId(input.placeId);
+  if (placeIdResult.field) return placeIdResult;
+
+  const removeMedia = parseRemoveMediaFlag(input.removeMedia);
+  const hasNewFile = input.media instanceof File && input.media.size > 0;
+
+  let mediaPatch = { action: 'keep' };
+
+  if (hasNewFile) {
+    const mediaResult = validateMemoMediaFile(input.media);
+    if (mediaResult.field) return mediaResult;
+    mediaPatch = { action: 'replace', media: mediaResult.value };
+  } else if (removeMedia) {
+    mediaPatch = { action: 'remove' };
+  }
+
+  return {
+    memoId: memoIdResult.value,
+    quote: quoteResult.value,
+    lat: coordsResult.lat,
+    lng: coordsResult.lng,
+    location: locationResult.value,
+    placeId: placeIdResult.value,
+    tags: tagsResult.value,
+    mediaPatch,
   };
 }
 

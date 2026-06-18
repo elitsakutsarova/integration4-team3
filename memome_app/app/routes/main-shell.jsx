@@ -5,6 +5,7 @@ import AuthLoading from '../components/auth/AuthLoading';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { fetchMemos } from '../utils/memoStore';
 import { paths } from '../utils/appPaths';
+import { shouldRevalidateForFormAction } from '../utils/revalidatePolicy';
 
 export async function clientLoader() {
   await bootstrapAuthSession();
@@ -24,7 +25,7 @@ export function HydrateFallback() {
 }
 
 export function shouldRevalidate({ formAction }) {
-  return Boolean(formAction);
+  return shouldRevalidateForFormAction(formAction);
 }
 
 export default function MainShell() {
