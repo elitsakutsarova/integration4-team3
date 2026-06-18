@@ -191,22 +191,36 @@
   stroke: #fff;
 }
 
+.map-container--bottom {
+  position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+}
+
 /* ─── Guest map CTA (home without sticker reveal) ─── */
 .map-guest-cta {
+  grid-area: 1/1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  position: fixed;
+  justify-content: center;
+
   left: 0;
   right: 0;
   bottom: var(--nav-h-safe);
   z-index: 850;
-  min-height: clamp(12rem, 32vh, 20rem);
-  padding: 2rem clamp(20px, 5vw, 29px) clamp(30px, 3vw, 22px);
+  min-height: clamp(20rem, 32vh, 20rem);
+  padding: 1rem clamp(20px, 5vw, 29px) clamp(30px, 3vw, 22px);
   background: linear-gradient(
     to top,
     #fff 0%,
-    #fff 65%,
+    #fff 80%,
     rgba(255, 255, 255, 0) 100%
   );
   pointer-events: none;
