@@ -18,9 +18,9 @@ function SectionHeader({ id, title, highlightWidth, underlined, viewAllTo }) {
         {title}
       </h2>
       <Link to={viewAllTo} className="discover-view-all">
-        View all
-        <svg width="6" height="12" viewBox="0 0 6 12" fill="none" aria-hidden="true">
-          <path d="M1 1l4 5-4 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <p className="discover-view-all-text">View all</p>
+        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14" fill="none">
+          <path d="M0.530327 0.530334L6.53033 6.53033L0.530327 12.5303" stroke="#1952FF" stroke-width="1.5" />
         </svg>
       </Link>
     </div>
