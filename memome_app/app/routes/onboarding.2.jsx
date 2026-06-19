@@ -49,6 +49,13 @@ export default function OnboardingScreen2() {
       <div className="onboarding-shell">
         <OnboardingHeader title="Every trip" />
 
+        <img
+          className="onboarding-slide__decor-bottom-left"
+          src={onboardingAssets.greenStar}
+          alt=""
+          aria-hidden="true"
+        />
+
         <div className="onboarding-content onboarding-screen2__content">
           <div className="onboarding-screen2__texture" aria-hidden="true">
             <img src={onboardingAssets.screen2.texture} alt="" />
@@ -93,13 +100,6 @@ export default function OnboardingScreen2() {
               <img src={onboardingAssets.screen2.memo3} alt="" />
             </figure>
           </div>
-
-          <img
-            className="onboarding-screen2__decor-bottom-left"
-            src={onboardingAssets.greenStar}
-            alt=""
-            aria-hidden="true"
-          />
 
           <div className="onboarding-screen2__bottom">
             <div className="onboarding-screen2__headline-bottom">

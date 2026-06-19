@@ -1561,7 +1561,9 @@
 
 .onboarding-slide__decor-bottom-left {
   position: absolute;
-  bottom: -2%;
+  bottom: 11%;
+  width: clamp(20px, 6vw, 32px);
+  pointer-events: none;
   z-index: 11;
 }
 
@@ -1608,6 +1610,10 @@
   padding-right: 1.5rem !important;
   padding-left: 0.65rem !important;
 }
+
+.onboarding-slide__headline-bar3 {
+  margin-top: -2rem !important;
+} 
 
 .onboarding-slide__headline-bar {
     display: inline;
@@ -1722,7 +1728,8 @@
 }
 
 .onboarding-screen1-page .onboarding-slide__bubble,
-.onboarding-screen2-page .onboarding-slide__bubble {
+.onboarding-screen2-page .onboarding-slide__bubble,
+.onboarding-screen3-page .onboarding-slide__bubble {
   transform-origin: left bottom;
   animation: onboarding-bubble-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   animation-delay: 0.3s;
@@ -1752,6 +1759,7 @@
 @media (prefers-reduced-motion: reduce) {
   .onboarding-screen1-page .onboarding-slide__bubble,
   .onboarding-screen2-page .onboarding-slide__bubble,
+  .onboarding-screen3-page .onboarding-slide__bubble,
   .onboarding-screen1-page .onboarding-slide__music-icon,
   .onboarding-screen2__sticky-pin {
     animation: none;
@@ -1788,12 +1796,6 @@
   .onboarding-slide__bubble p {
     line-height: 1.35;
     padding: 0.625rem 0.5rem 0.5rem 1.375rem;
-  }
-
-  .onboarding-slide__decor-bottom-left {
-    bottom: 5%;
-    left: -1%;
-    width: 6%;
   }
 }
 
@@ -1894,6 +1896,7 @@
 
 /* Shared header styles for screens 2+ */
 .onboarding-shell {
+  position: relative;
   width: 100%;
   max-width: 100%;
   min-height: 100%;
@@ -2039,15 +2042,6 @@
   margin-right: clamp(-10px, -2.5vw, -4px);
   pointer-events: none;
   z-index: 1;
-}
-
-.onboarding-screen2__decor-bottom-left {
-  position: absolute;
-  bottom: -10%;
-  left: 0;
-  width: clamp(20px, 7vw, 32px);
-  pointer-events: none;
-  z-index: 2;
 }
 
 .onboarding-screen2__scrapbook > * {
@@ -2280,6 +2274,125 @@
 @media (max-height: 720px) {
   .onboarding-footer {
     padding-top: 12px;
+  }
+}
+
+/* ─── Onboarding Screen 3 ──────────────────────────── */
+
+.onboarding-screen3-page .onboarding-shell {
+  position: relative;
+  min-height: 100dvh;
+  padding-bottom: 0;
+}
+
+.onboarding-screen3__content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.onboarding-screen3__scene {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(clamp(360px, 88vw, 520px), 1fr);
+  min-height: clamp(360px, 88vw, 520px);
+  padding: 0 1rem;
+  margin-top: clamp(6px, 1.5vw, 12px);
+  z-index: 1;
+}
+
+.onboarding-screen3__stickers-pole {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  justify-self: start;
+  z-index: 2;
+  max-width: 20rem;
+  margin-left: 2rem;
+  z-index: 5;
+}
+
+.onboarding-screen3__stickers-pole img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.onboarding-screen3__phone-wrap {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  justify-self: end;
+  margin-right: -2rem;
+  z-index: 3;
+  max-width: 16rem;
+}
+
+.onboarding-screen3__phone-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.18));
+}
+
+.onboarding-screen3__phone-alert {
+  position: absolute;
+  top: 19%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 78%;
+  padding: clamp(6px, 1.8vw, 8px) clamp(4px, 1.5vw, 6px);
+  background: var(--blue-10);
+  text-align: center;
+  font-family: Antwerpen, var(--font);
+  font-weight: 700;
+  font-size: clamp(0.78rem, 3vw, 0.95rem);
+  line-height: 1.25;
+  color: var(--blue-700);
+}
+
+.onboarding-screen3__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 2vw, 12px);
+  margin-top: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.onboarding-screen3__headline-bottom {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.onboarding-screen3__description {
+  margin: 0;
+  padding-left: clamp(4px, 2vw, 12px);
+  max-width: 100%;
+}
+
+.onboarding-screen3-page .onboarding-footer {
+  padding-top: clamp(2rem, 8vw, 4rem);
+}
+
+.onboarding-screen3-page .onboarding-footer__next {
+  background: var(--green-400);
+  font-weight: 700;
+}
+
+@media (max-width: 360px) {
+  .onboarding-screen3__scene {
+    min-height: clamp(320px, 95vw, 440px);
+  }
+
+  .onboarding-screen3__phone-wrap {
+    width: clamp(170px, 48vw, 227px);
+    position: relative;
+    top: -4%;
   }
 }
 

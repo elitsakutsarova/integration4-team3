@@ -19,7 +19,7 @@ export const onboardingAssets = {
     doodle1: screenAsset('screen1', 'doodle1.svg'),
     doodle2: screenAsset('screen1', 'doodle2.svg'),
     music: screenAsset('screen1', 'music.svg'),
-    memo: screenAsset('screen1', 'memo.svg'),
+    memo: screenAsset('screen1', 'memo.png'),
   },
   screen2: {
     texture: screenAsset('screen2', 'texture.svg'),
@@ -29,5 +29,9 @@ export const onboardingAssets = {
     doodle1: screenAsset('screen2', 'doodle1.svg'),
     doodle2: screenAsset('screen2', 'doodle2.svg'),
     pin: screenAsset('screen2', 'pin.svg'),
+  },
+  screen3: {
+    phone: screenAsset('screen3', 'phone.png'),
+    stickersVisual: screenAsset('screen3', 'stickers_visual.png'),
   },
 };
