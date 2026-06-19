@@ -41,6 +41,7 @@ export default [
   route("reset-password", "routes/reset-password.jsx"),
   route("reset-password/success", "routes/reset-password-success.jsx"),
   route("register", "routes/register.jsx"),
+  route("onboarding/1", "routes/onboarding.1.jsx"),
   route("stickers", "routes/account-layout.stickers.jsx", [
     index("routes/stickers.jsx"),
   ]),

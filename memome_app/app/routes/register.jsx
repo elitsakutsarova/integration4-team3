@@ -24,6 +24,7 @@ import { getPasswordChecks } from '../utils/passwordRules';
 import { registerActionError, signUpAccount } from '../utils/authActions';
 import { checkUsernameTaken } from '../utils/authStore';
 import { paths } from '../utils/appPaths';
+import { beginOnboardingFlow } from '../utils/onboardingFlow';
 import { guestOnlyMiddleware } from '../middleware/clientAuth';
 import {
   validateEmail,
@@ -132,7 +133,8 @@ export async function clientAction({ request }) {
     return registerActionError(result.error, fields);
   }
 
-  throw redirect(paths.home);
+  beginOnboardingFlow();
+  throw redirect(paths.onboarding1);
 }
 
 function RegisterHeroScene() {
