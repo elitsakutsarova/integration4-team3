@@ -26,18 +26,18 @@ export default function GuestAddMemoLocked({ onClose }) {
           <img
             className="guest-add-memo-hero-camera"
             src={addMemoAssets.camera}
-                    alt=""
-                  />
-                  <img
-                    className="guest-add-memo-hero-wave"
-                    src={addMemoAssets.lockedHeaderWave}
-                    alt=""
-                  />
-                  <img
-                    className="guest-add-memo-hero-pixel"
-                    src={addMemoAssets.lockedPixelDeco}
-                    alt=""
-                  />
+            alt=""
+          />
+          <img
+            className="guest-add-memo-hero-wave"
+            src={addMemoAssets.lockedHeaderWave}
+            alt=""
+          />
+          <img
+            className="guest-add-memo-hero-pixel"
+            src={addMemoAssets.lockedPixelDeco}
+            alt=""
+          />
         </div>
 
         <header className="guest-add-memo-header">
@@ -49,7 +49,7 @@ export default function GuestAddMemoLocked({ onClose }) {
           >
             <BackIcon />
           </button>
- {/*          <button
+          {/*          <button
             type="button"
             className="guest-add-memo-back guest-add-memo-back--desktop"
             onClick={onClose}

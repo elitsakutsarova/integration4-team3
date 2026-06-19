@@ -52,7 +52,9 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
     <div className="discover-page">
       <header className="discover-hero">
         <div className="discover-grid-deco" aria-hidden="true">
-          <div className="discover-grid-gradient" />
+            <img className="discover-grid" src="./public/account/has-account/discover_grid.svg" alt="" />
+{/*           <img className="discover-grid-pattern" src="./public/account/has-account/discover_grid-pattern.svg" alt="" />
+ */}
           <div className="discover-grid-pattern" />
         </div>
 
@@ -95,25 +97,25 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
         </div>
       </section>
 
-<div className="discover-upcoming-container">
+      <div className="discover-upcoming-container">
         <svg className="discover-wave discover-wave--top" xmlns="http://www.w3.org/2000/svg" width="393" height="46" viewBox="0 0 393 46" fill="none">
           <path d="M224.586 37.5198C149.578 38.4133 45.6965 -9.22612 0 18.5097V46H393V0.0140935C329.722 -0.83121 299.594 36.6264 224.586 37.5198Z" fill="#F1F4FF" />
         </svg>
-      <section className="discover-section discover-section--upcoming" aria-labelledby="discover-upcoming">
-        <SectionHeader
-          id="discover-upcoming"
-          title="Upcoming"
-          highlightWidth="116px"
-          viewAllTo={paths.discoverUpcoming}
-        />
-        <div className="discover-carousel">
-          {filteredUpcoming.length > 0 ? (
-            filteredUpcoming.map(item => <EventCard key={item.id} item={item} />)
-          ) : (
-            <p className="discover-empty">No upcoming events match your filters.</p>
-          )}
-        </div>
-      </section>
+        <section className="discover-section discover-section--upcoming" aria-labelledby="discover-upcoming">
+          <SectionHeader
+            id="discover-upcoming"
+            title="Upcoming"
+            highlightWidth="116px"
+            viewAllTo={paths.discoverUpcoming}
+          />
+          <div className="discover-carousel">
+            {filteredUpcoming.length > 0 ? (
+              filteredUpcoming.map(item => <EventCard key={item.id} item={item} />)
+            ) : (
+              <p className="discover-empty">No upcoming events match your filters.</p>
+            )}
+          </div>
+        </section>
         <svg className="discover-wave discover-wave--bottom" xmlns="http://www.w3.org/2000/svg" width="393" height="41" viewBox="0 0 393 41" fill="none">
           <path d="M170.174 14.1501C246.334 17.7163 350.644 51.2886 397.691 37.5316L397.293 9.89315L-0.57586 1.97479e-05L-1.6738 26.9399C62.5377 30.8851 94.0138 10.584 170.174 14.1501Z" fill="#F1F4FF" />
         </svg>
