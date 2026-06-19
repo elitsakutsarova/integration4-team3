@@ -1,5 +1,7 @@
 /** 45 demo memories packed around Grote Markt — for map cluster testing. */
 
+import { MEMO_TAG_OPTIONS } from './memoTags';
+
 const CENTER = [51.2220, 4.4025];
 
 const QUOTES = [
@@ -53,8 +55,6 @@ const PLACES = [
   'Wiegstraat',
 ];
 
-const TAG_POOL = ['Food', 'Sightseeing', 'Classic', 'Hidden gem', 'Local', 'Nightlife'];
-
 function offsetForIndex(i) {
   const a = ((i * 47 + 13) % 360) * (Math.PI / 180);
   const r = 0.00035 + ((i * 31) % 65) * 0.000055;
@@ -68,7 +68,7 @@ export const GROTE_MARKT_CLUSTER_MEMORIES = Array.from({ length: 45 }, (_, i) =>
   ll: offsetForIndex(i),
   quote: QUOTES[i % QUOTES.length],
   location: PLACES[i % PLACES.length],
-  tags: [TAG_POOL[i % TAG_POOL.length], 'Grote Markt area'],
+  tags: [MEMO_TAG_OPTIONS[i % MEMO_TAG_OPTIONS.length]],
   date: 'Sat, 28 Aug, 2026',
   mediaPreview: null,
 }));

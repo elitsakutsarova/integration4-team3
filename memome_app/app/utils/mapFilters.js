@@ -1,26 +1,13 @@
-const ART_CULTURE_ALIASES = ['art & culture', 'sightseeing', 'museum', 'street art'];
+import { MEMO_TAG_OPTIONS, memoTagMatchesFilter } from '../data/memoTags';
 
 export const MAP_CATEGORIES = [
   { id: 'All', label: 'All' },
-  { id: 'Food', label: 'Food' },
-  { id: 'Nightlife', label: 'Nightlife' },
-  { id: 'Fashion', label: 'Fashion' },
-  { id: 'Art & Culture', label: 'Art & Culture' },
+  ...MEMO_TAG_OPTIONS.map((tag) => ({ id: tag, label: tag })),
 ];
-
-function tagMatchesCategory(tag, category) {
-  const normalized = String(tag).trim().toLowerCase();
-  if (category === 'Art & Culture') {
-    return ART_CULTURE_ALIASES.some(alias => normalized.includes(alias))
-      || normalized.includes('art')
-      || normalized.includes('culture');
-  }
-  return normalized === category.toLowerCase();
-}
 
 function itemMatchesCategory(item, category) {
   if (!category || category === 'All') return true;
-  return (item.tags ?? []).some(tag => tagMatchesCategory(tag, category));
+  return (item.tags ?? []).some((tag) => memoTagMatchesFilter(tag, category));
 }
 
 function itemMatchesQuery(item, query) {
@@ -29,17 +16,17 @@ function itemMatchesQuery(item, query) {
 
   return [item.quote, item.location, item.title, item.label]
     .filter(Boolean)
-    .some(value => String(value).toLowerCase().includes(trimmed));
+    .some((value) => String(value).toLowerCase().includes(trimmed));
 }
 
 export function filterMapMemories(memos, { category = 'All', query = '' } = {}) {
   return (memos ?? []).filter(
-    memo => itemMatchesCategory(memo, category) && itemMatchesQuery(memo, query),
+    (memo) => itemMatchesCategory(memo, category) && itemMatchesQuery(memo, query),
   );
 }
 
 export function filterMapEvents(events, { category = 'All', query = '' } = {}) {
   return (events ?? []).filter(
-    event => itemMatchesCategory(event, category) && itemMatchesQuery(event, query),
+    (event) => itemMatchesCategory(event, category) && itemMatchesQuery(event, query),
   );
 }

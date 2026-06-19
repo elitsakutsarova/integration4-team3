@@ -447,6 +447,10 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, [active, guestAddMemoLocked, draftMemo]);
 
   function handleFormClose() {
+    if (pendingMarkerRef.current) {
+      pendingMarkerRef.current.remove();
+      pendingMarkerRef.current = null;
+    }
     setSearchParams({}, { replace: true });
   }
 

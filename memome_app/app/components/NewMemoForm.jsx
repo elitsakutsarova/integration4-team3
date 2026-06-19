@@ -7,6 +7,7 @@ import { hasChosenMemoLocation } from '../utils/memoDraft';
 import { isNewMemoDirty } from '../utils/isNewMemoDirty';
 import SectionTitle from './SectionTitle';
 import AddMemoWarningModal from './AddMemoWarningModal';
+import MemoTagIcon from './MemoTagIcon';
 import { validateMemoMediaFile } from '../utils/validators';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 
@@ -23,53 +24,6 @@ function TrashIcon() {
       <path d="M6 6l1 14h10l1-14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
       <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function MemoTagIcon({ tag }) {
-  if (tag === 'Food') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <path d="M3 11h18M6 11V5a2 2 0 0 1 2-2h1v8M11 3v8M16 11V7a2 2 0 0 1 2-2h1v6" />
-      </svg>
-    );
-  }
-  if (tag === 'Nightlife') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <path d="M8 22h8M12 11v11M7 11l5-8 5 8H7z" />
-      </svg>
-    );
-  }
-  if (tag === 'Fashion') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <path d="M6 2l3 4h6l3-4M6 6l-2 16h16L18 6" />
-      </svg>
-    );
-  }
-  if (tag === 'Art & Culture') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
-      </svg>
-    );
-  }
-  if (tag === 'Music') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <path d="M9 18V5l12-2v13" />
-        <circle cx="6" cy="18" r="3" />
-        <circle cx="18" cy="16" r="3" />
-      </svg>
-    );
-  }
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <path d="M4 4h16v16H4z" />
-      <path d="M9 9h6v6H9z" />
     </svg>
   );
 }

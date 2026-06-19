@@ -349,9 +349,10 @@ fill: #202020
 }
 
 .guest-add-memo-hero-deco {
-    display: grid;
-      grid-template-columns: 1fr 0.5fr;
-      grid-template-rows: 1fr;
+  display: grid;
+  grid-template-columns: 1fr 0.5fr;
+  grid-template-rows: 1fr;
+  pointer-events: none;
 }
 
 .guest-add-memo-hero-camera{
@@ -384,15 +385,13 @@ z-index: 11;
 }
 
 .guest-add-memo-header {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: clamp(6px, 2vw, 10px);
-  /* padding: clamp(4px, 1.5vw, 8px) clamp(12px, 4vw, 16px) 0; */
+  gap: 1.3rem;
   padding: 0.5rem 1rem;
   background: var(--yellow-400);
-/*   max-width: fit-content; */
-  gap: 1.3rem;
-  z-index: 10;
+  z-index: 12;
 }
 
 .guest-add-memo-back {

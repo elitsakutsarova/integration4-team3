@@ -1,0 +1,111 @@
+/* ─── Shared discard-warning modal (journals + add memo) ─ */
+.create-journal-warning-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 17000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.create-journal-warning-modal {
+  position: relative;
+  width: min(100%, 320px);
+  padding: 20px 18px 24px;
+  border-radius: 16px;
+  background: #fff;
+  text-align: center;
+}
+
+.create-journal-warning-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #1952ff;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.create-journal-warning-deco {
+  position: relative;
+  height: 6.5rem;
+}
+
+.create-journal-warning-deco-grid {
+  position: absolute;
+  left: 60%;
+  top: -17%;
+  height: auto;
+}
+
+.create-journal-warning-deco-wave {
+  position: absolute;
+  right: 41%;
+  height: auto;
+}
+
+.create-journal-warning-deco-icon {
+  position: absolute;
+  left: 50%;
+  top: -80%;
+  height: auto;
+  transform: translateX(-50%);
+}
+
+.create-journal-warning-title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: #1e1e1e;
+}
+
+.create-journal-warning-desc {
+  margin: 0 0 22px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #6b7280;
+}
+
+.create-journal-warning-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.create-journal-warning-discard,
+.create-journal-warning-continue {
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.create-journal-warning-discard {
+  border: 2px dashed #1952ff;
+  background: #fff;
+  color: #1e1e1e;
+}
+
+.create-journal-warning-continue {
+  border: none;
+  background: #1952ff;
+  color: #fff;
+}
+
+.create-journal-warning-discard--danger {
+  border-color: #e11d48;
+  color: #e11d48;
+}

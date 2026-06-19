@@ -1,13 +1,14 @@
 // this file containts the mock data for the discover page
 
+import { MEMO_TAG_OPTIONS, memoTagIconKey, memoTagMatchesFilter } from './memoTags';
+
 export const DISCOVER_CATEGORIES = [
   { id: 'All', label: 'All' },
-  { id: 'Food', label: 'Food', icon: 'food' },
-  { id: 'Nightlife', label: 'Nightlife', icon: 'nightlife' },
-  { id: 'Fashion', label: 'Fashion', icon: 'fashion' },
-  { id: 'Art & culture', label: 'Art & culture', icon: 'art' },
-  { id: 'Music', label: 'Music', icon: 'music' },
-  { id: 'Random', label: 'Random', icon: 'random' },
+  ...MEMO_TAG_OPTIONS.map((tag) => ({
+    id: tag,
+    label: tag,
+    icon: memoTagIconKey(tag),
+  })),
 ];
 
 export const HAPPENING_NOW = [
@@ -50,7 +51,7 @@ export const UPCOMING = [
     date: 'Sun, 14 Jun. 2026',
     location: 'Sint-Jansvliet',
     tags: ['Market'],
-    categories: ['Art & culture', 'Random'],
+    categories: ['Art & Culture', 'Random'],
     image: '/discover/antiques.jpg',
   },
   {
@@ -59,7 +60,7 @@ export const UPCOMING = [
     date: 'Sun, 14 Jun. 2026',
     location: 'Oudevaartplaats',
     tags: ['Market', 'Art'],
-    categories: ['Art & culture', 'Random'],
+    categories: ['Art & Culture', 'Random'],
     image: '/discover/lambermontmartre.jpg',
   },
   {
@@ -67,7 +68,7 @@ export const UPCOMING = [
     title: 'Flea market',
     date: 'Sun, 14 Jun. 2026',
     location: 'Dageraadplaats',
-    tags: ['Market', 'Hidden gem'],
+    tags: ['Market', 'Random'],
     categories: ['Random', 'Fashion'],
     image: '/discover/flea-market.jpg',
   },
@@ -87,7 +88,7 @@ export const PLACES_WORTH_MEMO = [
     title: 'Rush Rush Caffee',
     location: 'Lange Altaarstraat 29',
     tags: ['Food'],
-    categories: ['Food', 'Art & culture', 'Nightlife'],
+    categories: ['Food', 'Art & Culture', 'Nightlife'],
     image: '/discover/rush-rush.jpg',
   },
   {
@@ -128,8 +129,8 @@ export const PLACES_WORTH_MEMO_ALL = [
     id: 'rush-rush-art',
     title: 'Rush Rush Caffee',
     location: 'Lange Altaarstraat 29',
-    tags: ['Art & culture'],
-    categories: ['Art & culture'],
+    tags: ['Art & Culture'],
+    categories: ['Art & Culture'],
     image: '/discover/rush-rush.jpg',
   },
   {
@@ -167,11 +168,9 @@ export const PLACES_WORTH_MEMO_ALL = [
 ];
 
 function matchesCategory(item, category) {
-  if (category === 'All') return true;
-  if (category === 'Random') {
-    return item.categories.includes('Random') || item.tags.includes('Hidden gem');
-  }
-  return item.categories.includes(category) || item.tags.includes(category);
+  if (!category || category === 'All') return true;
+  const tags = [...(item.tags ?? []), ...(item.categories ?? [])];
+  return tags.some((tag) => memoTagMatchesFilter(tag, category));
 }
 
 function matchesSearch(item, query) {
