@@ -168,7 +168,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 0.625rem 0.9375rem;
+  /* padding: 0.625rem 0.9375rem; */
+  padding: 0.525rem 0.9375rem;
   border-radius: 0.5rem;
   border: 2px dashed var(--blue);
   background: #fff;
@@ -180,6 +181,10 @@
   white-space: nowrap;
 }
 
+.map-category-chip svg path {
+fill: #202020
+}
+
 .map-category-chip--active {
   background: var(--blue);
   border-style: solid;
@@ -187,9 +192,11 @@
   color: #fff;
 }
 
-.map-category-chip--active svg {
-  stroke: #fff;
+.map-category-chip--active svg path {
+  fill: #fff;
 }
+
+
 
 .map-container--bottom {
   position: fixed;
@@ -244,7 +251,6 @@
   color: var(--grey-200, #797979);
     text-align: center;
     font-family: SunAntwerpen;
-    font-size: 1.25rem;
     font-style: normal;
     font-weight: 800;
     line-height: normal;
@@ -269,13 +275,14 @@
 
 .guest-auth-cta-login {
   font-size: clamp(0.875rem, 3.4vw, 13px);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--mid);
 }
 
 .guest-auth-cta-login a {
   color: var(--blue);
   text-decoration: underline;
+  font-weight: 800;
 }
 
 .map-guest-panel-copy {
@@ -323,10 +330,14 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
     background-color: #fff;
-      background-image: url('/journals/Group 2085666333.svg');
+/*       background-image: url('/journals/Group 2085666333.svg');
       background-repeat: no-repeat;
       background-position: center top;
-      background-size: 100% auto;
+      background-size: 100% auto; */
+      background-image:
+          linear-gradient(rgba(245, 245, 245, 1) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(245, 245, 245, 1) 1px, transparent 1px);
+        background-size: 20px 20px;
 }
 
 .guest-add-memo-top {
@@ -361,9 +372,9 @@ z-index: 11;
 
 .guest-add-memo-hero-pixel {
   grid-area: 1/1/1/1;
-  width: 88px;
-  height: auto;
+  max-width: 5rem;
   z-index: 1;
+  margin-bottom: -1rem;
 }
 
 .guest-add-memo-top-grid {
