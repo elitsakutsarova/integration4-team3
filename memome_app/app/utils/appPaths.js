@@ -15,6 +15,9 @@ export const paths = {
   resetPassword: href('/reset-password'),
   resetPasswordSuccess: href('/reset-password/success'),
   register: href('/register'),
+  onboarding1: href('/onboarding/1'),
+  onboarding2: href('/onboarding/2'),
+  onboarding3: href('/onboarding/3'),
   profile: href('/profile'),
   profileSettings: href('/profile/settings'),
   profileSettingsAccount: href('/profile/settings/account'),
@@ -182,7 +185,7 @@ export function getSafeFallbackPath(pathname) {
   if (path.startsWith('/profile') || path.startsWith('/stickers') || path.startsWith('/collect') || path.startsWith('/connect')) {
     return FALLBACK_PROFILE;
   }
-  if (path.startsWith('/login') || path.startsWith('/register')) {
+  if (path.startsWith('/login') || path.startsWith('/register') || path.startsWith('/onboarding')) {
     return FALLBACK_HOME;
   }
 

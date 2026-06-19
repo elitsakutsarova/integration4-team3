@@ -39,7 +39,11 @@
       "routes/journals.$id.edit": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/journals.$id.edit.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/login": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/forgot-password": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/reset-password": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/reset-password-success": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/register": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/onboarding.1": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/collect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/connect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -50,6 +54,7 @@
       "routes/api.stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.account": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.reset-password": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.feedback": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.location-search": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.location-href": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -288,11 +293,39 @@
         "path": "login",
         "config": {}
       },
+      "routes/forgot-password": {
+        "id": "routes/forgot-password",
+        "parentId": "root",
+        "file": "app/routes/forgot-password.jsx",
+        "path": "forgot-password",
+        "config": {}
+      },
+      "routes/reset-password": {
+        "id": "routes/reset-password",
+        "parentId": "root",
+        "file": "app/routes/reset-password.jsx",
+        "path": "reset-password",
+        "config": {}
+      },
+      "routes/reset-password-success": {
+        "id": "routes/reset-password-success",
+        "parentId": "root",
+        "file": "app/routes/reset-password-success.jsx",
+        "path": "reset-password/success",
+        "config": {}
+      },
       "routes/register": {
         "id": "routes/register",
         "parentId": "root",
         "file": "app/routes/register.jsx",
         "path": "register",
+        "config": {}
+      },
+      "routes/onboarding.1": {
+        "id": "routes/onboarding.1",
+        "parentId": "root",
+        "file": "app/routes/onboarding.1.jsx",
+        "path": "onboarding/1",
         "config": {}
       },
       "routes/account-layout.stickers": {
@@ -370,6 +403,13 @@
         "parentId": "root",
         "file": "app/routes/api.account.js",
         "path": "api/account",
+        "config": {}
+      },
+      "routes/api.reset-password": {
+        "id": "routes/api.reset-password",
+        "parentId": "root",
+        "file": "app/routes/api.reset-password.js",
+        "path": "api/reset-password",
         "config": {}
       },
       "routes/api.feedback": {
@@ -613,11 +653,35 @@
         "file": "routes/login.jsx",
         "path": "login"
       },
+      "routes/forgot-password": {
+        "id": "routes/forgot-password",
+        "parentId": "root",
+        "file": "routes/forgot-password.jsx",
+        "path": "forgot-password"
+      },
+      "routes/reset-password": {
+        "id": "routes/reset-password",
+        "parentId": "root",
+        "file": "routes/reset-password.jsx",
+        "path": "reset-password"
+      },
+      "routes/reset-password-success": {
+        "id": "routes/reset-password-success",
+        "parentId": "root",
+        "file": "routes/reset-password-success.jsx",
+        "path": "reset-password/success"
+      },
       "routes/register": {
         "id": "routes/register",
         "parentId": "root",
         "file": "routes/register.jsx",
         "path": "register"
+      },
+      "routes/onboarding.1": {
+        "id": "routes/onboarding.1",
+        "parentId": "root",
+        "file": "routes/onboarding.1.jsx",
+        "path": "onboarding/1"
       },
       "routes/account-layout.stickers": {
         "id": "routes/account-layout.stickers",
@@ -684,6 +748,12 @@
         "parentId": "root",
         "file": "routes/api.account.js",
         "path": "api/account"
+      },
+      "routes/api.reset-password": {
+        "id": "routes/api.reset-password",
+        "parentId": "root",
+        "file": "routes/api.reset-password.js",
+        "path": "api/reset-password"
       },
       "routes/api.feedback": {
         "id": "routes/api.feedback",
@@ -867,8 +937,24 @@
             "path": "login"
           },
           {
+            "file": "routes/forgot-password.jsx",
+            "path": "forgot-password"
+          },
+          {
+            "file": "routes/reset-password.jsx",
+            "path": "reset-password"
+          },
+          {
+            "file": "routes/reset-password-success.jsx",
+            "path": "reset-password/success"
+          },
+          {
             "file": "routes/register.jsx",
             "path": "register"
+          },
+          {
+            "file": "routes/onboarding.1.jsx",
+            "path": "onboarding/1"
           },
           {
             "file": "routes/account-layout.stickers.jsx",
@@ -915,6 +1001,10 @@
           {
             "file": "routes/api.account.js",
             "path": "api/account"
+          },
+          {
+            "file": "routes/api.reset-password.js",
+            "path": "api/reset-password"
           },
           {
             "file": "routes/api.feedback.js",
