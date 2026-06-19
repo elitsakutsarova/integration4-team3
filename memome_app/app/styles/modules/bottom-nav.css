@@ -1,4 +1,3 @@
-/* ─── Bottom navigation ───────────────────────────── */
 .bottom-nav {
   grid-area: 1/1;
   align-self: end;
@@ -42,13 +41,12 @@
   font-weight: 700; 
 }
 
-.nav-item--active > .nav-icon svg path { fill: var(--grey-300); }
+.nav-item--active > .nav-icon svg path { fill: var(--grey-300); stroke: var(--grey-300); }
 .nav-item--active>.nav-label {
   font-weight: 700;
 }
 
 .nav-icon { display: flex; }
-.nav-icon svg { stroke: currentColor; }
 
 .nav-label {
   font-size: 13px;
