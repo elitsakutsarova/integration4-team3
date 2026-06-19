@@ -66,7 +66,7 @@
   --green: #00c853;
   --yellow: #f9ff75;
   --font: 'SunAntwerpen', sans-serif;
-  --script: 'Playfair Display', serif;
+  --title: 'Antwerpen', serif;
 
   --blue-0: #F8FAFF;
   --blue-5: #F1F4FF;
@@ -207,4 +207,18 @@ h3 {
     font-style: normal;
     font-weight: 700;
     line-height: 1.25rem;
+}
+
+.btn-chevron {
+flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: var(--dark);
+  cursor: pointer;
+  border-radius: 0.625rem;
+  background: var(--grey-0, #FFF);
+  box-shadow: 0 0 8px 0 rgba(43, 43, 44, 0.10);
+  padding: 0.6rem;
 }
