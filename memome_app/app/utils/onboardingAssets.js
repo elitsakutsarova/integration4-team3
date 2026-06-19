@@ -21,4 +21,13 @@ export const onboardingAssets = {
     music: screenAsset('screen1', 'music.svg'),
     memo: screenAsset('screen1', 'memo.svg'),
   },
+  screen2: {
+    texture: screenAsset('screen2', 'texture.svg'),
+    memo1: screenAsset('screen2', 'memo1.png'),
+    memo2: screenAsset('screen2', 'memo2.png'),
+    memo3: screenAsset('screen2', 'memo3.png'),
+    doodle1: screenAsset('screen2', 'doodle1.svg'),
+    doodle2: screenAsset('screen2', 'doodle2.svg'),
+    pin: screenAsset('screen2', 'pin.svg'),
+  },
 };

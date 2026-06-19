@@ -22,19 +22,26 @@ export default function OnboardingFooter({
   activeStep,
   skipTo,
   onSkip,
+  backTo,
+  onBack,
+  backLabel = 'Back',
   nextLabel = 'Next',
   nextTo,
   onNext,
 }) {
+  const showBack = Boolean(onBack || backTo);
+
   return (
     <footer className="onboarding-footer">
       <div className="onboarding-footer__actions">
         <OnboardingFooterAction
-          className="onboarding-footer__skip"
-          onClick={onSkip}
-          to={skipTo}
+          className={
+            showBack ? 'onboarding-footer__back' : 'onboarding-footer__skip'
+          }
+          onClick={showBack ? onBack : onSkip}
+          to={showBack ? backTo : skipTo}
         >
-          Skip
+          {showBack ? backLabel : 'Skip'}
         </OnboardingFooterAction>
 
         <OnboardingFooterAction

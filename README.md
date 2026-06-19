@@ -191,5 +191,10 @@ After our consult, I changed a lot of things in test5 like:
 - Once they change/reset their password, they should be sent to a “Success” screen with the button to sign-in which signs them into the web-app ✔️
 - The user shouldn’t be able to register twice with the same e-mail or username ✔️
 
+## Test 14 -> Onboarding
+
+- Implement Onboarding Screen 1 + micro-animations ✔️
+- Implement Onboarding Screen 2 + micro-animations
+- Implement Onboarding Screen 3 + micro-animations
 
 ## Deployment
