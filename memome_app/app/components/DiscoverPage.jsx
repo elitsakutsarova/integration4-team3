@@ -52,8 +52,8 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
     <div className="discover-page">
       <header className="discover-hero">
         <div className="discover-grid-deco" aria-hidden="true">
-            <img className="discover-grid" src="./public/account/has-account/discover_grid.svg" alt="" />
-{/*           <img className="discover-grid-pattern" src="./public/account/has-account/discover_grid-pattern.svg" alt="" />
+          <img className="discover-grid" src="./public/account/has-account/discover_grid.svg" alt="" />
+          {/*           <img className="discover-grid-pattern" src="./public/account/has-account/discover_grid-pattern.svg" alt="" />
  */}
           <div className="discover-grid-pattern" />
         </div>
