@@ -441,51 +441,41 @@
 
 .journals-guest-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 268px);
-  grid-template-rows: auto auto;
+  grid-template-columns: 1fr 0.5fr;
+  grid-template-rows: 1fr;
   flex-shrink: 0;
   gap: 0 clamp(8px, 2vw, 12px);
-  min-height: clamp(140px, 22vh, 156px);
-  padding:
+/*   min-height: clamp(140px, 22vh, 156px); */
+/*   padding:
     max(20px, env(safe-area-inset-top))
     clamp(16px, 5vw, 20px)
     8px
-    clamp(20px, 6vw, 28px);
-  background: linear-gradient(
-    183.58deg,
-    #d1dcff 32.08%,
-    rgba(209, 220, 255, 0) 67.08%
-  );
+    clamp(20px, 6vw, 28px); */
+background: linear-gradient(190deg, rgba(209, 213, 219, 0.43) 32.08%, rgba(209, 213, 219, 0.00) 67.08%);
   overflow: hidden;
   pointer-events: none;
 }
 
 .journals-guest-hero-logo {
-  grid-column: 1;
-  grid-row: 1;
-  width: 35px;
-  height: 42px;
+  grid-area: 1/1/1/1;
   align-self: start;
+  justify-self: center;
+  margin-left: -3rem;
+  z-index: 2;
 }
 
 .journals-guest-hero-wave {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  width: min(68vw, 268px);
+  grid-area: 1/1/1/1;
   height: auto;
-  justify-self: end;
   align-self: start;
-  margin-top: -50px;
-  transform: rotate(-12.44deg) scaleY(-1);
+  z-index: 0;
 }
 
 .journals-guest-hero-pixel {
-  grid-column: 1;
-  grid-row: 2;
+  grid-area: 1/1/1/1;
   width: 88px;
   height: auto;
-  margin-left: 60px;
-  margin-top: 8px;
+  z-index: 1;
 }
 
 .journals-guest-main {
