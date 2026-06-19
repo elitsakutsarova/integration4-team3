@@ -1520,6 +1520,7 @@
 }
 
 .onboarding-slide {
+  position: relative;
   min-height: 100dvh;
   margin: 0 auto;
   display: grid;
@@ -1550,9 +1551,11 @@
 
 .onboarding-slide__decor-top-right {
   position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
   pointer-events: none;
   z-index: 15;
-  justify-self: end;
   width: 39%;
 }
 
