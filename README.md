@@ -194,7 +194,7 @@ After our consult, I changed a lot of things in test5 like:
 ## Test 14 -> Onboarding
 
 - Implement Onboarding Screen 1 + micro-animations ✔️
-- Implement Onboarding Screen 2 + micro-animations
-- Implement Onboarding Screen 3 + micro-animations
+- Implement Onboarding Screen 2 + micro-animations ✔️
+- Implement Onboarding Screen 3 + micro-animations ✔️
 
 ## Deployment
