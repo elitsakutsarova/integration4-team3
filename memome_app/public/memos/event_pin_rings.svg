@@ -1,0 +1,11 @@
+<svg viewBox="0 0 107 107" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <circle cx="53.4982" cy="53.5009" r="33.5" fill="url(#event-pin-gradient)"/>
+  <circle cx="53.4958" cy="53.5012" r="42" stroke="#7597FF"/>
+  <circle cx="53.5" cy="53.5" r="53" stroke="#7597FF"/>
+  <defs>
+    <radialGradient id="event-pin-gradient" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(53.4982 53.5009) rotate(90) scale(33.5)">
+      <stop stop-color="#7597FF"/>
+      <stop offset="1" stop-color="#7597FF" stop-opacity="0.49"/>
+    </radialGradient>
+  </defs>
+</svg>

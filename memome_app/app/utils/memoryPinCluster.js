@@ -13,6 +13,22 @@ const GENERIC_LOCATION = 'my spot';
 
 const EARTH_RADIUS_M = 6_371_000;
 
+export function normalizePinLl(pin) {
+  if (!pin) return null;
+
+  if (Array.isArray(pin.ll) && pin.ll.length >= 2) {
+    const lat = Number(pin.ll[0]);
+    const lng = Number(pin.ll[1]);
+    if (Number.isFinite(lat) && Number.isFinite(lng)) return [lat, lng];
+  }
+
+  const lat = Number(pin.lat);
+  const lng = Number(pin.lng);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) return [lat, lng];
+
+  return null;
+}
+
 export function haversineMeters(a, b) {
   const [lat1, lng1] = a;
   const [lat2, lng2] = b;
@@ -34,9 +50,12 @@ function neighborsWithin(index, pins, radiusM) {
 }
 
 export function partitionMemoryPins(pins) {
-  const valid = pins.filter(
-    p => Array.isArray(p.ll) && p.ll.every(n => typeof n === 'number' && Number.isFinite(n)),
-  );
+  const valid = pins
+    .map(pin => {
+      const ll = normalizePinLl(pin);
+      return ll ? { ...pin, ll } : null;
+    })
+    .filter(Boolean);
   const n = valid.length;
   if (n === 0) return { denseGroups: [], standalonePins: [] };
 
@@ -158,9 +177,12 @@ function unionByLocationAndProximity(uf, pins) {
 
 /** Group pins at the same venue — matches memo spot limits (place_id, coords, location). */
 export function groupPinsBySpot(pins) {
-  const valid = pins.filter(
-    p => Array.isArray(p.ll) && p.ll.every(n => typeof n === 'number' && Number.isFinite(n)),
-  );
+  const valid = pins
+    .map(pin => {
+      const ll = normalizePinLl(pin);
+      return ll ? { ...pin, ll } : null;
+    })
+    .filter(Boolean);
   const count = valid.length;
   if (count === 0) return new Map();
 

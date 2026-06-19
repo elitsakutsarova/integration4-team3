@@ -82,6 +82,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   const mediaPreviewRef = useRef(null);
   const loadTimerRef = useRef(null);
   const isSubmittingRef = useRef(false);
+  const formRef = useRef(null);
   mediaPreviewRef.current = mediaPreview;
 
   const locationLabel = draft?.locationName?.trim() || 'Choose location';
@@ -135,6 +136,25 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   useEffect(() => {
     isSubmittingRef.current = isSubmitting;
   }, [isSubmitting]);
+
+  useEffect(() => {
+    if (!hidden) return;
+    const root = formRef.current;
+    if (!root) return;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && root.contains(focused)) {
+      focused.blur();
+    }
+  }, [hidden]);
+
+  useEffect(() => () => {
+    const root = formRef.current;
+    if (!root) return;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && root.contains(focused)) {
+      focused.blur();
+    }
+  }, []);
 
   function requestClose() {
     if (isSubmittingRef.current || !isDirty) {
@@ -222,7 +242,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     const url = URL.createObjectURL(file);
     clearLoadTimer();
     setLoadProgress(100);
-    setMediaPreview({ url, isVideo, file });
+    const { readMediaDimensions } = await import('../utils/memoPinAssets');
+    const { width, height } = await readMediaDimensions(file, { isVideo });
+    setMediaPreview({ url, isVideo, file, width, height });
     setMediaPhase('preview');
   }
 
@@ -258,9 +280,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   }
 
   function toggleTag(tag) {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-    );
+    setSelectedTags((prev) => (prev.includes(tag) ? [] : [tag]));
   }
 
   function renderMediaZone() {
@@ -341,14 +361,15 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   return (
     <>
     <fetcher.Form
+      ref={formRef}
       method="post"
       action={paths.apiMemos}
       encType="multipart/form-data"
       onSubmit={handleFormSubmit}
       className={`form-overlay${hidden ? ' form-overlay--hidden' : ''}`}
-      role="dialog"
-      aria-modal={!hidden}
-      aria-hidden={hidden}
+      role={hidden ? undefined : 'dialog'}
+      aria-modal={hidden ? undefined : true}
+      inert={hidden ? true : undefined}
       aria-label="Add memo"
       onClick={handleOverlayClick}
     >
@@ -360,6 +381,12 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
       {selectedTags.map((tag) => (
         <input key={tag} type="hidden" name="tags" value={tag} />
       ))}
+      {mediaPreview?.width ? (
+        <input type="hidden" name="mediaWidth" value={String(mediaPreview.width)} />
+      ) : null}
+      {mediaPreview?.height ? (
+        <input type="hidden" name="mediaHeight" value={String(mediaPreview.height)} />
+      ) : null}
 
       <div className="form-sheet memo-form-sheet">
         <div className="memo-form-scroll">

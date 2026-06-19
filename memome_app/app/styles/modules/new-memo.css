@@ -979,12 +979,11 @@
 }
 
 .memory-sheet-tags--inline {
-  position: static;
-  margin-bottom: 12px;
+  margin-left: 0;
 }
 
-.memory-sheet--text-only .memory-sheet-content {
-  padding-top: 22px;
+.memory-sheet--text-only .memory-sheet-body {
+  padding-top: 0;
 }
 
 /* ─── Memo post success ───────────────────────────── */

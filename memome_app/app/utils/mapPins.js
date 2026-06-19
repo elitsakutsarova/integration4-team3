@@ -2,8 +2,23 @@
 
 import { isSafeHttpsUrl } from './validators';
 import { discoverEventPath } from './appPaths';
+import {
+  EVENT_PIN_SIZE,
+  applyPolaroidOrientationClass,
+  eventCenterIconSvg,
+  memoryPinDimensions,
+  pinHasMedia,
+  readMediaDimensions,
+  resolveEventIconTag,
+  resolveMemoPinSvg,
+  resolvePolaroidOrientation,
+  TAG_PIN_HEIGHT,
+  TAG_PIN_WIDTH,
+} from './memoPinAssets';
 
 import {
+  CLUSTER_MAX_ZOOM,
+  SPOT_CLUSTER_MAX_ZOOM,
   clusterCentroid,
   groupPinsBySpot,
   partitionMemoryPins,
@@ -12,10 +27,6 @@ import {
   spreadPinPosition,
 } from './memoryPinCluster';
 
-const MUSIC_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="#18181F">
-  <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-</svg>`;
-
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -23,15 +34,8 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
-function truncateQuote(text, max = 42) {
-  const clean = String(text ?? '').trim();
-  if (clean.length <= max) return clean;
-  return `${clean.slice(0, max - 1).trim()}…`;
-}
-
-function pinRotation(id) {
-  const seed = String(id).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return ((seed % 7) - 3) * 3;
+function safeAssetUrl(url) {
+  return isSafeHttpsUrl(url) ? escapeHtml(url) : '';
 }
 
 export function addPinHtml() {
@@ -44,38 +48,73 @@ export function addPinHtml() {
   </svg>`;
 }
 
-function safeAssetUrl(url) {
-  return isSafeHttpsUrl(url) ? escapeHtml(url) : '';
+function tagPinHtml(pin) {
+  const pinSvg = resolveMemoPinSvg(pin);
+  return `<div class="pin-memory-tag">
+    <img class="pin-memory-tag-svg" src="${escapeHtml(pinSvg)}" alt="" />
+  </div>`;
+}
+
+function mediaPinHtml(pin) {
+  const pinSvg = resolveMemoPinSvg(pin);
+  const mediaUrl = safeAssetUrl(pin.mediaPreview.url);
+  const isVideo = Boolean(pin.mediaPreview?.isVideo);
+  const orientation = resolvePolaroidOrientation(pin);
+  const orientClass = orientation === 'horizontal'
+    ? 'pin-memory-polaroid--horizontal'
+    : 'pin-memory-polaroid--vertical';
+  const mediaMarkup = isVideo
+    ? `<video src="${mediaUrl}" class="pin-memory-polaroid-img" muted playsinline preload="metadata"></video>
+       <span class="pin-memory-polaroid-play" aria-hidden="true"></span>`
+    : `<img src="${mediaUrl}" alt="" class="pin-memory-polaroid-img" />`;
+
+  return `<div class="pin-memory-polaroid ${orientClass}">
+    <div class="pin-memory-polaroid-frame">
+      <div class="pin-memory-polaroid-photo">${mediaMarkup}</div>
+    </div>
+    <img class="pin-memory-polaroid-tag" src="${escapeHtml(pinSvg)}" alt="" />
+  </div>`;
+}
+
+function bindPolaroidOrientation(marker, pin) {
+  marker.on('add', () => {
+    const root = marker.getElement()?.querySelector('.pin-memory-polaroid');
+    if (!root || root.dataset.oriented === '1') return;
+
+    const storedWidth = Number(pin?.mediaPreview?.width);
+    const storedHeight = Number(pin?.mediaPreview?.height);
+    if (applyPolaroidOrientationClass(root, storedWidth, storedHeight)) return;
+
+    const url = pin?.mediaPreview?.url;
+    if (!url) return;
+
+    readMediaDimensions(url, { isVideo: Boolean(pin.mediaPreview?.isVideo) })
+      .then(({ width, height }) => {
+        if (!marker.getElement()?.contains(root)) return;
+        applyPolaroidOrientationClass(root, width, height);
+      });
+  });
 }
 
 export function memoryPinHtml(pin) {
-  const rotation = pinRotation(pin.id);
-  const hasMedia = Boolean(pin.mediaPreview?.url) && isSafeHttpsUrl(pin.mediaPreview.url);
-  const body = hasMedia
-    ? `<img src="${safeAssetUrl(pin.mediaPreview.url)}" alt="" class="pin-memory-polaroid-img" />`
-    : `<p class="pin-memory-polaroid-text"><span class="pin-memory-polaroid-text-highlight">${escapeHtml(truncateQuote(pin.quote))}</span></p>`;
-
-  return `<div class="pin-memory-polaroid" style="--pin-rotate:${rotation}deg">
-    <div class="pin-memory-polaroid-frame">${body}</div>
-  </div>`;
+  if (pinHasMedia(pin)) {
+    return mediaPinHtml(pin);
+  }
+  return tagPinHtml(pin);
 }
 
 export function memoryClusterPinHtml(count) {
   return `<div class="pin-memory-cluster" aria-label="${count} memories">
-    <div class="pin-memory-cluster-stack" aria-hidden="true"></div>
-    <div class="pin-memory-cluster-head">
-      <span class="pin-memory-cluster-count">${count}</span>
-      <span class="pin-memory-cluster-label">memos</span>
-    </div>
+    <img class="pin-memory-cluster-svg" src="/memos/pin_random.svg" alt="" />
+    <span class="pin-memory-cluster-count">${count}</span>
   </div>`;
 }
 
-export function eventPinHtml() {
+export function eventPinHtml(pin) {
+  const iconMarkup = eventCenterIconSvg(resolveEventIconTag(pin));
   return `<div class="pin-event">
-    <div class="pin-event-ring pin-event-ring--outer"></div>
-    <div class="pin-event-ring pin-event-ring--mid"></div>
-    <div class="pin-event-ring pin-event-ring--inner"></div>
-    <div class="pin-event-circle">${MUSIC_ICON_SVG}</div>
+    <img class="pin-event-rings" src="/memos/event_pin_rings.svg" alt="" />
+    <div class="pin-event-core"><div class="pin-event-core-disc">${iconMarkup}</div></div>
   </div>`;
 }
 
@@ -83,7 +122,7 @@ export function eventPopupHtml(pin) {
   const tags = pin.tags.map(t => `<span class="event-tag">${escapeHtml(t)}</span>`).join('');
   const learnMoreHref = pin.discoverEventId
     ? discoverEventPath(pin.discoverEventId)
-    : '#';
+    : null;
   const locationHref = pin.locationHref ?? null;
   const locationLabel = locationHref
     ? `<a class="event-popup-location-link" href="${escapeHtml(locationHref)}">${escapeHtml(pin.label)}</a>`
@@ -101,7 +140,7 @@ export function eventPopupHtml(pin) {
           </svg>
           ${locationLabel}
         </p>
-        <a class="event-popup-cta" href="${learnMoreHref}">Learn more</a>
+        ${learnMoreHref ? `<a class="event-popup-cta" href="${learnMoreHref}">Learn more</a>` : ''}
       </div>
       <div class="event-popup-image-wrap">
         <div class="event-popup-image-shadow" aria-hidden="true"></div>
@@ -119,35 +158,44 @@ function suppressNextMapClick(suppressClickRef) {
 
 export function buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef, displayLl) {
   const ll = displayLl ?? pin.ll;
+  const dimensions = memoryPinDimensions(pin);
   const icon = L.divIcon({
-    className: '',
+    className: 'pin-memory-marker',
     html: memoryPinHtml(pin),
-    iconSize: [64, 78],
-    iconAnchor: [32, 72],
-    popupAnchor: [0, -74],
+    iconSize: dimensions.iconSize,
+    iconAnchor: dimensions.iconAnchor,
+    popupAnchor: dimensions.popupAnchor,
   });
   const marker = L.marker(ll, { icon });
-  marker.on('click', () => {
+  if (pinHasMedia(pin)) bindPolaroidOrientation(marker, pin);
+  marker.on('click', (event) => {
+    L.DomEvent.stopPropagation(event);
     suppressNextMapClick(suppressClickRef);
-    selectMemoryRef.current(pin);
+    selectMemoryRef.current?.(pin, ll);
   });
   layer.addLayer(marker);
   return marker;
 }
 
-export function buildMemoryClusterMarker(L, map, layer, pins, suppressClickRef) {
+export function buildMemoryClusterMarker(L, map, layer, pins, suppressClickRef, minExpandZoom) {
   const count = pins.length;
   const icon = L.divIcon({
-    className: '',
+    className: 'pin-memory-marker',
     html: memoryClusterPinHtml(count),
-    iconSize: [58, 72],
-    iconAnchor: [29, 68],
+    iconSize: [TAG_PIN_WIDTH, TAG_PIN_HEIGHT],
+    iconAnchor: [TAG_PIN_WIDTH / 2, TAG_PIN_HEIGHT],
   });
   const marker = L.marker(clusterCentroid(pins), { icon, zIndexOffset: 500 });
-  marker.on('click', () => {
+  marker.on('click', (event) => {
+    L.DomEvent.stopPropagation(event);
     suppressNextMapClick(suppressClickRef);
     const bounds = L.latLngBounds(pins.map(p => p.ll));
     map.fitBounds(bounds.pad(0.15), { maxZoom: 17, animate: true });
+    map.once('moveend', () => {
+      if (map.getZoom() < minExpandZoom) {
+        map.setZoom(minExpandZoom, { animate: true });
+      }
+    });
   });
   layer.addLayer(marker);
   return marker;
@@ -163,6 +211,27 @@ export function syncMemoryLayers(L, map, memoryPinsRef, memoryLayerRef, suppress
 
   const allPins = memoryPinsRef.current;
   const zoom = map.getZoom();
+
+  if (shouldShowClusters(zoom)) {
+    const { denseGroups, standalonePins } = partitionMemoryPins(allPins);
+
+    standalonePins.forEach(pin =>
+      buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef),
+    );
+
+    denseGroups.forEach(group =>
+      buildMemoryClusterMarker(
+        L,
+        map,
+        layer,
+        group,
+        suppressClickRef,
+        CLUSTER_MAX_ZOOM + 1,
+      ),
+    );
+    return;
+  }
+
   const spotGroups = groupPinsBySpot(allPins);
   const spotHandledIds = new Set();
 
@@ -172,7 +241,14 @@ export function syncMemoryLayers(L, map, memoryPinsRef, memoryLayerRef, suppress
     group.forEach(pin => spotHandledIds.add(pin.id));
 
     if (shouldShowSpotClusters(zoom)) {
-      buildMemoryClusterMarker(L, map, layer, group, suppressClickRef);
+      buildMemoryClusterMarker(
+        L,
+        map,
+        layer,
+        group,
+        suppressClickRef,
+        SPOT_CLUSTER_MAX_ZOOM + 1,
+      );
       continue;
     }
 
@@ -183,37 +259,19 @@ export function syncMemoryLayers(L, map, memoryPinsRef, memoryLayerRef, suppress
     });
   }
 
-  const remaining = allPins.filter(pin => !spotHandledIds.has(pin.id));
-  const { denseGroups, standalonePins } = partitionMemoryPins(remaining);
-  const areaClustered = shouldShowClusters(zoom);
-
-  standalonePins.forEach(pin =>
-    buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef),
-  );
-
-  denseGroups.forEach(group => {
-    if (areaClustered) {
-      buildMemoryClusterMarker(L, map, layer, group, suppressClickRef);
-      return;
-    }
-
-    const center = clusterCentroid(group);
-    group.forEach((pin, index) => {
-      const ll = group.length > 1
-        ? spreadPinPosition(center, index, group.length)
-        : pin.ll;
-      buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef, ll);
-    });
-  });
+  allPins
+    .filter(pin => !spotHandledIds.has(pin.id))
+    .forEach(pin => buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef));
 }
 
 export function buildEventMarker(L, map, pin, { onLocationClick } = {}) {
+  const size = EVENT_PIN_SIZE;
   const icon = L.divIcon({
-    className: '',
-    html: eventPinHtml(),
-    iconSize: [72, 72],
-    iconAnchor: [36, 36],
-    popupAnchor: [0, -40],
+    className: 'pin-event-marker',
+    html: eventPinHtml(pin),
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -(size / 2) - 4],
   });
   const marker = L.marker(pin.ll, { icon }).addTo(map);
   marker.bindPopup(eventPopupHtml(pin), {

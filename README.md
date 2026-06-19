@@ -198,8 +198,8 @@ After our consult, I changed a lot of things in test5 like:
 - Implement Onboarding Screen 3 + micro-animations ✔️
 
 ## Test 15 -> Homepage - improve/fix design
-- Add the missing tags in Homepage
-- After the user posts a memo, they should be taken (zoomed into) their memo
+- Add the missing tags in Homepage ✔️
+- After the user posts a memo, they should be taken (zoomed into) their memo on the map ✔️
 - Fix design -> memos, events, icons…
 - Add example of an event
 - Live event card always opens the first time you launch app - it shouldn’t; fix it

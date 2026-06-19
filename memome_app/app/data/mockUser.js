@@ -19,6 +19,7 @@ export const MOCK_MEMORIES = [
     quote: 'Best frites in the city, no contest',
     location: 'Frituur No. 1',
     tags: ['Food'],
+    authorRole: 'local',
     date: 'Fri, 27 Aug, 2026',
     mediaPreview: null,
   },
@@ -55,6 +56,7 @@ export const MOCK_MEMORIES = [
     quote: 'I had the best kebab at 4AM here',
     location: 'Traum',
     tags: ['Food'],
+    authorRole: 'local',
     date: 'Sat, 28 Aug, 2026',
     mediaPreview: {
       url: '/discover/oh-honey.jpg',

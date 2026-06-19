@@ -249,13 +249,14 @@ export function validateMemoCoords(lat, lng) {
   return { lat: latitude, lng: longitude };
 }
 
-export function validateMemoTags(rawTags) {
+export function validateMemoTags(rawTags, { max = Infinity } = {}) {
   const tags = [...new Set(
     (Array.isArray(rawTags) ? rawTags : [rawTags])
       .map(tag => stripControlChars(tag).trim())
       .filter(tag => MEMO_TAG_SET.has(tag)),
   )];
   if (!tags.length) return validationError('tags', 'Pick at least one tag');
+  if (tags.length > max) return validationError('tags', 'Pick only one tag');
   return { value: tags };
 }
 
@@ -315,7 +316,7 @@ export function validateCreateMemoInput(input) {
   const coordsResult = validateMemoCoords(input.lat, input.lng);
   if (coordsResult.field) return coordsResult;
 
-  const tagsResult = validateMemoTags(input.tags);
+  const tagsResult = validateMemoTags(input.tags, { max: 1 });
   if (tagsResult.field) return tagsResult;
 
   const locationResult = validateMemoLocation(input.location);
