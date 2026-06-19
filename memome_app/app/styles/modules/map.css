@@ -409,7 +409,7 @@ z-index: 11;
   border-radius: 0.625rem;
     background: var(--grey-0, #FFF);
     box-shadow: 0 0 8px 0 rgba(43, 43, 44, 0.10);
-    padding: 1rem;
+    padding: 0.6rem;
 }
 
 .guest-add-memo-title-bar {
