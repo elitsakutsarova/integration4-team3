@@ -8,8 +8,7 @@
     z-index: 999;
     height: var(--nav-h-safe);
   background: linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
-
-};
+}
 
 .bottom-nav {
   grid-area: 1/1;
