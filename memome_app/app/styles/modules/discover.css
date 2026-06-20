@@ -627,7 +627,7 @@
   grid-area: 1 / 1 / 1 / 1;
   display: flex;
   align-items: center;
-  gap: clamp(6px, 2vw, 10px);
+  gap: clamp(0.5rem, 2vw, 1rem);
   padding: 0.5rem 1rem;
   background: var(--yellow-400);
   max-width: fit-content;
@@ -665,7 +665,6 @@
   letter-spacing: 0.7px;
   color: #1e1e1e;
   line-height: 1.2;
-  padding: 7px 8px 8px;
 }
 
 .discover-list-title--underlined {
