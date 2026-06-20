@@ -18,7 +18,7 @@ export default function ProfileHero({
   return (
     <section className="profile-account-hero" aria-label="Profile">
       <div className="profile-account-hero-deco" aria-hidden="true">
-        <img className="profile-account-hero-mask" src={settingsAssets.maskGroup} alt="" />
+        {/* <img className="profile-account-hero-mask" src={settingsAssets.maskGroup} alt="" />
         <img
           className="profile-account-hero-grid profile-account-hero-grid--blue"
           src={accountAssets.blueTopGrid}
@@ -28,9 +28,11 @@ export default function ProfileHero({
           className="profile-account-hero-grid profile-account-hero-grid--green"
           src={accountAssets.greenTopGrid}
           alt=""
-        />
+        /> */}
+        <img className="discover-list-grid" src="../public/discover/green-grid.svg" alt="" />
+        <div className="discover-grid-pattern" />
       </div>
-
+      <div className="profile-account-hero-content">
       <header className="profile-header profile-header--account">
         <Link to={settingsHref} className="profile-settings-btn" aria-label="Settings">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -61,6 +63,7 @@ export default function ProfileHero({
           )}
         </div>
       </div>
+    </div>
     </section>
   );
 }
