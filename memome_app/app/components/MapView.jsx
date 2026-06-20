@@ -6,6 +6,7 @@ import '../styles/modules/auth.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useRevalidator, useSearchParams } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import { useCollectedStickersActions } from '../context/CollectedStickersContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import NewMemoForm from './NewMemoForm';
 import MemoLocationPicker from './MemoLocationPicker';
@@ -99,6 +100,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const fetcher = useFetcher({ key: 'create-memo' });
   const revalidator = useRevalidator();
   const { user } = useAuth();
+  const { addCollectedSticker } = useCollectedStickersActions();
   const { prependCreatedMemo } = useCreatedMemos();
   const handledPublishRef = useRef(false);
   const sawPublishSubmitRef = useRef(false);
@@ -198,13 +200,14 @@ export default function MapView({ savedMemos = [], active = true }) {
     const pendingReveal = readStickerReveal();
     if (pendingReveal) {
       setRevealedSticker(pendingReveal);
+      addCollectedSticker(pendingReveal);
       revalidator.revalidate();
     }
 
     const map = mapRef.current;
     if (!map) return;
     requestAnimationFrame(() => map.invalidateSize());
-  }, [active, setSearchParams, revalidator]);
+  }, [active, setSearchParams, revalidator, addCollectedSticker]);
 
   function dismissStickerReveal() {
     clearStickerReveal();

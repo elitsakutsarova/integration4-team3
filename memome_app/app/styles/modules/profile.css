@@ -193,6 +193,7 @@
 .profile-remember-track .created-memo-card {
   flex: 0 0 min(300px, 78vw);
   width: min(300px, 78vw);
+  z-index: 1;
 }
 
 .profile-remember-track .created-memo-card__photo {
