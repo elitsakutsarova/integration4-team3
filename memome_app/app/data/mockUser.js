@@ -61,6 +61,8 @@ export const MOCK_MEMORIES = [
     mediaPreview: {
       url: '/discover/oh-honey.jpg',
       isVideo: false,
+      width: 1200,
+      height: 800,
     },
   },
   {

@@ -489,3 +489,13 @@ export function isSafeHttpsUrl(url) {
     return false;
   }
 }
+
+export function isSafeRelativeAssetPath(url) {
+  if (typeof url !== 'string' || !url.startsWith('/')) return false;
+  if (url.startsWith('//') || url.includes('..')) return false;
+  return !/[\s"'<>]/.test(url);
+}
+
+export function isSafeMediaAssetUrl(url) {
+  return isSafeHttpsUrl(url) || isSafeRelativeAssetPath(url);
+}

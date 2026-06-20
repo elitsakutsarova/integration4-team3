@@ -1,7 +1,7 @@
 // memory sheet component for the map view
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Link, useFetcher } from 'react-router';
+import { Link } from 'react-router';
 import { useSavedMemos } from '../context/SavedMemosContext';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../utils/googleMaps';
 import {
@@ -10,7 +10,6 @@ import {
   resolvePolaroidOrientation,
 } from '../utils/memoPinAssets';
 import { buildMemorySheetTags } from '../utils/memoAuthor';
-import { paths } from '../utils/appPaths';
 import {
   buildMapPopupDockTransform,
   getMapPopupScale,
@@ -85,32 +84,7 @@ function useLongQuote(quote, layoutKey) {
   return { quoteRef, isLongQuote };
 }
 
-export default function MemorySheet({ pin, onClose, onMemoSaved }) {
-  const ignoreBackdropClickRef = useRef(true);
-  const fetcher = useFetcher({ key: `location-href-${pin?.id}` });
-
-  const locationHref = fetcher.data?.href ?? null;
-
-  useEffect(() => {
-    ignoreBackdropClickRef.current = true;
-    const timer = window.setTimeout(() => {
-      ignoreBackdropClickRef.current = false;
-    }, 450);
-    return () => window.clearTimeout(timer);
-  }, [pin?.id]);
-
-  useEffect(() => {
-    if (!pin || fetcher.state !== 'idle' || fetcher.data !== undefined) return;
-    const params = new URLSearchParams({
-      placeId: pin.placeId ?? '',
-      lat: String(pin.ll?.[0] ?? ''),
-      lng: String(pin.ll?.[1] ?? ''),
-      name: pin.location ?? '',
-    });
-    fetcher.load(`${paths.apiLocationHref}?${params}`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pin?.id]);
-
+export default function MemorySheet({ pin, locationHref = null, onClose, onMemoSaved }) {
   const hasMedia = Boolean(pin?.mediaPreview?.url);
   const [orientation, setOrientation] = useState(() => resolvePolaroidOrientation(pin));
   const [mediaSheetScale, setMediaSheetScale] = useState(1);
@@ -176,13 +150,7 @@ export default function MemorySheet({ pin, onClose, onMemoSaved }) {
   }
 
   return (
-    <div
-      className="memory-sheet-backdrop memory-sheet-backdrop--dock"
-      onClick={() => {
-        if (ignoreBackdropClickRef.current) return;
-        onClose();
-      }}
-    >
+    <div className="memory-sheet-backdrop memory-sheet-backdrop--dock">
       <article
         className={[
           'memory-sheet',
@@ -222,6 +190,7 @@ export default function MemorySheet({ pin, onClose, onMemoSaved }) {
                             className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
                             controls
                             playsInline
+                            preload="metadata"
                           />
                         )
                         : (
@@ -229,6 +198,8 @@ export default function MemorySheet({ pin, onClose, onMemoSaved }) {
                             src={pin.mediaPreview.url}
                             alt=""
                             className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
+                            decoding="async"
+                            fetchPriority="high"
                           />
                         )}
                     </div>

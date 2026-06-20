@@ -1,5 +1,5 @@
 import { memoTagIconKey } from '../data/memoTags';
-import { isSafeHttpsUrl } from './validators';
+import { isSafeMediaAssetUrl } from './validators';
 
 export const MEMO_PIN_SVG = {
   food: '/memos/pin_food.svg',
@@ -124,13 +124,37 @@ async function readImageBlobDimensions(blob) {
   }
 }
 
+async function readImageUrlDimensions(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = () => resolve({});
+    img.src = url;
+  });
+}
+
+const mediaDimensionsCache = new Map();
+
+function mediaDimensionsCacheKey(source, isVideo) {
+  if (typeof source !== 'string') return null;
+  return `${isVideo ? 'video' : 'image'}:${source}`;
+}
+
 export async function readMediaDimensions(source, { isVideo = false } = {}) {
   if (!source) return {};
+
+  const cacheKey = mediaDimensionsCacheKey(source, isVideo);
+  if (cacheKey && mediaDimensionsCache.has(cacheKey)) {
+    return mediaDimensionsCache.get(cacheKey);
+  }
+
+  let result = {};
 
   if (isVideo) {
     const url = typeof source === 'string' ? source : URL.createObjectURL(source);
     try {
-      return await new Promise((resolve) => {
+      result = await new Promise((resolve) => {
         const video = document.createElement('video');
         video.preload = 'metadata';
         video.onloadedmetadata = () => {
@@ -144,33 +168,17 @@ export async function readMediaDimensions(source, { isVideo = false } = {}) {
     } finally {
       if (typeof source !== 'string') URL.revokeObjectURL(url);
     }
+  } else if (source instanceof Blob) {
+    result = await readImageBlobDimensions(source);
+  } else if (typeof source === 'string') {
+    result = await readImageUrlDimensions(source);
   }
 
-  if (source instanceof Blob) {
-    return readImageBlobDimensions(source);
+  if (cacheKey && result.width && result.height) {
+    mediaDimensionsCache.set(cacheKey, result);
   }
 
-  if (typeof source === 'string') {
-    try {
-      const response = await fetch(source, { mode: 'cors' });
-      if (response.ok) {
-        const blob = await response.blob();
-        return readImageBlobDimensions(blob);
-      }
-    } catch {
-      // Fall through to Image load.
-    }
-
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-      img.onerror = () => resolve({});
-      img.src = source;
-    });
-  }
-
-  return {};
+  return result;
 }
 
 /** @deprecated Use readMediaDimensions */
@@ -197,7 +205,17 @@ export function applyPolaroidOrientationClass(element, width, height) {
 
 export function pinHasMedia(pin) {
   const url = pin?.mediaPreview?.url;
-  return Boolean(url) && isSafeHttpsUrl(url);
+  return Boolean(url) && isSafeMediaAssetUrl(url);
+}
+
+export function buildMapPinMediaMarkup({ url, isVideo, orientation, className }) {
+  const mediaClass = buildMemoMediaClassName(className, orientation);
+  if (isVideo) {
+    return `<video src="${url}" class="${mediaClass}" muted playsinline preload="metadata"></video>
+       <span class="pin-memory-polaroid-play" aria-hidden="true"></span>`;
+  }
+
+  return `<img src="${url}" alt="" class="${mediaClass}" loading="lazy" decoding="async" fetchpriority="low" />`;
 }
 
 export function memoryPinDimensions(pin) {

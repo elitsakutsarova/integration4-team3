@@ -1,13 +1,13 @@
 //turning our data (pins, clusters, events) into map markers with custom HTML interface
 
 import { fetchLocationHrefFromApi } from './locationHrefClient';
-import { isSafeHttpsUrl } from './validators';
+import { isSafeMediaAssetUrl } from './validators';
 import { discoverEventPath } from './appPaths';
 import { applyMapPopupContentScale, getMapPopupScale } from './mapPopupScale';
 import {
   EVENT_PIN_SIZE,
   applyPolaroidOrientationClass,
-  buildMemoMediaClassName,
+  buildMapPinMediaMarkup,
   eventCenterIconSvg,
   memoryPinDimensions,
   pinHasMedia,
@@ -37,14 +37,8 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
-function isSafeRelativeAssetPath(url) {
-  if (typeof url !== 'string' || !url.startsWith('/')) return false;
-  if (url.startsWith('//') || url.includes('..')) return false;
-  return !/[\s"'<>]/.test(url);
-}
-
 function safeAssetUrl(url) {
-  if (isSafeHttpsUrl(url) || isSafeRelativeAssetPath(url)) {
+  if (isSafeMediaAssetUrl(url)) {
     return escapeHtml(url);
   }
   return '';
@@ -75,11 +69,12 @@ function mediaPinHtml(pin) {
   const orientClass = orientation === 'horizontal'
     ? 'pin-memory-polaroid--horizontal'
     : 'pin-memory-polaroid--vertical';
-  const mediaClass = buildMemoMediaClassName('pin-memory-polaroid-img', orientation);
-  const mediaMarkup = isVideo
-    ? `<video src="${mediaUrl}" class="${mediaClass}" muted playsinline preload="metadata"></video>
-       <span class="pin-memory-polaroid-play" aria-hidden="true"></span>`
-    : `<img src="${mediaUrl}" alt="" class="${mediaClass}" />`;
+  const mediaMarkup = buildMapPinMediaMarkup({
+    url: mediaUrl,
+    isVideo,
+    orientation,
+    className: 'pin-memory-polaroid-img',
+  });
 
   return `<div class="pin-memory-polaroid ${orientClass}">
     <div class="pin-memory-polaroid-frame">
@@ -176,7 +171,7 @@ export function eventPopupHtml(pin) {
     <div class="event-popup-visual" aria-hidden="true">
       <div class="event-popup-visual-accent event-popup-visual-accent--back"></div>
       <div class="event-popup-image-frame">
-        <img class="event-popup-image" src="${safeAssetUrl(pin.image)}" alt="${escapeHtml(pin.title)}" />
+        <img class="event-popup-image" src="${safeAssetUrl(pin.image)}" alt="${escapeHtml(pin.title)}" loading="lazy" decoding="async" />
       </div>
       <span class="event-popup-badge">${eventLiveBadgeSvg()} ${badgeLabel}</span>
     </div>

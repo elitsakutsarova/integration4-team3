@@ -28,6 +28,8 @@ import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
 import { syncMapStickerSymbols } from '../utils/mapStickerSymbols';
 import { fetchLocationHrefFromApi } from '../utils/locationHrefClient';
+import { useMemoLocationHref } from '../hooks/useMemoLocationHref';
+import { pinHasMedia, readMediaDimensions } from '../utils/memoPinAssets';
 import {
   buildEventMarker,
   placePendingPin,
@@ -127,6 +129,8 @@ export default function MapView({ savedMemos = [], active = true }) {
   promptGuestAddMemoRef.current = () => setGuestAddMemoLocked(true);
 
   const [selectedMemory, setSelectedMemory] = useState(null);
+  const selectedMemoryLocationHref = useMemoLocationHref(selectedMemory);
+  const ignoreMemoScrimClickRef = useRef(false);
   const [showMemoFaveSuccess, setShowMemoFaveSuccess] = useState(false);
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
@@ -168,6 +172,39 @@ export default function MapView({ savedMemos = [], active = true }) {
     setSelectedMemory(pin);
   };
 
+  const closeMemoryRef = useRef(null);
+  closeMemoryRef.current = () => {
+    setShowMemoFaveSuccess(false);
+    setSelectedMemory(null);
+  };
+
+  function closeSelectedMemory() {
+    closeMemoryRef.current?.();
+  }
+
+  useEffect(() => {
+    if (!selectedMemory) return undefined;
+    ignoreMemoScrimClickRef.current = true;
+    const timer = window.setTimeout(() => {
+      ignoreMemoScrimClickRef.current = false;
+    }, 450);
+    return () => window.clearTimeout(timer);
+  }, [selectedMemory?.id]);
+
+  useEffect(() => {
+    const mediaUrl = selectedMemory?.mediaPreview?.url;
+    if (!mediaUrl || selectedMemory.mediaPreview?.isVideo) return undefined;
+
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = mediaUrl;
+    document.head.appendChild(link);
+    return () => {
+      link.remove();
+    };
+  }, [selectedMemory?.id, selectedMemory?.mediaPreview?.url, selectedMemory?.mediaPreview?.isVideo]);
+
   const syncMapPins = useCallback(() => {
     const L = leafletRef.current;
     const map = mapRef.current;
@@ -187,6 +224,31 @@ export default function MapView({ savedMemos = [], active = true }) {
   const mergedMemos = pendingMemo ? [pendingMemo, ...savedMemos] : savedMemos;
   const memoFingerprint = dbMemoFingerprint(mergedMemos);
   const filterFingerprint = `${memoFingerprint}|${activeCategory}`;
+
+  useEffect(() => {
+    if (!active || !mapReady) return undefined;
+
+    let cancelled = false;
+    const mediaPins = memoryPinsRef.current
+      .filter(pin => pinHasMedia(pin))
+      .filter(pin => !pin.mediaPreview?.width || !pin.mediaPreview?.height)
+      .slice(0, 12);
+
+    for (const pin of mediaPins) {
+      void readMediaDimensions(pin.mediaPreview.url, {
+        isVideo: Boolean(pin.mediaPreview.isVideo),
+      }).then(({ width, height }) => {
+        if (cancelled || !width || !height) return;
+        pin.mediaPreview.width = width;
+        pin.mediaPreview.height = height;
+        syncMapPins();
+      });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [active, mapReady, filterFingerprint, syncMapPins]);
 
   // Leaving home: reset map UI and URL params. Entering: restore sticker reveal + fix map size.
   useEffect(() => {
@@ -343,7 +405,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         if (suppressClickRef.current) return;
         if (!e.latlng || !Number.isFinite(e.latlng.lat) || !Number.isFinite(e.latlng.lng)) return;
         if (isGuestRef.current) {
-          promptGuestAddMemoRef.current?.();
+          closeMemoryRef.current?.();
           return;
         }
         placePendingPin(L, map, e.latlng, pendingMarkerRef, suppressClickRef, openFormRef);
@@ -509,6 +571,7 @@ export default function MapView({ savedMemos = [], active = true }) {
       className={[
         'map-page',
         active ? '' : 'map-page--inactive',
+        selectedMemory ? 'map-page--memo-open' : '',
         showGuestAddMemoLocked ? 'map-page--side-panel' : '',
         draftMemo && user && !draftMemo.pickLocation ? 'map-page--side-panel' : '',
       ].filter(Boolean).join(' ')}
@@ -522,12 +585,11 @@ export default function MapView({ savedMemos = [], active = true }) {
         onCategoryChange={setActiveCategory}
       />
       <div className="map-container--bottom">
-      {!user && !revealedSticker && !draftMemo && !selectedMemory && !showGuestAddMemoLocked && (
-        <MapGuestCta />
-      )}
-
-      {!hideBottomNav && <BottomNav onAddClick={handleAddBtnClick} />}
-          </div>
+        {!user && !revealedSticker && !draftMemo && !showGuestAddMemoLocked && (
+          <MapGuestCta />
+        )}
+        {!hideBottomNav && <BottomNav onAddClick={handleAddBtnClick} />}
+      </div>
       <button
         type="button"
         className="map-desktop-add"
@@ -547,12 +609,23 @@ export default function MapView({ savedMemos = [], active = true }) {
       )}
 
       {selectedMemory && (
-        <MemorySheet
-          pin={selectedMemory}
-          onClose={() => {
-            setShowMemoFaveSuccess(false);
-            setSelectedMemory(null);
+        <button
+          type="button"
+          className="memory-sheet-scrim"
+          aria-label="Close memo"
+          onClick={() => {
+            if (ignoreMemoScrimClickRef.current) return;
+            closeSelectedMemory();
           }}
+        />
+      )}
+
+      {selectedMemory && (
+        <MemorySheet
+          key={selectedMemory.id}
+          pin={selectedMemory}
+          locationHref={selectedMemoryLocationHref}
+          onClose={closeSelectedMemory}
           onMemoSaved={() => setShowMemoFaveSuccess(true)}
         />
       )}
