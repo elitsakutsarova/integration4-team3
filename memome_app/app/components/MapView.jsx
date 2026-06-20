@@ -140,6 +140,8 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [eventLocationHrefs, setEventLocationHrefs] = useState({});
   const [mapReady, setMapReady] = useState(false);
+  const [guestCtaRetracted, setGuestCtaRetracted] = useState(false);
+  const guestCtaIdleRef = useRef(null);
   const eventHrefsFetchRef = useRef(false);
 
   const filterOptions = { category: activeCategory, query: '' };
@@ -170,6 +172,10 @@ export default function MapView({ savedMemos = [], active = true }) {
   selectMemoryRef.current = (pin) => {
     setShowMemoFaveSuccess(false);
     setSelectedMemory(pin);
+    if (isGuestRef.current) {
+      retractGuestCtaRef.current?.();
+      restoreGuestCtaRef.current?.();
+    }
   };
 
   const closeMemoryRef = useRef(null);
@@ -181,6 +187,53 @@ export default function MapView({ savedMemos = [], active = true }) {
   function closeSelectedMemory() {
     closeMemoryRef.current?.();
   }
+
+  const retractGuestCtaRef = useRef(null);
+  retractGuestCtaRef.current = () => {
+    window.clearTimeout(guestCtaIdleRef.current);
+    setGuestCtaRetracted(true);
+  };
+
+  const restoreGuestCtaRef = useRef(null);
+  restoreGuestCtaRef.current = () => {
+    window.clearTimeout(guestCtaIdleRef.current);
+    guestCtaIdleRef.current = window.setTimeout(() => {
+      setGuestCtaRetracted(false);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    if (user) setGuestCtaRetracted(false);
+  }, [user]);
+
+  useEffect(() => {
+    if (!active || !mapReady || user) return undefined;
+
+    const map = mapRef.current;
+    if (!map) return undefined;
+
+    const onInteractionStart = () => retractGuestCtaRef.current?.();
+    const onInteractionEnd = () => restoreGuestCtaRef.current?.();
+    const onMapClick = () => {
+      onInteractionStart();
+      onInteractionEnd();
+    };
+
+    map.on('movestart', onInteractionStart);
+    map.on('moveend', onInteractionEnd);
+    map.on('zoomstart', onInteractionStart);
+    map.on('zoomend', onInteractionEnd);
+    map.on('click', onMapClick);
+
+    return () => {
+      map.off('movestart', onInteractionStart);
+      map.off('moveend', onInteractionEnd);
+      map.off('zoomstart', onInteractionStart);
+      map.off('zoomend', onInteractionEnd);
+      map.off('click', onMapClick);
+      window.clearTimeout(guestCtaIdleRef.current);
+    };
+  }, [active, mapReady, user]);
 
   useEffect(() => {
     if (!selectedMemory) return undefined;
@@ -586,7 +639,7 @@ export default function MapView({ savedMemos = [], active = true }) {
       />
       <div className="map-container--bottom">
         {!user && !revealedSticker && !draftMemo && !showGuestAddMemoLocked && (
-          <MapGuestCta />
+          <MapGuestCta retracted={guestCtaRetracted} />
         )}
         {!hideBottomNav && <BottomNav onAddClick={handleAddBtnClick} />}
       </div>

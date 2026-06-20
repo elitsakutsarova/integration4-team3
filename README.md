@@ -202,7 +202,6 @@ After our consult, I changed a lot of things in test5 like:
 - After the user posts a memo, they should be taken (zoomed into) their memo on the map ✔️
 - Fix design -> memos, events, icons… ✔️
 - Live event card always opens the first time you launch app - it shouldn’t; fix it ✔️
-- Add to home screen popup (when it’s the user’s first time on the map, after a few seconds show a popup that asks them to add memome to their home screen (if they are on mobile))
 - The users who are already logged in and keep scanning QR codes -> the stickers should show up on the Map (like the guest ones, but without the create account CTA) ✔️
 - show a success message when an user successfully adds a memo to favourites ✔️
 
