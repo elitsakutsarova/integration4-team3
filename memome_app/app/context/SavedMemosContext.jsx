@@ -26,6 +26,7 @@ export function SavedMemosProvider({ initialSavedMemos = [], children }) {
     setSavedMemosSnapshot(initialSavedMemos);
     return initialSavedMemos;
   });
+  const [savedNotice, setSavedNotice] = useState(null);
   const mountedRef = useRef(false);
 
   useEffect(() => {
@@ -49,11 +50,14 @@ export function SavedMemosProvider({ initialSavedMemos = [], children }) {
   );
 
   const saveMemo = useCallback(async memoId => {
+    setSavedNotice('memo');
     const result = await addSavedMemo(userId, memoId);
     if (result.added) {
       setSavedMemos(result.memos);
+      return true;
     }
-    return result.added;
+    setSavedNotice(null);
+    return false;
   }, [userId]);
 
   const removeMemo = useCallback(async memoId => {
@@ -69,6 +73,10 @@ export function SavedMemosProvider({ initialSavedMemos = [], children }) {
     return saveMemo(memoId);
   }, [isSaved, removeMemo, saveMemo]);
 
+  const dismissSavedNotice = useCallback(() => {
+    setSavedNotice(null);
+  }, []);
+
   const value = useMemo(
     () => ({
       savedMemos,
@@ -78,8 +86,10 @@ export function SavedMemosProvider({ initialSavedMemos = [], children }) {
       saveMemo,
       removeMemo,
       toggleMemo,
+      savedNotice,
+      dismissSavedNotice,
     }),
-    [isSaved, removeMemo, saveMemo, savedMemos, toggleMemo],
+    [dismissSavedNotice, isSaved, removeMemo, saveMemo, savedMemos, savedNotice, toggleMemo],
   );
 
   return (

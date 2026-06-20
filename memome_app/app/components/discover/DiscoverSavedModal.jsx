@@ -1,7 +1,11 @@
 // popup notification modal (component) that appears when a user saves something to their favs
 
+import { useEffect } from 'react';
 import { useDiscoverFaves } from '../../context/DiscoverFavesContext';
+import { useSavedMemos } from '../../context/SavedMemosContext';
 import { discoverSavedAssets } from '../../utils/discoverSavedAssets';
+
+const SAVED_NOTICE_DISMISS_MS = 1000;
 
 const SAVED_COPY = {
   event: {
@@ -20,6 +24,11 @@ const SAVED_COPY = {
 
 export function FavouriteSavedNotice({ type, onClose }) {
   const copy = SAVED_COPY[type] ?? SAVED_COPY.place;
+
+  useEffect(() => {
+    const timer = window.setTimeout(onClose, SAVED_NOTICE_DISMISS_MS);
+    return () => window.clearTimeout(timer);
+  }, [type, onClose]);
 
   return (
     <div
@@ -81,9 +90,13 @@ export function FavouriteSavedNotice({ type, onClose }) {
 }
 
 export default function DiscoverSavedModal() {
-  const { savedNotice, dismissSavedNotice } = useDiscoverFaves();
+  const { savedNotice: discoverNotice, dismissSavedNotice: dismissDiscoverNotice } = useDiscoverFaves();
+  const { savedNotice: memoNotice, dismissSavedNotice: dismissMemoNotice } = useSavedMemos();
 
-  if (!savedNotice) return null;
+  const noticeType = discoverNotice ?? memoNotice;
+  if (!noticeType) return null;
 
-  return <FavouriteSavedNotice type={savedNotice} onClose={dismissSavedNotice} />;
+  const dismissNotice = discoverNotice ? dismissDiscoverNotice : dismissMemoNotice;
+
+  return <FavouriteSavedNotice type={noticeType} onClose={dismissNotice} />;
 }

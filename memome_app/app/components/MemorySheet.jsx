@@ -15,7 +15,7 @@ import {
   getMapPopupScale,
 } from '../utils/mapPopupScale';
 
-function MemoFavoriteButton({ memoId, label, onSaved }) {
+function MemoFavoriteButton({ memoId, label }) {
   const { isSaved, toggleMemo } = useSavedMemos();
   const saved = isSaved(memoId);
 
@@ -27,9 +27,7 @@ function MemoFavoriteButton({ memoId, label, onSaved }) {
       aria-pressed={saved}
       onClick={event => {
         event.stopPropagation();
-        void toggleMemo(memoId).then(added => {
-          if (added) onSaved?.();
-        });
+        void toggleMemo(memoId);
       }}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -84,7 +82,7 @@ function useLongQuote(quote, layoutKey) {
   return { quoteRef, isLongQuote };
 }
 
-export default function MemorySheet({ pin, locationHref = null, onClose, onMemoSaved }) {
+export default function MemorySheet({ pin, locationHref = null, onClose }) {
   const hasMedia = Boolean(pin?.mediaPreview?.url);
   const [orientation, setOrientation] = useState(() => resolvePolaroidOrientation(pin));
   const [mediaSheetScale, setMediaSheetScale] = useState(1);
@@ -177,7 +175,6 @@ export default function MemorySheet({ pin, locationHref = null, onClose, onMemoS
                   <MemoFavoriteButton
                     memoId={pin.id}
                     label={pin.location}
-                    onSaved={onMemoSaved}
                   />
                 </div>
                 <div className={`memory-sheet-polaroid memory-sheet-polaroid--${orientation}`}>
@@ -213,7 +210,6 @@ export default function MemorySheet({ pin, locationHref = null, onClose, onMemoS
                 <MemoFavoriteButton
                   memoId={pin.id}
                   label={pin.location}
-                  onSaved={onMemoSaved}
                 />
               </header>
             )}

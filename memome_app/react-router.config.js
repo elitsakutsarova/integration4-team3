@@ -28,6 +28,9 @@ export default {
   ssr: true,
   presets: [vercelPreset()],
   allowedActionOrigins: buildDevActionOrigins(),
+  ...(process.env.NODE_ENV === 'development'
+    ? { routeDiscovery: { mode: 'initial' } }
+    : {}),
   future: {
     v8_middleware: true,
     v8_passThroughRequests: true,

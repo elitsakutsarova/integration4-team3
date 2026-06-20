@@ -6,6 +6,7 @@ import '../styles/modules/auth.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useRevalidator, useSearchParams } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import { useSavedMemos } from '../context/SavedMemosContext';
 import { useCollectedStickersActions } from '../context/CollectedStickersContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import NewMemoForm from './NewMemoForm';
@@ -15,7 +16,6 @@ import MapGuestCta from './MapGuestCta';
 import GuestAddMemoLocked from './GuestAddMemoLocked';
 import BottomNav from './BottomNav';
 import MemorySheet from './MemorySheet';
-import { FavouriteSavedNotice } from './discover/DiscoverSavedModal';
 import StickerRevealSheet from './StickerRevealSheet';
 import MemoPostSuccess from './MemoPostSuccess';
 
@@ -102,6 +102,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const fetcher = useFetcher({ key: 'create-memo' });
   const revalidator = useRevalidator();
   const { user } = useAuth();
+  const { dismissSavedNotice } = useSavedMemos();
   const { addCollectedSticker } = useCollectedStickersActions();
   const { prependCreatedMemo } = useCreatedMemos();
   const handledPublishRef = useRef(false);
@@ -131,7 +132,6 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [selectedMemory, setSelectedMemory] = useState(null);
   const selectedMemoryLocationHref = useMemoLocationHref(selectedMemory);
   const ignoreMemoScrimClickRef = useRef(false);
-  const [showMemoFaveSuccess, setShowMemoFaveSuccess] = useState(false);
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [showPublishSuccess, setShowPublishSuccess] = useState(false);
@@ -170,7 +170,7 @@ export default function MapView({ savedMemos = [], active = true }) {
 
   const selectMemoryRef = useRef(null);
   selectMemoryRef.current = (pin) => {
-    setShowMemoFaveSuccess(false);
+    dismissSavedNotice();
     setSelectedMemory(pin);
     if (isGuestRef.current) {
       retractGuestCtaRef.current?.();
@@ -180,7 +180,7 @@ export default function MapView({ savedMemos = [], active = true }) {
 
   const closeMemoryRef = useRef(null);
   closeMemoryRef.current = () => {
-    setShowMemoFaveSuccess(false);
+    dismissSavedNotice();
     setSelectedMemory(null);
   };
 
@@ -462,10 +462,6 @@ export default function MapView({ savedMemos = [], active = true }) {
         });
       }).filter(Boolean);
 
-      if (eventMarkersRef.current[0]) {
-        eventMarkersRef.current[0].openPopup();
-      }
-
       map.on('click', e => {
         if (suppressClickRef.current) return;
         if (!e.latlng || !Number.isFinite(e.latlng.lat) || !Number.isFinite(e.latlng.lng)) return;
@@ -477,6 +473,9 @@ export default function MapView({ savedMemos = [], active = true }) {
       });
 
       requestAnimationFrame(() => map.invalidateSize());
+      if (token === initTokenRef.current) {
+        setMapReady(true);
+      }
     }
 
     void init();
@@ -651,7 +650,7 @@ export default function MapView({ savedMemos = [], active = true }) {
           />
           <div className="map-container--bottom">
             {!user && !revealedSticker && !draftMemo && !selectedMemory && !showGuestAddMemoLocked && (
-              <MapGuestCta />
+              <MapGuestCta retracted={guestCtaRetracted} />
             )}
 
             <BottomNav onAddClick={handleAddBtnClick} />
@@ -675,13 +674,23 @@ export default function MapView({ savedMemos = [], active = true }) {
           )}
 
           {selectedMemory && (
-            <MemorySheet
-              pin={selectedMemory}
-              anchor={memoryAnchor}
-              onClose={() => {
-                setSelectedMemory(null);
-                setMemoryAnchor(null);
+            <button
+              type="button"
+              className="memory-sheet-scrim"
+              aria-label="Close memo"
+              onClick={() => {
+                if (ignoreMemoScrimClickRef.current) return;
+                closeSelectedMemory();
               }}
+            />
+          )}
+
+          {selectedMemory && (
+            <MemorySheet
+              key={selectedMemory.id}
+              pin={selectedMemory}
+              locationHref={selectedMemoryLocationHref}
+              onClose={closeSelectedMemory}
             />
           )}
 
