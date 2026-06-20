@@ -6,14 +6,14 @@ import { PLACES_WORTH_MEMO_ALL } from '../data/discoverContent';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Places worth a memo' },
+    { title: 'MemoMe — Spots worth a memo' },
     { name: 'description', content: 'Places worth a memo in Antwerp.' },
   ];
 }
 
 export async function loader() {
   return {
-    title: 'Places worth a memo',
+    title: 'Spots worth a memo',
     highlightWidth: '229px',
     underlined: true,
     decoration: 'places',
@@ -24,7 +24,7 @@ export async function loader() {
 
 export async function clientLoader() {
   return {
-    title: 'Places worth a memo',
+    title: 'Spots worth a memo',
     highlightWidth: '229px',
     underlined: true,
     decoration: 'places',

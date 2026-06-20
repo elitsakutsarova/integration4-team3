@@ -40,9 +40,10 @@ export default function MapHomeChrome({
   return (
     <div className="map-home-chrome">
       <div className="map-pixel-deco" aria-hidden="true">
-        <span /><span /><span /><span /><span /><span />
+        <img className="map-pixel-grid" src="./public/search-bar/top-grid.svg" alt="" />
       </div>
 
+<div className="map-search-container">
       <SearchOpenButton className="map-search-bar map-search-bar--trigger" variant="map" />
 
       <div className="map-category-row" role="toolbar" aria-label="Map categories">
@@ -62,6 +63,7 @@ export default function MapHomeChrome({
           );
         })}
       </div>
+    </div>
     </div>
   );
 }
