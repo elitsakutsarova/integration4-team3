@@ -219,7 +219,7 @@ export default function StickersGallery() {
             role="tab"
             aria-selected={tab === 'collection'}
             className="stickers-tab"
-            onClick={() => setTab('collection')}
+            onClick={() => switchTab('collection')}
           >
             Collection
           </button>
@@ -234,7 +234,7 @@ export default function StickersGallery() {
             role="tab"
             aria-selected={tab === 'achievements'}
             className="stickers-tab"
-            onClick={() => setTab('achievements')}
+            onClick={() => switchTab('achievements')}
           >
             Achievements
           </button>
