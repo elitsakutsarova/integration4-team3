@@ -1,5 +1,6 @@
 import { MAP_CATEGORIES } from '../utils/mapFilters';
 import SearchOpenButton from './search/SearchOpenButton';
+import { mapAssets } from '../utils/mapAssets';
 
 function CategoryIcon({ id }) {
   if (id === 'Food') {
@@ -40,7 +41,7 @@ export default function MapHomeChrome({
   return (
     <div className="map-home-chrome">
       <div className="map-pixel-deco" aria-hidden="true">
-        <img className="map-pixel-grid" src="./public/search-bar/top-grid.svg" alt="" />
+        <img className="map-pixel-grid" src={mapAssets.greenGrid} alt="" />
       </div>
 
 <div className="map-search-container">

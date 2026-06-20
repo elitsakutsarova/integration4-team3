@@ -98,6 +98,7 @@ export default function DiscoverListPage({
         decoration={decoration}
       />
 
+<div className="discover-list-filters-container">
       <div className="discover-filters discover-list-filters" role="tablist" aria-label="Discover categories">
         {DISCOVER_CATEGORIES.map(category => {
           const isActive = activeCategory === category.id;
@@ -116,7 +117,7 @@ export default function DiscoverListPage({
           );
         })}
       </div>
-
+</div>
       <div className={`discover-list-content${itemType === 'place' ? ' discover-list-content--places' : ''}`}>
         {filteredItems.length > 0 ? (
           filteredItems.map(item => (

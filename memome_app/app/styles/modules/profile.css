@@ -25,6 +25,7 @@
   margin-bottom: 8px; */
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
+    z-index: 100;
 }
 
 .profile-account-hero-deco {
@@ -342,8 +343,10 @@
 .profile-settings-btn {
   grid-row: 1;
   grid-column: 2;
-  background: none;
+  background: var(--blue-5);
+  padding: 0.2rem;
   border: none;
+  border-radius: 50%;
   color: var(--dark);
   cursor: pointer;
   border-radius: 50%;
@@ -352,6 +355,7 @@
   align-items: center;
   justify-content: end;
   text-decoration: none;
+  justify-self: end;
 }
 
 .profile-settings-btn:hover { background: #f0f0f2; }
