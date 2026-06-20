@@ -1,4 +1,4 @@
-/** Session-scoped sticker reveal shown on the map after a guest QR scan. */
+/** Session-scoped sticker reveal shown on the map after a QR scan. */
 
 const KEY = 'memome_sticker_reveal';
 

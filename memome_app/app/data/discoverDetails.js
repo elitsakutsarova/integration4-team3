@@ -216,9 +216,23 @@ export function getDiscoverEventById(id) {
   return { ...item, ...detail };
 }
 
-/** Map pins for live discover events — requires Photon placeId + coordinates. */
+const BRUISMELK_MAP_EVENT = {
+  id: 103,
+  ll: [51.2178, 4.4112],
+  label: 'Sint-Anneke',
+  title: 'Bruismelk Festival',
+  tags: ['Music'],
+  likes: 0,
+  badge: 'Soon',
+  image: '/discover/groove-techno.jpg',
+  discoverEventId: null,
+  placeId: null,
+  learnMoreDisabled: true,
+};
+
+/** Map pins for live discover events — first two happening-now + Bruismelk placeholder. */
 export function buildInitialMapEvents() {
-  return HAPPENING_NOW.flatMap((item, index) => {
+  const fromDiscover = HAPPENING_NOW.slice(0, 2).flatMap((item, index) => {
     const event = getDiscoverEventById(item.id);
     if (!event?.placeId || !event?.ll) return [];
 
@@ -235,6 +249,8 @@ export function buildInitialMapEvents() {
       placeId: event.placeId,
     }];
   });
+
+  return [...fromDiscover, BRUISMELK_MAP_EVENT];
 }
 
 function findDiscoverPlaceItem(id, baseId) {

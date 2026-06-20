@@ -1,3 +1,4 @@
+import '../../styles/modules/warning-modal.css';
 import { journalAssets } from '../../utils/journalAssets';
 
 export default function JournalWarningModal({

@@ -2,13 +2,13 @@
 
 import '../styles/modules/profile-collections.css';
 import '../styles/modules/diary.css';
-import { useLoaderData } from 'react-router';
+import { Suspense } from 'react';
+import { Await, useLoaderData } from 'react-router';
 import CreatedMemosPage from '../components/profile/CreatedMemosPage';
-import FavouritesLoading from '../components/profile/FavouritesLoading';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
-import { getAuthSnapshot } from '../utils/authSession';
-import { fetchCreatedMemosByUser } from '../utils/memoStore';
-import { resolveNavigableLocationHref } from '../utils/navigableLocation';
+import { useRevalidateOnCount } from '../hooks/useRevalidateOnCount';
+import { enrichMemosWithLocationHrefs, enrichMemosWithLocationHrefsSync } from '../utils/memoLocationHrefs';
+import { getCreatedMemosSnapshot } from '../utils/sessionCollectionsSnapshot';
 
 export function meta() {
   return [
@@ -17,51 +17,33 @@ export function meta() {
   ];
 }
 
-async function enrichWithLocationHref(memo) {
-  const locationHref = await resolveNavigableLocationHref({
-    placeId: memo.placeId,
-    lat: memo.ll?.[0],
-    lng: memo.ll?.[1],
-    name: memo.location,
-  });
-  return { ...memo, locationHref };
+export function clientLoader() {
+  const createdMemos = getCreatedMemosSnapshot();
+
+  return {
+    memosSync: enrichMemosWithLocationHrefsSync(createdMemos),
+    memos: enrichMemosWithLocationHrefs(createdMemos),
+  };
 }
 
-export async function clientLoader() {
-  const { user } = getAuthSnapshot();
-  const raw = await fetchCreatedMemosByUser(user?.id ?? null);
-  const memos = await Promise.all(raw.map(enrichWithLocationHref));
-  return { memos };
-}
-
-clientLoader.hydrate = true;
-
-export function HydrateFallback() {
-  return <FavouritesLoading />;
-}
-
-export function shouldRevalidate() {
-  return false;
+export function shouldRevalidate({ defaultShouldRevalidate }) {
+  return defaultShouldRevalidate;
 }
 
 export default function ProfileMemosRoute() {
-  const { memos: loaderMemos } = useLoaderData();
-  const { createdMemos } = useCreatedMemos();
+  const { memosSync, memos } = useLoaderData();
+  const { createdCount } = useCreatedMemos();
 
-  const mergedMemos = (() => {
-    const byId = new Map(loaderMemos.map((memo) => [memo.id, memo]));
-    for (const memo of createdMemos) {
-      const existing = byId.get(memo.id);
-      byId.set(memo.id, {
-        ...existing,
-        ...memo,
-        locationHref: memo.locationHref ?? existing?.locationHref,
-      });
-    }
-    return [...byId.values()].sort(
-      (a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime(),
-    );
-  })();
+  useRevalidateOnCount(createdCount);
 
-  return <CreatedMemosPage memos={mergedMemos} />;
+  return (
+    <Suspense fallback={<CreatedMemosPage memos={memosSync} />}>
+      <Await
+        resolve={memos}
+        errorElement={<CreatedMemosPage memos={memosSync} />}
+      >
+        {(resolved) => <CreatedMemosPage memos={resolved} />}
+      </Await>
+    </Suspense>
+  );
 }

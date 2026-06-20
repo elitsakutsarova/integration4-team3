@@ -88,7 +88,7 @@ function buildDetails(props) {
   return items;
 }
 
-export function photonFeatureToPlaceDetail(feature) {
+export function photonFeatureToPlaceDetail(feature, fallbackName) {
   const coords = feature.geometry?.coordinates;
   if (!Array.isArray(coords) || coords.length < 2) return null;
 
@@ -97,7 +97,7 @@ export function photonFeatureToPlaceDetail(feature) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
   const props = feature.properties ?? {};
-  const featureName = props.name?.trim();
+  const featureName = props.name?.trim() || fallbackName?.trim();
   if (!featureName) return null;
 
   const osmType = props.osm_type;
@@ -120,7 +120,7 @@ export function photonFeatureToPlaceDetail(feature) {
   };
 }
 
-function featureMatchesPlaceId(feature, placeId) {
+export function featureMatchesPlaceId(feature, placeId) {
   const parsed = placeId?.match(/^photon\/([NWR])\/(\d+)$/);
   if (!parsed) return false;
   const props = feature.properties ?? {};
@@ -202,7 +202,7 @@ export async function resolvePhotonPoiAt({ lat, lng, name }) {
   }
 }
 
-export async function fetchPhotonPlaceDetail({ lat, lng, placeId }) {
+export async function fetchPhotonPlaceDetail({ lat, lng, placeId, name }) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
   try {
@@ -210,14 +210,33 @@ export async function fetchPhotonPlaceDetail({ lat, lng, placeId }) {
 
     if (placeId) {
       const match = features.find(f => featureMatchesPlaceId(f, placeId));
-      if (match) return photonFeatureToPlaceDetail(match);
+      if (match) return photonFeatureToPlaceDetail(match, name);
     }
 
     const poi = features.find(f => isPhotonPoiFeature(f.properties));
-    if (poi) return photonFeatureToPlaceDetail(poi);
+    if (poi) return photonFeatureToPlaceDetail(poi, name);
 
     const named = features.find(f => f.properties?.name?.trim());
-    return named ? photonFeatureToPlaceDetail(named) : null;
+    if (named) return photonFeatureToPlaceDetail(named, name);
+
+    if (placeId && name?.trim()) {
+      const places = await searchPlacesByName(name);
+      const match = places.find(place => place.id === placeId);
+      if (match) {
+        return {
+          id: match.id,
+          name: match.name ?? name,
+          lat: match.lat,
+          lng: match.lng,
+          categoryLabel: 'Place',
+          address: match.address ?? '',
+          description: `${match.name ?? name} is a spot in Antwerp.`,
+          details: [],
+        };
+      }
+    }
+
+    return null;
   } catch {
     return null;
   }

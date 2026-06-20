@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { CategoryIcon, EventCard, PlaceCard } from './DiscoverCards';
 import { paths } from '../../utils/appPaths';
 import { discoverAssets } from '../../utils/discoverAssets';
+import { useEventVenueHrefs } from '../../hooks/useEventVenueHrefs';
 import {
   DISCOVER_CATEGORIES,
   filterDiscoverItems,
@@ -89,6 +90,7 @@ export default function DiscoverListPage({
     () => filterDiscoverItems(items, filters),
     [items, filters],
   );
+  const venueHrefs = useEventVenueHrefs(itemType === 'event' ? items : []);
 
   return (
     <div className="discover-list-page">
@@ -124,7 +126,7 @@ export default function DiscoverListPage({
           filteredItems.map(item => (
             itemType === 'place'
               ? <PlaceCard key={item.id} item={item} layout="list" />
-              : <EventCard key={item.id} item={item} layout="list" />
+              : <EventCard key={item.id} item={item} layout="list" venueHref={venueHrefs[item.id] ?? null} />
           ))
         ) : (
           <p className="discover-empty">No items match your filters.</p>

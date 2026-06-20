@@ -15,14 +15,22 @@ import {
   fetchSavedMemos,
   removeSavedMemo,
 } from '../utils/savedMemosStore';
+import { setSavedMemosSnapshot } from '../utils/sessionCollectionsSnapshot';
 
 const SavedMemosContext = createContext(null);
 
 export function SavedMemosProvider({ initialSavedMemos = [], children }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
-  const [savedMemos, setSavedMemos] = useState(initialSavedMemos);
+  const [savedMemos, setSavedMemos] = useState(() => {
+    setSavedMemosSnapshot(initialSavedMemos);
+    return initialSavedMemos;
+  });
   const mountedRef = useRef(false);
+
+  useEffect(() => {
+    setSavedMemosSnapshot(savedMemos);
+  }, [savedMemos]);
 
   // Initial data comes from the root clientLoader (no fetch on mount).
   // Re-fetch only when userId changes after mount — handles login/logout

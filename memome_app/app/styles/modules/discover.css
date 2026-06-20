@@ -390,7 +390,7 @@
 }
 
 .discover-location-link {
-  text-decoration: underline;
+  text-decoration: underline !important;
   text-underline-offset: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1316,100 +1316,135 @@ detail-hero-wave svg {
   text-decoration: underline;
 }
 
-/* ─── Discover saved popup ────────────────────────── */
+/* ─── Discover saved popup (Figma saved_spot 739:58121) ─ */
 .discover-saved-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 12000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
   background: rgba(24, 24, 31, 0.35);
 }
 
-.discover-saved-modal {
-  position: relative;
-  width: min(100%, 320px);
-  padding: 28px 24px 24px;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  text-align: center;
+.discover-saved-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 361px;
+  max-width: 100%;
   animation: form-enter .25s ease-out;
 }
 
-.discover-saved-deco {
-  position: relative;
-  height: 88px;
-  margin-bottom: 8px;
-}
-
-.discover-saved-path {
-  position: absolute;
-  left: 0;
-  top: 28px;
-  width: 42%;
-  height: 48px;
-}
-
-.discover-saved-pin-wrap {
-  position: relative;
-  display: inline-block;
-  margin-top: 4px;
-}
-
-.discover-saved-pin-shadow {
-  position: absolute;
-  left: 50%;
-  bottom: -6px;
-  width: 56px;
-  height: 14px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: #f9ff75;
-  opacity: 0.85;
-}
-
 .discover-saved-pin {
-  position: relative;
+  display: block;
+  width: 131px;
+  height: 148px;
+  object-fit: contain;
+  margin-bottom: -67px;
   z-index: 1;
 }
 
-.discover-saved-pixels {
-  position: absolute;
-  right: 12%;
-  top: 18px;
-  width: 28px;
-  height: 40px;
-  background:
-    linear-gradient(#1952ff 0 0) 0 0 / 8px 8px,
-    linear-gradient(#1952ff 0 0) 10px 8px / 8px 8px,
-    linear-gradient(#1952ff 0 0) 20px 16px / 8px 8px,
-    linear-gradient(#1952ff 0 0) 10px 24px / 8px 8px,
-    linear-gradient(#1952ff 0 0) 0 32px / 8px 8px;
-  background-repeat: no-repeat;
-  opacity: 0.85;
+.discover-saved-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 292px;
+  border-radius: 16px;
+  background: var(--grey-0, #fff);
+  box-shadow: 0 0 8px rgba(43, 43, 44, 0.1);
+  overflow: visible;
+}
+
+.discover-saved-card-layout {
+  display: grid;
+  width: 100%;
+  min-height: 292px;
+  grid-template-columns: 183px 1fr 88px;
+  grid-template-rows: 95px auto auto;
+  grid-template-areas:
+    "doodle . grid"
+    "text text grid"
+    "hearts hearts .";
+}
+
+.discover-saved-doodle {
+  grid-area: doodle;
+  width: 183px;
+  height: 95px;
+  object-fit: contain;
+  object-position: left top;
+  margin-top: 9px;
+  align-self: start;
+}
+
+.discover-saved-grid-deco {
+  grid-area: grid;
+  object-fit: contain;
+  justify-self: end;
+  align-self: start;
 }
 
 .discover-saved-text {
-  font-size: 18px;
-  line-height: 1.45;
-  color: #1e1e1e;
-  margin: 0 0 16px;
+  grid-area: text;
+  position: relative;
+  padding: 0;
+  left: 2rem;
+  font-family: SunAntwerpen, var(--font);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.7px;
+  text-align: center;
+  color: var(--grey-300, #202020);
+  font-feature-settings: 'dlig' 1;
+}
+
+.discover-saved-text-line {
+  display: inline;
 }
 
 .discover-saved-highlight {
-  background: #f9ff75;
-  padding: 0 2px;
+  display: inline;
+  background: var(--yellow-400, #f9ff75);
+  padding: 4px 2px;
   box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 .discover-saved-hearts {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 8px;
+  grid-column: 1 / 4;
+  grid-row: 3 / 3;
+  object-fit: contain;
+  justify-self: center;
+  align-self: end;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 390px) {
+  .discover-saved-stack {
+    width: min(361px, calc(100vw - 32px));
+  }
+
+  .discover-saved-card-layout {
+    grid-template-columns: minmax(0, 140px) 1fr minmax(0, 72px);
+  }
+
+  .discover-saved-doodle {
+    width: 100%;
+    max-width: 183px;
+    height: auto;
+  }
+
+  .discover-saved-text {
+    width: min(221px, 100%);
+    font-size: clamp(18px, 5.4vw, 22px);
+  }
+
+  .discover-saved-hearts {
+    margin-right: 22%;
+  }
 }
 
 /* ─── Featured memos (shared detail sections) ─────── */

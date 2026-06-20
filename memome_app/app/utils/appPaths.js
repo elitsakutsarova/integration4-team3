@@ -47,6 +47,7 @@ export const paths = {
   apiFeedback: href('/api/feedback'),
   apiLocationSearch: href('/api/location-search'),
   apiLocationHref: href('/api/location-href'),
+  apiPlaceImage: href('/api/place-image'),
 };
 
 export function discoverEventPath(id) {

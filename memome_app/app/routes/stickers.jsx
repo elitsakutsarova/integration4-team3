@@ -17,6 +17,11 @@ import {
 } from '../utils/collectibleStore';
 
 export async function clientLoader() {
+  const { getAuthSnapshot } = await import('../utils/authSession');
+  if (getAuthSnapshot().user?.id) {
+    return { guestCatalog: [], guestCollected: [] };
+  }
+
   const [guestCatalog, guestCollected] = await Promise.all([
     loadDigitalStickerCatalog(),
     fetchCollectedStickers(null),

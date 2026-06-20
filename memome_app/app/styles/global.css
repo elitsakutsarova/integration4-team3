@@ -179,6 +179,17 @@ a {
   text-decoration: none;
 }
 
+a.event-location-link,
+a.discover-location-link,
+a.event-popup-location-link {
+  color: #9ca3af !important;
+  text-decoration: underline !important;
+  text-decoration-line: underline !important;
+  text-decoration-color: #9ca3af !important;
+  text-underline-offset: 2px;
+  -webkit-text-decoration-line: underline !important;
+}
+
 h1 {
   color: var(--grey-300, #202020);
     font-feature-settings: 'dlig' on;

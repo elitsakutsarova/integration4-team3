@@ -33,7 +33,6 @@ function mergeCollectedStickers(fetched, existing) {
 function shouldRefreshCollectedStickers(pathname) {
   return (
     pathname === paths.profile
-    || pathname === paths.stickers
     || pathname === paths.collect
     || pathname.startsWith('/journals')
   );
@@ -55,7 +54,7 @@ export function CollectedStickersProvider({ initialStickers = [], children }) {
     fetchCollectedStickers(userId).then(setCollectedStickers);
   }, [userId]);
 
-  // Silently merge fresh sticker data when visiting the stickers page.
+  // Silently merge fresh sticker data after collecting or on profile.
   useEffect(() => {
     if (!shouldRefreshCollectedStickers(pathname)) return;
     fetchCollectedStickers(userId).then((fetched) => {

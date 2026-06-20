@@ -1,10 +1,14 @@
-import { bootstrapAuthSession } from './authSession';
+import { bootstrapAuthSession, getAuthSnapshot } from './authSession';
 import { createMemo } from './memoStore';
 import { stripControlChars } from './validators';
 
 export async function createMemoAction(formData, serverContext = null) {
   if (!serverContext) {
     await bootstrapAuthSession();
+    const user = getAuthSnapshot().user;
+    if (user) {
+      serverContext = { userId: user.id, userRole: user.role };
+    }
   }
 
   const intent = stripControlChars(formData.get('intent')).trim();
@@ -33,5 +37,25 @@ export async function createMemoAction(formData, serverContext = null) {
 
   if (result.error) return { error: result.error };
 
-  return { success: true, memo: result.memo };
+  const mediaWidth = Number(formData.get('mediaWidth'));
+  const mediaHeight = Number(formData.get('mediaHeight'));
+  let memo = result.memo && result.memo.mediaPreview
+    && Number.isFinite(mediaWidth) && mediaWidth > 0
+    && Number.isFinite(mediaHeight) && mediaHeight > 0
+    ? {
+        ...result.memo,
+        mediaPreview: {
+          ...result.memo.mediaPreview,
+          width: mediaWidth,
+          height: mediaHeight,
+        },
+      }
+    : result.memo;
+
+  const sessionRole = getAuthSnapshot().user?.role;
+  if (memo && !memo.authorRole && sessionRole) {
+    memo = { ...memo, authorRole: sessionRole };
+  }
+
+  return { success: true, memo };
 }

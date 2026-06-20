@@ -49,6 +49,8 @@ export async function action({ request }) {
   const result = await runMemoAction(request, {
     client: supabase,
     userId: authData.user.id,
+    authUser: authData.user,
+    userRole: authData.user.user_metadata?.role,
   });
 
   if (result.error) {

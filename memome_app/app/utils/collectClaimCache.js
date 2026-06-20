@@ -11,17 +11,25 @@ export function getScanKey(request) {
   return validateScanKey(url.searchParams.get('scan')).value;
 }
 
-export function readCollectCache(scan) {
+export function getCollectCacheKey(scan, userId = null) {
+  const owner = userId ?? 'guest';
+  return `${scan}:${owner}`;
+}
+
+export function readCollectCache(scan, userId = null) {
   if (typeof sessionStorage === 'undefined') return null;
   try {
-    const raw = sessionStorage.getItem(`${PREFIX}${scan}`);
+    const raw = sessionStorage.getItem(`${PREFIX}${getCollectCacheKey(scan, userId)}`);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-export function writeCollectCache(scan, result) {
+export function writeCollectCache(scan, result, userId = null) {
   if (typeof sessionStorage === 'undefined') return;
-  sessionStorage.setItem(`${PREFIX}${scan}`, JSON.stringify(result));
+  sessionStorage.setItem(
+    `${PREFIX}${getCollectCacheKey(scan, userId)}`,
+    JSON.stringify(result),
+  );
 }

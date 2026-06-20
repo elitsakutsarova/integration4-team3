@@ -7,7 +7,7 @@ import { getDiscoverEventById } from '../data/discoverDetails';
 import { paths } from '../utils/appPaths';
 import { loadSpotMemos } from '../utils/loadSpotMemos';
 import { buildMemoArchiveHref } from '../utils/locationHref';
-import { resolveNavigableLocationHref } from '../utils/navigableLocation';
+import { fetchLocationHrefFromApi } from '../utils/locationHrefClient';
 import { resolveDiscoverPlaceSpot } from '../utils/resolveDiscoverPlaceSpot';
 
 export function meta({ data: loaderData }) {
@@ -45,7 +45,7 @@ export async function clientLoader({ serverLoader }) {
     locationName: event.venueName ?? event.location,
   });
 
-  const venueHref = await resolveNavigableLocationHref({
+  const venueHref = await fetchLocationHrefFromApi({
     placeId: resolvedEvent.placeId ?? event.placeId,
     lat: resolvedEvent.ll?.[0] ?? event.ll?.[0],
     lng: resolvedEvent.ll?.[1] ?? event.ll?.[1],

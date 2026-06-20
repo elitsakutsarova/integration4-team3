@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { EventCard } from '../discover/DiscoverCards';
 import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../../data/discoverContent';
+import { useEventVenueHrefs } from '../../hooks/useEventVenueHrefs';
 import CollectionSortChips from './CollectionSortChips';
 import FavouritesEmptyState from './FavouritesEmptyState';
 
@@ -19,6 +20,7 @@ export default function FavouritesEventsPage({ favouriteEvents }) {
     () => filterDiscoverItems(items, { category, query: '' }),
     [items, category],
   );
+  const venueHrefs = useEventVenueHrefs(items);
 
   return (
     <>
@@ -32,7 +34,7 @@ export default function FavouritesEventsPage({ favouriteEvents }) {
         {filteredItems.length > 0 ? (
           <div className="collection-discover-list">
             {filteredItems.map(item => (
-              <EventCard key={item.id} item={item} layout="list" />
+              <EventCard key={item.id} item={item} layout="list" venueHref={venueHrefs[item.id] ?? null} />
             ))}
           </div>
         ) : favouriteEvents.length === 0 ? (

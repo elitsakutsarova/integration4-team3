@@ -7,6 +7,8 @@ import { hasChosenMemoLocation } from '../utils/memoDraft';
 import { isNewMemoDirty } from '../utils/isNewMemoDirty';
 import SectionTitle from './SectionTitle';
 import AddMemoWarningModal from './AddMemoWarningModal';
+import MemoTagIcon from './MemoTagIcon';
+import { buildMemoMediaClassName, resolvePolaroidOrientation } from '../utils/memoPinAssets';
 import { validateMemoMediaFile } from '../utils/validators';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 
@@ -23,53 +25,6 @@ function TrashIcon() {
       <path d="M6 6l1 14h10l1-14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
       <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function MemoTagIcon({ tag }) {
-  if (tag === 'Food') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <path d="M3 11h18M6 11V5a2 2 0 0 1 2-2h1v8M11 3v8M16 11V7a2 2 0 0 1 2-2h1v6" />
-      </svg>
-    );
-  }
-  if (tag === 'Nightlife') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <path d="M8 22h8M12 11v11M7 11l5-8 5 8H7z" />
-      </svg>
-    );
-  }
-  if (tag === 'Fashion') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <path d="M6 2l3 4h6l3-4M6 6l-2 16h16L18 6" />
-      </svg>
-    );
-  }
-  if (tag === 'Art & Culture') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2" />
-      </svg>
-    );
-  }
-  if (tag === 'Music') {
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-        <path d="M9 18V5l12-2v13" />
-        <circle cx="6" cy="18" r="3" />
-        <circle cx="18" cy="16" r="3" />
-      </svg>
-    );
-  }
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <path d="M4 4h16v16H4z" />
-      <path d="M9 9h6v6H9z" />
     </svg>
   );
 }
@@ -128,6 +83,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   const mediaPreviewRef = useRef(null);
   const loadTimerRef = useRef(null);
   const isSubmittingRef = useRef(false);
+  const formRef = useRef(null);
   mediaPreviewRef.current = mediaPreview;
 
   const locationLabel = draft?.locationName?.trim() || 'Choose location';
@@ -181,6 +137,25 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   useEffect(() => {
     isSubmittingRef.current = isSubmitting;
   }, [isSubmitting]);
+
+  useEffect(() => {
+    if (!hidden) return;
+    const root = formRef.current;
+    if (!root) return;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && root.contains(focused)) {
+      focused.blur();
+    }
+  }, [hidden]);
+
+  useEffect(() => () => {
+    const root = formRef.current;
+    if (!root) return;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && root.contains(focused)) {
+      focused.blur();
+    }
+  }, []);
 
   function requestClose() {
     if (isSubmittingRef.current || !isDirty) {
@@ -268,7 +243,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     const url = URL.createObjectURL(file);
     clearLoadTimer();
     setLoadProgress(100);
-    setMediaPreview({ url, isVideo, file });
+    const { readMediaDimensions } = await import('../utils/memoPinAssets');
+    const { width, height } = await readMediaDimensions(file, { isVideo });
+    setMediaPreview({ url, isVideo, file, width, height });
     setMediaPhase('preview');
   }
 
@@ -304,20 +281,23 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   }
 
   function toggleTag(tag) {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
-    );
+    setSelectedTags((prev) => (prev.includes(tag) ? [] : [tag]));
   }
 
   function renderMediaZone() {
     if (mediaPhase === 'preview' && mediaPreview) {
+      const mediaClass = buildMemoMediaClassName(
+        'memo-form-media-preview-img',
+        resolvePolaroidOrientation({ mediaPreview }),
+      );
+
       return (
         <div className="memo-form-media-preview">
           <div className="memo-form-media-preview-media">
             {mediaPreview.isVideo ? (
-              <video src={mediaPreview.url} className="memo-form-media-preview-img" controls playsInline />
+              <video src={mediaPreview.url} className={mediaClass} controls playsInline />
             ) : (
-              <img src={mediaPreview.url} alt="Selected media" className="memo-form-media-preview-img" />
+              <img src={mediaPreview.url} alt="Selected media" className={mediaClass} />
             )}
             <button
               type="button"
@@ -387,14 +367,15 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   return (
     <>
     <fetcher.Form
+      ref={formRef}
       method="post"
       action={paths.apiMemos}
       encType="multipart/form-data"
       onSubmit={handleFormSubmit}
       className={`form-overlay${hidden ? ' form-overlay--hidden' : ''}`}
-      role="dialog"
-      aria-modal={!hidden}
-      aria-hidden={hidden}
+      role={hidden ? undefined : 'dialog'}
+      aria-modal={hidden ? undefined : true}
+      inert={hidden ? true : undefined}
       aria-label="Add memo"
       onClick={handleOverlayClick}
     >
@@ -406,6 +387,12 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
       {selectedTags.map((tag) => (
         <input key={tag} type="hidden" name="tags" value={tag} />
       ))}
+      {mediaPreview?.width ? (
+        <input type="hidden" name="mediaWidth" value={String(mediaPreview.width)} />
+      ) : null}
+      {mediaPreview?.height ? (
+        <input type="hidden" name="mediaHeight" value={String(mediaPreview.height)} />
+      ) : null}
 
       <div className="form-sheet memo-form-sheet">
         <div className="memo-form-scroll">

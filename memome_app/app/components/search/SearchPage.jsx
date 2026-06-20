@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
 import { useDebounceCallback } from '../../hooks/useDebounceCallback';
+import { useEventVenueHrefs } from '../../hooks/useEventVenueHrefs';
 import BackChevron from '../BackChevron';
 import { EventCard, PlaceCard } from '../discover/DiscoverCards';
 import { useAuth } from '../../context/AuthContext';
@@ -158,6 +159,7 @@ export default function SearchPage() {
     () => buildGroupedSearchResults(trimmedQuery, photonPlaces),
     [trimmedQuery, photonPlaces],
   );
+  const venueHrefs = useEventVenueHrefs(showResults ? groupedResults.events : []);
 
   // Focus search field when the page opens.
   useEffect(() => {
@@ -384,7 +386,12 @@ export default function SearchPage() {
                           }
                         }}
                       >
-                        <EventCard item={event} layout="list" showFave />
+                        <EventCard
+                          item={event}
+                          layout="list"
+                          showFave
+                          venueHref={venueHrefs[event.id] ?? null}
+                        />
                       </div>
                     ))}
                   </div>

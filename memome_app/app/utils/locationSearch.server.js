@@ -31,15 +31,19 @@ function photonBaseUrl() {
   return DEFAULT_PHOTON_URL;
 }
 
-import { validateSearchQuery } from './validators';
+import { clampText, LIMITS } from './validators';
 
-function normalizeQuery(query) {
-  return validateSearchQuery(query).value;
+function prepareSearchQuery(raw) {
+  const trimmed = clampText(raw, LIMITS.searchQuery);
+  if (trimmed.length < 2) return null;
+  return {
+    cacheKey: trimmed.toLowerCase(),
+    photonQuery: trimmed,
+  };
 }
 
-function readCache(query) {
-  const key = normalizeQuery(query);
-  const entry = queryCache.get(key);
+function readCache(cacheKey) {
+  const entry = queryCache.get(cacheKey);
   if (!entry) return null;
   if (Date.now() - entry.at > CACHE_TTL_MS) {
     queryCache.delete(key);
@@ -48,13 +52,12 @@ function readCache(query) {
   return entry.result;
 }
 
-function writeCache(query, result) {
-  const key = normalizeQuery(query);
+function writeCache(cacheKey, result) {
   if (queryCache.size >= MAX_CACHE_ENTRIES) {
     const oldest = queryCache.keys().next().value;
     if (oldest) queryCache.delete(oldest);
   }
-  queryCache.set(key, { result, at: Date.now() });
+  queryCache.set(cacheKey, { result, at: Date.now() });
 }
 
 async function waitForRateLimit() {
@@ -99,14 +102,14 @@ function photonToPlace(feature) {
 }
 
 export async function searchAntwerpPlaces(query) {
-  const { value: q } = validateSearchQuery(query);
-  if (q.length < 2) return { places: [] };
+  const prepared = prepareSearchQuery(query);
+  if (!prepared) return { places: [] };
 
-  const cached = readCache(q);
+  const cached = readCache(prepared.cacheKey);
   if (cached) return cached;
 
   const params = new URLSearchParams({
-    q,
+    q: prepared.photonQuery,
     limit: '20',
     lat: String(ANTWERP_CENTER.lat),
     lon: String(ANTWERP_CENTER.lng),
@@ -141,7 +144,7 @@ export async function searchAntwerpPlaces(query) {
         .slice(0, 15),
     };
 
-    writeCache(q, result);
+    writeCache(prepared.cacheKey, result);
     return result;
   } catch {
     return {

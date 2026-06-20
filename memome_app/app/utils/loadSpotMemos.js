@@ -10,9 +10,15 @@ import { getSupabaseBrowserClient } from './supabase.client';
 
 export async function loadSpotMemos(
   { placeId, lat, lng, locationName },
-  { featuredLimit = FEATURED_MEMO_LIMIT, archiveLimit = MAX_MEMOS_PER_SPOT } = {},
+  {
+    featuredLimit = FEATURED_MEMO_LIMIT,
+    archiveLimit = MAX_MEMOS_PER_SPOT,
+    skipAuthBootstrap = false,
+  } = {},
 ) {
-  await bootstrapAuthSession();
+  if (!skipAuthBootstrap) {
+    await bootstrapAuthSession();
+  }
 
   const client = getSupabaseBrowserClient();
   const spot = { placeId, lat, lng, locationName };

@@ -6,7 +6,7 @@
 // fetches a user's own memos or favourites
 // UI -> memo service (this file) -> Supabase Database + Storage
 
-import { isSupabaseConfigured } from './supabase.env';
+import { isSupabaseConfigured, USERS_TABLE } from './supabase.env';
 import { isSafeHttpsUrl, validateCreateMemoInput, validateMemoMediaFile, validateUpdateMemoInput } from './validators';
 
 async function getBrowserSupabaseClient() {
@@ -20,8 +20,10 @@ const MEMO_MEDIA_BUCKET = 'memo-media';
 const DEFAULT_LOCATION = 'My spot';
 
 const MEMO_COLUMNS_BASE =
-  'id, quote, lat, lng, location, tags, media_url, media_type, created_at';
-const MEMO_COLUMNS = `${MEMO_COLUMNS_BASE}, place_id`;
+  'id, quote, lat, lng, location, tags, media_url, media_type, created_at, auth_id';
+const MEMO_COLUMNS = `${MEMO_COLUMNS_BASE}, place_id, author_role`;
+const MEMO_COLUMNS_NO_PLACE = `${MEMO_COLUMNS_BASE}, author_role`;
+const MEMO_COLUMNS_LEGACY = MEMO_COLUMNS_BASE;
 
 /** Schema-migration shim — retries without place_id until all envs run the migration. */
 function isMissingPlaceIdColumn(error) {
@@ -29,20 +31,82 @@ function isMissingPlaceIdColumn(error) {
   return msg.includes('place_id');
 }
 
+function isMissingAuthorRoleColumn(error) {
+  const msg = String(error?.message ?? error?.details ?? '').toLowerCase();
+  return msg.includes('author_role');
+}
+
+function normalizeAuthorRole(role) {
+  const normalized = String(role ?? '').trim().toLowerCase();
+  return normalized === 'local' || normalized === 'visitor' ? normalized : null;
+}
+
+async function fetchProfileRole(client, authUserId) {
+  if (!client || !authUserId) return null;
+
+  const { data, error } = await client
+    .from(USERS_TABLE)
+    .select('role')
+    .eq('auth_id', authUserId)
+    .maybeSingle();
+
+  if (error || !data?.role) return null;
+  return normalizeAuthorRole(data.role);
+}
+
+async function resolveAuthorRole(serverContext) {
+  const fromContext = normalizeAuthorRole(serverContext?.userRole);
+  if (fromContext) return fromContext;
+
+  const fromMetadata = normalizeAuthorRole(serverContext?.authUser?.user_metadata?.role);
+  if (fromMetadata) return fromMetadata;
+
+  if (serverContext?.client && serverContext?.userId) {
+    const fromProfile = await fetchProfileRole(serverContext.client, serverContext.userId);
+    if (fromProfile) return fromProfile;
+  }
+
+  try {
+    const { getAuthSnapshot } = await import('./authSession');
+    return normalizeAuthorRole(getAuthSnapshot().user?.role) ?? 'visitor';
+  } catch {
+    return 'visitor';
+  }
+}
+
+const MEMO_COLUMNS_NO_AUTHOR = `${MEMO_COLUMNS_BASE}, place_id`;
+
 async function queryMemos(client, buildQuery) {
   let result = await buildQuery(MEMO_COLUMNS);
   if (result.error && isMissingPlaceIdColumn(result.error)) {
-    result = await buildQuery(MEMO_COLUMNS_BASE);
+    result = await buildQuery(MEMO_COLUMNS_NO_PLACE);
+  }
+  if (result.error && isMissingAuthorRoleColumn(result.error)) {
+    result = await buildQuery(MEMO_COLUMNS_NO_AUTHOR);
+  }
+  if (result.error && isMissingPlaceIdColumn(result.error)) {
+    result = await buildQuery(MEMO_COLUMNS_LEGACY);
   }
   return result;
 }
 
 async function insertMemo(client, row) {
-  let result = await client.from('memos').insert(row).select(MEMO_COLUMNS).single();
+  let payload = { ...row };
+  let result = await client.from('memos').insert(payload).select(MEMO_COLUMNS).single();
+
   if (result.error && isMissingPlaceIdColumn(result.error)) {
-    const { place_id, ...rest } = row;
-    result = await client.from('memos').insert(rest).select(MEMO_COLUMNS_BASE).single();
+    const { place_id, ...rest } = payload;
+    payload = rest;
+    result = await client.from('memos').insert(payload).select(MEMO_COLUMNS_NO_PLACE).single();
   }
+
+  if (result.error && isMissingAuthorRoleColumn(result.error)) {
+    const { author_role, ...rest } = payload;
+    payload = rest;
+    const columns = payload.place_id != null ? MEMO_COLUMNS_NO_AUTHOR : MEMO_COLUMNS_LEGACY;
+    result = await client.from('memos').insert(payload).select(columns).single();
+  }
+
   return result;
 }
 
@@ -62,7 +126,19 @@ async function updateMemoRow(client, memoId, userId, row) {
       .update(rest)
       .eq('id', memoId)
       .eq('auth_id', userId)
-      .select(MEMO_COLUMNS_BASE)
+      .select(MEMO_COLUMNS_NO_PLACE)
+      .maybeSingle();
+  }
+
+  if (result.error && isMissingAuthorRoleColumn(result.error)) {
+    const { author_role, ...rest } = row;
+    const columns = rest.place_id !== undefined ? MEMO_COLUMNS_NO_AUTHOR : MEMO_COLUMNS_LEGACY;
+    result = await client
+      .from('memos')
+      .update(rest)
+      .eq('id', memoId)
+      .eq('auth_id', userId)
+      .select(columns)
       .maybeSingle();
   }
 
@@ -144,6 +220,7 @@ export function mapMemoRowToPin(row) {
     location: row.location ?? DEFAULT_LOCATION,
     placeId: row.place_id ?? null,
     tags: toArray(row.tags),
+    authorRole: row.author_role ?? null,
     date: formatMemoDate(row.created_at),
     mediaPreview: row.media_url
       ? { url: row.media_url, isVideo: row.media_type === 'video' }
@@ -298,6 +375,8 @@ export async function createMemo(
     return { error: `This spot already has ${MAX_MEMOS_PER_SPOT} memos.` };
   }
 
+  const authorRole = await resolveAuthorRole(serverContext);
+
   const row = {
     auth_id: userId,
     quote: validated.quote,
@@ -307,6 +386,7 @@ export async function createMemo(
     tags: validated.tags,
     media_url,
     media_type,
+    author_role: authorRole,
   };
 
   if (validated.placeId) row.place_id = validated.placeId;
@@ -314,7 +394,13 @@ export async function createMemo(
   const { data, error } = await insertMemo(client, row);
 
   if (error) return { error: error.message };
-  return { memo: mapMemoRowToPin(data) };
+
+  const memo = mapMemoRowToPin(data);
+  if (!memo.authorRole) {
+    memo.authorRole = authorRole;
+  }
+
+  return { memo };
 }
 
 /** Update an existing memo for the signed-in user. */
