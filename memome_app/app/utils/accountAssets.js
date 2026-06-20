@@ -23,4 +23,6 @@ export const accountAssets = {
   emptyArrow: `${HAS_ACCOUNT}/empty-arrow.svg`,
   greenGrid: `${HAS_ACCOUNT}/green-grid.svg`,
   emptyMemoState: `${HAS_ACCOUNT}/empty-memo-state.svg`,
+  stickerDeco: `${HAS_ACCOUNT}/sticker_deco.svg`,
+  blueSticker: `${HAS_ACCOUNT}/sticker_deco-title.svg`,
 };

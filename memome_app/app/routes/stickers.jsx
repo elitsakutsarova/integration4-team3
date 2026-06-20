@@ -11,6 +11,8 @@ import { useCollectedStickers, useCollectedStickersLoading } from '../context/Co
 import { ACHIEVEMENT_TOTAL, getAchievementStates } from '../data/achievementStickers';
 import { useOwnedStickerCount } from '../hooks/useOwnedStickerCount';
 import { paths } from '../utils/appPaths';
+import { accountAssets } from '../utils/accountAssets';
+import { discoverAssets } from '../utils/discoverAssets';
 import {
   fetchCollectedStickers,
   loadDigitalStickerCatalog,
@@ -76,32 +78,54 @@ function GuestStickerCollection() {
   return (
     <div className="stickers-page stickers-page--guest">
       <header className="stickers-header">
-        <Link to={paths.profile} className="stickers-back-btn" aria-label="Back to profile">
-          <BackIcon />
-        </Link>
-        <h1 className="stickers-title">Stickers</h1>
-        <span className="stickers-header-spacer" aria-hidden="true" />
+        <div className="sticker-header-deco" aria-hidden="true">
+          <img className="stickers-header-deco-grid" src={accountAssets.greenGrid} alt="" />
+          <div className="stickers-header-deco-grid-pattern" />
+          <img className="stickers-header-deco-art" src={accountAssets.stickerDeco} alt="" />
+        </div>
+        <div className="stickers-header-title-row">
+          <div className="stickers-header-titles">
+            <Link to={paths.profile} className="stickers-back-btn btn-chevron" aria-label="Back to profile">
+              <BackIcon />
+            </Link>
+            <h1 className="stickers-title">Stickers</h1>
+          </div>
+          {/*  <span className="stickers-header-spacer" aria-hidden="true" /> */}
+          <div className="stickers-header-title-icon">
+            <img src={accountAssets.blueSticker} alt="" />
+          </div>
+        </div>
       </header>
-
       <div className="stickers-tabs" role="tablist" aria-label="Sticker views">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'collection'}
-          className={`stickers-tab${tab === 'collection' ? ' stickers-tab--active' : ''}`}
-          onClick={() => setTab('collection')}
+        <div
+          className={`stickers-tab-wrapper${tab === 'collection' ? ' stickers-tab-wrapper--active' : ''
+            }`}
         >
-          Collection
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'achievements'}
-          className={`stickers-tab${tab === 'achievements' ? ' stickers-tab--active' : ''}`}
-          onClick={() => setTab('achievements')}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'collection'}
+            className="stickers-tab"
+            onClick={() => setTab('collection')}
+          >
+            Collection
+          </button>
+        </div>
+
+        <div
+          className={`stickers-tab-wrapper${tab === 'achievements' ? ' stickers-tab-wrapper--active' : ''
+            }`}
         >
-          Achievements
-        </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === 'achievements'}
+            className="stickers-tab"
+            onClick={() => setTab('achievements')}
+          >
+            Achievements
+          </button>
+        </div>
       </div>
 
       <StickersCountBadge
@@ -165,78 +189,101 @@ export default function StickersGallery() {
 
   return (
     <div className="stickers-page">
-        <header className="stickers-header">
-          <Link to={paths.profile} className="stickers-back-btn" aria-label="Back to profile">
-            <BackIcon />
-          </Link>
-          <h1 className="stickers-title">Stickers</h1>
-          <span className="stickers-header-spacer" aria-hidden="true" />
-        </header>
+      <header className="stickers-header">
+        <div className="sticker-header-deco" aria-hidden="true">
+          <img className="stickers-header-deco-grid" src={accountAssets.greenGrid} alt="" />
+          <div className="stickers-header-deco-grid-pattern" />
+          <img className="stickers-header-deco-art" src={accountAssets.stickerDeco} alt="" />
+        </div>
+        <div className="stickers-header-title-row">
+          <div className="stickers-header-titles">
+            <Link to={paths.profile} className="stickers-back-btn btn-chevron" aria-label="Back to profile">
+              <BackIcon />
+            </Link>
+            <h1 className="stickers-title">Stickers</h1>
+          </div>
+          {/*  <span className="stickers-header-spacer" aria-hidden="true" /> */}
+          <div className="stickers-header-title-icon">
+            <img src={accountAssets.blueSticker} alt="" />
+          </div>
+        </div>
+      </header>
 
-        <div className="stickers-tabs" role="tablist" aria-label="Sticker views">
+      <div className="stickers-tabs" role="tablist" aria-label="Sticker views">
+        <div
+          className={`stickers-tab-wrapper${tab === 'collection' ? ' stickers-tab-wrapper--active' : ''
+            }`}
+        >
           <button
             type="button"
             role="tab"
             aria-selected={tab === 'collection'}
-            className={`stickers-tab${tab === 'collection' ? ' stickers-tab--active' : ''}`}
-            onClick={() => switchTab('collection')}
+            className="stickers-tab"
+            onClick={() => setTab('collection')}
           >
             Collection
           </button>
+        </div>
+
+        <div
+          className={`stickers-tab-wrapper${tab === 'achievements' ? ' stickers-tab-wrapper--active' : ''
+            }`}
+        >
           <button
             type="button"
             role="tab"
             aria-selected={tab === 'achievements'}
-            className={`stickers-tab${tab === 'achievements' ? ' stickers-tab--active' : ''}`}
-            onClick={() => switchTab('achievements')}
+            className="stickers-tab"
+            onClick={() => setTab('achievements')}
           >
             Achievements
           </button>
         </div>
+      </div>
 
-        <StickersCountBadge
-          tab={tab}
-          totalCount={totalCount}
-          achievementUnlocked={achievementUnlocked}
-        />
+      <StickersCountBadge
+        tab={tab}
+        totalCount={totalCount}
+        achievementUnlocked={achievementUnlocked}
+      />
 
-        <div className="stickers-scroll">
-          <div className="stickers-content" role="tabpanel">
-            {tab === 'collection' && (
-              <>
-                {loading ? (
-                  <p className="stickers-empty">Loading…</p>
-                ) : collected.length === 0 ? (
-                  <div className="stickers-empty-block">
-                    <p className="stickers-empty">No stickers yet.</p>
-                    <p className="stickers-empty-hint">
-                      Scan the MemMe collect QR to add random stickers to your collection.
-                    </p>
-                    <Link to={paths.demoStickers} className="stickers-empty-link">
-                      Open demo sticker QRs
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="stickers-grid stickers-grid--collection">
-                    {collected.map(sticker => (
-                      <div key={sticker.id} className="stickers-tile stickers-tile--collection">
-                        <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
+      <div className="stickers-scroll">
+        <div className="stickers-content" role="tabpanel">
+          {tab === 'collection' && (
+            <>
+              {loading ? (
+                <p className="stickers-empty">Loading…</p>
+              ) : collected.length === 0 ? (
+                <div className="stickers-empty-block">
+                  <p className="stickers-empty">No stickers yet.</p>
+                  <p className="stickers-empty-hint">
+                    Scan the MemMe collect QR to add random stickers to your collection.
+                  </p>{/* 
+                  <Link to={paths.demoStickers} className="stickers-empty-link">
+                    Open demo sticker QRs
+                  </Link> */}
+                </div>
+              ) : (
+                <div className="stickers-grid stickers-grid--collection">
+                  {collected.map(sticker => (
+                    <div key={sticker.id} className="stickers-tile stickers-tile--collection">
+                      <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
 
-            {tab === 'achievements' && (
-              <div className="stickers-grid stickers-grid--achievements">
-                {achievements.map(item => (
-                  <AchievementStickerTile key={item.id} item={item} />
-                ))}
-              </div>
-            )}
-          </div>
+          {tab === 'achievements' && (
+            <div className="stickers-grid stickers-grid--achievements">
+              {achievements.map(item => (
+                <AchievementStickerTile key={item.id} item={item} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import { ACHIEVEMENT_STICKER_SHAPES } from '../../data/achievementStickerShapes';
 
-const SILHOUETTE_FILL = '#b0b0b0';
-const OUTLINE_STROKE = '#8a8a8a';
+const SILHOUETTE_FILL = 'var(--grey-250, #6B7280)';
+const OUTLINE_STROKE = 'var(--white)';
 const OUTLINE_DASH = '6 4';
 
 function parseViewBoxSize(viewBox) {
@@ -77,7 +77,7 @@ export default function LockedAchievementSilhouette({ stickerId }) {
         x={shape.questionMark.x}
         y={shape.questionMark.y}
         textAnchor="middle"
-        fontFamily="'Press Start 2P', monospace"
+        fontFamily="Antwerpen"
         fontSize={shape.fontSize}
         fill="#fff"
       >

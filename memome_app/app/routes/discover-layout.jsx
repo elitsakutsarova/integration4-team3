@@ -9,7 +9,9 @@ export default function DiscoverLayout() {
   return (
     <>
       <Outlet />
+      <div className="bottom-nav-container">
       <BottomNav />
+      </div>
     </>
   );
 }
