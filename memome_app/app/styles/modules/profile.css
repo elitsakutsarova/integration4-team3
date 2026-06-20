@@ -428,7 +428,6 @@ margin: 0.5rem;
 }
 
 .collection-card {
-  background: #fff;
   border: 1px solid #e8e8ec;
   border-radius: 14px;
   padding: 16px 10px;
@@ -458,6 +457,18 @@ margin: 0.5rem;
 
 .collection-card--link:active {
   transform: translateY(0);
+}
+
+.collection-card--memos {
+  background: var(--green-500);
+}
+
+.collection-card--favourites {
+  background: var(--blue-300);
+}
+
+.collection-card--stickers {
+  background: var(--yellow-400);
 }
 
 .profile-diaries { padding-bottom: 16px; }
@@ -672,6 +683,7 @@ margin: 0.5rem;
   color: #6b6b78;
   cursor: default;
   pointer-events: none;
+  filter: grayscale(1);
 }
 
 .collection-card--guest-locked svg {
@@ -680,7 +692,6 @@ margin: 0.5rem;
 }
 
 .collection-card--guest-active {
-  background: #fff;
   border: 1px solid #e8e8ec;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
@@ -710,9 +721,14 @@ margin: 0.5rem;
 }
 
 .guest-create-account {
-  margin-top: 8px;
-  padding: 24px clamp(16px, 5vw, 24px) 8px;
-  text-align: center;
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(10px, 2.5vw, 14px);
+    width: min(100%, 334px);
+    margin: 0 auto;
+    text-align: center;
+    pointer-events: auto;
 }
 
 .guest-create-account-copy {
