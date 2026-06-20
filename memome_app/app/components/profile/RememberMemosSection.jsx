@@ -9,8 +9,7 @@ import { accountAssets } from '../../utils/accountAssets';
 function RememberTitle() {
   return (
     <h2 className="profile-remember-title">
-      Remember the{' '}
-      <span className="profile-remember-title-highlight">time when...</span>
+      Remember the time when...
     </h2>
   );
 }
