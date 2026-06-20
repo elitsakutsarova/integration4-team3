@@ -21,15 +21,15 @@ export default function ProfileCollections({
         </svg>
         <h2 className="profile-section-label">Collections</h2>
         <div className="profile-collections profile-collections--account">
-          <div className="collection-card collection-card--account collection-card--guest-locked" aria-disabled="true">
+          <div className="collection-card collection-card--account collection-card--memos collection-card--guest-locked" aria-disabled="true">
             <CollectionIcon src={accountAssets.createdMemosIcon} alt="" />
             <span>Memos</span>
           </div>
-          <div className="collection-card collection-card--account collection-card--guest-locked" aria-disabled="true">
+          <div className="collection-card collection-card--account collection-card--favourites collection-card--guest-locked" aria-disabled="true">
             <CollectionIcon src={accountAssets.favouritesIcon} alt="" />
             <span>Favorites</span>
           </div>
-          <Link to={paths.stickers} className="collection-card collection-card--account collection-card--link collection-card--guest-active">
+          <Link to={paths.stickers} className="collection-card collection-card--account collection-card--stickers collection-card--link collection-card--guest-active">
             {featuredStickerSrc ? (
               <img className="collection-card-sticker-preview" src={featuredStickerSrc} alt="" />
             ) : (
@@ -46,15 +46,15 @@ export default function ProfileCollections({
     <section className="profile-section profile-section--collections">
       <h2 className="profile-section-label">Collections</h2>
       <div className="profile-collections profile-collections--account">
-        <Link to={paths.profileMemos} className="collection-card collection-card--account collection-card--link">
+        <Link to={paths.profileMemos} className="collection-card collection-card--memos collection-card--account collection-card--link">
           <CollectionIcon src={accountAssets.createdMemosIcon} alt="" />
           <span>{memosLabel} Memos</span>
         </Link>
-        <Link to={paths.profileFavouritesMemos} className="collection-card collection-card--account collection-card--link">
+        <Link to={paths.profileFavouritesMemos} className="collection-card collection-card--favourites collection-card--account collection-card--link">
           <CollectionIcon src={accountAssets.favouritesIcon} alt="" />
           <span>{favouritesLabel} Favorites</span>
         </Link>
-        <Link to={paths.stickers} className="collection-card collection-card--account collection-card--link">
+        <Link to={paths.stickers} className="collection-card collection-card--stickers collection-card--account collection-card--link">
           <CollectionIcon src={accountAssets.stickersIcon} alt="" />
           <span>{stickersCount} Stickers</span>
         </Link>

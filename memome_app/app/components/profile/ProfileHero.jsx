@@ -25,7 +25,7 @@ export default function ProfileHero({
       <header className="profile-header profile-header--account">
           <div className="profile-identity profile-identity--account">
             <div
-              className={`profile-avatar profile-avatar--account${hasCustomAvatar ? ' profile-avatar--photo' : ' profile-avatar--placeholder'}`}
+            className={`profile-avatar profile-avatar--account${hasCustomAvatar ? ' profile-avatar--photo' : ' profile-avatar--placeholder'}`}
             >
               <img
                 className={`profile-avatar-image${hasCustomAvatar ? '' : ' profile-avatar-image--placeholder'}`}
