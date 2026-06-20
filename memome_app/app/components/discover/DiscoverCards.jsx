@@ -6,7 +6,7 @@ import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 
 export { DiscoverCategoryIcon as CategoryIcon } from '../MemoTagIcon';
 
-export function EventCard({ item, layout = 'carousel', showFave = true }) {
+export function EventCard({ item, layout = 'carousel', showFave = true, venueHref = null }) {
   const cardClass = layout === 'list'
     ? 'discover-event-card discover-event-card--list'
     : 'discover-event-card';
@@ -49,7 +49,17 @@ export function EventCard({ item, layout = 'carousel', showFave = true }) {
               <path d="M6.5625 0C2.93959 0 0 2.64592 0 5.90625C0 11.1562 6.5625 18.375 6.5625 18.375C6.5625 18.375 13.125 11.1562 13.125 5.90625C13.125 2.64592 10.1854 0 6.5625 0ZM6.5625 9.1875C6.04332 9.1875 5.53581 9.03355 5.10413 8.74511C4.67245 8.45667 4.336 8.0467 4.13732 7.56704C3.93864 7.08739 3.88665 6.55959 3.98794 6.05039C4.08922 5.54119 4.33923 5.07346 4.70634 4.70634C5.07346 4.33923 5.54119 4.08922 6.05039 3.98794C6.55959 3.88665 7.08739 3.93864 7.56704 4.13732C8.0467 4.336 8.45667 4.67245 8.74511 5.10413C9.03355 5.53581 9.1875 6.04332 9.1875 6.5625C9.18674 7.25846 8.90993 7.9257 8.41782 8.41782C7.9257 8.90993 7.25846 9.18674 6.5625 9.1875Z" fill="#9CA3AF" />
             </svg>
             <p className="discover-event-card-meta">
-              <span className="discover-location-link">{item.location}</span>
+              {venueHref ? (
+                <Link
+                  to={venueHref}
+                  className="discover-location-link event-location-link"
+                  onClick={event => event.stopPropagation()}
+                >
+                  {item.location}
+                </Link>
+              ) : (
+                <span className="discover-location-link discover-location-link--plain">{item.location}</span>
+              )}
             </p>
           </div>
         </div>

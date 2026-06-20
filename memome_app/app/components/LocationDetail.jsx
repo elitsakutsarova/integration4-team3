@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import BottomNav from './BottomNav';
 import DiscoverShareIcon from './discover/DiscoverShareIcon';
@@ -5,8 +6,9 @@ import DiscoverShareSuccess from './discover/DiscoverShareSuccess';
 import ShareSheet from './diary/ShareSheet';
 import FeaturedMemosSection from './memos/FeaturedMemosSection';
 import { buildMemoArchiveHref } from '../utils/locationHref';
-import { goBack } from '../utils/appPaths';
+import { goBack, paths } from '../utils/appPaths';
 import { useDiscoverShare } from '../hooks/useDiscoverShare';
+import { parsePhotonPlaceId } from '../utils/placeId';
 
 function HeroMedia({ imageUrl, placeName, categoryLabel }) {
   if (imageUrl) {
@@ -30,8 +32,42 @@ function HeroMedia({ imageUrl, placeName, categoryLabel }) {
   );
 }
 
-export default function LocationDetail({ place, imageUrl = null, featuredMemos = [], totalMemoCount = 0 }) {
+function useDeferredPlaceImage(placeId, initialUrl) {
+  const [imageUrl, setImageUrl] = useState(initialUrl);
+
+  useEffect(() => {
+    if (initialUrl || !placeId) return;
+
+    const parsed = parsePhotonPlaceId(placeId);
+    if (!parsed) return;
+
+    const params = new URLSearchParams({
+      osmType: parsed.osmType,
+      osmId: parsed.osmId,
+    });
+
+    let cancelled = false;
+
+    fetch(`${paths.apiPlaceImage}?${params}`)
+      .then(response => (response.ok ? response.json() : null))
+      .then(payload => {
+        if (!cancelled && payload?.imageUrl) {
+          setImageUrl(payload.imageUrl);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [placeId, initialUrl]);
+
+  return imageUrl;
+}
+
+export default function LocationDetail({ place, imageUrl: initialImageUrl = null, featuredMemos = [], totalMemoCount = 0 }) {
   const navigate = useNavigate();
+  const imageUrl = useDeferredPlaceImage(place.id, initialImageUrl);
   const {
     showSheet,
     openSheet,

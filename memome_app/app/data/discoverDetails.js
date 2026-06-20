@@ -227,6 +227,7 @@ const BRUISMELK_MAP_EVENT = {
   image: '/discover/groove-techno.jpg',
   discoverEventId: null,
   placeId: null,
+  learnMoreDisabled: true,
 };
 
 /** Map pins for live discover events — first two happening-now + Bruismelk placeholder. */

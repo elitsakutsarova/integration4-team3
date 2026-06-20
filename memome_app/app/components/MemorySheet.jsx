@@ -11,6 +11,10 @@ import {
 } from '../utils/memoPinAssets';
 import { buildMemorySheetTags } from '../utils/memoAuthor';
 import { paths } from '../utils/appPaths';
+import {
+  buildMapPopupDockTransform,
+  getMapPopupScale,
+} from '../utils/mapPopupScale';
 
 function MemoFavoriteButton({ memoId, label }) {
   const { isSaved, toggleMemo } = useSavedMemos();
@@ -49,20 +53,6 @@ function MemoTags({ tags, className = '' }) {
       ))}
     </ul>
   );
-}
-
-const MEDIA_SHEET_DESIGN_WIDTH = 361;
-const MEDIA_SHEET_RESPONSIVE_VIEWPORT = 359;
-const MEDIA_SHEET_HORIZONTAL_MARGIN = 32;
-
-function getMediaSheetScale(hasMedia) {
-  if (!hasMedia || window.innerWidth > MEDIA_SHEET_RESPONSIVE_VIEWPORT) return 1;
-  return Math.min(1, (window.innerWidth - MEDIA_SHEET_HORIZONTAL_MARGIN) / MEDIA_SHEET_DESIGN_WIDTH);
-}
-
-function buildDockTransform(scale) {
-  if (scale === 1) return 'translateX(-50%)';
-  return `translateX(-50%) scale(${scale})`;
 }
 
 const LONG_QUOTE_CHAR_THRESHOLD = 50;
@@ -134,7 +124,7 @@ export default function MemorySheet({ pin, onClose }) {
     }
 
     function updateScale() {
-      setMediaSheetScale(getMediaSheetScale(true));
+      setMediaSheetScale(hasMedia ? getMapPopupScale() : 1);
     }
 
     updateScale();
@@ -171,7 +161,7 @@ export default function MemorySheet({ pin, onClose }) {
 
   const canOpenMaps = Array.isArray(pin.ll) && pin.ll.length >= 2;
   const sheetTags = buildMemorySheetTags(pin);
-  const dockTransform = buildDockTransform(mediaSheetScale);
+  const dockTransform = buildMapPopupDockTransform(mediaSheetScale);
   const dockTransformOrigin = mediaSheetScale === 1 ? undefined : 'center bottom';
 
   function handleTakeMeThere(event) {

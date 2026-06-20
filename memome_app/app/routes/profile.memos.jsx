@@ -8,7 +8,7 @@ import FavouritesLoading from '../components/profile/FavouritesLoading';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { getAuthSnapshot } from '../utils/authSession';
 import { fetchCreatedMemosByUser } from '../utils/memoStore';
-import { resolveNavigableLocationHref } from '../utils/navigableLocation';
+import { fetchLocationHrefFromApi } from '../utils/locationHrefClient';
 
 export function meta() {
   return [
@@ -18,7 +18,7 @@ export function meta() {
 }
 
 async function enrichWithLocationHref(memo) {
-  const locationHref = await resolveNavigableLocationHref({
+  const locationHref = await fetchLocationHrefFromApi({
     placeId: memo.placeId,
     lat: memo.ll?.[0],
     lng: memo.ll?.[1],

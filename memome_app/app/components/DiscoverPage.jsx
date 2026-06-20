@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { CategoryIcon, EventCard, PlaceCard } from './discover/DiscoverCards';
 import SearchOpenButton from './search/SearchOpenButton';
 import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../data/discoverContent';
+import { useEventVenueHrefs } from '../hooks/useEventVenueHrefs';
 import { paths } from '../utils/appPaths';
 
 function SectionHeader({ id, title, highlightWidth, underlined, viewAllTo }) {
@@ -47,6 +48,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
     () => filterDiscoverItems(places, filters),
     [places, filters],
   );
+  const venueHrefs = useEventVenueHrefs([...happeningNow, ...upcoming]);
 
   return (
     <div className="discover-page">
@@ -90,7 +92,9 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
         />
         <div className="discover-carousel">
           {filteredHappeningNow.length > 0 ? (
-            filteredHappeningNow.map(item => <EventCard key={item.id} item={item} />)
+            filteredHappeningNow.map(item => (
+              <EventCard key={item.id} item={item} venueHref={venueHrefs[item.id] ?? null} />
+            ))
           ) : (
             <p className="discover-empty">No live events match your filters.</p>
           )}
@@ -110,7 +114,9 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
           />
           <div className="discover-carousel">
             {filteredUpcoming.length > 0 ? (
-              filteredUpcoming.map(item => <EventCard key={item.id} item={item} />)
+              filteredUpcoming.map(item => (
+                <EventCard key={item.id} item={item} venueHref={venueHrefs[item.id] ?? null} />
+              ))
             ) : (
               <p className="discover-empty">No upcoming events match your filters.</p>
             )}

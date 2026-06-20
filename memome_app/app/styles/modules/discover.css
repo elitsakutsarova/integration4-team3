@@ -387,11 +387,16 @@
 }
 
 .discover-location-link {
-  text-decoration: underline;
+  text-decoration: underline !important;
   text-underline-offset: 2px;
   overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.discover-location-link--plain {
+  text-decoration: none !important;
+  cursor: default;
 }
 
 .discover-location-text {

@@ -25,7 +25,7 @@ import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
 import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
 import { syncMapStickerSymbols } from '../utils/mapStickerSymbols';
-import { resolveNavigableLocationHrefs } from '../utils/navigableLocation';
+import { fetchLocationHrefFromApi } from '../utils/locationHrefClient';
 import {
   buildEventMarker,
   placePendingPin,
@@ -131,6 +131,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const hideBottomNav = Boolean((draftMemo && user) || showGuestAddMemoLocked);
   const [activeCategory, setActiveCategory] = useState('All');
   const [eventLocationHrefs, setEventLocationHrefs] = useState({});
+  const [mapReady, setMapReady] = useState(false);
   const eventHrefsFetchRef = useRef(false);
 
   const filterOptions = { category: activeCategory, query: '' };
@@ -221,9 +222,19 @@ export default function MapView({ savedMemos = [], active = true }) {
     eventHrefsFetchRef.current = true;
 
     let cancelled = false;
-    resolveNavigableLocationHrefs(INITIAL_EVENTS).then((hrefMap) => {
+    Promise.all(
+      INITIAL_EVENTS.filter(pin => pin.placeId && Array.isArray(pin.ll)).map(async (pin) => {
+        const href = await fetchLocationHrefFromApi({
+          placeId: pin.placeId,
+          lat: pin.ll[0],
+          lng: pin.ll[1],
+          name: pin.label,
+        });
+        return [pin.id, href];
+      }),
+    ).then((pairs) => {
       if (cancelled) return;
-      setEventLocationHrefs(Object.fromEntries(hrefMap));
+      setEventLocationHrefs(Object.fromEntries(pairs.filter(([, href]) => href)));
     });
 
     return () => {
@@ -231,11 +242,11 @@ export default function MapView({ savedMemos = [], active = true }) {
     };
   }, [active]);
 
-  // Rebuild Leaflet event markers when category filter or href data changes.
+  // Rebuild Leaflet event markers when category filter, href data, or map readiness changes.
   useEffect(() => {
     const L = leafletRef.current;
     const map = mapRef.current;
-    if (!L || !map) return;
+    if (!L || !map || !mapReady) return;
 
     for (const marker of eventMarkersRef.current) {
       marker.remove();
@@ -253,7 +264,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         },
       });
     }).filter(Boolean);
-  }, [active, activeCategory, eventLocationHrefs]);
+  }, [active, activeCategory, eventLocationHrefs, mapReady]);
 
   // Refresh memory pin clusters after revalidation or filter changes.
   useEffect(() => {
@@ -267,6 +278,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     mapContainerRef.current = node;
     if (!node) {
       initTokenRef.current += 1;
+      setMapReady(false);
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -319,15 +331,7 @@ export default function MapView({ savedMemos = [], active = true }) {
       syncMapStickerSymbols(L, map, stickerSymbolLayerRef, suppressClickRef);
       map.on('zoomend', () => refreshMemoryLayersRef.current?.(L, map));
 
-      const visibleEvents = filterMapEvents(INITIAL_EVENTS, { category: 'All', query: '' });
-      eventMarkersRef.current = visibleEvents.map(pin => {
-        if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
-        return buildEventMarker(L, map, pin, {
-        onLocationClick: locationHref => {
-          if (locationHref) navigateRef.current(locationHref);
-        },
-      });
-      }).filter(Boolean);
+      setMapReady(true);
 
       map.on('click', e => {
         if (suppressClickRef.current) return;

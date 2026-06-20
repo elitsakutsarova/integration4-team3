@@ -1,7 +1,9 @@
 //turning our data (pins, clusters, events) into map markers with custom HTML interface
 
+import { fetchLocationHrefFromApi } from './locationHrefClient';
 import { isSafeHttpsUrl } from './validators';
 import { discoverEventPath } from './appPaths';
+import { applyMapPopupContentScale, getMapPopupScale } from './mapPopupScale';
 import {
   EVENT_PIN_SIZE,
   applyPolaroidOrientationClass,
@@ -35,8 +37,17 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
+function isSafeRelativeAssetPath(url) {
+  if (typeof url !== 'string' || !url.startsWith('/')) return false;
+  if (url.startsWith('//') || url.includes('..')) return false;
+  return !/[\s"'<>]/.test(url);
+}
+
 function safeAssetUrl(url) {
-  return isSafeHttpsUrl(url) ? escapeHtml(url) : '';
+  if (isSafeHttpsUrl(url) || isSafeRelativeAssetPath(url)) {
+    return escapeHtml(url);
+  }
+  return '';
 }
 
 export function addPinHtml() {
@@ -120,35 +131,54 @@ export function eventPinHtml(pin) {
   </div>`;
 }
 
+function eventLocationPinSvg() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 14 19" fill="none" aria-hidden="true">
+    <path d="M6.5625 0C2.93959 0 0 2.64592 0 5.90625C0 11.1562 6.5625 18.375 6.5625 18.375C6.5625 18.375 13.125 11.1562 13.125 5.90625C13.125 2.64592 10.1854 0 6.5625 0ZM6.5625 9.1875C6.04332 9.1875 5.53581 9.03355 5.10413 8.74511C4.67245 8.45667 4.336 8.0467 4.13732 7.56704C3.93864 7.08739 3.88665 6.55959 3.98794 6.05039C4.08922 5.54119 4.33923 5.07346 4.70634 4.70634C5.07346 4.33923 5.54119 4.08922 6.05039 3.98794C6.55959 3.88665 7.08739 3.93864 7.56704 4.13732C8.0467 4.336 8.45667 4.67245 8.74511 5.10413C9.03355 5.53581 9.1875 6.04332 9.1875 6.5625C9.18674 7.25846 8.90993 7.9257 8.41782 8.41782C7.9257 8.90993 7.25846 9.18674 6.5625 9.1875Z" fill="#9CA3AF"/>
+  </svg>`;
+}
+
+function eventLiveBadgeSvg() {
+  return `<svg class="event-popup-badge-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+    <path d="M3 6.5C5.5 4 12.5 4 15 6.5" stroke="#202020" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M5.5 9C7 7.5 11 7.5 12.5 9" stroke="#202020" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="9" cy="12" r="1.25" fill="#202020"/>
+  </svg>`;
+}
+
 export function eventPopupHtml(pin) {
   const tags = pin.tags.map(t => `<span class="event-tag">${escapeHtml(t)}</span>`).join('');
   const learnMoreHref = pin.discoverEventId
     ? discoverEventPath(pin.discoverEventId)
     : null;
+  const learnMoreCta = learnMoreHref
+    ? `<a class="event-popup-cta" href="${learnMoreHref}">Learn more</a>`
+    : pin.learnMoreDisabled
+      ? '<span class="event-popup-cta event-popup-cta--disabled" aria-disabled="true">Learn more</span>'
+      : '';
   const locationHref = pin.locationHref ?? null;
   const locationLabel = locationHref
-    ? `<a class="event-popup-location-link" href="${escapeHtml(locationHref)}">${escapeHtml(pin.label)}</a>`
+    ? `<a class="event-popup-location-link event-location-link" href="${escapeHtml(locationHref)}">${escapeHtml(pin.label)}</a>`
     : `<span class="event-popup-location-link event-popup-location-link--plain">${escapeHtml(pin.label)}</span>`;
+  const badgeLabel = escapeHtml(pin.badge ?? 'Now');
 
   return `<div class="event-popup">
-    <div class="event-popup-body">
-      <div class="event-popup-text">
-        <h3 class="event-popup-title"><span class="event-popup-title-highlight">${escapeHtml(pin.title)}</span></h3>
-        <div class="event-popup-tags">${tags}</div>
+    <div class="event-popup-card">
+      <h3 class="event-popup-title"><span class="event-popup-title-highlight">${escapeHtml(pin.title)}</span></h3>
+      <div class="event-popup-tags">${tags}</div>
+      <div class="event-popup-footer">
         <p class="event-popup-location">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
+          ${eventLocationPinSvg()}
           ${locationLabel}
         </p>
-        ${learnMoreHref ? `<a class="event-popup-cta" href="${learnMoreHref}">Learn more</a>` : ''}
+        ${learnMoreCta}
       </div>
-      <div class="event-popup-image-wrap">
-        <div class="event-popup-image-shadow" aria-hidden="true"></div>
+    </div>
+    <div class="event-popup-visual" aria-hidden="true">
+      <div class="event-popup-visual-accent event-popup-visual-accent--back"></div>
+      <div class="event-popup-image-frame">
         <img class="event-popup-image" src="${safeAssetUrl(pin.image)}" alt="${escapeHtml(pin.title)}" />
-        <span class="event-popup-badge"><span class="event-popup-badge-dot"></span> ${escapeHtml(pin.badge ?? 'Now')}</span>
       </div>
+      <span class="event-popup-badge">${eventLiveBadgeSvg()} ${badgeLabel}</span>
     </div>
   </div>`;
 }
@@ -266,6 +296,63 @@ export function syncMemoryLayers(L, map, memoryPinsRef, memoryLayerRef, suppress
     .forEach(pin => buildMemoryMarker(L, layer, pin, suppressClickRef, selectMemoryRef));
 }
 
+function applyEventPopupScale(marker) {
+  const wrapper = marker.getPopup()?.getElement()?.querySelector('.leaflet-popup-content-wrapper');
+  applyMapPopupContentScale(wrapper, getMapPopupScale());
+}
+
+function bindEventPopupScaleListener(marker) {
+  if (marker._popupScaleHandler) return;
+
+  marker._popupScaleHandler = () => applyEventPopupScale(marker);
+  window.addEventListener('resize', marker._popupScaleHandler);
+}
+
+function unbindEventPopupScaleListener(marker) {
+  if (!marker._popupScaleHandler) return;
+  window.removeEventListener('resize', marker._popupScaleHandler);
+  marker._popupScaleHandler = null;
+}
+
+function wireEventPopupNavigation(L, marker, onNavigate) {
+  if (!onNavigate) return;
+
+  const root = marker.getPopup()?.getElement()?.querySelector('.event-popup');
+  if (!root) return;
+
+  if (marker._popupNavHandler) {
+    L.DomEvent.off(root, 'click', marker._popupNavHandler);
+  }
+
+  L.DomEvent.disableClickPropagation(root);
+  marker._popupNavHandler = (event) => {
+    const link = event.target.closest('a.event-popup-location-link, a.event-popup-cta, a.event-location-link');
+    if (!link) return;
+
+    const href = link.getAttribute('href');
+    if (!href || href === '#') return;
+
+    L.DomEvent.stopPropagation(event);
+    event.preventDefault();
+    marker.closePopup();
+    onNavigate(href);
+  };
+  L.DomEvent.on(root, 'click', marker._popupNavHandler);
+}
+
+async function resolveEventPopupPin(pin) {
+  if (pin.locationHref || !pin.placeId || !Array.isArray(pin.ll)) return pin;
+
+  const locationHref = await fetchLocationHrefFromApi({
+    placeId: pin.placeId,
+    lat: pin.ll[0],
+    lng: pin.ll[1],
+    name: pin.label,
+  });
+
+  return locationHref ? { ...pin, locationHref } : pin;
+}
+
 export function buildEventMarker(L, map, pin, { onLocationClick } = {}) {
   const size = EVENT_PIN_SIZE;
   const icon = L.divIcon({
@@ -273,32 +360,34 @@ export function buildEventMarker(L, map, pin, { onLocationClick } = {}) {
     html: eventPinHtml(pin),
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
-    popupAnchor: [0, -(size / 2) - 4],
+    popupAnchor: [132, -54],
   });
   const marker = L.marker(pin.ll, { icon }).addTo(map);
   marker.bindPopup(eventPopupHtml(pin), {
     className: 'event-popup-wrapper',
-    maxWidth: 340,
-    minWidth: 300,
+    maxWidth: 265,
+    minWidth: 265,
+    closeButton: true,
   });
 
-  if (onLocationClick) {
-    marker.on('popupopen', () => {
-      const link = marker.getPopup()?.getElement()?.querySelector('a.event-popup-location-link');
-      if (!link) return;
+  marker.on('popupopen', () => {
+    applyEventPopupScale(marker);
+    bindEventPopupScaleListener(marker);
 
-      const locationHref = link.getAttribute('href');
-      if (!locationHref || locationHref === '#') return;
+    void (async () => {
+      const resolvedPin = await resolveEventPopupPin(pin);
+      const popup = marker.getPopup();
+      if (!popup) return;
 
-      function handleClick(event) {
-        event.preventDefault();
-        onLocationClick(locationHref);
-      }
+      popup.setContent(eventPopupHtml(resolvedPin));
+      wireEventPopupNavigation(L, marker, onLocationClick);
+      applyEventPopupScale(marker);
+    })();
+  });
 
-      link.addEventListener('click', handleClick);
-      marker.once('popupclose', () => link.removeEventListener('click', handleClick));
-    });
-  }
+  marker.on('popupclose', () => {
+    unbindEventPopupScaleListener(marker);
+  });
 
   return marker;
 }

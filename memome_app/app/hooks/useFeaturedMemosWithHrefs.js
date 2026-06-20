@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { pickOldestMemos } from '../utils/profileMemos';
-import { resolveNavigableLocationHref } from '../utils/navigableLocation';
+import { fetchLocationHrefFromApi } from '../utils/locationHrefClient';
 
 async function enrichWithLocationHref(memo) {
-  const locationHref = await resolveNavigableLocationHref({
+  const locationHref = await fetchLocationHrefFromApi({
     placeId: memo.placeId,
     lat: memo.ll?.[0],
     lng: memo.ll?.[1],

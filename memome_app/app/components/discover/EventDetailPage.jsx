@@ -124,7 +124,7 @@ export default function EventDetailPage({
                 <span className="discover-detail-info-label">Venue</span>
                 <strong>{event.venueName}</strong>
                 {venueHref ? (
-                  <Link to={venueHref} className="discover-location-link">
+                  <Link to={venueHref} className="discover-location-link event-location-link">
                     {event.venueAddress}
                   </Link>
                 ) : (

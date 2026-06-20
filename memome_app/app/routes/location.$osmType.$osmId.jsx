@@ -7,7 +7,8 @@ import '../styles/modules/diary.css';
 import { useLoaderData } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';
 import LocationDetail from '../components/LocationDetail';
-import { loadLocationPageClient } from '../utils/locationPage';
+import { bootstrapAuthSession } from '../utils/authSession';
+import { loadLocationPageServer } from '../utils/locationPage.server';
 
 export function meta({ data: loaderData }) {
   const name = loaderData?.place?.name ?? 'Location';
@@ -17,8 +18,16 @@ export function meta({ data: loaderData }) {
   ];
 }
 
-export async function clientLoader(args) {
-  return loadLocationPageClient(args);
+export async function loader(args) {
+  return loadLocationPageServer(args);
+}
+
+export async function clientLoader({ serverLoader }) {
+  const [data] = await Promise.all([
+    serverLoader(),
+    bootstrapAuthSession(),
+  ]);
+  return data;
 }
 
 clientLoader.hydrate = true;
