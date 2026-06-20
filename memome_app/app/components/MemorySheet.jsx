@@ -4,7 +4,11 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useFetcher } from 'react-router';
 import { useSavedMemos } from '../context/SavedMemosContext';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../utils/googleMaps';
-import { resolvePolaroidOrientation, readMediaDimensions } from '../utils/memoPinAssets';
+import {
+  buildMemoMediaClassName,
+  readMediaDimensions,
+  resolvePolaroidOrientation,
+} from '../utils/memoPinAssets';
 import { buildMemorySheetTags } from '../utils/memoAuthor';
 import { paths } from '../utils/appPaths';
 
@@ -118,7 +122,10 @@ export default function MemorySheet({ pin, onClose }) {
   const hasMedia = Boolean(pin?.mediaPreview?.url);
   const [orientation, setOrientation] = useState(() => resolvePolaroidOrientation(pin));
   const [mediaSheetScale, setMediaSheetScale] = useState(1);
-  const { quoteRef, isLongQuote } = useLongQuote(pin?.quote, `${mediaSheetScale}:${orientation}`);
+  const { quoteRef, isLongQuote } = useLongQuote(
+    pin?.quote,
+    hasMedia ? `${mediaSheetScale}:${orientation}` : 'text-only',
+  );
 
   useEffect(() => {
     if (!hasMedia) {
@@ -201,6 +208,7 @@ export default function MemorySheet({ pin, onClose }) {
             className={[
               'memory-sheet-body',
               isLongQuote ? 'memory-sheet-body--long-quote' : '',
+              hasMedia && orientation === 'vertical' ? 'memory-sheet-body--vertical-media' : '',
             ].filter(Boolean).join(' ')}
           >
             {hasMedia ? (
@@ -215,7 +223,7 @@ export default function MemorySheet({ pin, onClose }) {
                         ? (
                           <video
                             src={pin.mediaPreview.url}
-                            className="memory-sheet-preview-img"
+                            className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
                             controls
                             playsInline
                           />
@@ -224,7 +232,7 @@ export default function MemorySheet({ pin, onClose }) {
                           <img
                             src={pin.mediaPreview.url}
                             alt=""
-                            className="memory-sheet-preview-img"
+                            className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
                           />
                         )}
                     </div>

@@ -66,12 +66,30 @@ export function resolveEventIconTag(pin) {
   return pin?.tags?.[0] ?? 'Random';
 }
 
+export const MEMO_MEDIA_VERTICAL_CLASS = 'memo-media--vertical';
+export const MEMO_MEDIA_HORIZONTAL_CLASS = 'memo-media--horizontal';
+
 export function resolvePolaroidOrientation(pin) {
   const orientation = orientationFromDimensions(
     Number(pin?.mediaPreview?.width),
     Number(pin?.mediaPreview?.height),
   );
   return orientation ?? 'vertical';
+}
+
+export function buildMemoMediaClassName(baseClass, orientation) {
+  const orientClass = orientation === 'horizontal'
+    ? MEMO_MEDIA_HORIZONTAL_CLASS
+    : orientation === 'vertical'
+      ? MEMO_MEDIA_VERTICAL_CLASS
+      : '';
+  return orientClass ? `${baseClass} ${orientClass}` : baseClass;
+}
+
+function applyMemoMediaOrientationClass(element, orientation) {
+  if (!element) return;
+  element.classList.toggle(MEMO_MEDIA_VERTICAL_CLASS, orientation === 'vertical');
+  element.classList.toggle(MEMO_MEDIA_HORIZONTAL_CLASS, orientation === 'horizontal');
 }
 
 function orientationFromDimensions(width, height) {
@@ -169,6 +187,10 @@ export function applyPolaroidOrientationClass(element, width, height) {
   element.classList.toggle('pin-memory-polaroid--vertical', orientation === 'vertical');
   element.classList.toggle('memory-sheet-polaroid--horizontal', orientation === 'horizontal');
   element.classList.toggle('memory-sheet-polaroid--vertical', orientation === 'vertical');
+  applyMemoMediaOrientationClass(
+    element.querySelector('.pin-memory-polaroid-img, .memory-sheet-preview-img, img, video'),
+    orientation,
+  );
   element.dataset.oriented = '1';
   return true;
 }

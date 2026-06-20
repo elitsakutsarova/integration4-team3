@@ -24,6 +24,7 @@ import { readDraftMemo } from '../utils/memoDraft';
 import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
 import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
+import { syncMapStickerSymbols } from '../utils/mapStickerSymbols';
 import { resolveNavigableLocationHrefs } from '../utils/navigableLocation';
 import {
   buildEventMarker,
@@ -108,6 +109,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const memoryPinsRef = useRef(mergeMapMemories(savedMemos));
   const memoryLayerRef = useRef(null);
   const eventMarkersRef = useRef([]);
+  const stickerSymbolLayerRef = useRef(null);
   const pendingMemoRef = useRef(null);
   const postedMemoPendingFocusRef = useRef(null);
   // Holds the latest layer-sync fn so Leaflet zoomend handlers never capture a stale closure.
@@ -126,6 +128,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [showPublishSuccess, setShowPublishSuccess] = useState(false);
   const showGuestAddMemoLocked = guestAddMemoLocked || (!user && (draftMemo || guestAddMemoParam));
+  const hideBottomNav = Boolean((draftMemo && user) || showGuestAddMemoLocked);
   const [activeCategory, setActiveCategory] = useState('All');
   const [eventLocationHrefs, setEventLocationHrefs] = useState({});
   const eventHrefsFetchRef = useRef(false);
@@ -250,11 +253,6 @@ export default function MapView({ savedMemos = [], active = true }) {
         },
       });
     }).filter(Boolean);
-
-    const featured = eventMarkersRef.current[0];
-    if (featured && active && activeCategory === 'All') {
-      featured.openPopup();
-    }
   }, [active, activeCategory, eventLocationHrefs]);
 
   // Refresh memory pin clusters after revalidation or filter changes.
@@ -275,6 +273,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         leafletRef.current = null;
         pendingMarkerRef.current = null;
         memoryLayerRef.current = null;
+        stickerSymbolLayerRef.current = null;
         refreshMemoryLayersRef.current = null;
       }
       return;
@@ -317,6 +316,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         syncMemoryLayers(l, m, memoryPinsRef, memoryLayerRef, suppressClickRef, selectMemoryRef);
 
       refreshMemoryLayersRef.current(L, map);
+      syncMapStickerSymbols(L, map, stickerSymbolLayerRef, suppressClickRef);
       map.on('zoomend', () => refreshMemoryLayersRef.current?.(L, map));
 
       const visibleEvents = filterMapEvents(INITIAL_EVENTS, { category: 'All', query: '' });
@@ -328,10 +328,6 @@ export default function MapView({ savedMemos = [], active = true }) {
         },
       });
       }).filter(Boolean);
-
-      if (eventMarkersRef.current[0]) {
-        eventMarkersRef.current[0].openPopup();
-      }
 
       map.on('click', e => {
         if (suppressClickRef.current) return;
@@ -520,7 +516,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         <MapGuestCta />
       )}
 
-      <BottomNav onAddClick={handleAddBtnClick} />
+      {!hideBottomNav && <BottomNav onAddClick={handleAddBtnClick} />}
           </div>
       <button
         type="button"

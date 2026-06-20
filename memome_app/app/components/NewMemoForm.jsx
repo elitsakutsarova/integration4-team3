@@ -8,6 +8,7 @@ import { isNewMemoDirty } from '../utils/isNewMemoDirty';
 import SectionTitle from './SectionTitle';
 import AddMemoWarningModal from './AddMemoWarningModal';
 import MemoTagIcon from './MemoTagIcon';
+import { buildMemoMediaClassName, resolvePolaroidOrientation } from '../utils/memoPinAssets';
 import { validateMemoMediaFile } from '../utils/validators';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 
@@ -285,13 +286,18 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
 
   function renderMediaZone() {
     if (mediaPhase === 'preview' && mediaPreview) {
+      const mediaClass = buildMemoMediaClassName(
+        'memo-form-media-preview-img',
+        resolvePolaroidOrientation({ mediaPreview }),
+      );
+
       return (
         <div className="memo-form-media-preview">
           <div className="memo-form-media-preview-media">
             {mediaPreview.isVideo ? (
-              <video src={mediaPreview.url} className="memo-form-media-preview-img" controls playsInline />
+              <video src={mediaPreview.url} className={mediaClass} controls playsInline />
             ) : (
-              <img src={mediaPreview.url} alt="Selected media" className="memo-form-media-preview-img" />
+              <img src={mediaPreview.url} alt="Selected media" className={mediaClass} />
             )}
             <button
               type="button"

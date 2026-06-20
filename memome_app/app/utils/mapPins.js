@@ -5,6 +5,7 @@ import { discoverEventPath } from './appPaths';
 import {
   EVENT_PIN_SIZE,
   applyPolaroidOrientationClass,
+  buildMemoMediaClassName,
   eventCenterIconSvg,
   memoryPinDimensions,
   pinHasMedia,
@@ -63,10 +64,11 @@ function mediaPinHtml(pin) {
   const orientClass = orientation === 'horizontal'
     ? 'pin-memory-polaroid--horizontal'
     : 'pin-memory-polaroid--vertical';
+  const mediaClass = buildMemoMediaClassName('pin-memory-polaroid-img', orientation);
   const mediaMarkup = isVideo
-    ? `<video src="${mediaUrl}" class="pin-memory-polaroid-img" muted playsinline preload="metadata"></video>
+    ? `<video src="${mediaUrl}" class="${mediaClass}" muted playsinline preload="metadata"></video>
        <span class="pin-memory-polaroid-play" aria-hidden="true"></span>`
-    : `<img src="${mediaUrl}" alt="" class="pin-memory-polaroid-img" />`;
+    : `<img src="${mediaUrl}" alt="" class="${mediaClass}" />`;
 
   return `<div class="pin-memory-polaroid ${orientClass}">
     <div class="pin-memory-polaroid-frame">

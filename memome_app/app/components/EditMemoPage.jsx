@@ -10,6 +10,7 @@ import { paths } from '../utils/appPaths';
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 import { isEditMemoDirty } from '../utils/isEditMemoDirty';
+import { buildMemoMediaClassName, resolvePolaroidOrientation } from '../utils/memoPinAssets';
 import { validateMemoMediaFile } from '../utils/validators';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 
@@ -72,6 +73,8 @@ function buildInitialMedia(memo) {
   return {
     url: memo.mediaPreview.url,
     isVideo: Boolean(memo.mediaPreview.isVideo),
+    width: memo.mediaPreview.width,
+    height: memo.mediaPreview.height,
     file: null,
     isExisting: true,
   };
@@ -317,13 +320,18 @@ export default function EditMemoPage({ memo }) {
 
   function renderMediaZone() {
     if (mediaPhase === 'preview' && mediaPreview) {
+      const mediaClass = buildMemoMediaClassName(
+        'memo-form-media-preview-img',
+        resolvePolaroidOrientation({ mediaPreview }),
+      );
+
       return (
         <div className="memo-form-media-preview">
           <div className="memo-form-media-preview-media">
             {mediaPreview.isVideo ? (
-              <video src={mediaPreview.url} className="memo-form-media-preview-img" controls playsInline />
+              <video src={mediaPreview.url} className={mediaClass} controls playsInline />
             ) : (
-              <img src={mediaPreview.url} alt="Memo media" className="memo-form-media-preview-img" />
+              <img src={mediaPreview.url} alt="Memo media" className={mediaClass} />
             )}
             <button
               type="button"

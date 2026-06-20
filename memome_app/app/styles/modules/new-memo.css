@@ -982,10 +982,6 @@
   margin-left: 0;
 }
 
-.memory-sheet--text-only .memory-sheet-body {
-  padding-top: 0;
-}
-
 /* ─── Memo post success ───────────────────────────── */
 .memo-post-success-backdrop {
   position: fixed;

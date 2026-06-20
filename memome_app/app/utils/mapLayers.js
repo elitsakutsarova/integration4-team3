@@ -12,7 +12,6 @@ export const OPENFREEMAP_ATTRIBUTION =
 
 // OpenStreetMap layer
 export function createOsmLayer(L) {
-  // raster map tiles
   return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: OSM_ATTRIBUTION,
     maxZoom: 19,
@@ -63,6 +62,11 @@ const OPENFREEMAP_MISSING_SPRITE_IDS = [
   'sailing',
   'toll_booth',
 ];
+
+/** Remove leftover pin hosts from earlier map init (pane reparenting broke Leaflet clicks). */
+export function removeStaleMapPinHosts(root) {
+  root?.querySelectorAll('.map-pins-above-tint').forEach(el => el.remove());
+}
 
 // L -> Leaflet instance, map -> actual map object, defaultLayer -> which map starts first
 export function addBasemapControl(L, map, { defaultLayer = 'openfreemap' } = {}) {

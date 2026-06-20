@@ -8,9 +8,6 @@ export default function MapHomeChrome({
 }) {
   return (
     <div className="map-home-chrome">
-      <div className="map-pixel-deco" aria-hidden="true">
-        <span /><span /><span /><span /><span /><span />
-      </div>
 
       <SearchOpenButton className="map-search-bar map-search-bar--trigger" variant="map" />
 
