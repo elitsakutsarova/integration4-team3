@@ -32,6 +32,7 @@ export default function JournalsPage({ memos, ready }) {
         )}
       </div>
 
+
       <BottomNav />
     </div>
   );

@@ -327,10 +327,10 @@ export default function MapView({ savedMemos = [], active = true }) {
       eventMarkersRef.current = visibleEvents.map(pin => {
         if (!Array.isArray(pin.ll) || pin.ll.some(n => !Number.isFinite(n))) return null;
         return buildEventMarker(L, map, pin, {
-        onLocationClick: locationHref => {
-          if (locationHref) navigateRef.current(locationHref);
-        },
-      });
+          onLocationClick: locationHref => {
+            if (locationHref) navigateRef.current(locationHref);
+          },
+        });
       }).filter(Boolean);
 
       if (eventMarkersRef.current[0]) {
@@ -496,74 +496,74 @@ export default function MapView({ savedMemos = [], active = true }) {
 
       {active && (
         <>
-      <MapHomeChrome
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-      />
-      <div className="map-container--bottom">
-      {!user && !revealedSticker && !draftMemo && !selectedMemory && !showGuestAddMemoLocked && (
-        <MapGuestCta />
-      )}
+          <MapHomeChrome
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+          />
+          <div className="map-container--bottom">
+            {!user && !revealedSticker && !draftMemo && !selectedMemory && !showGuestAddMemoLocked && (
+              <MapGuestCta />
+            )}
 
-      <BottomNav onAddClick={handleAddBtnClick} />
+            <BottomNav onAddClick={handleAddBtnClick} />
           </div>
-      <button
-        type="button"
-        className="map-desktop-add"
-        onClick={handleAddBtnClick}
-        aria-label="Add memo"
-      >
-        <img
-          className="map-desktop-add-icon"
-          src={journalAssets.addMenu}
-          alt=""
-          aria-hidden="true"
-        />
-      </button>
+          <button
+            type="button"
+            className="map-desktop-add"
+            onClick={handleAddBtnClick}
+            aria-label="Add memo"
+          >
+            <img
+              className="map-desktop-add-icon"
+              src={journalAssets.addMenu}
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
 
-      {showGuestAddMemoLocked && (
-        <GuestAddMemoLocked onClose={dismissGuestAddMemoLocked} />
-      )}
+          {showGuestAddMemoLocked && (
+            <GuestAddMemoLocked onClose={dismissGuestAddMemoLocked} />
+          )}
 
-      {selectedMemory && (
-        <MemorySheet
-          pin={selectedMemory}
-          anchor={memoryAnchor}
-          onClose={() => {
-            setSelectedMemory(null);
-            setMemoryAnchor(null);
-          }}
-        />
-      )}
+          {selectedMemory && (
+            <MemorySheet
+              pin={selectedMemory}
+              anchor={memoryAnchor}
+              onClose={() => {
+                setSelectedMemory(null);
+                setMemoryAnchor(null);
+              }}
+            />
+          )}
 
-      {draftMemo?.pickLocation && (
-        <MemoLocationPicker
-          initialLat={draftMemo.lat}
-          initialLng={draftMemo.lng}
-          initialName={draftMemo.locationName}
-          mapPinLat={draftMemo.pinLat}
-          mapPinLng={draftMemo.pinLng}
-          onBack={handleLocationBack}
-          onConfirm={handleLocationConfirm}
-        />
-      )}
+          {draftMemo?.pickLocation && (
+            <MemoLocationPicker
+              initialLat={draftMemo.lat}
+              initialLng={draftMemo.lng}
+              initialName={draftMemo.locationName}
+              mapPinLat={draftMemo.pinLat}
+              mapPinLng={draftMemo.pinLng}
+              onBack={handleLocationBack}
+              onConfirm={handleLocationConfirm}
+            />
+          )}
 
-      {draftMemo && user && (
-        <NewMemoForm
-          draft={draftMemo}
-          fetcher={fetcher}
-          hidden={draftMemo.pickLocation}
-          onClose={handleFormClose}
-        />
-      )}
+          {draftMemo && user && (
+            <NewMemoForm
+              draft={draftMemo}
+              fetcher={fetcher}
+              hidden={draftMemo.pickLocation}
+              onClose={handleFormClose}
+            />
+          )}
 
-      {revealedSticker && (
-        <StickerRevealSheet sticker={revealedSticker} onClose={dismissStickerReveal} />
-      )}
+          {revealedSticker && (
+            <StickerRevealSheet sticker={revealedSticker} onClose={dismissStickerReveal} />
+          )}
 
-      {showPublishSuccess && (
-        <MemoPostSuccess onClose={() => setShowPublishSuccess(false)} />
-      )}
+          {showPublishSuccess && (
+            <MemoPostSuccess onClose={() => setShowPublishSuccess(false)} />
+          )}
         </>
       )}
     </div>

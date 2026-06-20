@@ -6,7 +6,9 @@ export default function AccountLayout() {
   return (
     <>
       <Outlet />
-      <BottomNav />
+      <div className="bottom-nav-container">
+        <BottomNav />
+      </div>
     </>
   );
 }

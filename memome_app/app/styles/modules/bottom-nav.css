@@ -1,3 +1,26 @@
+.bottom-nav-container {
+  grid-area: 1/1;
+    align-self: end;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    height: var(--nav-h-safe);
+  background: linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+
+};
+
+.bottom-nav::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+
+  z-index: -1;
+}
+
 .bottom-nav {
   grid-area: 1/1;
   align-self: end;
