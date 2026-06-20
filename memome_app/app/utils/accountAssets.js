@@ -20,6 +20,7 @@ export const accountAssets = {
   emptyGroup2: asset(NO_ACCOUNT_ADD_MEMO, 'Group 2085666423.svg'),
   emptyGroup3: asset(NO_ACCOUNT_ADD_MEMO, 'Group 2085666426.svg'),
   emptyGroup4: asset(NO_ACCOUNT_ADD_MEMO, 'Group 2085666432.svg'),
-  emptyArrow: asset(NO_ACCOUNT_ADD_MEMO, 'Vector 559.svg'),
+  emptyArrow: `${HAS_ACCOUNT}/empty-arrow.svg`,
   greenGrid: `${HAS_ACCOUNT}/green-grid.svg`,
+  emptyMemoState: `${HAS_ACCOUNT}/empty-memo-state.svg`,
 };

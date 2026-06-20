@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { CategoryIcon, EventCard, PlaceCard } from './DiscoverCards';
 import { paths } from '../../utils/appPaths';
+import { discoverAssets } from '../../utils/discoverAssets';
 import {
   DISCOVER_CATEGORIES,
   filterDiscoverItems,
@@ -18,7 +19,7 @@ function DiscoverListHeader({
   return (
     <header className="discover-list-header">
       <div className="discover-list-grid-deco" aria-hidden="true">
-        <img className="discover-list-grid" src="../public/discover/green-grid.svg" alt="" />
+        <img className="discover-list-grid" src={discoverAssets.greenGrid} alt="" />
         <div className="discover-list-grid-pattern" />
       </div>
       <div className="discover-list-title-row">
