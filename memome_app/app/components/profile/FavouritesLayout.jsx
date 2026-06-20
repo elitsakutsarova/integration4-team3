@@ -11,7 +11,7 @@ const TABS = [
   { id: 'events', label: 'Events', to: paths.profileFavouritesEvents },
 ];
 
-export default function FavouritesLayout() {
+export default function FavouritesLayout({ outletContext }) {
   const { pathname } = useLocation();
 
   return (
@@ -33,7 +33,7 @@ export default function FavouritesLayout() {
       </div>
 
       <div className="collection-body collection-body--favourites">
-        <Outlet />
+        <Outlet context={outletContext} />
       </div>
 
       <BottomNav />

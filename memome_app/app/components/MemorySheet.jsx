@@ -16,7 +16,7 @@ import {
   getMapPopupScale,
 } from '../utils/mapPopupScale';
 
-function MemoFavoriteButton({ memoId, label }) {
+function MemoFavoriteButton({ memoId, label, onSaved }) {
   const { isSaved, toggleMemo } = useSavedMemos();
   const saved = isSaved(memoId);
 
@@ -28,7 +28,9 @@ function MemoFavoriteButton({ memoId, label }) {
       aria-pressed={saved}
       onClick={event => {
         event.stopPropagation();
-        toggleMemo(memoId);
+        void toggleMemo(memoId).then(added => {
+          if (added) onSaved?.();
+        });
       }}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -83,7 +85,7 @@ function useLongQuote(quote, layoutKey) {
   return { quoteRef, isLongQuote };
 }
 
-export default function MemorySheet({ pin, onClose }) {
+export default function MemorySheet({ pin, onClose, onMemoSaved }) {
   const ignoreBackdropClickRef = useRef(true);
   const fetcher = useFetcher({ key: `location-href-${pin?.id}` });
 
@@ -124,7 +126,7 @@ export default function MemorySheet({ pin, onClose }) {
     }
 
     function updateScale() {
-      setMediaSheetScale(hasMedia ? getMapPopupScale() : 1);
+      setMediaSheetScale(getMapPopupScale());
     }
 
     updateScale();
@@ -204,7 +206,11 @@ export default function MemorySheet({ pin, onClose }) {
             {hasMedia ? (
               <section className="memory-sheet-media" aria-label="Memo photo">
                 <div className="memory-sheet-media-toolbar">
-                  <MemoFavoriteButton memoId={pin.id} label={pin.location} />
+                  <MemoFavoriteButton
+                    memoId={pin.id}
+                    label={pin.location}
+                    onSaved={onMemoSaved}
+                  />
                 </div>
                 <div className={`memory-sheet-polaroid memory-sheet-polaroid--${orientation}`}>
                   <div className="memory-sheet-polaroid-frame">
@@ -233,7 +239,11 @@ export default function MemorySheet({ pin, onClose }) {
             ) : (
               <header className="memory-sheet-text-only-head">
                 <MemoTags tags={sheetTags} className="memory-sheet-tags--inline" />
-                <MemoFavoriteButton memoId={pin.id} label={pin.location} />
+                <MemoFavoriteButton
+                  memoId={pin.id}
+                  label={pin.location}
+                  onSaved={onMemoSaved}
+                />
               </header>
             )}
 

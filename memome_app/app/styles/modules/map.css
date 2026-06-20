@@ -750,12 +750,24 @@
   padding: 12px 14px;
 }
 
-.map-sticker-symbol-popup-text {
+.map-sticker-symbol-popup-wrapper .leaflet-popup-content,
+.map-sticker-symbol-popup-wrapper .map-sticker-symbol-popup-text,
+.map-sticker-symbol-popup-wrapper .leaflet-popup-content p {
   margin: 0;
+  color: #000 !important;
+  text-decoration: none !important;
+  margin-right: 1rem;
+}
+
+.map-sticker-symbol-popup-text {
   font-family: var(--font);
   font-size: 14px;
   line-height: 1.35;
-  color: var(--dark);
+}
+
+.map-sticker-symbol-popup-wrapper a {
+  color: inherit !important;
+  text-decoration: none !important;
 }
 
 .pin-memory-polaroid {
@@ -1281,7 +1293,7 @@
   position: fixed;
   left: 50%;
   bottom: calc(var(--nav-h-safe) + 10px);
-  z-index: 10000;
+  z-index: 1000;
   animation: none;
   overflow: visible;
   margin-bottom: 1rem;

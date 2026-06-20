@@ -44,6 +44,8 @@
       "routes/reset-password-success": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/register": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/onboarding.1": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/onboarding.2": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/onboarding.3": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/collect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/connect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -58,6 +60,7 @@
       "routes/api.feedback": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.location-search": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.location-href": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/api.place-image": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/catchall": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0"
     },
     "routes": {
@@ -328,6 +331,20 @@
         "path": "onboarding/1",
         "config": {}
       },
+      "routes/onboarding.2": {
+        "id": "routes/onboarding.2",
+        "parentId": "root",
+        "file": "app/routes/onboarding.2.jsx",
+        "path": "onboarding/2",
+        "config": {}
+      },
+      "routes/onboarding.3": {
+        "id": "routes/onboarding.3",
+        "parentId": "root",
+        "file": "app/routes/onboarding.3.jsx",
+        "path": "onboarding/3",
+        "config": {}
+      },
       "routes/account-layout.stickers": {
         "id": "routes/account-layout.stickers",
         "parentId": "root",
@@ -431,6 +448,13 @@
         "parentId": "root",
         "file": "app/routes/api.location-href.js",
         "path": "api/location-href",
+        "config": {}
+      },
+      "routes/api.place-image": {
+        "id": "routes/api.place-image",
+        "parentId": "root",
+        "file": "app/routes/api.place-image.js",
+        "path": "api/place-image",
         "config": {}
       },
       "routes/catchall": {
@@ -683,6 +707,18 @@
         "file": "routes/onboarding.1.jsx",
         "path": "onboarding/1"
       },
+      "routes/onboarding.2": {
+        "id": "routes/onboarding.2",
+        "parentId": "root",
+        "file": "routes/onboarding.2.jsx",
+        "path": "onboarding/2"
+      },
+      "routes/onboarding.3": {
+        "id": "routes/onboarding.3",
+        "parentId": "root",
+        "file": "routes/onboarding.3.jsx",
+        "path": "onboarding/3"
+      },
       "routes/account-layout.stickers": {
         "id": "routes/account-layout.stickers",
         "parentId": "root",
@@ -772,6 +808,12 @@
         "parentId": "root",
         "file": "routes/api.location-href.js",
         "path": "api/location-href"
+      },
+      "routes/api.place-image": {
+        "id": "routes/api.place-image",
+        "parentId": "root",
+        "file": "routes/api.place-image.js",
+        "path": "api/place-image"
       },
       "routes/catchall": {
         "id": "routes/catchall",
@@ -957,6 +999,14 @@
             "path": "onboarding/1"
           },
           {
+            "file": "routes/onboarding.2.jsx",
+            "path": "onboarding/2"
+          },
+          {
+            "file": "routes/onboarding.3.jsx",
+            "path": "onboarding/3"
+          },
+          {
             "file": "routes/account-layout.stickers.jsx",
             "children": [
               {
@@ -1017,6 +1067,10 @@
           {
             "file": "routes/api.location-href.js",
             "path": "api/location-href"
+          },
+          {
+            "file": "routes/api.place-image.js",
+            "path": "api/place-image"
           },
           {
             "file": "routes/catchall.jsx",

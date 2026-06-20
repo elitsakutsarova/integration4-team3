@@ -19,6 +19,7 @@ import {
 } from '../utils/discoverFavesStore';
 import { isPhotonPlaceId } from '../utils/placeId';
 import { savePhotonFaveSnapshot } from '../utils/photonFaveSnapshots';
+import { setDiscoverFavesSnapshot } from '../utils/sessionCollectionsSnapshot';
 
 const DiscoverFavesContext = createContext(null);
 
@@ -29,9 +30,16 @@ function syncFavesCount(count) {
 export function DiscoverFavesProvider({ initialFaves = [], children }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
-  const [faves, setFaves] = useState(initialFaves);
+  const [faves, setFaves] = useState(() => {
+    setDiscoverFavesSnapshot(initialFaves);
+    return initialFaves;
+  });
   const [savedNotice, setSavedNotice] = useState(null);
   const mountedRef = useRef(false);
+
+  useEffect(() => {
+    setDiscoverFavesSnapshot(faves);
+  }, [faves]);
 
   // Initial data comes from the root clientLoader (no fetch on mount).
   // Re-fetch only when userId changes after mount — handles login/logout

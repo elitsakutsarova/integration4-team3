@@ -8,6 +8,13 @@ const DEMO_MEMO_BY_ID = new Map(
   [...MOCK_MEMORIES, ...GROTE_MARKT_CLUSTER_MEMORIES].map(memo => [String(memo.id), memo]),
 );
 
+/** Resolve heart-saved memo ids to demo map memos only (sync, no network). */
+export function hydrateSavedMemosSync(savedEntries) {
+  return savedEntries
+    .map(entry => DEMO_MEMO_BY_ID.get(String(entry.id)))
+    .filter(Boolean);
+}
+
 /** Resolve heart-saved memo ids to full pin data (DB + demo map memos). */
 export async function hydrateSavedMemos(savedEntries) {
   const ids = savedEntries.map(entry => String(entry.id));

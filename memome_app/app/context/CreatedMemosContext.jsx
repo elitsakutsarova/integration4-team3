@@ -14,6 +14,7 @@ import { useAuth } from './AuthContext';
 import { patchAuthUserCollections } from '../utils/authSession';
 import { fetchCreatedMemosByUser } from '../utils/memoStore';
 import { paths } from '../utils/appPaths';
+import { setCreatedMemosSnapshot } from '../utils/sessionCollectionsSnapshot';
 
 const CreatedMemosContext = createContext(null);
 
@@ -50,8 +51,15 @@ export function CreatedMemosProvider({ initialMemos = [], children }) {
   const { user } = useAuth();
   const { pathname } = useLocation();
   const userId = user?.id ?? null;
-  const [createdMemos, setCreatedMemos] = useState(initialMemos);
+  const [createdMemos, setCreatedMemos] = useState(() => {
+    setCreatedMemosSnapshot(initialMemos);
+    return initialMemos;
+  });
   const mountedRef = useRef(false);
+
+  useEffect(() => {
+    setCreatedMemosSnapshot(createdMemos);
+  }, [createdMemos]);
 
   // Sync count to auth session whenever memos change.
   useEffect(() => {

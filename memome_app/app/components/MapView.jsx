@@ -14,6 +14,7 @@ import MapGuestCta from './MapGuestCta';
 import GuestAddMemoLocked from './GuestAddMemoLocked';
 import BottomNav from './BottomNav';
 import MemorySheet from './MemorySheet';
+import { FavouriteSavedNotice } from './discover/DiscoverSavedModal';
 import StickerRevealSheet from './StickerRevealSheet';
 import MemoPostSuccess from './MemoPostSuccess';
 
@@ -124,6 +125,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   promptGuestAddMemoRef.current = () => setGuestAddMemoLocked(true);
 
   const [selectedMemory, setSelectedMemory] = useState(null);
+  const [showMemoFaveSuccess, setShowMemoFaveSuccess] = useState(false);
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [showPublishSuccess, setShowPublishSuccess] = useState(false);
@@ -160,6 +162,7 @@ export default function MapView({ savedMemos = [], active = true }) {
 
   const selectMemoryRef = useRef(null);
   selectMemoryRef.current = (pin) => {
+    setShowMemoFaveSuccess(false);
     setSelectedMemory(pin);
   };
 
@@ -543,7 +546,18 @@ export default function MapView({ savedMemos = [], active = true }) {
       {selectedMemory && (
         <MemorySheet
           pin={selectedMemory}
-          onClose={() => setSelectedMemory(null)}
+          onClose={() => {
+            setShowMemoFaveSuccess(false);
+            setSelectedMemory(null);
+          }}
+          onMemoSaved={() => setShowMemoFaveSuccess(true)}
+        />
+      )}
+
+      {showMemoFaveSuccess && (
+        <FavouriteSavedNotice
+          type="memo"
+          onClose={() => setShowMemoFaveSuccess(false)}
         />
       )}
 
