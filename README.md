@@ -205,4 +205,10 @@ After our consult, I changed a lot of things in test5 like:
 - The users who are already logged in and keep scanning QR codes -> the stickers should show up on the Map (like the guest ones, but without the create account CTA) ✔️
 - show a success message when an user successfully adds a memo to favourites ✔️
 
+## Test 16 -> Profile - improve/fix issues + design
+- Memos/events/places can be added to favourites even if the user is not logged in - they shouldn’t be able to ✔️
+- Implement the right screen for when the user logs out
+- You can’t log in with username (even though it says you can) -> fix it
+- Make design fit the wireframe for guest profile
+
 ## Deployment

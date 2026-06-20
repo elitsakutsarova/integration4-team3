@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { useSavedMemos } from '../context/SavedMemosContext';
+import MemoFavoriteButton from './MemoFavoriteButton';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../utils/googleMaps';
 import {
   buildMemoMediaClassName,
@@ -14,33 +14,6 @@ import {
   buildMapPopupDockTransform,
   getMapPopupScale,
 } from '../utils/mapPopupScale';
-
-function MemoFavoriteButton({ memoId, label }) {
-  const { isSaved, toggleMemo } = useSavedMemos();
-  const saved = isSaved(memoId);
-
-  return (
-    <button
-      type="button"
-      className={`memory-sheet-heart${saved ? ' memory-sheet-heart--saved' : ''}`}
-      aria-label={saved ? `Remove ${label} from favourites` : `Save ${label} to favourites`}
-      aria-pressed={saved}
-      onClick={event => {
-        event.stopPropagation();
-        void toggleMemo(memoId);
-      }}
-    >
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-          stroke="#1952ff"
-          strokeWidth="1.8"
-          fill={saved ? '#1952ff' : 'none'}
-        />
-      </svg>
-    </button>
-  );
-}
 
 function MemoTags({ tags, className = '' }) {
   if (!tags?.length) return null;

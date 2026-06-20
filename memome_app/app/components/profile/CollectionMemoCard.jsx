@@ -1,32 +1,8 @@
 // this component displays a memo card in the collection page
 
 import { Link } from 'react-router';
-import { useSavedMemos } from '../../context/SavedMemosContext';
+import MemoFavoriteButton from '../MemoFavoriteButton';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
-
-function MemoHeartButton({ memoId, label, className = '' }) {
-  const { isSaved, toggleMemo } = useSavedMemos();
-  const saved = isSaved(memoId);
-
-  return (
-    <button
-      type="button"
-      className={`collection-memo-heart${saved ? ' collection-memo-heart--saved' : ''}${className ? ` ${className}` : ''}`}
-      aria-label={saved ? `Remove ${label} from favourites` : `Save ${label} to favourites`}
-      aria-pressed={saved}
-      onClick={() => toggleMemo(memoId)}
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-          stroke="#1952ff"
-          strokeWidth="1.8"
-          fill={saved ? '#1952ff' : 'none'}
-        />
-      </svg>
-    </button>
-  );
-}
 
 export default function CollectionMemoCard({
   memo,
@@ -62,7 +38,13 @@ export default function CollectionMemoCard({
         )}
 
         {showHeart && (
-          <MemoHeartButton memoId={memo.id} label={memo.location} />
+          <MemoFavoriteButton
+            memoId={memo.id}
+            label={memo.location}
+            className="collection-memo-heart"
+            savedClassName=" collection-memo-heart--saved"
+            iconSize={20}
+          />
         )}
 
         {(memo.tags ?? []).length > 0 && hasMedia && (

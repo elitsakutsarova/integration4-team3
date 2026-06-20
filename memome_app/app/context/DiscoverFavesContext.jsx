@@ -61,6 +61,7 @@ export function DiscoverFavesProvider({ initialFaves = [], children }) {
   );
 
   const saveFave = useCallback(async (type, id, meta) => {
+    if (!userId) return false;
     const savedAt = new Date().toISOString();
     setSavedNotice(type);
     setFaves(prev => {
@@ -94,12 +95,14 @@ export function DiscoverFavesProvider({ initialFaves = [], children }) {
   }, [userId]);
 
   const removeFave = useCallback(async (type, id) => {
+    if (!userId) return;
     const { faves: next } = await removeDiscoverFave(userId, type, id);
     setFaves(next);
     syncFavesCount(next.length);
   }, [userId]);
 
   const toggleFave = useCallback(async (type, id, meta) => {
+    if (!userId) return false;
     if (isFaved(type, id)) {
       await removeFave(type, id);
       return false;
