@@ -29,7 +29,7 @@ export default function ProfileHero({
           src={accountAssets.greenTopGrid}
           alt=""
         /> */}
-        <img className="discover-list-grid" src="../public/discover/green-grid.svg" alt="" />
+        <img className="discover-list-grid" src={accountAssets.greenGrid} alt="" />
         <div className="discover-list-grid-pattern" />
       </div>
       <header className="profile-header profile-header--account">
