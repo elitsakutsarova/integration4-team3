@@ -101,26 +101,26 @@ export default function DiscoverListPage({
         decoration={decoration}
       />
 
-<div className="discover-list-filters-container">
-      <div className="discover-filters discover-list-filters" role="tablist" aria-label="Discover categories">
-        {DISCOVER_CATEGORIES.map(category => {
-          const isActive = activeCategory === category.id;
-          return (
-            <button
-              key={category.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              className={`discover-filter-chip${isActive ? ' discover-filter-chip--active' : ''}`}
-              onClick={() => setActiveCategory(category.id)}
-            >
-              {category.icon && <CategoryIcon name={category.icon} />}
-              {category.label}
-            </button>
-          );
-        })}
+      <div className="discover-list-filters-container">
+        <div className="discover-filters discover-list-filters" role="tablist" aria-label="Discover categories">
+          {DISCOVER_CATEGORIES.map(category => {
+            const isActive = activeCategory === category.id;
+            return (
+              <button
+                key={category.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={`discover-filter-chip${isActive ? ' discover-filter-chip--active' : ''}`}
+                onClick={() => setActiveCategory(category.id)}
+              >
+                {category.icon && <CategoryIcon name={category.icon} />}
+                {category.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
-</div>
       <div className={`discover-list-content${itemType === 'place' ? ' discover-list-content--places' : ''}`}>
         {filteredItems.length > 0 ? (
           filteredItems.map(item => (

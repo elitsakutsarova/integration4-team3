@@ -15,6 +15,7 @@ export default function CreatedMemosEmptyState() {
       <p className="created-memos-empty-text">
         Currently you haven&apos;t added any memos to the map.
       </p>
+      <div className="created-memos-empty-cta-wrap">
       <Link to={homePathWithAddMemo()} className="created-memos-empty-cta">
         Add one now!
       </Link>
@@ -24,6 +25,7 @@ export default function CreatedMemosEmptyState() {
         alt=""
         aria-hidden="true"
       />
+      </div>
     </div>
   );
 }

@@ -2,5 +2,5 @@
 
 export const createdMemosAssets = {
   emptyIllustration: '/journals/empty_state_journals.svg',
-  emptyArrow: '/journals/Vector 500.svg',
+  emptyArrow: `/account/has-account/empty-arrow.svg`,
 };

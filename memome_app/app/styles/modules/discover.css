@@ -158,9 +158,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 0.625rem 0.9375rem;
+  padding: 0.525rem 0.9375rem;
   border-radius: 0.5rem;
-  border: 2px dashed var(--blue);
+  border: 1.3px dashed var(--blue);
   background: #fff;
   color: var(--dark);
   font-family: var(--font);
