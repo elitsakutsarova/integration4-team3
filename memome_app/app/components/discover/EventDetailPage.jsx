@@ -14,10 +14,11 @@ function CategoryBadge({ type }) {
   if (type === 'music') {
     return (
       <div className="discover-detail-badge discover-detail-badge--music" aria-hidden="true">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <path d="M9 18V5l12-2v13" stroke="#1e1e1e" strokeWidth="2" />
-          <circle cx="6" cy="18" r="3" fill="#1e1e1e" />
-          <circle cx="18" cy="16" r="3" fill="#1e1e1e" />
+        <svg className="discover-detail-badge--star" xmlns="http://www.w3.org/2000/svg" width="102" height="106" viewBox="0 0 102 106" fill="none">
+          <path d="M49.5744 0.424826C50.1041 -0.141609 51.0036 -0.141609 51.5332 0.424826L62.9935 12.6803C63.3084 13.017 63.7748 13.1683 64.2278 13.0807L80.7146 9.89105C81.4766 9.74363 82.2043 10.2714 82.2993 11.0405L84.3556 27.6806C84.4121 28.1379 84.7003 28.5339 85.1185 28.7289L100.334 35.8234C101.038 36.1513 101.316 37.0054 100.94 37.6833L92.8066 52.3521C92.5831 52.7552 92.5831 53.2448 92.8066 53.6479L100.94 68.3167C101.316 68.9947 101.038 69.8487 100.334 70.1766L85.1185 77.2711C84.7003 77.4661 84.4121 77.8621 84.3556 78.3194L82.2993 94.9595C82.2043 95.7286 81.4766 96.2564 80.7146 96.109L64.2278 92.9193C63.7748 92.8317 63.3084 92.983 62.9935 93.3198L51.5332 105.575C51.0036 106.142 50.1041 106.142 49.5744 105.575L38.1142 93.3198C37.7993 92.983 37.3329 92.8317 36.8799 92.9193L20.3931 96.109C19.6311 96.2564 18.9034 95.7286 18.8084 94.9595L16.7521 78.3194C16.6956 77.8621 16.4074 77.4661 15.9892 77.2711L0.77327 70.1766C0.0700025 69.8487 -0.207936 68.9947 0.167969 68.3167L8.3011 53.6479C8.52459 53.2448 8.52459 52.7552 8.3011 52.3521L0.167969 37.6833C-0.207936 37.0054 0.0700024 36.1513 0.77327 35.8234L15.9892 28.7289C16.4074 28.5339 16.6956 28.1379 16.7521 27.6806L18.8084 11.0405C18.9034 10.2714 19.6311 9.74363 20.3931 9.89105L36.8799 13.0807C37.3329 13.1683 37.7993 13.017 38.1142 12.6803L49.5744 0.424826Z" fill="#F9FF75" />
+        </svg>
+        <svg className="discover-detail-badge--icon" xmlns="http://www.w3.org/2000/svg" width="30" height="36" viewBox="0 0 30 36" fill="none">
+          <path d="M12.4517 21.0638L13.788 -6.03094e-06L29.7833 1.01471L29.4027 7.01295L17.4063 6.25191L16.011 28.2454C15.899 30.0059 15.2091 31.6802 14.0486 33.0086C12.888 34.3371 11.3215 35.2455 9.59206 35.593C7.8626 35.9404 6.06682 35.7076 4.4832 34.9305C2.89957 34.1534 1.61661 32.8754 0.833269 31.2949C0.0499277 29.7143 -0.190019 27.9195 0.150643 26.1887C0.491304 24.4579 1.39354 22.8878 2.71742 21.722C4.0413 20.5562 5.71285 19.8598 7.47285 19.7408C9.23285 19.6218 10.9829 20.0868 12.4517 21.0638Z" fill="#202020" />
         </svg>
       </div>
     );
@@ -25,16 +26,50 @@ function CategoryBadge({ type }) {
   if (type === 'food') {
     return (
       <div className="discover-detail-badge discover-detail-badge--food" aria-hidden="true">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <path d="M3 11h18M3 15h18M6 7v14M12 7v14M18 7v14" stroke="#1e1e1e" strokeWidth="2" />
+        <svg className="discover-detail-badge--star" xmlns="http://www.w3.org/2000/svg" width="102" height="106" viewBox="0 0 102 106" fill="none">
+          <path d="M49.5744 0.424826C50.1041 -0.141609 51.0036 -0.141609 51.5332 0.424826L62.9935 12.6803C63.3084 13.017 63.7748 13.1683 64.2278 13.0807L80.7146 9.89105C81.4766 9.74363 82.2043 10.2714 82.2993 11.0405L84.3556 27.6806C84.4121 28.1379 84.7003 28.5339 85.1185 28.7289L100.334 35.8234C101.038 36.1513 101.316 37.0054 100.94 37.6833L92.8066 52.3521C92.5831 52.7552 92.5831 53.2448 92.8066 53.6479L100.94 68.3167C101.316 68.9947 101.038 69.8487 100.334 70.1766L85.1185 77.2711C84.7003 77.4661 84.4121 77.8621 84.3556 78.3194L82.2993 94.9595C82.2043 95.7286 81.4766 96.2564 80.7146 96.109L64.2278 92.9193C63.7748 92.8317 63.3084 92.983 62.9935 93.3198L51.5332 105.575C51.0036 106.142 50.1041 106.142 49.5744 105.575L38.1142 93.3198C37.7993 92.983 37.3329 92.8317 36.8799 92.9193L20.3931 96.109C19.6311 96.2564 18.9034 95.7286 18.8084 94.9595L16.7521 78.3194C16.6956 77.8621 16.4074 77.4661 15.9892 77.2711L0.77327 70.1766C0.0700025 69.8487 -0.207936 68.9947 0.167969 68.3167L8.3011 53.6479C8.52459 53.2448 8.52459 52.7552 8.3011 52.3521L0.167969 37.6833C-0.207936 37.0054 0.0700024 36.1513 0.77327 35.8234L15.9892 28.7289C16.4074 28.5339 16.6956 28.1379 16.7521 27.6806L18.8084 11.0405C18.9034 10.2714 19.6311 9.74363 20.3931 9.89105L36.8799 13.0807C37.3329 13.1683 37.7993 13.017 38.1142 12.6803L49.5744 0.424826Z" fill="#F9FF75" />
+        </svg>
+        <svg className="discover-detail-badge--icon" xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 37 37" fill="none">
+          <path d="M14.0233 30.05C10.1168 30.05 6.80332 28.6897 4.08279 25.9692C1.36227 23.2487 0.00133556 19.9345 0 16.0267V0H29.0483C30.9849 0 32.6376 0.684472 34.0066 2.05342C35.3755 3.42236 36.06 5.07511 36.06 7.01167C36.06 8.94822 35.3755 10.601 34.0066 11.9699C32.6376 13.3389 30.9849 14.0233 29.0483 14.0233H28.0467V16.0267C28.0467 19.9332 26.6864 23.2473 23.9659 25.9692C21.2453 28.6911 17.9312 30.0513 14.0233 30.05ZM4.00667 10.0167H24.04V4.00667H4.00667V10.0167ZM14.0233 26.0433C16.7946 26.0433 19.1572 25.0664 21.1111 23.1125C23.065 21.1585 24.0413 18.7966 24.04 16.0267V14.0233H4.00667V16.0267C4.00667 18.7979 4.98363 21.1605 6.93754 23.1145C8.89146 25.0684 11.2534 26.0447 14.0233 26.0433ZM28.0467 10.0167H29.0483C29.8831 10.0167 30.5929 9.72485 31.1779 9.14121C31.7628 8.55757 32.0547 7.84772 32.0533 7.01167C32.052 6.17561 31.7602 5.46643 31.1779 4.88413C30.5956 4.30183 29.8857 4.00934 29.0483 4.00667H28.0467V10.0167ZM0 36.06V32.0533H32.0533V36.06H0Z" fill="#202020" />
+        </svg>
+      </div>
+    );
+  }
+  if (type === 'market') {
+    return (
+      <div className="discover-detail-badge discover-detail-badge--food" aria-hidden="true">
+        <svg className="discover-detail-badge--star" xmlns="http://www.w3.org/2000/svg" width="102" height="106" viewBox="0 0 102 106" fill="none">
+          <path d="M49.5744 0.424826C50.1041 -0.141609 51.0036 -0.141609 51.5332 0.424826L62.9935 12.6803C63.3084 13.017 63.7748 13.1683 64.2278 13.0807L80.7146 9.89105C81.4766 9.74363 82.2043 10.2714 82.2993 11.0405L84.3556 27.6806C84.4121 28.1379 84.7003 28.5339 85.1185 28.7289L100.334 35.8234C101.038 36.1513 101.316 37.0054 100.94 37.6833L92.8066 52.3521C92.5831 52.7552 92.5831 53.2448 92.8066 53.6479L100.94 68.3167C101.316 68.9947 101.038 69.8487 100.334 70.1766L85.1185 77.2711C84.7003 77.4661 84.4121 77.8621 84.3556 78.3194L82.2993 94.9595C82.2043 95.7286 81.4766 96.2564 80.7146 96.109L64.2278 92.9193C63.7748 92.8317 63.3084 92.983 62.9935 93.3198L51.5332 105.575C51.0036 106.142 50.1041 106.142 49.5744 105.575L38.1142 93.3198C37.7993 92.983 37.3329 92.8317 36.8799 92.9193L20.3931 96.109C19.6311 96.2564 18.9034 95.7286 18.8084 94.9595L16.7521 78.3194C16.6956 77.8621 16.4074 77.4661 15.9892 77.2711L0.77327 70.1766C0.0700025 69.8487 -0.207936 68.9947 0.167969 68.3167L8.3011 53.6479C8.52459 53.2448 8.52459 52.7552 8.3011 52.3521L0.167969 37.6833C-0.207936 37.0054 0.0700024 36.1513 0.77327 35.8234L15.9892 28.7289C16.4074 28.5339 16.6956 28.1379 16.7521 27.6806L18.8084 11.0405C18.9034 10.2714 19.6311 9.74363 20.3931 9.89105L36.8799 13.0807C37.3329 13.1683 37.7993 13.017 38.1142 12.6803L49.5744 0.424826Z" fill="#F9FF75" />
+        </svg>
+        <svg className="discover-detail-badge--icon" xmlns="http://www.w3.org/2000/svg" width="37" height="43" viewBox="0 0 37 43" fill="none">
+          <path d="M32.8889 10.068H28.7778C28.7778 4.42993 24.2556 0 18.5 0C12.7444 0 8.22222 4.42993 8.22222 10.068H4.11111C1.85 10.068 1.54167 10.067 0 10.067V42.2857C2.3125 42.2857 1.85 42.2857 4.11111 42.2857H32.8889C35.15 42.2857 35.4583 42.2857 37 42.2857V10.068C33.1458 10.067 35.15 10.068 32.8889 10.068ZM18.5 4.02721C21.9944 4.02721 24.6667 6.6449 24.6667 10.068H12.3333C12.3333 6.6449 15.0056 4.02721 18.5 4.02721ZM32.8889 38.2585H4.11111V14.0952H32.8889V38.2585ZM18.5 22.1497C15.0056 22.1497 12.3333 19.532 12.3333 16.1088H8.22222C8.22222 21.7469 12.7444 26.1769 18.5 26.1769C24.2556 26.1769 28.7778 21.7469 28.7778 16.1088H24.6667C24.6667 19.532 21.9944 22.1497 18.5 22.1497Z" fill="#202020" />
+        </svg>
+      </div>
+    );
+  }
+  if (type === 'Art & culture') {
+    return (
+      <div className="discover-detail-badge discover-detail-badge--food" aria-hidden="true">
+        <svg className="discover-detail-badge--star" xmlns="http://www.w3.org/2000/svg" width="102" height="106" viewBox="0 0 102 106" fill="none">
+          <path d="M49.5744 0.424826C50.1041 -0.141609 51.0036 -0.141609 51.5332 0.424826L62.9935 12.6803C63.3084 13.017 63.7748 13.1683 64.2278 13.0807L80.7146 9.89105C81.4766 9.74363 82.2043 10.2714 82.2993 11.0405L84.3556 27.6806C84.4121 28.1379 84.7003 28.5339 85.1185 28.7289L100.334 35.8234C101.038 36.1513 101.316 37.0054 100.94 37.6833L92.8066 52.3521C92.5831 52.7552 92.5831 53.2448 92.8066 53.6479L100.94 68.3167C101.316 68.9947 101.038 69.8487 100.334 70.1766L85.1185 77.2711C84.7003 77.4661 84.4121 77.8621 84.3556 78.3194L82.2993 94.9595C82.2043 95.7286 81.4766 96.2564 80.7146 96.109L64.2278 92.9193C63.7748 92.8317 63.3084 92.983 62.9935 93.3198L51.5332 105.575C51.0036 106.142 50.1041 106.142 49.5744 105.575L38.1142 93.3198C37.7993 92.983 37.3329 92.8317 36.8799 92.9193L20.3931 96.109C19.6311 96.2564 18.9034 95.7286 18.8084 94.9595L16.7521 78.3194C16.6956 77.8621 16.4074 77.4661 15.9892 77.2711L0.77327 70.1766C0.0700025 69.8487 -0.207936 68.9947 0.167969 68.3167L8.3011 53.6479C8.52459 53.2448 8.52459 52.7552 8.3011 52.3521L0.167969 37.6833C-0.207936 37.0054 0.0700024 36.1513 0.77327 35.8234L15.9892 28.7289C16.4074 28.5339 16.6956 28.1379 16.7521 27.6806L18.8084 11.0405C18.9034 10.2714 19.6311 9.74363 20.3931 9.89105L36.8799 13.0807C37.3329 13.1683 37.7993 13.017 38.1142 12.6803L49.5744 0.424826Z" fill="#F9FF75" />
+        </svg>
+        <svg className="discover-detail-badge--icon" xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 40 40" fill="none">
+          <path d="M20 40C17.3736 40 14.7728 39.4827 12.3463 38.4776C9.91982 37.4725 7.71504 35.9993 5.85786 34.1421C2.10714 30.3914 0 25.3043 0 20C0 14.6957 2.10714 9.60859 5.85786 5.85786C9.60859 2.10714 14.6957 0 20 0C31 0 40 8 40 18C40 21.1826 38.7357 24.2348 36.4853 26.4853C34.2348 28.7357 31.1826 30 28 30H24.4C23.8 30 23.4 30.4 23.4 31C23.4 31.2 23.6 31.4 23.6 31.6C24.4 32.6 24.8 33.8 24.8 35C25 37.8 22.8 40 20 40ZM20 4C15.7565 4 11.6869 5.68571 8.68629 8.68629C5.68571 11.6869 4 15.7565 4 20C4 24.2435 5.68571 28.3131 8.68629 31.3137C11.6869 34.3143 15.7565 36 20 36C20.6 36 21 35.6 21 35C21 34.6 20.8 34.4 20.8 34.2C20 33.2 19.6 32.2 19.6 31C19.6 28.2 21.8 26 24.6 26H28C30.1217 26 32.1566 25.1571 33.6569 23.6569C35.1571 22.1566 36 20.1217 36 18C36 10.2 28.8 4 20 4ZM9 16L12 19L9 22L6 19L9 16ZM15 8L18 11L15 14L12 11L15 8ZM25 8L28 11L25 14L22 11L25 8ZM31 16L34 19L31 22L28 19L31 16Z" fill="#202020" />
         </svg>
       </div>
     );
   }
   return (
     <div className="discover-detail-badge" aria-hidden="true">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="3" width="18" height="18" rx="2" stroke="#1e1e1e" strokeWidth="2" />
+      <svg className="discover-detail-badge--star" xmlns="http://www.w3.org/2000/svg" width="102" height="106" viewBox="0 0 102 106" fill="none">
+        <path d="M49.5744 0.424826C50.1041 -0.141609 51.0036 -0.141609 51.5332 0.424826L62.9935 12.6803C63.3084 13.017 63.7748 13.1683 64.2278 13.0807L80.7146 9.89105C81.4766 9.74363 82.2043 10.2714 82.2993 11.0405L84.3556 27.6806C84.4121 28.1379 84.7003 28.5339 85.1185 28.7289L100.334 35.8234C101.038 36.1513 101.316 37.0054 100.94 37.6833L92.8066 52.3521C92.5831 52.7552 92.5831 53.2448 92.8066 53.6479L100.94 68.3167C101.316 68.9947 101.038 69.8487 100.334 70.1766L85.1185 77.2711C84.7003 77.4661 84.4121 77.8621 84.3556 78.3194L82.2993 94.9595C82.2043 95.7286 81.4766 96.2564 80.7146 96.109L64.2278 92.9193C63.7748 92.8317 63.3084 92.983 62.9935 93.3198L51.5332 105.575C51.0036 106.142 50.1041 106.142 49.5744 105.575L38.1142 93.3198C37.7993 92.983 37.3329 92.8317 36.8799 92.9193L20.3931 96.109C19.6311 96.2564 18.9034 95.7286 18.8084 94.9595L16.7521 78.3194C16.6956 77.8621 16.4074 77.4661 15.9892 77.2711L0.77327 70.1766C0.0700025 69.8487 -0.207936 68.9947 0.167969 68.3167L8.3011 53.6479C8.52459 53.2448 8.52459 52.7552 8.3011 52.3521L0.167969 37.6833C-0.207936 37.0054 0.0700024 36.1513 0.77327 35.8234L15.9892 28.7289C16.4074 28.5339 16.6956 28.1379 16.7521 27.6806L18.8084 11.0405C18.9034 10.2714 19.6311 9.74363 20.3931 9.89105L36.8799 13.0807C37.3329 13.1683 37.7993 13.017 38.1142 12.6803L49.5744 0.424826Z" fill="#F9FF75" />
+      </svg>
+      <svg className="discover-detail-badge--icon" xmlns="http://www.w3.org/2000/svg" width="37" height="37" viewBox="0 0 39 39" fill="none">
+        <path d="M4.33477 4.33463V34.6668H34.6668V4.33463H4.33477ZM0.00161741 4.33463C0.00161741 3.1854 0 0 0 0C0 0 3.18555 0.00146191 4.33477 0.00146191H34.6668C35.8161 0.00146191 39 0.00146191 39 0.00146191C39 0.00146191 39 3.1854 39 4.33463V34.6668C39 35.8161 39 38.9985 39 38.9985C39 38.9985 35.8161 39 34.6668 39H4.33477C3.18555 39 0 38.9985 0 38.9985C0 38.9985 0.00161741 35.8161 0.00161741 34.6668V4.33463ZM19.5008 22.7506C19.5008 22.7506 20.5147 21.7337 21.1241 21.1242C21.7336 20.5147 22.7507 19.5007 22.7507 19.5007C22.7507 19.5007 21.7336 18.4838 21.1241 17.8743C20.5147 17.2649 19.5008 16.2509 19.5008 16.2509C19.5008 16.2509 18.4837 17.2649 17.8743 17.8743C17.2648 18.4838 16.2509 19.5007 16.2509 19.5007C16.2509 19.5007 17.2648 20.5147 17.8743 21.1242C18.4837 21.7337 19.5008 22.7506 19.5008 22.7506Z" fill="black" />
+        <path d="M13.5411 13.5412C12.9316 14.1506 11.9178 15.1676 11.9178 15.1676L10.2912 13.5412L8.66793 11.9177C8.66793 11.9177 9.68178 10.9008 10.2912 10.2913C10.9007 9.68181 11.9178 8.6678 11.9178 8.6678L13.5411 10.2913L15.1677 11.9177C15.1677 11.9177 14.1506 12.9317 13.5411 13.5412Z" fill="black" />
+        <path d="M28.7072 13.5412C28.0977 14.1506 27.0838 15.1676 27.0838 15.1676L25.4573 13.5412L23.834 11.9177C23.834 11.9177 24.8478 10.9008 25.4573 10.2913C26.0668 9.68181 27.0838 8.6678 27.0838 8.6678L28.7072 10.2913L30.3337 11.9177C30.3337 11.9177 29.3166 12.9317 28.7072 13.5412Z" fill="black" />
+        <path d="M28.7071 28.7073C28.0977 29.3167 27.0838 30.3337 27.0838 30.3337L25.4573 28.7073L23.834 27.0838C23.834 27.0838 24.8478 26.0669 25.4573 25.4574C26.0667 24.8479 27.0838 23.8339 27.0838 23.8339L28.7071 25.4574L30.3337 27.0838C30.3337 27.0838 29.3166 28.0978 28.7071 28.7073Z" fill="black" />
+        <path d="M13.5411 28.7073C12.9316 29.3167 11.9178 30.3337 11.9178 30.3337L10.2912 28.7073L8.66793 27.0838C8.66793 27.0838 9.68177 26.0669 10.2912 25.4574C10.9007 24.8479 11.9178 23.8339 11.9178 23.8339L13.5411 25.4574L15.1677 27.0838C15.1677 27.0838 14.1506 28.0978 13.5411 28.7073Z" fill="black" />
       </svg>
     </div>
   );
@@ -71,116 +106,131 @@ export default function EventDetailPage({
       <div className="discover-detail-scroll">
         <div className="discover-detail-hero">
           <img src={event.image} alt="" className="discover-detail-hero-img" />
-          <div className="discover-detail-hero-wave" aria-hidden="true" />
+          <div className="discover-detail-hero-wave">
+            <svg xmlns="http://www.w3.org/2000/svg" /* width="393" height="34" */ viewBox="0 0 393 34" fill="none">
+              <path d="M224.586 27.7321C149.578 28.3925 45.6965 -6.81931 0 13.681V34H393V0.0104169C329.722 -0.614372 299.594 27.0717 224.586 27.7321Z" fill="white" />
+            </svg>
+          </div>
+          <div className="discover-detail-hero-nav">
+            <BackChevron className="discover-detail-icon-btn discover-detail-back" onClick={() => navigate(-1)} />
+            <div className="discover-detail-hero-nav--circle">
+              <button
+                type="button"
+                className="discover-detail-icon-btn discover-detail-share discover-detail-share--left discover-detail-share-btn"
+                onClick={openSheet}
+                aria-label="Share event"
+              >
+                <DiscoverShareIcon />
+              </button>
 
-          <BackChevron className="discover-detail-icon-btn discover-detail-back" onClick={() => navigate(-1)} />
-
-          <button
-            type="button"
-            className="discover-detail-icon-btn discover-detail-share discover-detail-share--left discover-detail-share-btn"
-            onClick={openSheet}
-            aria-label="Share event"
-          >
-            <DiscoverShareIcon />
-          </button>
-
-          <DiscoverFavoriteButton
-            type="event"
-            itemId={event.id}
-            label={event.title}
-            className="discover-detail-icon-btn discover-detail-fave"
-          />
-
+              <DiscoverFavoriteButton
+                type="event"
+                itemId={event.id}
+                label={event.title}
+                className="discover-detail-icon-btn discover-detail-fave"
+              />
+            </div></div>
           <CategoryBadge type={event.categoryBadge} />
         </div>
 
         <div className="discover-detail-body">
-          <h1 className="discover-detail-title">{event.title}</h1>
+          <div className="discover-detail-title-container">
+            <h1 className="discover-detail-title discover-detail-title">{event.title}</h1>
+          </div>
 
           <div className="discover-detail-info-row">
-            <button
-              type="button"
-              className="discover-detail-info-card discover-detail-info-card--action"
-              onClick={handleAddToCalendar}
-              aria-label={`Add ${event.title} to calendar`}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.8" />
-                <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="1.8" />
-              </svg>
-              <div>
+            <div className="discover-detail-info-card">
+              <div className="discover-detail-info-card--icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 18 19" fill="none">
+                  <path d="M3.55333 0V2.22083H0V6.6625H17.7667V2.22083H14.2133V0H12.4367V2.22083H5.33V0H3.55333ZM17.7667 18.2108V8.43917H0V18.2108H17.7667Z" fill="#202020" />
+                </svg>
+              </div>
+              <div className="discover-detail-info-card--content">
                 <span className="discover-detail-info-label">Date &amp; time</span>
-                <strong>{event.dateLabel}</strong>
+                <button
+                  type="button"
+                  className="discover-detail-info-card--action"
+                  onClick={handleAddToCalendar}
+                  aria-label={`Add ${event.title} to calendar`}
+                >
+                  <span className="discover-detail-info-label">
+                    <strong>{event.dateLabel}</strong></span>
+                </button>
                 <span>{event.timeRange}</span>
               </div>
-            </button>
+            </div>
 
             <div className="discover-detail-info-card">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 21s7-4.5 7-10a7 7 0 1 0-14 0c0 5.5 7 10 7 10z" stroke="currentColor" strokeWidth="1.8" />
-                <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-              </svg>
-              <div>
+              <div className="discover-detail-info-card--icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="17" viewBox="0 0 14 19" fill="none">
+                  <path d="M6.6625 0C2.98438 0 0 2.68624 0 5.99625C0 11.3262 6.6625 18.655 6.6625 18.655C6.6625 18.655 13.325 11.3262 13.325 5.99625C13.325 2.68624 10.3406 0 6.6625 0ZM6.6625 9.3275C6.13541 9.3275 5.62016 9.1712 5.18191 8.87837C4.74365 8.58553 4.40207 8.16932 4.20036 7.68235C3.99865 7.19539 3.94588 6.65954 4.04871 6.14258C4.15154 5.62562 4.40535 5.15077 4.77806 4.77806C5.15077 4.40535 5.62562 4.15154 6.14258 4.04871C6.65954 3.94588 7.19539 3.99865 7.68235 4.20036C8.16932 4.40207 8.58553 4.74365 8.87837 5.18191C9.1712 5.62016 9.3275 6.13541 9.3275 6.6625C9.32673 7.36906 9.0457 8.04647 8.54609 8.54609C8.04647 9.0457 7.36907 9.32673 6.6625 9.3275Z" fill="#202020" />
+                </svg>
+              </div>
+              <div className="discover-detail-info-card--content">
                 <span className="discover-detail-info-label">Venue</span>
-                <strong>{event.venueName}</strong>
                 {venueHref ? (
-                  <Link to={venueHref} className="discover-location-link event-location-link">
-                    {event.venueAddress}
+                  <Link to={venueHref} className="discover-location-link">
+                    {event.venueName}
                   </Link>
                 ) : (
-                  <span className="discover-location-text">{event.venueAddress}</span>
+                  <strong>{event.venueName}</strong>
                 )}
+                <span className="discover-location-text">{event.venueAddress}</span>
               </div>
             </div>
           </div>
 
-          <div className="discover-detail-wave-divider" aria-hidden="true">
-            <svg viewBox="0 0 360 24" preserveAspectRatio="none">
-              <path d="M0 12 C60 0, 120 24, 180 12 S300 0, 360 12" fill="none" stroke="#1952ff" strokeWidth="2" strokeDasharray="4 6" />
+          <div className="discover-detail-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 19" fill="none">
+              <path d="M169.089 15.4973C245.433 15.8664 351.164 -3.81079 397.675 7.64529V19H-2.32516V0.00582121C62.0799 -0.343326 92.7442 15.1283 169.089 15.4973Z" fill="#F1F4FF" />
+            </svg>
+            <section className="discover-detail-section" aria-labelledby="event-about">
+              <h2 id="event-about" className="discover-detail-section-title">
+                <span className="discover-section-highlight" style={{ width: '72px' }} aria-hidden="true" />
+                About
+              </h2>
+              <p className="discover-detail-about">{event.about}</p>
+              <button type="button" className="discover-detail-see-more">See more</button>
+            </section>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 60" fill="none">
+              <path d="M171.848 20.6681C248.008 25.877 352.317 74.9139 399.365 54.82L398.966 14.4503L1.09783 -1.57932e-06L-0.000111769 39.3493C64.2114 45.1118 95.6875 15.4593 171.848 20.6681Z" fill="#F1F4FF" />
             </svg>
           </div>
-
-          <section className="discover-detail-section" aria-labelledby="event-about">
-            <h2 id="event-about" className="discover-detail-section-title">
-              <span className="discover-section-highlight" style={{ width: '72px' }} aria-hidden="true" />
-              About
-            </h2>
-            <p className="discover-detail-about">{event.about}</p>
-            <button type="button" className="discover-detail-see-more">See more</button>
-          </section>
-
           <a
             href={event.websiteUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="discover-detail-website-card"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M2 9a5 5 0 0 1 5-5h10a5 5 0 0 1 5 5v6a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V9z" stroke="currentColor" strokeWidth="1.8" />
-              <path d="M8 12h8" stroke="currentColor" strokeWidth="1.8" />
-            </svg>
+            <div className="discover-detail-website-card--icon" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M17.0826 4.65209L16.6271 5.10764C16.3952 5.33956 16.0806 5.46985 15.7526 5.46985C15.4247 5.46985 15.1101 5.33956 14.8782 5.10764C14.6463 4.87572 14.516 4.56117 14.516 4.23319C14.516 3.9052 14.6463 3.59065 14.8782 3.35873L15.3337 2.90318L12.4306 0L8.76618 3.66437L8.59962 4.16781L8.09619 4.33437L0 12.4306L2.90485 15.3354L3.3604 14.8799C3.59232 14.6479 3.90687 14.5177 4.23485 14.5177C4.56283 14.5177 4.87739 14.6479 5.1093 14.8799C5.34122 15.1118 5.47151 15.4263 5.47151 15.7543C5.47151 16.0823 5.34122 16.3968 5.1093 16.6288L4.65376 17.0843L7.55694 19.9875L15.6519 11.8926L15.8184 11.3891L16.3219 11.2226L19.9862 7.55819L17.0826 4.65209ZM8.39808 4.8782L9.30876 3.96752L10.6829 5.34166L9.7718 6.25234L8.39808 4.8782ZM10.1886 6.66875L11.0997 5.75765L12.4539 7.1118L11.5428 8.0229L10.1886 6.66875ZM11.9609 8.44097L12.8719 7.52987L14.2261 8.88403L13.3167 9.79721L11.9609 8.44097ZM15.1076 11.5873L13.7335 10.2132L14.6442 9.3021L16.0183 10.6762L15.1076 11.5873Z" fill="#202020" />
+              </svg>
+            </div>
             <div>
               <span className="discover-detail-info-label">Official website</span>
               <strong>{event.websiteLabel}</strong>
               <span>Get your tickets on the official website.</span>
             </div>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" stroke="currentColor" strokeWidth="2" />
-              <polyline points="15 3 21 3 21 9" stroke="currentColor" strokeWidth="2" />
-              <line x1="10" y1="14" x2="21" y2="3" stroke="currentColor" strokeWidth="2" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 15 15" fill="none">
+              <path d="M13.325 7.995H14.6575V14.6575H0V0H6.6625V1.3325H1.3325V13.325H13.325V7.995ZM14.6575 0V6.6625H13.325V2.27982L7.13096 8.46346L6.19404 7.52654L12.3777 1.3325H7.995V0H14.6575Z" fill="#202020" />
             </svg>
           </a>
 
           <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="discover-detail-cta">
             Take me there
           </a>
-
-          <FeaturedMemosSection
-            memos={featuredMemos}
-            totalMemoCount={totalMemoCount}
-            archiveHref={archiveHref}
-            layout="discover"
-          />
+          <div className="discover-detail-container">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 19" fill="none">
+              <path d="M169.089 15.4973C245.433 15.8664 351.164 -3.81079 397.675 7.64529V19H-2.32516V0.00582121C62.0799 -0.343326 92.7442 15.1283 169.089 15.4973Z" fill="#F1F4FF" />
+            </svg>
+            <FeaturedMemosSection
+              memos={featuredMemos}
+              totalMemoCount={totalMemoCount}
+              archiveHref={archiveHref}
+              layout="discover"
+            />
+          </div>
         </div>
       </div>
 

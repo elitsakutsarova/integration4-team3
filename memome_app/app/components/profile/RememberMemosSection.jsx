@@ -9,8 +9,7 @@ import { accountAssets } from '../../utils/accountAssets';
 function RememberTitle() {
   return (
     <h2 className="profile-remember-title">
-      Remember the{' '}
-      <span className="profile-remember-title-highlight">time when...</span>
+      Remember the time when...
     </h2>
   );
 }
@@ -19,19 +18,14 @@ function RememberEmptyState({ showAddCta }) {
   return (
     <div className="profile-remember-empty">
       <div className="profile-remember-empty-art" aria-hidden="true">
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--group4" src={accountAssets.emptyGroup4} alt="" />
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--group2" src={accountAssets.emptyGroup2} alt="" />
-        <img className="profile-remember-empty-map" src={accountAssets.mapIllustration} alt="" />
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--group1" src={accountAssets.emptyGroup1} alt="" />
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--group3" src={accountAssets.emptyGroup3} alt="" />
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--star" src={accountAssets.emptyStar} alt="" />
+        <img className="profile-remember-empty-deco profile-remember-empty-deco--memo" src={accountAssets.emptyMemoState} alt="" />
       </div>
-
+      <div className="profile-remember-empty-container">
       <p className="profile-remember-empty-heading">No memos yet!</p>
       <p className="profile-remember-empty-copy">
         Currently you haven&apos;t added any memos to the map.
       </p>
-
+      </div>
       {showAddCta && (
         <div className="profile-remember-empty-cta-wrap">
           <Link to={homePathWithAddMemo()} className="profile-remember-empty-cta">
@@ -57,6 +51,9 @@ export default function RememberMemosSection({ memos, showAddCta = true }) {
 
   return (
     <section className="profile-section profile-remember">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 55" fill="none">
+        <path d="M-128.834 113.142C-56.0212 113.784 -22.3531 73.6311 -45.5313 64.1334C-73.3447 52.7364 -11.7611 39.4134 12.5795 24.8733C46.2416 4.76494 127.712 6.32484 178.627 15.493C317.507 40.5007 390.2 -17.6409 482.2 7.85375" stroke="#1952FF" stroke-width="2.47" stroke-dasharray="8 8" />
+      </svg>
       <RememberTitle />
 
       {memos.length > 0 ? (

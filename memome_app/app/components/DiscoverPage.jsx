@@ -7,6 +7,7 @@ import SearchOpenButton from './search/SearchOpenButton';
 import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../data/discoverContent';
 import { useEventVenueHrefs } from '../hooks/useEventVenueHrefs';
 import { paths } from '../utils/appPaths';
+import { discoverAssets } from '../utils/discoverAssets';
 
 function SectionHeader({ id, title, highlightWidth, underlined, viewAllTo }) {
   return (
@@ -54,8 +55,8 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
     <div className="discover-page">
       <header className="discover-hero">
         <div className="discover-grid-deco" aria-hidden="true">
-            <img className="discover-grid" src="./public/account/has-account/discover_grid.svg" alt="" />
-{/*           <img className="discover-grid-pattern" src="./public/account/has-account/discover_grid-pattern.svg" alt="" />
+          <img className="discover-grid" src={discoverAssets.topGrid} alt="" />
+          {/*           <img className="discover-grid-pattern" src={discoverAssets.gridPattern} alt="" />
  */}
           <div className="discover-grid-pattern" />
         </div>
