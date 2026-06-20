@@ -18,7 +18,7 @@ export default function FavouritesLayout() {
     <div className="collection-page">
       <CollectionPageHeader title="Favourites" explicitBack />
 
-      <div className="collection-tabs" role="tablist" aria-label="Favourites categories">
+      {/* <div className="collection-tabs" role="tablist" aria-label="Favourites categories">
         {TABS.map(tab => (
           <Link
             key={tab.id}
@@ -30,8 +30,33 @@ export default function FavouritesLayout() {
             {tab.label}
           </Link>
         ))}
-      </div>
+      </div> */}
 
+      <div className="collection-tabs" role="tablist" aria-label="Favourites categories">
+        {TABS.map(tab => {
+          const isActive = pathname === tab.to;
+
+          return (
+            <div
+              key={tab.id}
+              className={`collection-tab-wrapper${isActive ? ' collection-tab-wrapper--active' : ''
+                }`}
+            >
+              <Link
+                to={tab.to}
+                role="tab"
+                aria-selected={isActive}
+                className="collection-tab"
+              >
+                {tab.label}
+              </Link>
+            </div>
+          );
+        })}
+      </div>
+      <svg className="collection-line" xmlns="http://www.w3.org/2000/svg" width="363" height="1" viewBox="0 0 363 1" fill="none">
+        <path d="M0 0.5H363" stroke="#EFF1F5" />
+      </svg>
       <div className="collection-body collection-body--favourites">
         <Outlet />
       </div>

@@ -167,6 +167,7 @@ display: flex;
   position: relative;
   background: none;
   border: none;
+  text-decoration: underline;
   font-family: var(--font);
     font-size: 1.25rem;
     font-weight: 400;
@@ -190,6 +191,7 @@ display: flex;
       background: var(--blue-50);
         align-self: center;
         max-width: max-content;
+        text-decoration: none;
 }
 
 .stickers-tab-wrapper--active svg {
@@ -283,7 +285,8 @@ content: '';
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 7.25rem;
+  max-width: 7.25rem;
+  min-height: 9rem;
   border-radius: 0.4375rem;
   margin-top: -1rem;
   position: relative;
