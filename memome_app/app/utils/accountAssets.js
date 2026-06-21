@@ -27,4 +27,6 @@ export const accountAssets = {
   stickerDeco: `${HAS_ACCOUNT}/sticker_deco.svg`,
   blueSticker: `${HAS_ACCOUNT}/sticker_deco-title.svg`,
   guestProfilePic: `${NO_ACCOUNT_PROFILE}/guest_profile_pic.svg`,
+  favouritesWave: `${HAS_ACCOUNT}/favourites_wave.svg`,
+  smallHeart: `${HAS_ACCOUNT}/small_heart.svg`,
 };
