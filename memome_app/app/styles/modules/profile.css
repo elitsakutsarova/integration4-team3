@@ -24,32 +24,23 @@
   min-height: 188px;
   overflow: hidden;
   margin-bottom: 8px; */
-    grid-template-columns: 1fr auto;
-    grid-template-rows: 1fr;
-    z-index: 100;
-    align-items: start;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: 1fr;
+  z-index: 100;
+  align-items: start;
 }
 
 .profile-account-hero-deco {
-/*   grid-area: stack;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  grid-template-areas:
-    'mask blue'
-    'green .';
-  align-self: stretch;
-  min-height: 168px;
-  pointer-events: none; */
   grid-area: 1 / 1 / 1 / 3;
-    width: min(100%, 484px);
-    height: 164px;
-    overflow: hidden;
-    pointer-events: none;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-    z-index: 0;
+  width: min(100%, 484px);
+  height: 164px;
+  overflow: hidden;
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  z-index: 0;
+  width: 100%;
 }
 
 .profile-account-hero-mask {
@@ -85,12 +76,12 @@
 
 .profile-account-hero-content {
   grid-area: 1 / 1 / 1 / 3;
-    z-index: 900;
-    padding: calc(0.75rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.69rem;
-    pointer-events: none;
+  z-index: 900;
+  padding: calc(0.75rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.69rem;
+  pointer-events: none;
 }
 
 .profile-header--account {
@@ -181,19 +172,19 @@
   padding-bottom: 12px;
 }
 
-.profile-remember > svg {
+.profile-remember>svg {
   width: 100%;
-    height: auto;
-    display: block;
+  height: auto;
+  display: block;
 }
 
 .profile-remember-title {
   font-size: 1.25rem;
   font-weight: 400;
   color: var(--dark);
-    padding: 0.5rem 1rem;
-      background: var(--yellow-400);
-      max-width: fit-content;
+  padding: 0.5rem 1rem;
+  background: var(--yellow-400);
+  max-width: fit-content;
 }
 
 .profile-remember-title-highlight {
@@ -274,22 +265,22 @@
 
 .profile-remember-empty-heading {
   color: var(--grey-200, #797979);
-    text-align: center;
-    font-family: SunAntwerpen;
-    font-size: 1rem;
-    font-style: normal;
-    font-weight: 800;
-    line-height: normal;
+  text-align: center;
+  font-family: SunAntwerpen;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 800;
+  line-height: normal;
 }
 
 .profile-remember-empty-copy {
   color: var(--grey-150, #9CA3AF);
-    text-align: center;
-    font-size: 0.75rem;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    max-width: 10rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  max-width: 10rem;
 }
 
 .profile-remember-empty-cta-wrap {
@@ -306,29 +297,28 @@
 }
 
 .profile-remember-empty-arrow {
-margin: 0.5rem;
+  margin: 0.5rem;
 }
 
 .profile-header {
   grid-area: 1 / 1 / 1 / 1;
-    z-index: 900;
-    padding: calc(0.75rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
-    display: grid;
-    grid-template-columns: 1fr 0.5fr;
-    grid-template-rows: 0.5fr 1fr;
-    pointer-events: none;
-    justify-content: space-between;
+  z-index: 900;
+  padding: calc(0.75rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
+  display: grid;
+  grid-template-columns: 1fr 0.5fr;
+  grid-template-rows: 0.5fr 1fr;
+  pointer-events: none;
+  justify-content: space-between;
 }
 
 .profile-settings-btn {
   grid-row: 1;
   grid-column: 2;
-  background: var(--blue-5);
   padding: 0.3rem;
   margin: 1rem 1rem 0 0;
   border: none;
   border-radius: 50%;
-  color: var(--dark);
+  color: #000000;
   cursor: pointer;
   border-radius: 50%;
   transition: background .15s;
@@ -338,9 +328,13 @@ margin: 0.5rem;
   text-decoration: none;
   justify-self: start;
   z-index: 999;
+  filter: brightness(0.5);
 }
 
-.profile-settings-btn:hover { background: #f0f0f2; }
+.profile-settings-btn:hover {
+  background: #f0f0f2;
+  filter: drop-shadow(0px 0px 3px #bbbbbf);
+}
 
 .profile-identity {
   grid-area: 2 / 1 / 3 / 1;
@@ -439,10 +433,12 @@ margin: 0.5rem;
   font-size: 12px;
   font-weight: 600;
   color: var(--dark);
-  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
 }
 
-.collection-card svg { color: #6b6b78; }
+.collection-card svg {
+  color: #6b6b78;
+}
 
 .collection-card--link {
   text-decoration: none;
@@ -472,7 +468,9 @@ margin: 0.5rem;
   background: var(--yellow-400);
 }
 
-.profile-diaries { padding-bottom: 16px; }
+.profile-diaries {
+  padding-bottom: 16px;
+}
 
 .profile-section-row {
   display: flex;
@@ -502,8 +500,13 @@ margin: 0.5rem;
 }
 
 @media (min-width: 520px) {
-  .diary-cards { grid-template-columns: repeat(3, 1fr); }
-  .profile-page { max-width: 640px; margin: 0 auto; }
+  .diary-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .profile-page {
+    margin: 0 auto;
+  }
 }
 
 .diary-card {
@@ -554,7 +557,7 @@ margin: 0.5rem;
   background: #fff;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
   transition: transform .15s, box-shadow .15s;
   display: block;
   text-decoration: none;
@@ -565,7 +568,7 @@ margin: 0.5rem;
 
 .diary-card--existing:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(0,0,0,.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .1);
 }
 
 .diary-card-cover {
@@ -595,7 +598,7 @@ margin: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
   color: #6b6b78;
 }
 
@@ -723,13 +726,13 @@ margin: 0.5rem;
 
 .guest-create-account {
   display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(10px, 2.5vw, 14px);
-    width: min(100%, 334px);
-    margin: 0 auto;
-    text-align: center;
-    pointer-events: auto;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2.5vw, 14px);
+  width: min(100%, 334px);
+  margin: 0 auto;
+  text-align: center;
+  pointer-events: auto;
 }
 
 .guest-create-account-copy {

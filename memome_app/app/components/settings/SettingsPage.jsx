@@ -73,6 +73,7 @@ export default function SettingsPage() {
   async function handleConfirmLogout() {
     setLogoutOpen(false);
     await signOut();
+    navigate(paths.loggedOut, { replace: true });
   }
 
   return (
