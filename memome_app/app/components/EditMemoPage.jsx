@@ -10,7 +10,6 @@ import { paths } from '../utils/appPaths';
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 import { isEditMemoDirty } from '../utils/isEditMemoDirty';
-import { buildMemoMediaClassName, resolvePolaroidOrientation } from '../utils/memoPinAssets';
 import { validateMemoMediaFile } from '../utils/validators';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 
@@ -320,18 +319,13 @@ export default function EditMemoPage({ memo }) {
 
   function renderMediaZone() {
     if (mediaPhase === 'preview' && mediaPreview) {
-      const mediaClass = buildMemoMediaClassName(
-        'memo-form-media-preview-img',
-        resolvePolaroidOrientation({ mediaPreview }),
-      );
-
       return (
         <div className="memo-form-media-preview">
           <div className="memo-form-media-preview-media">
             {mediaPreview.isVideo ? (
-              <video src={mediaPreview.url} className={mediaClass} controls playsInline />
+              <video src={mediaPreview.url} className="memo-form-media-preview-img" controls playsInline />
             ) : (
-              <img src={mediaPreview.url} alt="Memo media" className={mediaClass} />
+              <img src={mediaPreview.url} alt="Memo media" className="memo-form-media-preview-img" />
             )}
             <button
               type="button"
@@ -560,7 +554,7 @@ export default function EditMemoPage({ memo }) {
         <input
           ref={cameraRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*,video/mp4,video/quicktime,video/webm"
           capture="environment"
           onChange={(e) => {
             const file = e.target.files?.[0];

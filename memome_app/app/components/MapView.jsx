@@ -22,8 +22,14 @@ import MemoPostSuccess from './MemoPostSuccess';
 import { MOCK_MEMORIES, INITIAL_EVENTS } from '../data/mockUser';
 import { GROTE_MARKT_CLUSTER_MEMORIES } from '../data/groteMarktClusterMemories';
 
+import { readAddMemoReturnTo } from '../utils/appPaths';
 import { readDraftMemo } from '../utils/memoDraft';
-import { ANTWERP_BOUNDS_LEAFLET } from '../utils/locationHelpers';
+import {
+  clearNewMemoDraft,
+  loadNewMemoDraft,
+  memoDraftSearchParamsToUrl,
+} from '../utils/newMemoDraftStore';
+import { ANTWERP_BOUNDS_LEAFLET, createCustomPlace } from '../utils/locationHelpers';
 import { filterMapEvents, filterMapMemories } from '../utils/mapFilters';
 import { addBasemapControl } from '../utils/mapLayers';
 import { syncMapStickerSymbols } from '../utils/mapStickerSymbols';
@@ -146,6 +152,21 @@ export default function MapView({ savedMemos = [], active = true }) {
 
   const filterOptions = { category: activeCategory, query: '' };
 
+  const draftRestoredRef = useRef(false);
+
+  // Re-open the add-memo form after refresh when URL params were lost but draft was saved.
+  useEffect(() => {
+    if (!user?.id || draftRestoredRef.current) return;
+    if (readDraftMemo(searchParams)) return;
+
+    const saved = loadNewMemoDraft(user.id);
+    const params = memoDraftSearchParamsToUrl(saved?.searchParams);
+    if (!params) return;
+
+    draftRestoredRef.current = true;
+    setSearchParams(params, { replace: true });
+  }, [user?.id, searchParams, setSearchParams]);
+
   const savedMemosRef = useRef(savedMemos);
   savedMemosRef.current = savedMemos;
 
@@ -160,11 +181,13 @@ export default function MapView({ savedMemos = [], active = true }) {
       promptGuestAddMemoRef.current?.();
       return;
     }
+    const place = createCustomPlace(latlng.lat, latlng.lng);
     setSearchParams({
-      lat: String(latlng.lat),
-      lng: String(latlng.lng),
-      pinLat: String(latlng.lat),
-      pinLng: String(latlng.lng),
+      lat: String(place.lat),
+      lng: String(place.lng),
+      pinLat: String(place.lat),
+      pinLng: String(place.lng),
+      locationName: place.name,
     }, { replace: true });
   };
 
@@ -470,6 +493,7 @@ export default function MapView({ savedMemos = [], active = true }) {
           return;
         }
         placePendingPin(L, map, e.latlng, pendingMarkerRef, suppressClickRef, openFormRef);
+        openFormRef.current(e.latlng);
       });
 
       requestAnimationFrame(() => map.invalidateSize());
@@ -530,10 +554,11 @@ export default function MapView({ savedMemos = [], active = true }) {
         syncMapPins();
       }
 
+      clearNewMemoDraft(user?.id);
       setSearchParams({}, { replace: true });
       setShowPublishSuccess(true);
     }
-  }, [fetcher.state, fetcher.data, draftMemo, setSearchParams, syncMapPins, prependCreatedMemo]);
+  }, [fetcher.state, fetcher.data, draftMemo, setSearchParams, syncMapPins, prependCreatedMemo, user?.id]);
 
   useEffect(() => {
     if (showPublishSuccess) return undefined;
@@ -575,13 +600,26 @@ export default function MapView({ savedMemos = [], active = true }) {
     openFormRef.current(center);
   }
 
-  function dismissGuestAddMemoLocked() {
-    setGuestAddMemoLocked(false);
+  function exitAddMemoFlow() {
     if (pendingMarkerRef.current) {
       pendingMarkerRef.current.remove();
       pendingMarkerRef.current = null;
     }
+
+    clearNewMemoDraft(user?.id);
+
+    const returnTo = readAddMemoReturnTo(searchParams);
+    if (returnTo) {
+      navigate(returnTo, { replace: true });
+      return;
+    }
+
     setSearchParams({}, { replace: true });
+  }
+
+  function dismissGuestAddMemoLocked() {
+    setGuestAddMemoLocked(false);
+    exitAddMemoFlow();
   }
 
   // Leaflet must recalculate size when overlays change the visible map area.
@@ -592,11 +630,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, [active, guestAddMemoLocked, draftMemo]);
 
   function handleFormClose() {
-    if (pendingMarkerRef.current) {
-      pendingMarkerRef.current.remove();
-      pendingMarkerRef.current = null;
-    }
-    setSearchParams({}, { replace: true });
+    exitAddMemoFlow();
   }
 
   function handleLocationBack() {

@@ -99,6 +99,27 @@ export const clientMiddleware = appAuthMiddleware;
 
 // fonts
 export const links = () => [
+  {
+    rel: "preload",
+    href: "/fonts/SunAntwerpen-Web/SunAntwerpen_500/SunAntwerpen_500.woff",
+    as: "font",
+    type: "font/woff",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "preload",
+    href: "/fonts/SunAntwerpen-Web/SunAntwerpen_700/SunAntwerpen_700.woff",
+    as: "font",
+    type: "font/woff",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "preload",
+    href: "/fonts/Antwerpen%20webfonts/Antwerpen%20Regular%20webfonts/Antwerpen-Regular.woff",
+    as: "font",
+    type: "font/woff",
+    crossOrigin: "anonymous",
+  },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

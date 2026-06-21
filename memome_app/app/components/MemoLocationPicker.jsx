@@ -60,7 +60,12 @@ function recentToPlace(entry) {
 
 function LocPickerResultRow({ title, subtitle, onClick }) {
   return (
-    <button type="button" className="loc-picker-result-row" onClick={onClick}>
+    <button
+      type="button"
+      className="loc-picker-result-row"
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onClick}
+    >
       <span className="loc-picker-result-icon" aria-hidden="true">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           <circle cx="12" cy="12" r="9" />
@@ -70,6 +75,27 @@ function LocPickerResultRow({ title, subtitle, onClick }) {
       <span className="loc-picker-result-copy">
         <span className="loc-picker-result-title">{title}</span>
         <span className="loc-picker-result-subtitle">{subtitle}</span>
+      </span>
+    </button>
+  );
+}
+
+function LocPickerGeoRow({ onClick }) {
+  return (
+    <button
+      type="button"
+      className="loc-picker-result-row loc-picker-geo-row"
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onClick}
+    >
+      <span className="loc-picker-result-icon" aria-hidden="true">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11z" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+      </span>
+      <span className="loc-picker-result-copy">
+        <span className="loc-picker-result-title">Use current location</span>
       </span>
     </button>
   );
@@ -156,7 +182,7 @@ export default function MemoLocationPicker({
 
   const trimmedQuery = query.trim();
   const showResults = trimmedQuery.length >= 2;
-  const showPanel = isListening || isFocused || showResults;
+  const showPanel = isListening || isFocused;
   const showRecents = !isListening && !showResults && recentPlaces.length > 0;
   const showPanelRef = useRef(showPanel);
   showPanelRef.current = showPanel;
@@ -372,8 +398,6 @@ export default function MemoLocationPicker({
 
       <div className={`loc-picker-ui${showPanel ? ' loc-picker-ui--panel' : ''}`}>
         <header className={`loc-picker-header${isListening ? ' loc-picker-header--listening' : ''}`}>
-          {isListening}
-
           <div className="loc-picker-hero-deco" aria-hidden="true">
             <img className="loc-picker-hero-grid" src={locationPickerAssets.greenGrid} alt="" />
             <div className="loc-picker-grid-pattern" />
@@ -455,9 +479,13 @@ export default function MemoLocationPicker({
               />
             )}
 
+            {!isListening && !showResults && (
+              <LocPickerGeoRow onClick={handleUseMapPin} />
+            )}
+
             {!isListening && showRecents && (
               <section className="loc-picker-section">
-                <h3 className="loc-picker-section-title">Recents</h3>
+                <h3 className="loc-picker-section-title">Recent searches</h3>
                 <div className="loc-picker-results">
                   {recentPlaces.map(entry => (
                     <div key={entry.placeId} className="loc-picker-result-item">
@@ -494,10 +522,6 @@ export default function MemoLocationPicker({
                   <p className="loc-picker-hint">No matches — tap the map to pin this spot manually.</p>
                 )}
               </section>
-            )}
-
-            {!isListening && !showRecents && !showResults && isFocused && (
-              <p className="loc-picker-hint">Search for a place in Antwerp or use your current map pin.</p>
             )}
 
             {(geoError || (showResults && searchError)) && !isListening && (
