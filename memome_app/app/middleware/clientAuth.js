@@ -17,6 +17,10 @@ import {
 } from '../utils/appPaths';
 import { bootstrapAuthSession, getAuthSnapshot } from '../utils/authSession';
 
+function isProfileSettingsPath(pathname) {
+  return pathname === paths.profileSettings || pathname.startsWith(`${paths.profileSettings}/`);
+}
+
 /** App-wide auth — skips login/register and guest-accessible routes. Attach to root route. */
 export async function requireAppAuthMiddleware({ request }, next) {
   const { pathname } = new URL(request.url);
@@ -31,8 +35,11 @@ export async function requireAuthClientMiddleware({ request }, next) {
   await bootstrapAuthSession();
   const { user } = getAuthSnapshot();
   if (!user) {
-    const returnPath = `${new URL(request.url).pathname}${new URL(request.url).search}`;
-    throw redirect(loginPathWithRedirect(returnPath));
+    const { pathname, search } = new URL(request.url);
+    if (isProfileSettingsPath(pathname)) {
+      throw redirect(paths.profile);
+    }
+    throw redirect(loginPathWithRedirect(`${pathname}${search}`));
   }
   return next();
 }

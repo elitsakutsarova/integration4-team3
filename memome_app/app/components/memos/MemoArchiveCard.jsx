@@ -1,31 +1,7 @@
 // memo archive card — matches map memory-sheet polaroid style
 
-import { useSavedMemos } from '../../context/SavedMemosContext';
+import MemoFavoriteButton from '../MemoFavoriteButton';
 import { openGoogleMapsDirections } from '../../utils/googleMaps';
-
-function MemoFavoriteButton({ memoId, label }) {
-  const { isSaved, toggleMemo } = useSavedMemos();
-  const saved = isSaved(memoId);
-
-  return (
-    <button
-      type="button"
-      className={`memory-sheet-heart${saved ? ' memory-sheet-heart--saved' : ''}`}
-      aria-label={saved ? `Remove ${label} from favourites` : `Save ${label} to favourites`}
-      aria-pressed={saved}
-      onClick={() => toggleMemo(memoId)}
-    >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-          stroke="#1952ff"
-          strokeWidth="1.8"
-          fill={saved ? '#1952ff' : 'none'}
-        />
-      </svg>
-    </button>
-  );
-}
 
 export default function MemoArchiveCard({ memo }) {
   const hasMedia = Boolean(memo.mediaPreview?.url);
@@ -49,7 +25,7 @@ export default function MemoArchiveCard({ memo }) {
               ? <video src={memo.mediaPreview.url} className="memory-sheet-preview-img" muted playsInline />
               : <img src={memo.mediaPreview.url} alt="" className="memory-sheet-preview-img" />
             }
-            <MemoFavoriteButton memoId={memo.id} label={memo.location} />
+            <MemoFavoriteButton memoId={memo.id} label={memo.location} iconSize={20} />
             {(memo.tags ?? []).length > 0 && (
               <div className="memory-sheet-tags">
                 {(memo.tags ?? []).map(tag => (
@@ -64,7 +40,7 @@ export default function MemoArchiveCard({ memo }) {
       <div className="memory-sheet-content">
         {!hasMedia && (
           <div className="memory-sheet-text-only-top">
-            <MemoFavoriteButton memoId={memo.id} label={memo.location} />
+            <MemoFavoriteButton memoId={memo.id} label={memo.location} iconSize={20} />
             {(memo.tags ?? []).length > 0 && (
               <div className="memory-sheet-tags memory-sheet-tags--inline">
                 {(memo.tags ?? []).map(tag => (

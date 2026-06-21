@@ -15,6 +15,7 @@ export const paths = {
   resetPassword: href('/reset-password'),
   resetPasswordSuccess: href('/reset-password/success'),
   register: href('/register'),
+  loggedOut: href('/logged-out'),
   onboarding1: href('/onboarding/1'),
   onboarding2: href('/onboarding/2'),
   onboarding3: href('/onboarding/3'),
@@ -80,6 +81,11 @@ export function collectScanPath(scanKey) {
 
 const ANTWERP_MAP_CENTER = { lat: 51.2194, lng: 4.4025 };
 
+/** Map homepage for guests exploring without an account. */
+export function guestHomePath() {
+  return paths.home;
+}
+
 /** Home map URL that opens the guest add-memo locked screen. */
 export function guestAddMemoPath() {
   const params = new URLSearchParams({ guestAddMemo: '1' });
@@ -113,7 +119,7 @@ export function safeInternalRedirectPath(candidate) {
   if (typeof candidate !== 'string' || !candidate.startsWith('/') || candidate.startsWith('//')) {
     return null;
   }
-  if (candidate.startsWith('/login') || candidate.startsWith('/register')) {
+  if (candidate.startsWith('/login') || candidate.startsWith('/register') || candidate.startsWith('/logged-out')) {
     return null;
   }
   return candidate;
@@ -132,6 +138,7 @@ const PUBLIC_APP_PATHS = new Set([
   paths.resetPassword,
   paths.resetPasswordSuccess,
   paths.register,
+  paths.loggedOut,
   paths.collect,
 ]);
 
@@ -186,7 +193,7 @@ export function getSafeFallbackPath(pathname) {
   if (path.startsWith('/profile') || path.startsWith('/stickers') || path.startsWith('/collect') || path.startsWith('/connect')) {
     return FALLBACK_PROFILE;
   }
-  if (path.startsWith('/login') || path.startsWith('/register') || path.startsWith('/onboarding')) {
+  if (path.startsWith('/login') || path.startsWith('/register') || path.startsWith('/logged-out') || path.startsWith('/onboarding')) {
     return FALLBACK_HOME;
   }
 

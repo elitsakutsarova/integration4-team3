@@ -146,13 +146,17 @@ export async function localSignIn({ email, password }) {
     return {
       error: {
         ...validated,
-        email: String(email ?? '').trim().toLowerCase(),
+        email: String(email ?? '').trim(),
         password: String(password ?? ''),
       },
     };
   }
 
-  const record = readUsers().find((u) => u.email === validated.email);
+  const record = validated.identifierKind === 'email'
+    ? readUsers().find((user) => user.email === validated.identifier)
+    : readUsers().find(
+      (user) => normalizeUsername(user.username) === normalizeUsername(validated.identifier),
+    );
 
   if (!record) {
     return {

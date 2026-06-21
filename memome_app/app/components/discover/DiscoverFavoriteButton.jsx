@@ -1,4 +1,5 @@
 import { useDiscoverFaves } from '../../context/DiscoverFavesContext';
+import { useGuestFavoriteLock } from '../../hooks/useGuestFavoriteLock';
 
 export function DiscoverFavoriteButton({
   type,
@@ -8,15 +9,24 @@ export function DiscoverFavoriteButton({
   className = 'discover-fave-btn',
 }) {
   const { isFaved, toggleFave } = useDiscoverFaves();
-  const saved = isFaved(type, itemId);
+  const { isGuest, guestLockedClass, guestStroke, activeStroke } = useGuestFavoriteLock();
+  const saved = !isGuest && isFaved(type, itemId);
 
   return (
     <button
       type="button"
-      className={`${className}${saved ? ' discover-fave-btn--saved' : ''}`}
-      aria-label={saved ? `Remove ${label} from favorites` : `Save ${label} to favorites`}
+      disabled={isGuest}
+      className={`${className}${saved ? ' discover-fave-btn--saved' : ''}${guestLockedClass}`}
+      aria-label={
+        isGuest
+          ? 'Log in to save favourites'
+          : saved
+            ? `Remove ${label} from favorites`
+            : `Save ${label} to favorites`
+      }
       aria-pressed={saved}
       onClick={event => {
+        if (isGuest) return;
         event.preventDefault();
         event.stopPropagation();
         toggleFave(type, itemId, meta);
@@ -25,9 +35,9 @@ export function DiscoverFavoriteButton({
       <svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
           d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-          stroke="#1952ff"
+          stroke={isGuest ? guestStroke : activeStroke}
           strokeWidth="2"
-          fill={saved ? '#1952ff' : 'none'}
+          fill={saved ? activeStroke : 'none'}
         />
       </svg>
     </button>

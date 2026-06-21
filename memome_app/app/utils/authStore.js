@@ -25,7 +25,9 @@ import {
   validateChangeUsernamePayload,
   validateSignInPayload,
   validateSignUpPayload,
+  validateLoginIdentifier,
   normalizeUsername,
+  normalizeEmail,
   validateEmail,
   validatePassword,
 } from './validators';
@@ -168,6 +170,62 @@ export async function checkEmailRegistered(rawEmail) {
   return isEmailRegistered(validated.value);
 }
 
+export async function checkLoginIdentifierRegistered(rawIdentifier) {
+  const validated = validateLoginIdentifier(rawIdentifier);
+  if (validated.field) return false;
+
+  if (validated.kind === 'email') {
+    return checkEmailRegistered(validated.value);
+  }
+
+  if (!isSupabaseEnabled()) {
+    return localIsUsernameTaken(validated.value);
+  }
+
+  return isUsernameTaken(validated.value);
+}
+
+async function fetchEmailByUsername(displayUsername) {
+  const client = getSupabaseBrowserClient();
+  if (!client) return null;
+
+  const { data, error } = await client.rpc('resolve_login_email', { p_username: displayUsername });
+
+  if (!error && typeof data === 'string' && data.trim()) {
+    return normalizeEmail(data);
+  }
+
+  if (!error && data != null && typeof data === 'object' && 'email' in data && data.email) {
+    return normalizeEmail(String(data.email));
+  }
+
+  if (error && !/Could not find the function|42883|PGRST202/i.test(error.message ?? '')) {
+    throw error;
+  }
+
+  return null;
+}
+
+async function resolveLoginEmail(validated) {
+  if (validated.identifierKind === 'email') {
+    return validated.identifier;
+  }
+
+  if (!isSupabaseEnabled()) {
+    return null;
+  }
+
+  return fetchEmailByUsername(validated.identifier);
+}
+
+async function isLoginIdentifierRegistered(validated) {
+  if (validated.identifierKind === 'email') {
+    return isEmailRegistered(validated.identifier);
+  }
+
+  return isUsernameTaken(validated.identifier);
+}
+
 /**
  * Insert profile row linked to Supabase Auth via auth_id.
  * Your table keeps its own int8 id; auth_id stores the auth.users uuid.
@@ -304,7 +362,7 @@ async function supabaseSignIn({ email, password }) {
     return {
       error: {
         ...validated,
-        email: String(email ?? '').trim().toLowerCase(),
+        email: String(email ?? '').trim(),
         password: String(password ?? ''),
       },
     };
@@ -313,10 +371,23 @@ async function supabaseSignIn({ email, password }) {
   const client = getSupabaseBrowserClient();
   if (!client) return { error: { field: 'form', message: 'Could not connect to Supabase.' } };
 
+  const loginEmail = await resolveLoginEmail(validated);
+  if (!loginEmail) {
+    return {
+      error: {
+        fieldErrors: {
+          email: LOGIN_EMAIL_ERROR,
+        },
+        email: validated.email,
+        password: validated.password,
+      },
+    };
+  }
+
   await client.auth.signOut({ scope: 'local' });
 
   const { data, error } = await client.auth.signInWithPassword({
-    email: validated.email,
+    email: loginEmail,
     password: validated.password,
   });
 
@@ -331,7 +402,7 @@ async function supabaseSignIn({ email, password }) {
 
   if (isInvalidLoginCredentials(error)) {
     try {
-      const registered = await isEmailRegistered(validated.email);
+      const registered = await isLoginIdentifierRegistered(validated);
 
       if (!registered) {
         return {

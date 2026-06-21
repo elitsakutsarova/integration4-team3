@@ -50,6 +50,7 @@ export function SavedMemosProvider({ initialSavedMemos = [], children }) {
   );
 
   const saveMemo = useCallback(async memoId => {
+    if (!userId) return false;
     setSavedNotice('memo');
     const result = await addSavedMemo(userId, memoId);
     if (result.added) {
@@ -61,11 +62,13 @@ export function SavedMemosProvider({ initialSavedMemos = [], children }) {
   }, [userId]);
 
   const removeMemo = useCallback(async memoId => {
+    if (!userId) return;
     const { memos: next } = await removeSavedMemo(userId, memoId);
     setSavedMemos(next);
   }, [userId]);
 
   const toggleMemo = useCallback(async memoId => {
+    if (!userId) return false;
     if (isSaved(memoId)) {
       await removeMemo(memoId);
       return false;

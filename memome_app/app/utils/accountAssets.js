@@ -2,6 +2,7 @@
 
 const HAS_ACCOUNT = '/account/has-account';
 const NO_ACCOUNT_ADD_MEMO = '/account/no-account/add-memo';
+const NO_ACCOUNT_PROFILE = '/account/no-account/profile';
 
 function asset(base, filename) {
   return `${base}/${encodeURIComponent(filename)}`;
@@ -25,6 +26,7 @@ export const accountAssets = {
   emptyMemoState: `${HAS_ACCOUNT}/empty-memo-state.svg`,
   stickerDeco: `${HAS_ACCOUNT}/sticker_deco.svg`,
   blueSticker: `${HAS_ACCOUNT}/sticker_deco-title.svg`,
+  guestProfilePic: `${NO_ACCOUNT_PROFILE}/guest_profile_pic.svg`,
   favouritesWave: `${HAS_ACCOUNT}/favourites_wave.svg`,
   smallHeart: `${HAS_ACCOUNT}/small_heart.svg`,
 };

@@ -64,7 +64,7 @@ export default function AccountDetailsPage() {
       setDeleteModalOpen(false);
       setDeleteError('');
       await signOut();
-      navigate(paths.home, { replace: true });
+      navigate(paths.loggedOut, { replace: true });
     }
 
     void finishDelete();

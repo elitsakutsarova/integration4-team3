@@ -209,9 +209,27 @@ export function validateChangeUsernamePayload({ username }) {
   return validateUsername(username);
 }
 
+export function validateLoginIdentifier(raw) {
+  const trimmed = stripControlChars(raw).trim();
+  if (!trimmed) return validationError('email', 'Enter your username or email');
+
+  if (trimmed.includes('@')) {
+    const emailResult = validateEmail(trimmed);
+    if (emailResult.field) return emailResult;
+    return { kind: 'email', value: emailResult.value };
+  }
+
+  const usernameResult = validateUsername(trimmed);
+  if (usernameResult.field) {
+    return validationError('email', usernameResult.message);
+  }
+
+  return { kind: 'username', value: usernameResult.value };
+}
+
 export function validateSignInPayload({ email, password: rawPassword }) {
-  const emailResult = validateEmail(email);
-  if (emailResult.field) return emailResult;
+  const identifierResult = validateLoginIdentifier(email);
+  if (identifierResult.field) return identifierResult;
 
   const password = String(rawPassword ?? '');
   if (!password) return validationError('password', 'Password is required');
@@ -219,7 +237,16 @@ export function validateSignInPayload({ email, password: rawPassword }) {
     return validationError('password', `Password must be under ${LIMITS.password} characters`);
   }
 
-  return { email: emailResult.value, password };
+  return {
+    identifier: identifierResult.value,
+    identifierKind: identifierResult.kind,
+    email: trimmedLoginIdentifier(email),
+    password,
+  };
+}
+
+function trimmedLoginIdentifier(raw) {
+  return stripControlChars(raw).trim();
 }
 
 export function validateMemoQuote(raw) {

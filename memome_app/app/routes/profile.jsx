@@ -14,7 +14,6 @@ import { useSavedMemos } from '../context/SavedMemosContext';
 import { useFeaturedMemosWithHrefs } from '../hooks/useFeaturedMemosWithHrefs';
 import { useOwnedStickerCount } from '../hooks/useOwnedStickerCount';
 import { useUserAvatar } from '../hooks/useUserAvatar';
-import { paths } from '../utils/appPaths';
 
 export function meta() {
   return [
@@ -33,7 +32,7 @@ function GuestProfile({ collectedStickers }) {
         tags={[]}
         avatarUrl={null}
         hasCustomAvatar={false}
-        settingsHref={paths.login}
+        settingsDisabled
       />
 
       <ProfileCollections

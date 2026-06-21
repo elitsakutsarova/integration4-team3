@@ -16,9 +16,8 @@ import { CrossCircleIcon, EyeIcon, LockIcon } from '../components/auth/AuthIcons
 import { loginActionError, signInAccount } from '../utils/authActions';
 import { LOGIN_PASSWORD_ERROR } from '../utils/loginErrors';
 import { clearPasswordResetFlow, getPasswordResetFlowEmailForLogin } from '../utils/passwordResetFlow';
-import { checkEmailRegistered } from '../utils/authStore';
 import { paths, safeInternalRedirectPath } from '../utils/appPaths';
-import { validateEmail, validateSignInPayload } from '../utils/validators';
+import { validateLoginIdentifier, validateSignInPayload } from '../utils/validators';
 import { guestOnlyMiddleware } from '../middleware/clientAuth';
 import { loginAssets } from '../utils/loginAssets';
 
@@ -26,7 +25,7 @@ export const clientMiddleware = guestOnlyMiddleware;
 
 function clientLoginFieldError(field, value) {
   if (field === 'email') {
-    const result = validateEmail(value);
+    const result = validateLoginIdentifier(value);
     return result.field ? result.message : '';
   }
   if (field === 'password') {
@@ -42,21 +41,15 @@ function resolveFieldError(field, touched, serverErrors, value) {
   return clientLoginFieldError(field, value);
 }
 
-function isLoginFieldFixed(field, currentValue, submittedValue, emailRegistered) {
+function isLoginFieldFixed(field, currentValue, submittedValue) {
   if (submittedValue === undefined) return false;
-
-  if (field === 'email') {
-    if (currentValue !== submittedValue) return true;
-    return emailRegistered === true;
-  }
-
   return currentValue !== submittedValue;
 }
 
-function getActiveServerFieldError(field, serverErrors, currentValue, submittedValue, emailRegistered) {
+function getActiveServerFieldError(field, serverErrors, currentValue, submittedValue) {
   const error = serverErrors[field];
   if (!error || submittedValue === undefined) return '';
-  if (isLoginFieldFixed(field, currentValue, submittedValue, emailRegistered)) return '';
+  if (isLoginFieldFixed(field, currentValue, submittedValue)) return '';
   return error;
 }
 
@@ -72,7 +65,7 @@ function LoginFieldError({ message, id }) {
 }
 
 function isCredentialFormError(message) {
-  return /incorrect email or password|invalid credentials/i.test(message ?? '');
+  return /incorrect username or email|incorrect email or password|invalid credentials/i.test(message ?? '');
 }
 
 export function meta() {
@@ -167,7 +160,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [touched, setTouched] = useState({ email: false, password: false });
-  const [emailRegistered, setEmailRegistered] = useState(null);
 
   const rawFieldErrors = actionData?.fieldErrors ?? {};
   const formError = actionData?.formError ?? authError;
@@ -184,14 +176,12 @@ export default function Login() {
     serverFieldErrors,
     identifier,
     actionData?.email,
-    emailRegistered,
   );
   const passwordServerError = getActiveServerFieldError(
     'password',
     serverFieldErrors,
     password,
     actionData?.password,
-    emailRegistered,
   );
   const activeFieldErrors = {
     email: identifierServerError || undefined,
@@ -209,28 +199,6 @@ export default function Login() {
   const touchField = field => {
     setTouched(prev => ({ ...prev, [field]: true }));
   };
-
-  useEffect(() => {
-    if (!serverFieldErrors.email) {
-      setEmailRegistered(null);
-      return;
-    }
-
-    const result = validateEmail(identifier);
-    if (result.field) {
-      setEmailRegistered(false);
-      return;
-    }
-
-    let cancelled = false;
-    checkEmailRegistered(identifier).then((registered) => {
-      if (!cancelled) setEmailRegistered(registered);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [identifier, serverFieldErrors.email]);
 
   useEffect(() => {
     if (actionData?.email) setIdentifier(actionData.email);
