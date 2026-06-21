@@ -9,5 +9,5 @@ export async function loader({ request }) {
   const raw = new URL(request.url).searchParams.get('q') ?? '';
   const { value: q } = validateSearchQuery(raw);
   const result = await searchAntwerpPlaces(q);
-  return Response.json(result);
+  return Response.json({ ...result, query: q });
 }

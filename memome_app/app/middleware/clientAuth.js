@@ -11,6 +11,7 @@
 import { redirect } from 'react-router';
 import {
   isGuestAccessiblePath,
+  isPublicApiPath,
   isPublicAppPath,
   loginPathWithRedirect,
   paths,
@@ -24,7 +25,7 @@ function isProfileSettingsPath(pathname) {
 /** App-wide auth — skips login/register and guest-accessible routes. Attach to root route. */
 export async function requireAppAuthMiddleware({ request }, next) {
   const { pathname } = new URL(request.url);
-  if (isPublicAppPath(pathname) || isGuestAccessiblePath(pathname)) {
+  if (isPublicAppPath(pathname) || isGuestAccessiblePath(pathname) || isPublicApiPath(pathname)) {
     return next();
   }
   return requireAuthClientMiddleware({ request }, next);

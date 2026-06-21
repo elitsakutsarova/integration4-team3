@@ -222,4 +222,14 @@ After our consult, I changed a lot of things in test5 like:
 ## Test 18 -> Log-in improvement
 - Add terms & privacy policy page (both links lead to one page) ✔️
 
+## Test 19 -> Fix search bar(s):
+- When a guest types in the search bar in the Homepage and Discover, they get redirected to the log-in page -> fix ✔️
+- If the user doesn’t allow microphone, the browser should ask for permission every time, and if the access is denied, the user should get a popup that they need to allow microphone access ✔️
+- When the user clicks on the suggested search words (Festival, Grote Market… etc), on the spot it shows “0 results found” until they type in more words or an empty space, it doesn’t immediately filter the search -> fix it ✔️
+- When the user stops speaking to the microphone, the microphone should automatically stop and already start filtering/showing results, instead of the user having to click on the microphone again ✔️
+- Add “Use current position” button on the add-memo location search ✔️
+
+
+
+
 ## Deployment

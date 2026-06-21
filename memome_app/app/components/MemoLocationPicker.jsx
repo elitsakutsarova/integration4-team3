@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useDebounceCallback } from '../hooks/useDebounceCallback';
 import { useSpeechSearch } from '../hooks/useSpeechSearch';
 import SearchListeningView from './search/SearchListeningView';
+import MicrophonePermissionModal from './search/MicrophonePermissionModal';
 import { fetchLocationSearchClient } from '../utils/fetchLocationSearchClient';
 import { locationPickerAssets } from '../utils/locationPickerAssets';
 import {
@@ -137,15 +138,18 @@ export default function MemoLocationPicker({
     if (!transcript) return;
     setQuery(transcript);
     setIsFocused(true);
+    if (!meta?.isFinal) return;
     const trimmed = transcript.trim();
-    if (trimmed.length >= 2 && (meta?.isFinal ?? true)) {
-      triggerSearch(trimmed);
-    }
-  }, [triggerSearch]);
+    if (trimmed.length < 2) return;
+    triggerSearch.cancel();
+    void runSearch(trimmed);
+  }, [runSearch, triggerSearch]);
 
   const {
     isListening,
     error: speechError,
+    permissionBlocked,
+    dismissPermissionBlocked,
     stopListening,
     toggleListening,
   } = useSpeechSearch({ onTranscript: handleSpeechTranscript });
@@ -523,6 +527,11 @@ export default function MemoLocationPicker({
       {geoError && !showPanel && (
         <p className="loc-picker-error loc-picker-error--floating" role="alert">{geoError}</p>
       )}
+
+      <MicrophonePermissionModal
+        open={permissionBlocked}
+        onClose={dismissPermissionBlocked}
+      />
     </div>
   );
 }
