@@ -368,17 +368,27 @@ export default function MemoLocationPicker({
 
       <div className={`loc-picker-ui${showPanel ? ' loc-picker-ui--panel' : ''}`}>
         <header className={`loc-picker-header${isListening ? ' loc-picker-header--listening' : ''}`}>
-          {isListening && (
-            <div className="loc-picker-pixel-deco" aria-hidden="true">
-              <span /><span /><span /><span /><span /><span />
-            </div>
-          )}
+          {isListening}
 
           <div className="loc-picker-hero-deco" aria-hidden="true">
-            <div className="loc-picker-grid-gradient" />
+            <img className="loc-picker-hero-grid" src={locationPickerAssets.greenGrid} alt="" />
             <div className="loc-picker-grid-pattern" />
-            <div className="loc-picker-pixel-deco loc-picker-pixel-deco--hero">
-              <span /><span /><span /><span />
+            <img
+              className="loc-picker-hero-wave"
+              src={locationPickerAssets.waveArrow}
+              alt=""
+            />
+          </div>
+
+          <div className="loc-picker-title-bar">
+            <div className="loc-picker-titles">
+              <button type="button" className="loc-picker-back-btn btn-chevron" onClick={handleBack} aria-label="Back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <h2 className="loc-picker-title">Location</h2>
+              <div className="loc-picker-title-spacer" aria-hidden="true" />
             </div>
             <img
               className="loc-picker-pin-deco"
@@ -388,20 +398,10 @@ export default function MemoLocationPicker({
             />
           </div>
 
-          <div className="loc-picker-title-bar">
-            <button type="button" className="loc-picker-back-btn" onClick={handleBack} aria-label="Back">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <h2 className="loc-picker-title">Location</h2>
-            <div className="loc-picker-title-spacer" aria-hidden="true" />
-          </div>
-
           <div className="loc-picker-search-bar">
-            <svg className="loc-picker-search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-              <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <svg class="loc-picker-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
               ref={inputRef}
@@ -434,9 +434,8 @@ export default function MemoLocationPicker({
               aria-label={isListening ? 'Stop voice search' : 'Start voice search'}
               aria-pressed={isListening}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="1.8" />
-                <path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M10.9334 1.10791C11.7619 1.10791 12.5565 1.43702 13.1423 2.02285C13.7281 2.60868 14.0572 3.40323 14.0572 4.23172V10.4793C14.0572 11.3078 13.7281 12.1024 13.1423 12.6882C12.5565 13.274 11.7619 13.6031 10.9334 13.6031C10.1049 13.6031 9.31038 13.274 8.72455 12.6882C8.13873 12.1024 7.80961 11.3078 7.80961 10.4793V4.23172C7.80961 3.40323 8.13873 2.60868 8.72455 2.02285C9.31038 1.43702 10.1049 1.10791 10.9334 1.10791ZM18.2223 10.4793C18.2223 14.155 15.5046 17.1851 11.9747 17.6953V20.892H9.89215V17.6953C6.36225 17.1851 3.64453 14.155 3.64453 10.4793H5.72707C5.72707 11.8601 6.2756 13.1844 7.25198 14.1608C8.22836 15.1372 9.55261 15.6857 10.9334 15.6857C12.3142 15.6857 13.6385 15.1372 14.6149 14.1608C15.5912 13.1844 16.1398 11.8601 16.1398 10.4793H18.2223Z" fill="#202020" />
               </svg>
             </button>
           </div>
