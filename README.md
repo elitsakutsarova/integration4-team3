@@ -229,7 +229,11 @@ After our consult, I changed a lot of things in test5 like:
 - When the user stops speaking to the microphone, the microphone should automatically stop and already start filtering/showing results, instead of the user having to click on the microphone again ✔️
 - Add “Use current position” button on the add-memo location search ✔️
 
-
-
+# Test 20 -> fixed issues in Add a memo
+- Add memo back button always takes you to map page, not the page you came from -> fix that ✔️
+- There should already be a default tag selected when the form is open to avoid an error ✔️
+- In choose location, the map should always be visible ✔️
+- When clicking on map to add memo, the form opens and the user has to manually choose a location - make it so the map already has their coordinates, and the user can choose to change them if they want ✔️
+- You can’t add video from “Open camera” on laptop and overall can’t add video on photo -> fix it ✔️
 
 ## Deployment

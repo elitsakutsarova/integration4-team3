@@ -5,6 +5,7 @@
   src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_300/SunAntwerpen_300.woff') format('woff');
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -12,6 +13,7 @@
   src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_300_italic/SunAntwerpen_300_italic.woff') format('woff');
   font-weight: 300;
   font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
@@ -19,6 +21,15 @@
   src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_500/SunAntwerpen_500.woff') format('woff');
   font-weight: 500;
   font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SunAntwerpen';
+  src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_500/SunAntwerpen_500.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -26,6 +37,7 @@
   src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_500_italic/SunAntwerpen_500_italic.woff') format('woff');
   font-weight: 500;
   font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
@@ -33,6 +45,7 @@
   src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_700/SunAntwerpen_700.woff') format('woff');
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -40,6 +53,7 @@
   src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_700_italic/SunAntwerpen_700_italic.woff') format('woff');
   font-weight: 700;
   font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
@@ -47,6 +61,7 @@
   src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_800/SunAntwerpen_800.woff') format('woff');
   font-weight: 800;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -54,6 +69,15 @@
   src: url('/fonts/SunAntwerpen-Web/SunAntwerpen_800_italic/SunAntwerpen_800_italic.woff') format('woff');
   font-weight: 800;
   font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Antwerpen';
+  src: url('/fonts/Antwerpen%20webfonts/Antwerpen%20Regular%20webfonts/Antwerpen-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 :root {
@@ -197,7 +221,7 @@ a.event-popup-location-link {
 h1 {
   color: var(--grey-300, #202020);
     font-feature-settings: 'dlig' on;
-    font-family: Antwerpen;
+    font-family: Antwerpen, var(--font);
     font-size: 1.75rem;
     font-style: normal;
     font-weight: 400;
@@ -207,7 +231,7 @@ h1 {
 h2 {
   color: var(--grey-300, #202020);
     font-feature-settings: 'dlig' on;
-    font-family: Antwerpen;
+    font-family: Antwerpen, var(--font);
     font-size: 1.25rem;
     font-style: normal;
     font-weight: 400;
@@ -217,7 +241,7 @@ h2 {
 h3 {
   color: var(--grey-300, #202020);
     font-feature-settings: 'dlig' on;
-    font-family: SunAntwerpen;
+    font-family: SunAntwerpen, var(--font);
     font-size: 1.25rem;
     font-style: normal;
     font-weight: 700;

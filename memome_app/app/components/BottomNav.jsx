@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router';
-import { guestAddMemoPath, homePathWithAddMemo, paths } from '../utils/appPaths';
+import { addMemoPathFromLocation, guestAddMemoPath, paths } from '../utils/appPaths';
 import { journalAssets } from '../utils/journalAssets';
 import { useAuth } from '../context/AuthContext';
 
@@ -33,7 +33,8 @@ function NavItem({ id, label, active, to, onClick, children }) {
 }
 
 export default function BottomNav({ onAddClick }) {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -48,11 +49,13 @@ export default function BottomNav({ onAddClick }) {
       onAddClick();
       return;
     }
+    const returnTo = pathname === paths.home ? null : `${pathname}${location.search}`;
+
     if (!user) {
-      navigate(guestAddMemoPath());
+      navigate(guestAddMemoPath(returnTo));
       return;
     }
-    navigate(homePathWithAddMemo());
+    navigate(addMemoPathFromLocation(location));
   }
 
   return (

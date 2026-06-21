@@ -1,8 +1,10 @@
-import { Link } from 'react-router';
-import { homePathWithAddMemo } from '../../utils/appPaths';
+import { Link, useLocation } from 'react-router';
+import { addMemoPathFromLocation } from '../../utils/appPaths';
 import { createdMemosAssets } from '../../utils/createdMemosAssets';
 
 export default function CreatedMemosEmptyState() {
+  const location = useLocation();
+
   return (
     <div className="created-memos-empty">
       <img
@@ -16,7 +18,7 @@ export default function CreatedMemosEmptyState() {
         Currently you haven&apos;t added any memos to the map.
       </p>
       <div className="created-memos-empty-cta-wrap">
-      <Link to={homePathWithAddMemo()} className="created-memos-empty-cta">
+      <Link to={addMemoPathFromLocation(location)} className="created-memos-empty-cta">
         Add one now!
       </Link>
       <img

@@ -1,3 +1,6 @@
+/** Pre-selected tag when opening the add-memo form. */
+export const DEFAULT_MEMO_TAG = 'Food';
+
 /** Tag options shown when publishing a new map memo. */
 export const MEMO_TAG_OPTIONS = [
   'Food',

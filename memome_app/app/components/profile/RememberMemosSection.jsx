@@ -1,10 +1,10 @@
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import CreatedMemoCard from './CreatedMemoCard';
 import { ProfileRememberWaveSvg } from './ProfileRememberWave';
 import ShareSheet from '../diary/ShareSheet';
 import DiscoverShareSuccess from '../discover/DiscoverShareSuccess';
 import { useMemoShare } from '../../hooks/useMemoShare';
-import { homePathWithAddMemo } from '../../utils/appPaths';
+import { addMemoPathFromLocation } from '../../utils/appPaths';
 import { accountAssets } from '../../utils/accountAssets';
 
 function RememberTitle() {
@@ -16,6 +16,8 @@ function RememberTitle() {
 }
 
 function RememberEmptyState({ showAddCta }) {
+  const location = useLocation();
+
   return (
     <div className="profile-remember-empty">
       <div className="profile-remember-empty-art" aria-hidden="true">
@@ -29,7 +31,7 @@ function RememberEmptyState({ showAddCta }) {
       </div>
       {showAddCta && (
         <div className="profile-remember-empty-cta-wrap">
-          <Link to={homePathWithAddMemo()} className="profile-remember-empty-cta">
+          <Link to={addMemoPathFromLocation(location)} className="profile-remember-empty-cta">
             Add one now!
           </Link>
           <img className="profile-remember-empty-arrow" src={accountAssets.emptyArrow} alt="" aria-hidden="true" />

@@ -1,14 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import { useAuth } from '../context/AuthContext';
 import { paths } from '../utils/appPaths';
 import { addMemoFormAssets } from '../utils/addMemoFormAssets';
-import { MEMO_TAG_OPTIONS } from '../data/memoTags';
+import { DEFAULT_MEMO_TAG, MEMO_TAG_OPTIONS } from '../data/memoTags';
 import { hasChosenMemoLocation } from '../utils/memoDraft';
 import { isNewMemoDirty } from '../utils/isNewMemoDirty';
+import {
+  loadNewMemoDraft,
+  restoreMediaPreview,
+  saveNewMemoDraft,
+  serializeMediaPreview,
+  snapshotMemoDraftSearchParams,
+} from '../utils/newMemoDraftStore';
 import SectionTitle from './SectionTitle';
 import AddMemoWarningModal from './AddMemoWarningModal';
 import MemoTagIcon from './MemoTagIcon';
-import { buildMemoMediaClassName, resolvePolaroidOrientation } from '../utils/memoPinAssets';
 import { validateMemoMediaFile } from '../utils/validators';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 
@@ -60,15 +67,18 @@ function MediaLoadingIcon({ isVideo }) {
 }
 
 export default function NewMemoForm({ draft, fetcher, hidden = false, onClose }) {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [mediaPreview, setMediaPreview] = useState(null);
   const [mediaPhase, setMediaPhase] = useState('idle');
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadingIsVideo, setLoadingIsVideo] = useState(false);
-  const [selectedTags, setSelectedTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([DEFAULT_MEMO_TAG]);
   const [quote, setQuote] = useState('');
   const [quoteTouched, setQuoteTouched] = useState(false);
   const [showLocationError, setShowLocationError] = useState(false);
   const [warningOpen, setWarningOpen] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
   const [searchParams] = useSearchParams();
   const fileRef = useRef(null);
   const cameraRef = useRef(null);
@@ -76,11 +86,12 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   const loadTimerRef = useRef(null);
   const isSubmittingRef = useRef(false);
   const formRef = useRef(null);
+  const mediaHydratedRef = useRef(false);
   mediaPreviewRef.current = mediaPreview;
 
   const locationLabel = draft?.locationName?.trim() || 'Choose location';
   const locationHint = hasChosenMemoLocation(draft)
-    ? 'Location selected'
+    ? 'Tap to change location'
     : 'Pick from map or use current location';
   const hasLocationName = Boolean(draft?.locationName?.trim());
 
@@ -111,6 +122,73 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
     next.set('step', 'location');
     return `?${next.toString()}`;
   }, [searchParams]);
+
+  // Restore saved draft after refresh.
+  useEffect(() => {
+    if (!userId || draftReady) return;
+
+    const saved = loadNewMemoDraft(userId);
+    if (saved) {
+      if (saved.quote) setQuote(saved.quote);
+      if (saved.selectedTags.length) setSelectedTags(saved.selectedTags);
+      if (saved.quoteTouched) setQuoteTouched(true);
+    }
+
+    setDraftReady(true);
+  }, [userId, draftReady]);
+
+  useEffect(() => {
+    if (!userId || !draftReady || mediaHydratedRef.current) return;
+
+    const saved = loadNewMemoDraft(userId);
+    if (!saved?.media) {
+      mediaHydratedRef.current = true;
+      return;
+    }
+
+    mediaHydratedRef.current = true;
+    let cancelled = false;
+
+    void restoreMediaPreview(saved.media).then((preview) => {
+      if (cancelled || !preview) return;
+      setMediaPreview(preview);
+      setMediaPhase('preview');
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, draftReady, draft?.lat, draft?.lng]);
+
+  // Persist draft while the form is open.
+  useEffect(() => {
+    if (!userId || !draftReady) return undefined;
+
+    let cancelled = false;
+
+    async function persistDraft() {
+      let media = null;
+      if (mediaPhase === 'preview' && mediaPreview?.file) {
+        media = await serializeMediaPreview(mediaPreview);
+      }
+
+      if (cancelled) return;
+
+      saveNewMemoDraft(userId, {
+        quote,
+        selectedTags,
+        quoteTouched,
+        searchParams: snapshotMemoDraftSearchParams(searchParams),
+        media,
+      });
+    }
+
+    void persistDraft();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, draftReady, quote, selectedTags, quoteTouched, searchParams, mediaPhase, mediaPreview]);
 
   // Revoke blob URLs and clear fake upload timer when the form unmounts.
   useEffect(() => {
@@ -273,23 +351,21 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
   }
 
   function toggleTag(tag) {
-    setSelectedTags((prev) => (prev.includes(tag) ? [] : [tag]));
+    setSelectedTags((prev) => {
+      if (prev.includes(tag)) return prev;
+      return [tag];
+    });
   }
 
   function renderMediaZone() {
     if (mediaPhase === 'preview' && mediaPreview) {
-      const mediaClass = buildMemoMediaClassName(
-        'memo-form-media-preview-img',
-        resolvePolaroidOrientation({ mediaPreview }),
-      );
-
       return (
         <div className="memo-form-media-preview">
           <div className="memo-form-media-preview-media">
             {mediaPreview.isVideo ? (
-              <video src={mediaPreview.url} className={mediaClass} controls playsInline />
+              <video src={mediaPreview.url} className="memo-form-media-preview-img" controls playsInline />
             ) : (
-              <img src={mediaPreview.url} alt="Selected media" className={mediaClass} />
+              <img src={mediaPreview.url} alt="Selected media" className="memo-form-media-preview-img" />
             )}
             <button
               type="button"
@@ -552,7 +628,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
         <input
           ref={cameraRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/*,video/mp4,video/quicktime,video/webm"
           capture="environment"
           onChange={handleCameraChange}
           className="memo-form-file-input"

@@ -87,9 +87,19 @@ export function guestHomePath() {
   return paths.home;
 }
 
+export const ADD_MEMO_RETURN_PARAM = 'returnTo';
+
+function appendAddMemoReturnParam(params, returnTo) {
+  const safeReturn = safeInternalRedirectPath(returnTo);
+  if (safeReturn && safeReturn !== paths.home) {
+    params.set(ADD_MEMO_RETURN_PARAM, safeReturn);
+  }
+}
+
 /** Home map URL that opens the guest add-memo locked screen. */
-export function guestAddMemoPath() {
+export function guestAddMemoPath(returnTo = null) {
   const params = new URLSearchParams({ guestAddMemo: '1' });
+  appendAddMemoReturnParam(params, returnTo);
   return `${paths.home}?${params.toString()}`;
 }
 
@@ -97,6 +107,7 @@ export function guestAddMemoPath() {
 export function homePathWithAddMemo(
   lat = ANTWERP_MAP_CENTER.lat,
   lng = ANTWERP_MAP_CENTER.lng,
+  returnTo = null,
 ) {
   const params = new URLSearchParams({
     lat: String(lat),
@@ -104,7 +115,23 @@ export function homePathWithAddMemo(
     pinLat: String(lat),
     pinLng: String(lng),
   });
+  appendAddMemoReturnParam(params, returnTo);
   return `${paths.home}?${params.toString()}`;
+}
+
+/** Open add-memo from the current page and restore it when the form closes. */
+export function addMemoPathFromLocation(location, lat, lng) {
+  const onHome = location.pathname === paths.home;
+  const returnTo = onHome ? null : `${location.pathname}${location.search}`;
+  return homePathWithAddMemo(
+    lat ?? ANTWERP_MAP_CENTER.lat,
+    lng ?? ANTWERP_MAP_CENTER.lng,
+    returnTo,
+  );
+}
+
+export function readAddMemoReturnTo(searchParams) {
+  return safeInternalRedirectPath(searchParams.get(ADD_MEMO_RETURN_PARAM) ?? '');
 }
 
 export function resetPasswordPath() {
