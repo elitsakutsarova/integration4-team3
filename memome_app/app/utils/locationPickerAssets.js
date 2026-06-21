@@ -1,5 +1,7 @@
 /** Assets for the memo location picker screen. */
 
 export const locationPickerAssets = {
-  pinDeco: '/journals/recap/map-pin.svg',
+  pinDeco: '/addMemoForm/pin_deco.svg',
+  greenGrid: '/addMemoForm/green-grid.svg',
+  waveArrow: '/addMemoForm/wave-arrow.svg',
 };

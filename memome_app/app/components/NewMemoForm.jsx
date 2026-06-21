@@ -19,12 +19,8 @@ const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
 
 function TrashIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M3 6h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M8 6V4h8v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M6 6l1 14h10l1-14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="20" viewBox="0 0 18 20" fill="none">
+      <path d="M5.625 0V1.11111H0V3.33333H1.125V17.7778C1.125 18.3671 1.36205 18.9324 1.78401 19.3491C2.20597 19.7659 2.77826 20 3.375 20H14.625C15.2217 20 15.794 19.7659 16.216 19.3491C16.6379 18.9324 16.875 18.3671 16.875 17.7778V3.33333H18V1.11111H12.375V0H5.625ZM3.375 3.33333H14.625V17.7778H3.375V3.33333ZM5.625 5.55556V15.5556H7.875V5.55556H5.625ZM10.125 5.55556V15.5556H12.375V5.55556H10.125Z" fill="#FF4400" />
     </svg>
   );
 }
@@ -50,17 +46,15 @@ function UploadErrorIcon() {
 function MediaLoadingIcon({ isVideo }) {
   if (isVideo) {
     return (
-      <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true">
-        <rect x="4" y="10" width="38" height="26" rx="4" stroke="#9CA3AF" strokeWidth="2" />
-        <path d="M20 18l10 5-10 5V18z" fill="#9CA3AF" />
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <path d="M2 2H33.5V33.5H2V2Z" stroke="#797979" stroke-width="4" />
+        <path d="M24.3125 17.75L12.5 24.5698V10.9303L24.3125 17.75Z" stroke="#797979" stroke-width="4" />
       </svg>
     );
   }
   return (
-    <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true">
-      <rect x="6" y="10" width="34" height="26" rx="4" stroke="#9CA3AF" strokeWidth="2" />
-      <circle cx="16" cy="19" r="3" fill="#9CA3AF" />
-      <path d="M6 30l9-9 7 7 6-6 12 12" stroke="#9CA3AF" strokeWidth="2" strokeLinejoin="round" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
+      <path d="M5.75 26.8333H28.75L21.5625 17.25L15.8125 24.9167L11.5 19.1667L5.75 26.8333ZM0 34.5V0H34.5V34.5H0ZM3.83333 30.6667H30.6667V3.83333H3.83333V30.6667Z" fill="#797979" />
     </svg>
   );
 }
