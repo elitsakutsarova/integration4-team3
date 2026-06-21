@@ -1,16 +1,21 @@
 import '../styles/modules/stickers.css';
+import '../styles/modules/profile.css';
 import '../styles/modules/map.css';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useLoaderData, useSearchParams } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';
 import GuestAuthCta from '../components/GuestAuthCta';
 import AchievementStickerTile from '../components/profile/AchievementStickerTile';
-import StickerVisual from '../components/diary/StickerVisual';
+import CollectionStickerTile from '../components/stickers/CollectionStickerTile';
+import ProfileRememberWave from '../components/profile/ProfileRememberWave';
+import StickerOutlineDefs from '../components/stickers/StickerOutlineDefs';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
 import { ACHIEVEMENT_TOTAL, getAchievementStates } from '../data/achievementStickers';
 import { withDefaultJournalStickers } from '../data/defaultJournalStickers';
 import { useOwnedStickerCount } from '../hooks/useOwnedStickerCount';
+import { assignUniqueCollectionRotations } from '../utils/collectionStickerRotation';
+import { getNewestCollectedStickerId } from '../utils/collectionNewSticker';
 import { paths } from '../utils/appPaths';
 import { accountAssets } from '../utils/accountAssets';
 import { discoverAssets } from '../utils/discoverAssets';
@@ -59,7 +64,7 @@ function BackIcon() {
 
 function StickersCountBadge({ tab, collectionCount, achievementUnlocked }) {
   const label = tab === 'achievements'
-    ? `${achievementUnlocked}/${ACHIEVEMENT_TOTAL}`
+    ? `${achievementUnlocked}/${ACHIEVEMENT_TOTAL} stickers`
     : `${collectionCount} sticker${collectionCount === 1 ? '' : 's'}`;
 
   return (
@@ -74,10 +79,22 @@ function GuestStickerCollection() {
   const [tab, setTab] = useState('collection');
 
   const collectedIds = new Set(collected.map(sticker => sticker.id));
-  const guestAchievements = getAchievementStates(null, collected.length);
+  const guestAchievements = useMemo(
+    () => getAchievementStates(null, collected.length),
+    [collected.length],
+  );
+  const catalogWithRotation = useMemo(
+    () => assignUniqueCollectionRotations(catalog),
+    [catalog],
+  );
+  const newestStickerId = useMemo(
+    () => getNewestCollectedStickerId(collected),
+    [collected],
+  );
 
   return (
     <div className="stickers-page stickers-page--guest">
+      <StickerOutlineDefs />
       <header className="stickers-header">
         <div className="sticker-header-deco" aria-hidden="true">
           <img className="stickers-header-deco-grid" src={accountAssets.greenGrid} alt="" />
@@ -129,20 +146,22 @@ function GuestStickerCollection() {
         </div>
       </div>
 
+      <ProfileRememberWave />
+
       <div className="stickers-scroll">
         <div className="stickers-content" role="tabpanel">
           {tab === 'collection' && (
             <div className="stickers-grid stickers-grid--collection">
-              {catalog.map(item => {
+              {catalogWithRotation.map(item => {
                 const owned = collectedIds.has(item.id);
-                const ownedSticker = collected.find(s => s.id === item.id) ?? item;
                 return (
-                  <div
+                  <CollectionStickerTile
                     key={item.id}
-                    className={`stickers-tile stickers-tile--collection${owned ? '' : ' stickers-tile--locked'}`}
-                  >
-                    <StickerVisual src={ownedSticker.src} emoji={ownedSticker.emoji} label={ownedSticker.label} />
-                  </div>
+                    sticker={item}
+                    locked={!owned}
+                    guestLockedStyle={!owned}
+                    isNew={owned && item.id === newestStickerId}
+                  />
                 );
               })}
             </div>
@@ -173,7 +192,14 @@ export default function StickersGallery() {
   const collected = useCollectedStickers();
   const loading = useCollectedStickersLoading();
   const { collectedCount, achievementUnlocked, achievements } = useOwnedStickerCount();
-  const collectionStickers = withDefaultJournalStickers(collected, user);
+  const collectionStickers = useMemo(
+    () => assignUniqueCollectionRotations(withDefaultJournalStickers(collected, user)),
+    [collected, user],
+  );
+  const newestStickerId = useMemo(
+    () => getNewestCollectedStickerId(collected),
+    [collected],
+  );
 
   if (!user) {
     return <GuestStickerCollection />;
@@ -185,6 +211,7 @@ export default function StickersGallery() {
 
   return (
     <div className="stickers-page">
+      <StickerOutlineDefs />
       <header className="stickers-header">
         <div className="sticker-header-deco" aria-hidden="true">
           <img className="stickers-header-deco-grid" src={accountAssets.greenGrid} alt="" />
@@ -237,6 +264,8 @@ export default function StickersGallery() {
         </div>
       </div>
 
+      <ProfileRememberWave />
+
       <StickersCountBadge
         tab={tab}
         collectionCount={collectedCount}
@@ -252,9 +281,11 @@ export default function StickersGallery() {
               ) : (
                 <div className="stickers-grid stickers-grid--collection">
                   {collectionStickers.map(sticker => (
-                    <div key={sticker.id} className="stickers-tile stickers-tile--collection">
-                      <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
-                    </div>
+                    <CollectionStickerTile
+                      key={sticker.id}
+                      sticker={sticker}
+                      isNew={sticker.id === newestStickerId}
+                    />
                   ))}
                 </div>
               )}

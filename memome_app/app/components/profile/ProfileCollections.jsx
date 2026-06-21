@@ -10,7 +10,6 @@ export default function ProfileCollections({
   memosLabel,
   favouritesLabel,
   stickersCount,
-  featuredStickerSrc,
   locked = false,
 }) {
   if (locked) {
@@ -29,12 +28,11 @@ export default function ProfileCollections({
             <CollectionIcon src={accountAssets.favouritesIcon} alt="" />
             <span>Favorites</span>
           </div>
-          <Link to={paths.stickers} className="collection-card collection-card--account collection-card--stickers collection-card--link collection-card--guest-active">
-            {featuredStickerSrc ? (
-              <img className="collection-card-sticker-preview" src={featuredStickerSrc} alt="" />
-            ) : (
-              <CollectionIcon src={accountAssets.stickersIcon} alt="" />
-            )}
+          <Link
+            to={paths.stickers}
+            className="collection-card collection-card--account collection-card--stickers collection-card--link"
+          >
+            <CollectionIcon src={accountAssets.stickersIcon} alt="" />
             <span>Stickers</span>
           </Link>
         </div>

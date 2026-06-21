@@ -66,7 +66,10 @@ export function CollectedStickersProvider({ initialStickers = [], children }) {
     if (!sticker?.id) return;
     setCollectedStickers((prev) => {
       if (prev.some((item) => item.id === sticker.id)) return prev;
-      return [...prev, sticker];
+      return [...prev, {
+        ...sticker,
+        claimedAt: sticker.claimedAt ?? new Date().toISOString(),
+      }];
     });
   }, []);
 

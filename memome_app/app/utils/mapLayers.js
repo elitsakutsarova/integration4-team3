@@ -20,15 +20,9 @@ export function createOsmLayer(L) {
 
 // OpenFreeMap layer (vector style) -> uses Maplibre GL to render vector tiles
 export function createOpenFreeMapLayer(L) {
-  const layer = L.maplibreGL({
+  return L.maplibreGL({
     style: OPENFREEMAP_STYLE,
   });
-
-  layer.on('add', () => {
-    attachMissingStyleImageFallback(layer.getMaplibreMap?.());
-  });
-
-  return layer;
 }
 
 /** OpenFreeMap styles reference POI icons missing from their sprite sheet. */
@@ -63,6 +57,71 @@ const OPENFREEMAP_MISSING_SPRITE_IDS = [
   'toll_booth',
 ];
 
+const WEBGL_CONTEXT_ATTRS = {
+  antialias: false,
+  alpha: true,
+  depth: true,
+  stencil: true,
+  premultipliedAlpha: true,
+  preserveDrawingBuffer: false,
+  powerPreference: 'high-performance',
+  failIfMajorPerformanceCaveat: false,
+};
+
+/** OpenFreeMap/MapLibre needs WebGL; skip vector tiles when the browser blocks it. */
+export function isWebGLAvailable() {
+  if (typeof document === 'undefined') return false;
+
+  try {
+    const canvas = document.createElement('canvas');
+    const gl =
+      canvas.getContext('webgl2', WEBGL_CONTEXT_ATTRS)
+      ?? canvas.getContext('webgl', WEBGL_CONTEXT_ATTRS)
+      ?? canvas.getContext('experimental-webgl', WEBGL_CONTEXT_ATTRS);
+
+    if (!gl) return false;
+
+    const vendor = gl.getParameter(gl.VENDOR);
+    const renderer = gl.getParameter(gl.RENDERER);
+    if (vendor === 0xffff || renderer === 0xffff) return false;
+    if (String(renderer).toLowerCase().includes('disabled')) return false;
+
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    if (debugInfo) {
+      const unmasked = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+      if (String(unmasked).toLowerCase().includes('disabled')) return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function fallbackToOsmBasemap(map, openFreeMap, osm) {
+  if (openFreeMap && map.hasLayer(openFreeMap)) {
+    map.removeLayer(openFreeMap);
+  }
+  if (!map.hasLayer(osm)) {
+    osm.addTo(map);
+  }
+}
+
+function attachOpenFreeMapFallback(map, openFreeMap, osm) {
+  const fallback = () => fallbackToOsmBasemap(map, openFreeMap, osm);
+
+  openFreeMap.on?.('error', fallback);
+  openFreeMap.on?.('add', () => {
+    const glMap = openFreeMap.getMaplibreMap?.();
+    if (!glMap) {
+      fallback();
+      return;
+    }
+    attachMissingStyleImageFallback(glMap);
+    glMap.on('error', fallback);
+  });
+}
+
 /** Remove leftover pin hosts from earlier map init (pane reparenting broke Leaflet clicks). */
 export function removeStaleMapPinHosts(root) {
   root?.querySelectorAll('.map-pins-above-tint').forEach(el => el.remove());
@@ -74,10 +133,14 @@ export function addBasemapControl(L, map, { defaultLayer = 'openfreemap' } = {})
   const osm = createOsmLayer(L);
   let openFreeMap = null;
 
-  try {
-    openFreeMap = createOpenFreeMapLayer(L);
-  } catch (err) {
-    console.warn('[MemMe] OpenFreeMap layer unavailable, using OSM.', err?.message);
+  if (isWebGLAvailable()) {
+    try {
+      openFreeMap = createOpenFreeMapLayer(L);
+    } catch (err) {
+      console.warn('[MemMe] OpenFreeMap layer unavailable, using OSM.', err?.message);
+    }
+  } else {
+    console.warn('[MemMe] WebGL unavailable, using OSM basemap.');
   }
 
   const baseLayers = { OpenStreetMap: osm };
@@ -85,16 +148,12 @@ export function addBasemapControl(L, map, { defaultLayer = 'openfreemap' } = {})
 
   const activeLayer =
     defaultLayer === 'osm' || !openFreeMap ? osm : openFreeMap;
-  activeLayer.addTo(map);
 
   if (openFreeMap) {
-    openFreeMap.on?.('error', () => {
-      if (map.hasLayer(openFreeMap)) {
-        map.removeLayer(openFreeMap);
-        if (!map.hasLayer(osm)) osm.addTo(map);
-      }
-    });
+    attachOpenFreeMapFallback(map, openFreeMap, osm);
   }
+
+  activeLayer.addTo(map);
 
   L.control
     .layers(baseLayers, null, {

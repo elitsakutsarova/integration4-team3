@@ -42,7 +42,7 @@ export async function clientLoader({ request }) {
 
   if (result.sticker) {
     markPhysicalStickerScanned(userId ?? 'guest');
-    writeStickerReveal(result.sticker);
+    writeStickerReveal({ ...result.sticker, claimedAt: result.claimedAt });
   }
 
   throw redirect(paths.home);

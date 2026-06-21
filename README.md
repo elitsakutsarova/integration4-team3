@@ -217,6 +217,6 @@ After our consult, I changed a lot of things in test5 like:
 - If the user is a guest, do not show sticker counter ✔️
 - Fix wrong sticker counter logic ✔️
 - Add 5 basic stickers so that the user can decorate the diary straight away ✔️
-- Make design fit the wireframes
+- Make design fit the wireframes ✔️
 
 ## Deployment

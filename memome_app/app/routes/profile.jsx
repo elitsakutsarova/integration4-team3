@@ -22,9 +22,7 @@ export function meta() {
   ];
 }
 
-function GuestProfile({ collectedStickers }) {
-  const featuredSticker = collectedStickers[0];
-
+function GuestProfile() {
   return (
     <div className="profile-page profile-page--account profile-page--guest">
       <ProfileHero
@@ -35,10 +33,7 @@ function GuestProfile({ collectedStickers }) {
         settingsDisabled
       />
 
-      <ProfileCollections
-        locked
-        featuredStickerSrc={featuredSticker?.src}
-      />
+      <ProfileCollections locked />
 
       <RememberMemosSection memos={[]} showAddCta={false} />
 
@@ -60,7 +55,7 @@ export default function Profile() {
   const { totalCount: stickersCount } = useOwnedStickerCount();
 
   if (!user) {
-    return <GuestProfile collectedStickers={collectedStickers} />;
+    return <GuestProfile />;
   }
 
   const favouritesCount = savedMemosCount + discoverFavesCount;

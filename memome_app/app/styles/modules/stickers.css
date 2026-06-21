@@ -127,6 +127,12 @@
   justify-items: center;
 }
 
+.stickers-page .profile-remember {
+  margin-top: 1rem;
+  z-index: 0;
+  margin-bottom: -2rem;
+}
+
 .stickers-scroll {
   flex: 1;
   min-height: 0;
@@ -149,8 +155,8 @@
   left: 65%;
   margin: 0;
   padding: 6px 16px;
-  border-radius: 999px;
-  background: #5dbb63;
+  border-radius: 6px;
+  background: #00B26F;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -178,6 +184,7 @@
     background-color 0.25s ease,
     color 0.25s ease,
     transform 0.2s ease;
+  cursor: pointer;
 }
 
 .stickers-tab:hover {
@@ -234,6 +241,7 @@
   padding: 20px 20px 28px;
 }
 
+/* Collection sticker dashed shape outline — see .stickers-collection-outline-img */
 .stickers-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -257,91 +265,267 @@
   overflow: hidden;
 }
 
-.stickers-tile--collection .sticker-img {
-  width: 72%;
-  height: 72%;
+.stickers-tile--collection {
+  aspect-ratio: auto;
+  min-height: 118px;
+  background: transparent;
+  border-radius: 0;
+  overflow: visible;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stickers-outline-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.stickers-collection-visual {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  overflow: visible;
+}
+
+.stickers-collection-frame {
+  --sticker-collection-size: 118px;
+  --sticker-outline-gap: 0.25rem;
+  --sticker-outline-stroke: 1.5px;
+  --sticker-outline-bleed: calc(var(--sticker-outline-gap) + var(--sticker-outline-stroke) + 6px);
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  transform-origin: center center;
+}
+
+.stickers-collection-frame .sticker-img {
+  grid-area: 1 / 1;
+  width: var(--sticker-collection-size);
+  height: var(--sticker-collection-size);
+  min-width: var(--sticker-collection-size);
+  min-height: var(--sticker-collection-size);
+  max-width: var(--sticker-collection-size);
+  max-height: var(--sticker-collection-size);
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.stickers-collection-outline {
+  grid-area: 1 / 1;
+  box-sizing: content-box;
+  width: var(--sticker-collection-size);
+  height: var(--sticker-collection-size);
+  padding: var(--sticker-outline-bleed);
+  filter: url(#sticker-collection-outline);
+  /* Figma: dashed blue contour — on padded wrapper so stroke is not mask-clipped */
+  mask: repeating-conic-gradient(#000 0deg 6deg, transparent 6deg 12deg);
+  -webkit-mask: repeating-conic-gradient(#000 0deg 6deg, transparent 6deg 12deg);
+}
+
+.stickers-collection-outline-img {
+  display: block;
+  width: var(--sticker-collection-size);
+  height: var(--sticker-collection-size);
   object-fit: contain;
 }
 
-.stickers-tile--collection span {
-  font-size: 40px;
+.stickers-collection-frame span {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sticker-collection-size);
+  height: var(--sticker-collection-size);
+  font-size: calc(var(--sticker-collection-size) * 0.55);
   line-height: 1;
+}
+
+.stickers-collection-new-badge {
+  position: relative;
+  top: -209%;
+  left: -17%;
+  z-index: 2;
+  height: auto;
+  pointer-events: none;
+  transform: rotate(21.66deg);
+}
+
+.stickers-grid--achievements {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.375rem 1.25rem;
+}
+
+.stickers-grid--achievements .stickers-tile--achievement {
+  flex: 0 1 calc((100% - 1.25rem) / 2);
+  max-width: calc((100% - 1.25rem) / 2);
+  box-sizing: border-box;
 }
 
 .stickers-tile--achievement {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  position: relative;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   aspect-ratio: auto;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 9.1px rgba(0, 0, 0, 0.25);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
   overflow: visible;
-
 }
 
-.stickers-tile-art {
-  flex: 1;
+.stickers-achievement-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Figma Frame 14918 — white card, blue backdrop, tilted sticker, label on card */
+.stickers-achievement-frame {
+  --achievement-scale: 1;
+  --achievement-card-width: calc(139px * var(--achievement-scale));
+  --achievement-card-height: calc(136px * var(--achievement-scale));
+  --achievement-frame-width: calc(144px * var(--achievement-scale));
+  --achievement-frame-height: calc(196px * var(--achievement-scale));
+  --achievement-card-top: calc(60px * var(--achievement-scale));
+  --achievement-card-left: calc(3px * var(--achievement-scale));
+  --achievement-backdrop-left: calc(7px * var(--achievement-scale));
+  --achievement-backdrop-top: calc(2px * var(--achievement-scale));
+  --achievement-backdrop-width: calc(125px * var(--achievement-scale));
+  --achievement-backdrop-height: calc(146px * var(--achievement-scale));
+  --achievement-backdrop-radius: calc(7px * var(--achievement-scale));
+  --achievement-art-width: clamp(7rem, 40vw, 10rem);
+  --achievement-art-max-height: calc(152px * var(--achievement-scale));
+  --achievement-label-top: calc(167px * var(--achievement-scale));
+  --achievement-label-size: calc(16px * var(--achievement-scale));
+  --achievement-card-radius: calc(12px * var(--achievement-scale));
+  position: relative;
+  width: var(--achievement-frame-width);
+  height: var(--achievement-frame-height);
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.stickers-achievement-card {
+  position: absolute;
+  left: var(--achievement-card-left);
+  top: var(--achievement-card-top);
+  width: var(--achievement-card-width);
+  height: var(--achievement-card-height);
+  border-radius: var(--achievement-card-radius);
+  background: #fff;
+  box-shadow: 0 2px 9.1px rgba(0, 0, 0, 0.25);
+}
+
+.stickers-achievement-backdrop {
+  position: absolute;
+  left: var(--achievement-backdrop-left);
+  top: var(--achievement-backdrop-top);
+  width: var(--achievement-backdrop-width);
+  height: var(--achievement-backdrop-height);
+  border-radius: var(--achievement-backdrop-radius);
+  background: #9CA3AF;
+  transform: rotate(5.1deg);
+  transform-origin: center center;
+  z-index: 0;
+}
+
+.stickers-achievement-art {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--achievement-art-width);
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 7.25rem;
-  min-height: 9rem;
-  border-radius: 0.4375rem;
-  margin-top: -1rem;
-  position: relative;
-  z-index: 1;
-  background: var(--grey-150, #9CA3AF);
-  ;
+  transform: translateX(-50%) rotate(-5.32deg);
+  transform-origin: center center;
 }
 
-.stickers-tile--achievement .sticker-img {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-}
-
-.stickers-tile--achievement span:not(.stickers-achievement-label):not(.stickers-achievement-mystery-label) {
-  font-size: 36px;
-  line-height: 1;
-}
-
-.stickers-achievement-label {
-  width: 100%;
-  padding: 8px 6px;
-  color: var(--grey-300, #202020);
-  text-align: center;
-  font-feature-settings: 'dlig' on;
-  font-family: SunAntwerpen;
-  font-size: 1rem;
-  font-style: normal;
-  font-weight: 700;
-  text-align: center;
-  line-height: 1.25;
-  border-radius: 0 0 12px 12px;
-}
-
-.stickers-tile--achievement-locked {
-  justify-content: flex-start;
-  padding-bottom: 10px;
-}
-
+.stickers-achievement-art .sticker-img,
 .stickers-achievement-silhouette-svg {
+  width: var(--achievement-art-width);
+  height: auto;
+  max-height: var(--achievement-art-max-height);
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
   display: block;
 }
 
+.stickers-achievement-label,
 .stickers-achievement-mystery-label {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  padding: 10px 6px 4px;
-  font-size: 16px;
+  position: absolute;
+  left: 50%;
+  top: var(--achievement-label-top);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(var(--achievement-card-width) - 12px);
+  padding: 0;
+  text-align: center;
+  font-family: var(--font);
+  font-size: var(--achievement-label-size);
   font-weight: 700;
   line-height: 1.2;
-  text-align: center;
-  color: #9ca3af;
+  font-feature-settings: 'dlig' on;
+  color: var(--dark, #202020);
+  white-space: normal;
+  z-index: 2;
+}
+
+.stickers-achievement-silhouette-svg {
+  overflow: visible;
+}
+
+.stickers-tile--collection-guest-locked {
+  min-height: 0;
+}
+
+.stickers-tile--achievement-locked,
+.stickers-tile--achievement-unlocked {
+  opacity: 1;
+  filter: none;
+}
+
+@media (max-width: 360px) {
+  .stickers-content {
+    padding-inline: calc(20px * 100vw / 360px);
+  }
+
+  .stickers-grid {
+    row-gap: calc(2rem * 100vw / 360px);
+    column-gap: calc(2rem * 100vw / 360px);
+  }
+
+  .stickers-grid--achievements {
+    gap: calc(1.375rem * 100vw / 360px) calc(1.25rem * 100vw / 360px);
+  }
+
+  .stickers-achievement-frame {
+    --achievement-scale: calc(100vw / 360px);
+    --achievement-art-width: calc(126px * var(--achievement-scale));
+  }
+
+  .stickers-collection-frame {
+    --sticker-collection-size: calc(118px * 100vw / 360px);
+  }
+
+  .stickers-tile--collection {
+    min-height: calc(118px * 100vw / 360px);
+  }
 }
 
 .stickers-tile--locked {
@@ -351,17 +535,15 @@
 
 .stickers-tile--collection.stickers-tile--locked {
   opacity: 0.45;
-  filter: grayscale(1);
-}
-
-.stickers-tile--achievement-locked,
-.stickers-tile--achievement-unlocked {
-  opacity: 1;
   filter: none;
 }
 
-.stickers-tile--locked .stickers-achievement-label {
-  background: #9090a0;
+.stickers-tile--collection.stickers-tile--locked .sticker-img {
+  filter: grayscale(1);
+}
+
+.stickers-tile--collection.stickers-tile--locked .stickers-collection-outline {
+  filter: url(#sticker-collection-outline) grayscale(1);
 }
 
 .stickers-empty-block {
@@ -403,7 +585,7 @@
   align-self: center;
   align-items: center;
   gap: clamp(10px, 2.5vw, 14px);
-  width: min(100%, 334px);
+  width: 100%;
   margin: 0 auto;
   text-align: center;
   pointer-events: auto;
@@ -430,14 +612,7 @@
     left: 50%;
     right: auto;
     width: 100%;
-    max-width: 640px;
     transform: translateX(-50%);
-  }
-}
-
-@media (min-width: 768px) {
-  .stickers-guest-cta {
-    max-width: 393px;
   }
 }
 
