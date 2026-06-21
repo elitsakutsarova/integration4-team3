@@ -655,7 +655,7 @@ export default function MapView({ savedMemos = [], active = true }) {
               <MapGuestCta retracted={guestCtaRetracted} />
             )}
 
-            <BottomNav onAddClick={handleAddBtnClick} />
+            {!hideBottomNav && <BottomNav onAddClick={handleAddBtnClick} />}
           </div>
           <button
             type="button"

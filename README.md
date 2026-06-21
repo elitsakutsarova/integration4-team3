@@ -219,4 +219,7 @@ After our consult, I changed a lot of things in test5 like:
 - Add 5 basic stickers so that the user can decorate the diary straight away ✔️
 - Make design fit the wireframes ✔️
 
+## Test 18 -> Log-in improvement
+- Add terms & privacy policy page (both links lead to one page)
+
 ## Deployment

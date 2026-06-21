@@ -15,6 +15,7 @@ export const paths = {
   resetPassword: href('/reset-password'),
   resetPasswordSuccess: href('/reset-password/success'),
   register: href('/register'),
+  termsOfService: href('/terms-of-service'),
   loggedOut: href('/logged-out'),
   onboarding1: href('/onboarding/1'),
   onboarding2: href('/onboarding/2'),
@@ -138,6 +139,7 @@ const PUBLIC_APP_PATHS = new Set([
   paths.resetPassword,
   paths.resetPasswordSuccess,
   paths.register,
+  paths.termsOfService,
   paths.loggedOut,
   paths.collect,
 ]);
@@ -193,7 +195,7 @@ export function getSafeFallbackPath(pathname) {
   if (path.startsWith('/profile') || path.startsWith('/stickers') || path.startsWith('/collect') || path.startsWith('/connect')) {
     return FALLBACK_PROFILE;
   }
-  if (path.startsWith('/login') || path.startsWith('/register') || path.startsWith('/logged-out') || path.startsWith('/onboarding')) {
+  if (path.startsWith('/login') || path.startsWith('/register') || path.startsWith('/terms-of-service') || path.startsWith('/logged-out') || path.startsWith('/onboarding')) {
     return FALLBACK_HOME;
   }
 
