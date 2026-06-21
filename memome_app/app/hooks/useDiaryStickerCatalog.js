@@ -10,6 +10,7 @@ import {
   buildAchievementContext,
   getAchievementStates,
 } from '../data/achievementStickers';
+import { mergeDefaultJournalStickers } from '../data/defaultJournalStickers';
 
 /** Digital catalog + collected + achievements — for rendering placed journal stickers. */
 export function useDiaryStickerCatalog() {
@@ -24,6 +25,7 @@ export function useDiaryStickerCatalog() {
   return useMemo(() => {
     const byId = new Map();
     for (const sticker of catalogStickers) byId.set(sticker.id, sticker);
+    mergeDefaultJournalStickers(byId, user);
     for (const sticker of collectedStickers) byId.set(sticker.id, sticker);
 
     const achievements = getAchievementStates(

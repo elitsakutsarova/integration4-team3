@@ -43,11 +43,11 @@ function ShapeOutline({ shape }) {
   );
 }
 
-export default function LockedAchievementSilhouette({ stickerId }) {
-  const shape = ACHIEVEMENT_STICKER_SHAPES[stickerId];
+export default function LockedAchievementSilhouette({ stickerId, shape: shapeOverride, clipKey }) {
+  const shape = shapeOverride ?? ACHIEVEMENT_STICKER_SHAPES[stickerId];
   if (!shape) return null;
 
-  const clipId = `achievement-clip-${stickerId}`;
+  const clipId = `achievement-clip-${clipKey ?? stickerId}`;
   const { width, height } = parseViewBoxSize(shape.viewBox);
 
   return (

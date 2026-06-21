@@ -478,7 +478,9 @@ export default function MapView({ savedMemos = [], active = true }) {
       }
     }
 
-    void init();
+    void init().catch((err) => {
+      console.warn('[MemMe] Map init failed.', err?.message ?? err);
+    });
   }, [active]);
 
   // Remove the draft pin when the add-memo form is closed.

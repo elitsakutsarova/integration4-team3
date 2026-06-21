@@ -312,7 +312,9 @@ export default function MemoLocationPicker({
       requestAnimationFrame(() => map.invalidateSize());
     }
 
-    void init();
+    void init().catch((err) => {
+      console.warn('[MemMe] Location picker map init failed.', err?.message ?? err);
+    });
   }, [initialLat, initialLng, initialName]);
 
   // Leaflet needs invalidateSize when the search panel resizes the map area.
