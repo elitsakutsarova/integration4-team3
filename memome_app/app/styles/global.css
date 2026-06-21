@@ -382,3 +382,7 @@ flex-shrink: 0;
 .filters {
   padding-bottom: 0.875rem 0;
 }
+
+.center {
+  text-align: center;
+}

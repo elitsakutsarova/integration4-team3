@@ -1,19 +1,7 @@
 export default function EditPenIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3z"
-        stroke="#1952ff"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13.5 6.5l3 3"
-        stroke="#1952ff"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <path d="M14.3554 9.11873L13.0134 7.83482L4.17395 16.2919V17.5758H5.5159L14.3554 9.11873ZM15.6973 7.83482L17.0393 6.55091L15.6973 5.267L14.3554 6.55091L15.6973 7.83482ZM6.30172 19.3918H2.27585V15.5392L15.0263 3.34023C15.2043 3.17001 15.5824 2.80769 15.6927 2.70215C15.9133 2.91323 16.1903 3.17001 16.3683 3.34023L19.0531 5.90896C19.2311 6.07923 19.5035 6.33982 19.7241 6.55091C19.5035 6.76199 19.2311 7.02259 19.0531 7.19286L6.30172 19.3918Z" fill="#797979" />
     </svg>
   );
 }

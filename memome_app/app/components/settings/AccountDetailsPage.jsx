@@ -134,6 +134,7 @@ export default function AccountDetailsPage() {
         title="Account Details"
         onBack={handleBack}
         backLabel="Back to settings"
+        titleIcon={<img src={settingsAssets.greenStar} alt="Star shape looking like gear" />}
       />
 
       <div className="account-details-content">
@@ -158,7 +159,9 @@ export default function AccountDetailsPage() {
               alt=""
             />
             <span className="account-details-avatar-edit" aria-hidden="true">
-              <EditPenIcon />
+              <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27" fill="none">
+                <path d="M17.6179 11.1913L15.971 9.61559L5.12258 19.9947V21.5704H6.76952L17.6179 11.1913ZM19.2649 9.61559L20.9118 8.03989L19.2649 6.46418L17.6179 8.03989L19.2649 9.61559ZM7.73393 23.7992H2.79309V19.0709L18.4414 4.09951C18.6598 3.8906 19.1238 3.44594 19.2592 3.31641C19.53 3.57547 19.8699 3.8906 20.0884 4.09951L23.3834 7.25203C23.6018 7.46101 23.9361 7.78083 24.2069 8.03989C23.9361 8.29894 23.6018 8.61876 23.3834 8.82774L7.73393 23.7992Z" fill="#1952FF" />
+              </svg>
             </span>
           </button>
 
@@ -221,15 +224,9 @@ export default function AccountDetailsPage() {
 
           <div className="account-details-card account-details-card--actions">
             <button type="button" className="account-details-delete" onClick={openDeleteModal}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"
-                  stroke="#ff2727"
-                  strokeWidth="1.75"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="20" viewBox="0 0 18 20" fill="none">
+  <path d="M5.625 0V1.11111H0V3.33333H1.125V17.7778C1.125 18.3671 1.36205 18.9324 1.78401 19.3491C2.20597 19.7659 2.77826 20 3.375 20H14.625C15.2217 20 15.794 19.7659 16.216 19.3491C16.6379 18.9324 16.875 18.3671 16.875 17.7778V3.33333H18V1.11111H12.375V0H5.625ZM3.375 3.33333H14.625V17.7778H3.375V3.33333ZM5.625 5.55556V15.5556H7.875V5.55556H5.625ZM10.125 5.55556V15.5556H12.375V5.55556H10.125Z" fill="#FF4400"/>
+</svg>
               <span>Delete account</span>
             </button>
             {deleteError ? (

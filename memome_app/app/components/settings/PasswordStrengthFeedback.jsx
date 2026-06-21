@@ -104,13 +104,13 @@ export default function PasswordStrengthFeedback({ password, variant = 'settings
       <ul className={v.rules}>
         <li className={checks.hasMinLength ? v.ruleOk : hasInput ? v.ruleBad : ''}>
           <span className={v.ruleIcon} aria-hidden="true">
-            {checks.hasMinLength ? <OkIcon /> : hasInput ? <BadIcon /> : null}
+            {checks.hasMinLength ? <OkIcon /> : hasInput ? <BadIcon /> : <OkIcon />}
           </span>
           Use at least 8 characters
         </li>
         <li className={checks.hasMixedCase ? v.ruleOk : hasInput ? v.ruleBad : ''}>
           <span className={v.ruleIcon} aria-hidden="true">
-            {checks.hasMixedCase ? <OkIcon /> : hasInput ? <BadIcon /> : null}
+            {checks.hasMixedCase ? <OkIcon /> : hasInput ? <BadIcon /> : <OkIcon />}
           </span>
           Use upper and lower case characters
         </li>

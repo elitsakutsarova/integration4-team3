@@ -11,6 +11,7 @@ import { paths } from '../../utils/appPaths';
 import { goBack } from '../../utils/appPaths';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 import { useAuth } from '../../context/AuthContext';
+import { settingsAssets } from '../../utils/settingsAssets';
 
 function mergeFieldErrors(clientErrors, fetcherData) {
   return { ...accountErrorToFieldMap(fetcherData?.error), ...clientErrors };
@@ -68,12 +69,13 @@ export default function ChangeEmailPage() {
         title="Change e-mail"
         onBack={handleBack}
         backLabel="Back to account details"
+        titleIcon={<img src={settingsAssets.changeIcon} alt="Change icon" />}
       />
 
       <div className="settings-form-body">
-        <div className="settings-form-intro">
-          <p className="settings-form-intro-title">Choose a new email</p>
-          <p className="settings-form-intro-desc">
+        <div className="settings-form-intro content-section-intro">
+          <p className="settings-form-intro-title settings-section-title"><span class="settings-section-title-underline" aria-hidden="true"></span>Choose a new email</p>
+          <p className="settings-form-intro-desc settings-section-text">
             Enter and confirm your new e-mail to change your old e-mail
           </p>
         </div>
@@ -163,14 +165,6 @@ export default function ChangeEmailPage() {
           ) : null}
 
           <div className="settings-form-actions">
-            <Link
-              to={paths.profileSettingsAccount}
-              className="settings-form-btn settings-form-btn--cancel"
-              aria-disabled={submitting}
-              onClick={submitting ? (e) => e.preventDefault() : undefined}
-            >
-              Cancel
-            </Link>
             <button
               type="submit"
               className="settings-form-btn settings-form-btn--primary"
