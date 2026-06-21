@@ -10,6 +10,7 @@ import {
   buildAchievementContext,
   getAchievementStates,
 } from '../data/achievementStickers';
+import { mergeDefaultJournalStickers } from '../data/defaultJournalStickers';
 
 /** Collected digital stickers + unlocked achievements for the journal dock. */
 export function useJournalStickerDock() {
@@ -24,6 +25,7 @@ export function useJournalStickerDock() {
   return useMemo(() => {
     const byId = new Map();
 
+    mergeDefaultJournalStickers(byId, user);
     for (const sticker of collectedStickers) byId.set(sticker.id, sticker);
 
     const achievements = getAchievementStates(

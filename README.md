@@ -213,5 +213,10 @@ After our consult, I changed a lot of things in test5 like:
 - Fix profile created memos -> should look like the wireframes (same as map ones) ✔️
 - Fix favourites/memos -> should look like the wireframes (same as map ones) ✔️
 
+## Test 17 -> Stickers - improve/fix issues + design
+- If the user is a guest, do not show sticker counter ✔️
+- Fix wrong sticker counter logic ✔️
+- Add 5 basic stickers so that the user can decorate the diary straight away ✔️
+- Make design fit the wireframes
 
 ## Deployment

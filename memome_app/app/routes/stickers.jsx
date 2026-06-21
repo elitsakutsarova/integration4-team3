@@ -9,6 +9,7 @@ import StickerVisual from '../components/diary/StickerVisual';
 import { useAuth } from '../context/AuthContext';
 import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
 import { ACHIEVEMENT_TOTAL, getAchievementStates } from '../data/achievementStickers';
+import { withDefaultJournalStickers } from '../data/defaultJournalStickers';
 import { useOwnedStickerCount } from '../hooks/useOwnedStickerCount';
 import { paths } from '../utils/appPaths';
 import { accountAssets } from '../utils/accountAssets';
@@ -56,10 +57,10 @@ function BackIcon() {
   );
 }
 
-function StickersCountBadge({ tab, totalCount, achievementUnlocked }) {
+function StickersCountBadge({ tab, collectionCount, achievementUnlocked }) {
   const label = tab === 'achievements'
     ? `${achievementUnlocked}/${ACHIEVEMENT_TOTAL}`
-    : `${totalCount} sticker${totalCount === 1 ? '' : 's'}`;
+    : `${collectionCount} sticker${collectionCount === 1 ? '' : 's'}`;
 
   return (
     <div className="stickers-count-row">
@@ -128,12 +129,6 @@ function GuestStickerCollection() {
         </div>
       </div>
 
-      <StickersCountBadge
-        tab={tab}
-        totalCount={collectedIds.size}
-        achievementUnlocked={0}
-      />
-
       <div className="stickers-scroll">
         <div className="stickers-content" role="tabpanel">
           {tab === 'collection' && (
@@ -177,7 +172,8 @@ export default function StickersGallery() {
   const { user } = useAuth();
   const collected = useCollectedStickers();
   const loading = useCollectedStickersLoading();
-  const { totalCount, achievementUnlocked, achievements } = useOwnedStickerCount();
+  const { collectedCount, achievementUnlocked, achievements } = useOwnedStickerCount();
+  const collectionStickers = withDefaultJournalStickers(collected, user);
 
   if (!user) {
     return <GuestStickerCollection />;
@@ -243,7 +239,7 @@ export default function StickersGallery() {
 
       <StickersCountBadge
         tab={tab}
-        totalCount={totalCount}
+        collectionCount={collectedCount}
         achievementUnlocked={achievementUnlocked}
       />
 
@@ -253,19 +249,9 @@ export default function StickersGallery() {
             <>
               {loading ? (
                 <p className="stickers-empty">Loading…</p>
-              ) : collected.length === 0 ? (
-                <div className="stickers-empty-block">
-                  <p className="stickers-empty">No stickers yet.</p>
-                  <p className="stickers-empty-hint">
-                    Scan the MemMe collect QR to add random stickers to your collection.
-                  </p>{/* 
-                  <Link to={paths.demoStickers} className="stickers-empty-link">
-                    Open demo sticker QRs
-                  </Link> */}
-                </div>
               ) : (
                 <div className="stickers-grid stickers-grid--collection">
-                  {collected.map(sticker => (
+                  {collectionStickers.map(sticker => (
                     <div key={sticker.id} className="stickers-tile stickers-tile--collection">
                       <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
                     </div>

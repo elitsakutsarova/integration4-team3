@@ -7,6 +7,7 @@ import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
 import { useStickers } from '../context/StickerCatalogContext';
 import { buildAchievementContext, getAchievementStates } from '../data/achievementStickers';
+import { withDefaultJournalStickers } from '../data/defaultJournalStickers';
 
 export function useOwnedStickerCount() {
   const { user } = useAuth();
@@ -18,7 +19,10 @@ export function useOwnedStickerCount() {
   const { favesCount: discoverFavesCount } = useDiscoverFaves();
 
   return useMemo(() => {
-    const collectedCount = collected.length;
+    const qrCollectedCount = collected.length;
+    const collectedCount = user
+      ? withDefaultJournalStickers(collected, user).length
+      : qrCollectedCount;
 
     if (!user) {
       return {
@@ -31,10 +35,10 @@ export function useOwnedStickerCount() {
 
     const achievements = getAchievementStates(
       user,
-      collectedCount,
+      qrCollectedCount,
       buildAchievementContext({
         user,
-        collectedCount,
+        collectedCount: qrCollectedCount,
         digitalCatalogTotal: catalog.length,
         createdMemos,
         customJournals,
