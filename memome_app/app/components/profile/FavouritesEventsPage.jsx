@@ -1,14 +1,9 @@
 import { useMemo, useState } from 'react';
 import { EventCard } from '../discover/DiscoverCards';
-import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../../data/discoverContent';
+import { filterDiscoverItems } from '../../data/discoverContent';
 import { useEventVenueHrefs } from '../../hooks/useEventVenueHrefs';
-import CollectionSortChips from './CollectionSortChips';
+import CreatedMemoCategoryChips from './CreatedMemoCategoryChips';
 import FavouritesEmptyState from './FavouritesEmptyState';
-
-const EVENT_FILTER_OPTIONS = DISCOVER_CATEGORIES.map(category => ({
-  id: category.id,
-  label: category.label,
-}));
 
 export default function FavouritesEventsPage({ favouriteEvents }) {
   const [category, setCategory] = useState('All');
@@ -24,11 +19,7 @@ export default function FavouritesEventsPage({ favouriteEvents }) {
 
   return (
     <>
-      <CollectionSortChips
-        options={EVENT_FILTER_OPTIONS}
-        value={category}
-        onChange={setCategory}
-      />
+      <CreatedMemoCategoryChips value={category} onChange={setCategory} />
 
       <div className="collection-scroll collection-scroll--favourites">
         {filteredItems.length > 0 ? (

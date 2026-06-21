@@ -1,4 +1,4 @@
-// memory sheet component for the map view
+// memory sheet component for the map view and embedded profile memo lists
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
@@ -55,17 +55,23 @@ function useLongQuote(quote, layoutKey) {
   return { quoteRef, isLongQuote };
 }
 
-export default function MemorySheet({ pin, locationHref = null, onClose }) {
+export default function MemorySheet({
+  pin,
+  locationHref = null,
+  onClose,
+  embedded = false,
+  actions = null,
+}) {
   const hasMedia = Boolean(pin?.mediaPreview?.url);
   const [orientation, setOrientation] = useState(() => resolvePolaroidOrientation(pin));
   const [mediaSheetScale, setMediaSheetScale] = useState(1);
   const { quoteRef, isLongQuote } = useLongQuote(
     pin?.quote,
-    hasMedia ? `${mediaSheetScale}:${orientation}` : 'text-only',
+    hasMedia ? `${embedded ? 'embedded' : mediaSheetScale}:${orientation}` : 'text-only',
   );
 
   useEffect(() => {
-    if (!hasMedia) {
+    if (embedded || !hasMedia) {
       setMediaSheetScale(1);
       return undefined;
     }
@@ -77,7 +83,7 @@ export default function MemorySheet({ pin, locationHref = null, onClose }) {
     updateScale();
     window.addEventListener('resize', updateScale);
     return () => window.removeEventListener('resize', updateScale);
-  }, [hasMedia]);
+  }, [embedded, hasMedia]);
 
   useEffect(() => {
     if (!pin?.mediaPreview?.url) {
@@ -108,8 +114,8 @@ export default function MemorySheet({ pin, locationHref = null, onClose }) {
 
   const canOpenMaps = Array.isArray(pin.ll) && pin.ll.length >= 2;
   const sheetTags = buildMemorySheetTags(pin);
-  const dockTransform = buildMapPopupDockTransform(mediaSheetScale);
-  const dockTransformOrigin = mediaSheetScale === 1 ? undefined : 'center bottom';
+  const dockTransform = embedded ? undefined : buildMapPopupDockTransform(mediaSheetScale);
+  const dockTransformOrigin = embedded || mediaSheetScale === 1 ? undefined : 'center bottom';
 
   function handleTakeMeThere(event) {
     event.stopPropagation();
@@ -120,109 +126,128 @@ export default function MemorySheet({ pin, locationHref = null, onClose }) {
     openGoogleMapsDirections(pin.ll[0], pin.ll[1], event);
   }
 
-  return (
-    <div className="memory-sheet-backdrop memory-sheet-backdrop--dock">
-      <article
-        className={[
-          'memory-sheet',
-          'memory-sheet--dock',
-          hasMedia ? 'memory-sheet--with-media' : 'memory-sheet--text-only',
-        ].filter(Boolean).join(' ')}
-        style={{
-          transform: dockTransform,
-          transformOrigin: dockTransformOrigin,
-        }}
-        onClick={event => event.stopPropagation()}
-      >
-        <div className="memory-sheet-dock-motion">
-          <div
-            className={[
-              'memory-sheet-body',
-              isLongQuote ? 'memory-sheet-body--long-quote' : '',
-              hasMedia && orientation === 'vertical' ? 'memory-sheet-body--vertical-media' : '',
-            ].filter(Boolean).join(' ')}
-          >
-            {hasMedia ? (
-              <section className="memory-sheet-media" aria-label="Memo photo">
-                <div className="memory-sheet-media-toolbar">
+  const sheet = (
+    <article
+      className={[
+        'memory-sheet',
+        'memory-sheet--dock',
+        hasMedia ? 'memory-sheet--with-media' : 'memory-sheet--text-only',
+      ].filter(Boolean).join(' ')}
+      style={embedded ? undefined : {
+        transform: dockTransform,
+        transformOrigin: dockTransformOrigin,
+      }}
+      onClick={embedded ? undefined : (event => event.stopPropagation())}
+    >
+      <div className="memory-sheet-dock-motion">
+        <div
+          className={[
+            'memory-sheet-body',
+            isLongQuote ? 'memory-sheet-body--long-quote' : '',
+            hasMedia && orientation === 'vertical' ? 'memory-sheet-body--vertical-media' : '',
+          ].filter(Boolean).join(' ')}
+        >
+          {hasMedia ? (
+            <section className="memory-sheet-media" aria-label="Memo photo">
+              <div className={`memory-sheet-media-toolbar${actions ? ' memory-sheet-media-toolbar--created-actions' : ''}`}>
+                {actions ?? (
                   <MemoFavoriteButton
                     memoId={pin.id}
                     label={pin.location}
                   />
-                </div>
-                <div className={`memory-sheet-polaroid memory-sheet-polaroid--${orientation}`}>
-                  <div className="memory-sheet-polaroid-frame">
-                    <div className="memory-sheet-polaroid-photo">
-                      {pin.mediaPreview.isVideo
-                        ? (
-                          <video
-                            src={pin.mediaPreview.url}
-                            className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
-                            controls
-                            playsInline
-                            preload="metadata"
-                          />
-                        )
-                        : (
-                          <img
-                            src={pin.mediaPreview.url}
-                            alt=""
-                            className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
-                            decoding="async"
-                            fetchPriority="high"
-                          />
-                        )}
-                    </div>
-                  </div>
-                </div>
-                <MemoTags tags={sheetTags} />
-              </section>
-            ) : (
-              <header className="memory-sheet-text-only-head">
-                <MemoTags tags={sheetTags} className="memory-sheet-tags--inline" />
-                <MemoFavoriteButton
-                  memoId={pin.id}
-                  label={pin.location}
-                />
-              </header>
-            )}
-
-            <p ref={quoteRef} className="memory-sheet-quote">{pin.quote}</p>
-
-            <footer className="memory-sheet-actions">
-              <div className="memory-sheet-location">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="19" viewBox="0 0 14 19" fill="none" aria-hidden="true">
-                  <path d="M6.5625 0C2.93959 0 0 2.64592 0 5.90625C0 11.1562 6.5625 18.375 6.5625 18.375C6.5625 18.375 13.125 11.1562 13.125 5.90625C13.125 2.64592 10.1854 0 6.5625 0ZM6.5625 9.1875C6.04332 9.1875 5.53581 9.03355 5.10413 8.74511C4.67245 8.45667 4.336 8.0467 4.13732 7.56704C3.93864 7.08739 3.88665 6.55959 3.98794 6.05039C4.08922 5.54119 4.33923 5.07346 4.70634 4.70634C5.07346 4.33923 5.54119 4.08922 6.05039 3.98794C6.55959 3.88665 7.08739 3.93864 7.56704 4.13732C8.0467 4.336 8.45667 4.67245 8.74511 5.10413C9.03355 5.53581 9.1875 6.04332 9.1875 6.5625C9.18674 7.25846 8.90993 7.9257 8.41782 8.41782C7.9257 8.90993 7.25846 9.18674 6.5625 9.1875Z" fill="#9CA3AF" />
-                </svg>
-                {locationHref ? (
-                  <Link
-                    to={locationHref}
-                    className="memory-sheet-location-name"
-                    onClick={onClose}
-                  >
-                    {pin.location}
-                  </Link>
-                ) : (
-                  <span className="memory-sheet-location-name memory-sheet-location-name--plain">
-                    {pin.location}
-                  </span>
                 )}
               </div>
-              {canOpenMaps && (
-                <a
-                  href={buildGoogleMapsDirectionsUrl(pin.ll[0], pin.ll[1])}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="memory-sheet-cta"
-                  onClick={handleTakeMeThere}
-                >
-                  Take me there
-                </a>
+              <div className={`memory-sheet-polaroid memory-sheet-polaroid--${orientation}`}>
+                <div className="memory-sheet-polaroid-frame">
+                  <div className="memory-sheet-polaroid-photo">
+                    {pin.mediaPreview.isVideo
+                      ? (
+                        <video
+                          src={pin.mediaPreview.url}
+                          className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
+                          controls
+                          playsInline
+                          preload="metadata"
+                        />
+                      )
+                      : (
+                        <img
+                          src={pin.mediaPreview.url}
+                          alt=""
+                          className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
+                          decoding="async"
+                          fetchPriority="high"
+                        />
+                      )}
+                  </div>
+                </div>
+              </div>
+              <MemoTags tags={sheetTags} />
+            </section>
+          ) : (
+            <>
+              {actions && (
+                <div className="created-memo-card__toolbar created-memo-card__toolbar--text-only">
+                  {actions}
+                </div>
               )}
-            </footer>
-          </div>
+              <header className="memory-sheet-text-only-head">
+                <MemoTags tags={sheetTags} className="memory-sheet-tags--inline" />
+                {!actions && (
+                  <MemoFavoriteButton
+                    memoId={pin.id}
+                    label={pin.location}
+                  />
+                )}
+              </header>
+            </>
+          )}
+
+          <p ref={quoteRef} className="memory-sheet-quote">{pin.quote}</p>
+
+          <footer className="memory-sheet-actions">
+            <div className="memory-sheet-location">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="19" viewBox="0 0 14 19" fill="none" aria-hidden="true">
+                <path d="M6.5625 0C2.93959 0 0 2.64592 0 5.90625C0 11.1562 6.5625 18.375 6.5625 18.375C6.5625 18.375 13.125 11.1562 13.125 5.90625C13.125 2.64592 10.1854 0 6.5625 0ZM6.5625 9.1875C6.04332 9.1875 5.53581 9.03355 5.10413 8.74511C4.67245 8.45667 4.336 8.0467 4.13732 7.56704C3.93864 7.08739 3.88665 6.55959 3.98794 6.05039C4.08922 5.54119 4.33923 5.07346 4.70634 4.70634C5.07346 4.33923 5.54119 4.08922 6.05039 3.98794C6.55959 3.88665 7.08739 3.93864 7.56704 4.13732C8.0467 4.336 8.45667 4.67245 8.74511 5.10413C9.03355 5.53581 9.1875 6.04332 9.1875 6.5625C9.18674 7.25846 8.90993 7.9257 8.41782 8.41782C7.9257 8.90993 7.25846 9.18674 6.5625 9.1875Z" fill="#9CA3AF" />
+              </svg>
+              {locationHref ? (
+                <Link
+                  to={locationHref}
+                  className="memory-sheet-location-name"
+                  onClick={onClose}
+                >
+                  {pin.location}
+                </Link>
+              ) : (
+                <span className="memory-sheet-location-name memory-sheet-location-name--plain">
+                  {pin.location}
+                </span>
+              )}
+            </div>
+            {canOpenMaps && (
+              <a
+                href={buildGoogleMapsDirectionsUrl(pin.ll[0], pin.ll[1])}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="memory-sheet-cta"
+                onClick={handleTakeMeThere}
+              >
+                Take me there
+              </a>
+            )}
+          </footer>
         </div>
-      </article>
+      </div>
+    </article>
+  );
+
+  if (embedded) {
+    return sheet;
+  }
+
+  return (
+    <div className="memory-sheet-backdrop memory-sheet-backdrop--dock">
+      {sheet}
     </div>
   );
 }

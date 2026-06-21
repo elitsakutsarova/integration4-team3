@@ -1,29 +1,8 @@
 import { Link } from 'react-router';
 import DiscoverShareIcon from '../discover/DiscoverShareIcon';
 import MemoFavoriteButton from '../MemoFavoriteButton';
-import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
+import MemorySheet from '../MemorySheet';
 import { homePathWithAddMemo, profileMemoEditPath } from '../../utils/appPaths';
-
-function MemoPhoto({ memo, className }) {
-  const hasMedia = Boolean(memo.mediaPreview?.url);
-
-  if (hasMedia) {
-    return memo.mediaPreview.isVideo ? (
-      <video src={memo.mediaPreview.url} className={className} muted playsInline />
-    ) : (
-      <img src={memo.mediaPreview.url} alt="" className={className} />
-    );
-  }
-
-  return (
-    <div className="created-memo-card__placeholder">
-      {(memo.tags ?? []).slice(0, 1).map((tag) => (
-        <span key={tag} className="created-memo-card__placeholder-tag">{tag}</span>
-      ))}
-      <span className="created-memo-card__placeholder-label">Memo</span>
-    </div>
-  );
-}
 
 function MemoEditLink({ memo }) {
   if (!memo.fromDb || !memo.id) {
@@ -83,99 +62,59 @@ function MemoEditLink({ memo }) {
   );
 }
 
+function CreatedMemoActions({ memo, onShare, showEdit, showFavorite }) {
+  return (
+    <>
+      {onShare ? (
+        <button
+          type="button"
+          className="created-memo-card__action created-memo-card__action--share"
+          aria-label={`Share memo at ${memo.location}`}
+          onClick={onShare}
+        >
+          <DiscoverShareIcon />
+        </button>
+      ) : (
+        <span aria-hidden="true" />
+      )}
+      {showFavorite ? (
+        <MemoFavoriteButton
+          memoId={memo.id}
+          label={memo.location}
+          className="created-memo-card__action created-memo-card__action--favorite"
+          savedClassName=" created-memo-card__action--favorite-saved"
+          useCurrentColor
+        />
+      ) : showEdit ? (
+        <MemoEditLink memo={memo} />
+      ) : null}
+    </>
+  );
+}
+
 export default function CreatedMemoCard({
   memo,
   onShare,
   showEdit = true,
-  showFavorite = false,
+  showFavoriteInsteadOfEdit = false,
 }) {
-  const locationHref = memo.locationHref ?? null;
-  const canOpenMaps = Array.isArray(memo.ll) && memo.ll.length >= 2;
-
-  function handleTakeMeThere(event) {
-    event.stopPropagation();
-    if (!canOpenMaps) {
-      event.preventDefault();
-      return;
-    }
-    openGoogleMapsDirections(memo.ll[0], memo.ll[1], event);
-  }
+  const actions = (
+    <CreatedMemoActions
+      memo={memo}
+      onShare={onShare}
+      showEdit={!showFavoriteInsteadOfEdit && showEdit}
+      showFavorite={showFavoriteInsteadOfEdit}
+    />
+  );
 
   return (
     <article className="created-memo-card">
-      <div className="created-memo-card__visual">
-        <div className="created-memo-card__photos">
-          <div className="created-memo-card__photo created-memo-card__photo--back" aria-hidden="true">
-            <MemoPhoto memo={memo} className="created-memo-card__img" />
-          </div>
-          <div className="created-memo-card__photo created-memo-card__photo--front">
-            <MemoPhoto memo={memo} className="created-memo-card__img" />
-          </div>
-        </div>
-
-        <div className="created-memo-card__toolbar">
-          {onShare ? (
-            <button
-              type="button"
-              className="created-memo-card__action created-memo-card__action--share"
-              aria-label={`Share memo at ${memo.location}`}
-              onClick={onShare}
-            >
-              <DiscoverShareIcon />
-            </button>
-          ) : (
-            <span aria-hidden="true" />
-          )}
-          {showFavorite && (
-            <MemoFavoriteButton
-              memoId={memo.id}
-              label={memo.location}
-              className="created-memo-card__action created-memo-card__action--favorite"
-              savedClassName=" created-memo-card__action--favorite-saved"
-              useCurrentColor
-            />
-          )}
-          {showEdit && <MemoEditLink memo={memo} />}
-        </div>
-      </div>
-
-      <div className="created-memo-card__quote">
-        <p className="created-memo-card__quote-text">{memo.quote}</p>
-      </div>
-
-      <div className="created-memo-card__panel">
-        <div className="created-memo-card__footer">
-          <div className="created-memo-card__location">
-            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M12 21s7-4.5 7-10a7 7 0 1 0-14 0c0 5.5 7 10 7 10z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-            </svg>
-            {locationHref ? (
-              <Link to={locationHref} className="created-memo-card__location-link">
-                {memo.location}
-              </Link>
-            ) : (
-              <span className="created-memo-card__location-text">{memo.location}</span>
-            )}
-          </div>
-
-          {canOpenMaps && (
-            <a
-              href={buildGoogleMapsDirectionsUrl(memo.ll[0], memo.ll[1])}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="created-memo-card__cta"
-              onClick={handleTakeMeThere}
-            >
-              Take me there
-            </a>
-          )}
-        </div>
-      </div>
+      <MemorySheet
+        embedded
+        pin={memo}
+        locationHref={memo.locationHref ?? null}
+        actions={actions}
+      />
     </article>
   );
 }

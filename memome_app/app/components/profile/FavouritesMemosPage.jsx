@@ -1,33 +1,19 @@
 import { useMemo, useState } from 'react';
-import { MEMO_TAG_OPTIONS } from '../../data/memoTags';
+import { filterMapMemories } from '../../utils/mapFilters';
 import CollectionMemoCard from './CollectionMemoCard';
-import CollectionSortChips from './CollectionSortChips';
+import CreatedMemoCategoryChips from './CreatedMemoCategoryChips';
 import FavouritesEmptyState from './FavouritesEmptyState';
 
-const MEMO_FILTER_OPTIONS = [
-  { id: 'all', label: 'All' },
-  ...MEMO_TAG_OPTIONS.map(tag => ({ id: tag, label: tag })),
-];
-
-function filterMemosByTag(memos, tagId) {
-  if (tagId === 'all') return memos;
-  return memos.filter(memo => (memo.tags ?? []).includes(tagId));
-}
-
 export default function FavouritesMemosPage({ favouriteMemos }) {
-  const [memoFilter, setMemoFilter] = useState('all');
+  const [category, setCategory] = useState('All');
   const filteredMemos = useMemo(
-    () => filterMemosByTag(favouriteMemos, memoFilter),
-    [favouriteMemos, memoFilter],
+    () => filterMapMemories(favouriteMemos, { category }),
+    [favouriteMemos, category],
   );
 
   return (
     <>
-      <CollectionSortChips
-        options={MEMO_FILTER_OPTIONS}
-        value={memoFilter}
-        onChange={setMemoFilter}
-      />
+      <CreatedMemoCategoryChips value={category} onChange={setCategory} />
 
       <div className="collection-scroll collection-scroll--favourites">
         {filteredMemos.length > 0 ? (

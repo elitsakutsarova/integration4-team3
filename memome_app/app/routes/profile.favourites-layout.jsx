@@ -1,4 +1,5 @@
 import '../styles/modules/profile-collections.css';
+import '../styles/modules/map.css';
 import { useLoaderData } from 'react-router';
 import FavouritesLayout from '../components/profile/FavouritesLayout';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
