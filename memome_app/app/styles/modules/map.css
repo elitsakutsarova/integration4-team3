@@ -399,7 +399,7 @@ grid-template-rows: 1fr;
   grid-row: 1;
   align-self: end;
   margin-bottom: -2rem;
-  z-index: 11;
+  z-index: 200;
 }
 
 .guest-add-memo-hero-wave {
