@@ -584,6 +584,39 @@ grid-area: 2 / 1 / 3 / 1;
 .collection-memo-list--created {
   gap: 32px;
   padding-top: 8px;
+  z-index: 1;
+}
+
+.collection-memo-list--created .memory-sheet--dock,
+.profile-remember-track .memory-sheet--dock {
+  position: relative;
+  left: auto;
+  bottom: auto;
+  transform: none !important;
+  z-index: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.collection-memo-list--created .memory-sheet--with-media {
+  margin-top: 7rem;
+}
+
+.collection-memo-list--created .memory-sheet-dock-motion,
+.profile-remember-track .memory-sheet--dock .memory-sheet-dock-motion {
+  animation: none;
+}
+
+.collection-memo-list--created .memory-sheet--text-only.memory-sheet--dock .memory-sheet-dock-motion,
+.profile-remember-track .memory-sheet--text-only.memory-sheet--dock .memory-sheet-dock-motion {
+  filter: none;
+}
+
+.collection-memo-list--created .memory-sheet--with-media.memory-sheet--dock .memory-sheet-dock-motion,
+.profile-remember-track .memory-sheet--with-media.memory-sheet--dock .memory-sheet-dock-motion {
+  filter:
+    drop-shadow(0 6px 6px rgba(0, 0, 0, 0.18))
+    drop-shadow(0 2px 12px rgba(0, 0, 0, 0.14));
 }
 
 /* ─── Created memo card ───────────── */
@@ -591,6 +624,28 @@ grid-area: 2 / 1 / 3 / 1;
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+.created-memo-card .memory-sheet-media-toolbar--created-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: min(100%, 306px);
+  align-self: flex-end;
+  z-index: 3;
+  padding: 0 2px;
+  bottom: -4.5rem;
+  left: -7%;
+  pointer-events: none;
+}
+
+.created-memo-card .created-memo-card__toolbar--text-only {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  pointer-events: none;
 }
 
 .created-memo-card__visual {
@@ -666,14 +721,6 @@ grid-area: 2 / 1 / 3 / 1;
 }
 
 .created-memo-card__toolbar {
-  position: absolute;
-  top: 30px;
-  left: 24px;
-  right: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  z-index: 2;
   pointer-events: none;
 }
 
@@ -774,6 +821,10 @@ grid-area: 2 / 1 / 3 / 1;
 .collection-scroll--favourites {
   display: flex;
   flex-direction: column;
+}
+
+.collection-scroll--favourites-memos {
+  padding-top: 2rem;
 }
 
 .favourites-empty {

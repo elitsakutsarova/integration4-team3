@@ -1,39 +1,50 @@
 import { useMemo, useState } from 'react';
-import { MEMO_TAG_OPTIONS } from '../../data/memoTags';
-import CollectionMemoCard from './CollectionMemoCard';
-import CollectionSortChips from './CollectionSortChips';
+import ShareSheet from '../diary/ShareSheet';
+import DiscoverShareSuccess from '../discover/DiscoverShareSuccess';
+import CreatedMemoCard from './CreatedMemoCard';
+import CreatedMemoCategoryChips from './CreatedMemoCategoryChips';
 import FavouritesEmptyState from './FavouritesEmptyState';
+import { useMemoShare } from '../../hooks/useMemoShare';
+import { filterMapMemories } from '../../utils/mapFilters';
 
-const MEMO_FILTER_OPTIONS = [
-  { id: 'all', label: 'All' },
-  ...MEMO_TAG_OPTIONS.map(tag => ({ id: tag, label: tag })),
-];
+export default function FavouritesMemosPage({
+  favouriteMemos,
+  favouriteMemosPending = false,
+}) {
+  const [category, setCategory] = useState('All');
+  const {
+    shareMemo,
+    openShare,
+    closeShare,
+    confirmShare,
+    showSuccess,
+    closeSuccess,
+    sharing,
+  } = useMemoShare();
 
-function filterMemosByTag(memos, tagId) {
-  if (tagId === 'all') return memos;
-  return memos.filter(memo => (memo.tags ?? []).includes(tagId));
-}
-
-export default function FavouritesMemosPage({ favouriteMemos }) {
-  const [memoFilter, setMemoFilter] = useState('all');
   const filteredMemos = useMemo(
-    () => filterMemosByTag(favouriteMemos, memoFilter),
-    [favouriteMemos, memoFilter],
+    () => filterMapMemories(favouriteMemos, { category }),
+    [favouriteMemos, category],
   );
 
   return (
     <>
-      <CollectionSortChips
-        options={MEMO_FILTER_OPTIONS}
-        value={memoFilter}
-        onChange={setMemoFilter}
-      />
+      <CreatedMemoCategoryChips value={category} onChange={setCategory} />
 
-      <div className="collection-scroll collection-scroll--favourites">
-        {filteredMemos.length > 0 ? (
-          <div className="collection-memo-list">
+      <div className="collection-scroll collection-scroll--favourites collection-scroll--favourites-memos">
+        {favouriteMemosPending && favouriteMemos.length === 0 ? (
+          <div className="auth-loading">
+            <div className="auth-loading-dot" />
+          </div>
+        ) : filteredMemos.length > 0 ? (
+          <div className="collection-memo-list collection-memo-list--created">
             {filteredMemos.map(memo => (
-              <CollectionMemoCard key={memo.id} memo={memo} />
+              <CreatedMemoCard
+                key={memo.id}
+                memo={memo}
+                onShare={() => openShare(memo)}
+                showFavoriteInsteadOfEdit
+              />
             ))}
           </div>
         ) : favouriteMemos.length === 0 ? (
@@ -42,6 +53,21 @@ export default function FavouritesMemosPage({ favouriteMemos }) {
           <p className="collection-empty">No memos in this category yet.</p>
         )}
       </div>
+
+      {shareMemo && (
+        <ShareSheet
+          title="Share memo"
+          countLabel={shareMemo.location || 'My memo'}
+          onClose={closeShare}
+          onShareApp={confirmShare}
+          onShareContact={confirmShare}
+          disabled={sharing}
+        />
+      )}
+
+      {showSuccess && (
+        <DiscoverShareSuccess variant="memo" onClose={closeSuccess} />
+      )}
     </>
   );
 }

@@ -1,6 +1,7 @@
 // route for the created memos page
 
 import '../styles/modules/profile-collections.css';
+import '../styles/modules/map.css';
 import '../styles/modules/diary.css';
 import { Suspense } from 'react';
 import { Await, useLoaderData } from 'react-router';

@@ -170,7 +170,7 @@
 }
 
 .profile-remember {
-  padding-bottom: 12px;
+  padding-bottom: 0;
 }
 
 .profile-remember>svg {
@@ -196,8 +196,9 @@
 
 .profile-remember-scroll {
   margin: 0 -24px;
-  padding: 0 24px 8px;
+  padding: 1.5rem 24px 0;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -208,27 +209,51 @@
 
 .profile-remember-track {
   display: flex;
-  gap: 16px;
+  align-items: flex-start;
+  margin-top: 1.5rem;
+  gap: 2rem;
   width: max-content;
-  padding-right: 8px;
+  padding-right: 1rem;
+  padding-left: 1rem;
 }
 
 .profile-remember-track .created-memo-card {
-  flex: 0 0 min(300px, 78vw);
-  width: min(300px, 78vw);
+  height: fit-content;
+}
+
+.profile-remember-track .memory-sheet--dock {
+  flex: 0 0 min(calc(100vw - 32px), 361px);
+  width: min(calc(100vw - 32px), 361px);
   z-index: 1;
+  margin-bottom: 0;
 }
 
-.profile-remember-track .created-memo-card__photo {
-  width: min(200px, 58vw);
+.profile-remember-track .memory-sheet--with-media {
+  margin-top: 7rem;
 }
 
-.profile-remember-track .created-memo-card__quote {
-  width: min(260px, 72vw);
+.profile-remember-track .memory-sheet--text-only .memory-sheet-body {
+  margin-bottom: 0;
 }
 
-.profile-remember-track .created-memo-card__quote-text {
-  font-size: 16px;
+.profile-remember-track .memory-sheet--text-only .memory-sheet-text-only-head {
+  margin-bottom: 12px;
+}
+
+.profile-remember-track .created-memo-card__toolbar--text-only {
+  margin-bottom: 8px;
+}
+
+.profile-remember-track .memory-sheet--with-media .memory-sheet-body {
+  padding-bottom: 18px;
+}
+
+.profile-remember-track .memory-sheet--with-media .memory-sheet-body--vertical-media {
+  padding: 96px 10px 18px 18px;
+}
+
+.profile-remember-track .memory-sheet-body {
+  min-height: 0;
 }
 
 .profile-remember-empty {
