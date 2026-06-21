@@ -78,22 +78,22 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-page">
-      <header className="settings-hero">
+      <header className="settings-hero header">
         <div className="settings-hero-deco" aria-hidden="true">
-          <img className="settings-hero-mask" src={settingsAssets.maskGroup} alt="" />
-          <img className="settings-hero-grid" src={settingsAssets.topGrid} alt="" />
-          <img className="settings-hero-wave" src={settingsAssets.vector507} alt="" />
-          <img className="settings-hero-star settings-hero-star--mint" src={settingsAssets.group6190} alt="" />
-          <img className="settings-hero-star settings-hero-star--blue" src={settingsAssets.group6191} alt="" />
-          <img className="settings-hero-sparkle" src={settingsAssets.group5691} alt="" />
+          <img className="settings-hero-grid" src={settingsAssets.greenGrid} alt="" />
+          <div className="settings-hero-grid-pattern grid-pattern" />
         </div>
 
-        <div className="settings-title-row">
-          <SettingsBackButton onClick={handleBack} label="Back to profile" />
-          <h1 className="settings-title">
-            <span className="settings-title-highlight" aria-hidden="true" />
+        <div className="settings-title-row title-row">
+          <div className="settings-titles titles">
+          <SettingsBackButton className="btn-chevron" onClick={handleBack} label="Back to profile" />
+          <h1 className="settings-title title">
             Settings
           </h1>
+        </div>
+          <div className="settings-title-icon grid-icon">
+            <img src={settingsAssets.blueGears} alt="Settings" />
+          </div>
         </div>
       </header>
 

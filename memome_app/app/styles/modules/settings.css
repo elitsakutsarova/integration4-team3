@@ -15,118 +15,93 @@
 
 .settings-hero {
   position: relative;
-  padding: calc(8px + env(safe-area-inset-top, 0px)) 0 20px;
+  flex-shrink: 0;
   overflow: hidden;
+  padding-top: env(safe-area-inset-top, 0px);
+  grid-template-rows: auto auto;
+  grid-template-columns: 1fr;
+  display: grid;
+  position: relative;
 }
 
 .settings-hero-deco {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.settings-hero-mask {
-  position: absolute;
-  left: -54px;
-  top: -4px;
-  width: min(448px, 120%);
-  height: auto;
-  opacity: 0.9;
+  grid-area: 1 / 1 / 3 / 1;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+  display: grid;
 }
 
 .settings-hero-grid {
-  position: absolute;
-  right: 0;
-  top: -2px;
-  width: 100px;
-  height: auto;
-  transform: rotate(180deg);
+  grid-area: 1 / 1 / 1 / 1;
+  max-width: 5rem;
 }
 
-.settings-hero-wave {
-  position: absolute;
-  left: -26px;
-  top: 104px;
-  width: min(315px, 90%);
-  height: auto;
-}
-
-.settings-hero-star--mint {
-  position: absolute;
-  right: 68px;
-  top: 23px;
-  width: 50px;
-  height: auto;
-  transform: rotate(-0.67deg);
-}
-
-.settings-hero-star--blue {
-  position: absolute;
-  right: 96px;
-  top: 51px;
-  width: 39px;
-  height: auto;
-  transform: rotate(-26.57deg);
-}
-
-.settings-hero-sparkle {
-  position: absolute;
-  right: 24px;
-  top: 86px;
-  width: 59px;
-  height: auto;
+.settings-hero-grid-pattern {
+  background-image: linear-gradient(#aabfff 1px, #0000 1px), linear-gradient(90deg, #aabfff 1px, #0000 1px);
+    background-size: 20px 20px;
+    grid-area: 1 / 1 / 1 / 1;
+    mask-image: linear-gradient(200deg, #fff 0%, #fff0 60%);
 }
 
 .settings-title-row {
+  grid-area: 2 / 1 / 3 / 1;
   position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 8px 16px 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: fit-content(100%) auto;
+  grid-template-rows: 1fr;
+}
+
+.settings-titles {
+  grid-area: 1 / 1 / 1 / 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--yellow-400);
+    max-width: fit-content;
 }
 
 .settings-back-btn {
-  flex-shrink: 0;
-  width: 53px;
-  height: 49px;
-  border: none;
-  border-radius: 10px;
+color: #1952ff;
   background: #fff;
-  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
-  display: flex;
-  align-items: center;
+  border-radius: 10px;
+  flex-shrink: 0;
   justify-content: center;
-  cursor: pointer;
+  align-items: center;
+  text-decoration: none;
+  display: flex;
+  box-shadow: 0 0 4px #2b2b2c1a;
 }
 
 .settings-title {
-  position: relative;
-  margin: 0;
-  font-size: 28px;
-  font-weight: 400;
-  letter-spacing: 0.7px;
-  color: #1e1e1e;
-  line-height: 1.2;
+    position: relative;
+      flex: 1;
+      min-width: 0;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: 0.7px;
+      color: #1e1e1e;
+      line-height: 1;
 }
 
-.settings-title-highlight {
-  position: absolute;
-  left: -8px;
-  top: -6px;
-  width: calc(100% + 16px);
-  height: 66px;
-  background: #f9ff75;
-  z-index: -1;
+.settings-title-icon {
+  grid-area: 1 / 1 / 1 / 1;
+    justify-self: end;
+    align-self: start;
+    pointer-events: none;
+    z-index: 0;
+    margin-top: -3rem;
+    margin-right: -3.5rem;
 }
 
 .settings-content {
   position: relative;
   z-index: 1;
-  padding: 8px 16px 32px;
+  padding: 2rem 1rem;
 }
 
-.settings-section + .settings-section {
+.settings-section+.settings-section {
   margin-top: 28px;
 }
 
@@ -146,7 +121,7 @@
   bottom: -2px;
   width: 86px;
   height: 9px;
-  background: #66ebb9;
+  background: var(--yellow-400);
   z-index: -1;
 }
 
@@ -181,7 +156,7 @@
   text-decoration: none;
 }
 
-.settings-row + .settings-row {
+.settings-row+.settings-row {
   border-top: 1px solid #e5e7eb;
 }
 
@@ -749,7 +724,7 @@
   padding: 16px;
 }
 
-.account-details-field + .account-details-field {
+.account-details-field+.account-details-field {
   border-top: 1px solid #e5e7eb;
 }
 
@@ -1044,7 +1019,7 @@
   color: inherit;
 }
 
-.language-option + .language-option {
+.language-option+.language-option {
   border-top: 1px solid #f3f4f6;
 }
 
@@ -1437,9 +1412,17 @@
   white-space: nowrap;
 }
 
-.settings-password-strength-label--weak { color: #777; }
-.settings-password-strength-label--medium { color: #777; }
-.settings-password-strength-label--strong { color: #777; }
+.settings-password-strength-label--weak {
+  color: #777;
+}
+
+.settings-password-strength-label--medium {
+  color: #777;
+}
+
+.settings-password-strength-label--strong {
+  color: #777;
+}
 
 .settings-password-rules {
   list-style: none;

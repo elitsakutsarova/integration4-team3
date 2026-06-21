@@ -4,7 +4,7 @@ export function SettingsBackButton({ onClick, label = 'Back' }) {
   return (
     <button
       type="button"
-      className="settings-back-btn"
+      className="settings-back-btn btn-chevron"
       onClick={onClick}
       aria-label={label}
     >

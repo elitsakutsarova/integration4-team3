@@ -27,4 +27,6 @@ export const settingsAssets = {
   leftGridDecoration: asset('left_grid_decoration.svg'),
   greenStar: asset('green_star.svg'),
   languageIcon: asset('language_icon.svg'),
+  greenGrid: asset('green-grid.svg'),
+  blueGears: asset('blue_gears.svg'),
 };

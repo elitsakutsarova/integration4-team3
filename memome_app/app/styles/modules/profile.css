@@ -315,12 +315,13 @@
 .profile-settings-btn {
   grid-row: 1;
   grid-column: 2;
-  padding: 0.3rem;
+  padding: 0.6rem;
   margin: 1rem 1rem 0 0;
   border: none;
   border-radius: 50%;
-  color: #005938;
+  color: var(--blue-400);
   cursor: pointer;
+  background: var(--blue-10);
   border-radius: 50%;
   transition: background .15s;
   display: inline-flex;
@@ -331,21 +332,27 @@
   z-index: 999;
 }
 
-.profile-settings-btn svg:hover {
-  fill: #00593853;
+.profile-settings-btn svg {
+  stroke: var(--blue-400);
+}
+
+.profile-settings-btn:hover {
+  background: var(--blue-100);
   stroke: none;
 }
 
 .profile-settings-btn--disabled {
-  color: #9CA3AF;
+  color: var(--white);
   cursor: not-allowed;
   pointer-events: none;
+  background: var(--grey-150);
 }
 
-.profile-settings-btn--disabled:hover {
-  background: transparent;
-  filter: none;
+.profile-settings-btn--disabled svg {
+  stroke: var(--white);
+  color: var(--white);
 }
+
 
 .profile-identity {
   grid-area: 2 / 1 / 3 / 1;
