@@ -234,6 +234,6 @@ After our consult, I changed a lot of things in test5 like:
 - There should already be a default tag selected when the form is open to avoid an error ✔️
 - In choose location, the map should always be visible ✔️
 - When clicking on map to add memo, the form opens and the user has to manually choose a location - make it so the map already has their coordinates, and the user can choose to change them if they want ✔️
-- You can’t add video from “Open camera” on laptop and overall can’t add video on photo -> fix it ✔️
+- You can’t add video from “Open camera” on laptop and overall can’t add video on phone -> fix it ✔️
 
 ## Deployment
