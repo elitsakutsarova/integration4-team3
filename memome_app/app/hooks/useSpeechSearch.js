@@ -1,19 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { requestMicrophonePermission } from '../utils/requestMicrophonePermission';
 
 function getSpeechRecognitionCtor() {
   if (typeof window === 'undefined') return null;
   return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null;
 }
 
-function isIosDevice() {
-  if (typeof navigator === 'undefined') return false;
-  return /iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
 function mapSpeechError(code) {
-  if (code === 'not-allowed' || code === 'service-not-allowed') {
-    return 'Microphone access was blocked. Allow mic permission in Safari settings.';
-  }
   if (code === 'no-speech') {
     return 'No speech detected. Tap the microphone and try again.';
   }
@@ -26,16 +19,26 @@ function mapSpeechError(code) {
   return 'Voice search is unavailable right now.';
 }
 
-const RETRYABLE_ERRORS = new Set(['no-speech', 'aborted']);
+const PERMISSION_ERRORS = new Set(['not-allowed', 'service-not-allowed']);
+
+function readTranscript(event) {
+  let transcript = '';
+  let hasFinal = false;
+  for (let i = 0; i < event.results.length; i += 1) {
+    transcript += event.results[i][0].transcript;
+    if (event.results[i].isFinal) hasFinal = true;
+  }
+  return { text: transcript.trim(), hasFinal };
+}
 
 export function useSpeechSearch({ onTranscript }) {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [error, setError] = useState(null);
+  const [permissionBlocked, setPermissionBlocked] = useState(false);
   const recognitionRef = useRef(null);
   const voiceActiveRef = useRef(false);
   const onTranscriptRef = useRef(onTranscript);
-  const startEngineRef = useRef(null);
 
   onTranscriptRef.current = onTranscript;
 
@@ -81,37 +84,30 @@ export function useSpeechSearch({ onTranscript }) {
     };
 
     recognition.onresult = (event) => {
-      let transcript = '';
-      let hasFinal = false;
-      for (let i = 0; i < event.results.length; i += 1) {
-        transcript += event.results[i][0].transcript;
-        if (event.results[i].isFinal) hasFinal = true;
-      }
-
-      const text = transcript.trim();
+      const { text, hasFinal } = readTranscript(event);
       if (!text) return;
 
       onTranscriptRef.current?.(text, { isFinal: hasFinal });
+
+      if (hasFinal) {
+        stopVoiceSession();
+      }
     };
 
     recognition.onend = () => {
-      if (!voiceActiveRef.current) {
+      if (voiceActiveRef.current) {
         stopVoiceSession();
-        return;
-      }
-
-      if (isIosDevice()) {
-        startEngineRef.current?.();
       }
     };
 
     recognition.onerror = (event) => {
       if (!voiceActiveRef.current) return;
 
-      if (RETRYABLE_ERRORS.has(event.error)) {
-        if (isIosDevice()) {
-          startEngineRef.current?.();
-        }
+      if (event.error === 'aborted') return;
+
+      if (PERMISSION_ERRORS.has(event.error)) {
+        setPermissionBlocked(true);
+        stopVoiceSession();
         return;
       }
 
@@ -128,9 +124,6 @@ export function useSpeechSearch({ onTranscript }) {
     }
   }, [stopVoiceSession, teardownRecognition]);
 
-  startEngineRef.current = startEngine;
-
-  // Detect Web Speech API support on mount; stop mic session on unmount.
   useEffect(() => {
     setIsSupported(Boolean(getSpeechRecognitionCtor()));
     return () => {
@@ -139,7 +132,7 @@ export function useSpeechSearch({ onTranscript }) {
     };
   }, [teardownRecognition]);
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     if (typeof window !== 'undefined' && !window.isSecureContext) {
       setError('Voice search needs HTTPS. On your phone, open the https:// dev URL (run npm run dev:lan).');
       return;
@@ -151,6 +144,18 @@ export function useSpeechSearch({ onTranscript }) {
     }
 
     setError(null);
+    setPermissionBlocked(false);
+
+    const permission = await requestMicrophonePermission();
+    if (!permission.granted) {
+      if (permission.denied) {
+        setPermissionBlocked(true);
+        return;
+      }
+      setError(permission.message ?? 'Microphone access is unavailable.');
+      return;
+    }
+
     voiceActiveRef.current = true;
     setIsListening(true);
     startEngine();
@@ -160,15 +165,24 @@ export function useSpeechSearch({ onTranscript }) {
     stopVoiceSession();
   }, [stopVoiceSession]);
 
-  const toggleListening = useCallback(() => {
-    if (voiceActiveRef.current) stopListening();
-    else startListening();
+  const toggleListening = useCallback(async () => {
+    if (voiceActiveRef.current) {
+      stopListening();
+      return;
+    }
+    await startListening();
   }, [startListening, stopListening]);
+
+  const dismissPermissionBlocked = useCallback(() => {
+    setPermissionBlocked(false);
+  }, []);
 
   return {
     isListening,
     isSupported,
     error,
+    permissionBlocked,
+    dismissPermissionBlocked,
     startListening,
     stopListening,
     toggleListening,

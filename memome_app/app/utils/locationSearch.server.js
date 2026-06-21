@@ -101,12 +101,44 @@ function photonToPlace(feature) {
   };
 }
 
+function collectUniquePlaces(features, limit = 15) {
+  const seenIds = new Set();
+  const places = [];
+
+  for (const feature of features) {
+    const place = photonToPlace(feature);
+    if (!place || !inAntwerpBounds(place.lat, place.lng)) continue;
+    if (seenIds.has(place.id)) continue;
+
+    seenIds.add(place.id);
+    places.push(place);
+    if (places.length >= limit) break;
+  }
+
+  return places;
+}
+
+function dedupePlacesById(places) {
+  const seenIds = new Set();
+
+  return places.filter(place => {
+    if (seenIds.has(place.id)) return false;
+    seenIds.add(place.id);
+    return true;
+  });
+}
+
 export async function searchAntwerpPlaces(query) {
   const prepared = prepareSearchQuery(query);
   if (!prepared) return { places: [] };
 
   const cached = readCache(prepared.cacheKey);
-  if (cached) return cached;
+  if (cached) {
+    return {
+      ...cached,
+      places: dedupePlacesById(cached.places ?? []),
+    };
+  }
 
   const params = new URLSearchParams({
     q: prepared.photonQuery,
@@ -138,10 +170,7 @@ export async function searchAntwerpPlaces(query) {
     const features = Array.isArray(data?.features) ? data.features : [];
 
     const result = {
-      places: features
-        .map(photonToPlace)
-        .filter(place => place && inAntwerpBounds(place.lat, place.lng))
-        .slice(0, 15),
+      places: collectUniquePlaces(features),
     };
 
     writeCache(prepared.cacheKey, result);

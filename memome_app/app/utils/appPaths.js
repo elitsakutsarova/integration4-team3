@@ -154,8 +154,19 @@ const GUEST_APP_PATHS = new Set([
   paths.journals,
 ]);
 
+/** Read-only APIs that guests can call (search + location browsing). */
+const PUBLIC_API_PATHS = new Set([
+  paths.apiLocationSearch,
+  paths.apiLocationHref,
+  paths.apiPlaceImage,
+]);
+
 export function isPublicAppPath(pathname) {
   return PUBLIC_APP_PATHS.has(pathname);
+}
+
+export function isPublicApiPath(pathname) {
+  return PUBLIC_API_PATHS.has(pathname);
 }
 
 export function isGuestAccessiblePath(pathname) {

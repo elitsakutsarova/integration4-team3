@@ -93,6 +93,35 @@ export function getNoResultsSuggestions() {
   return NO_RESULTS_SUGGESTIONS;
 }
 
+export function searchResponseMatchesQuery(data, query) {
+  const responseQuery = data?.query?.trim().toLowerCase() ?? '';
+  const activeQuery = query.trim().toLowerCase();
+  if (!responseQuery || !activeQuery) return false;
+  return responseQuery === activeQuery;
+}
+
+export function getSearchFetchState({ showResults, trimmedQuery, fetcherState, fetcherData }) {
+  if (!showResults) {
+    return {
+      hasMatchingResponse: false,
+      isAwaitingResults: false,
+      photonPlaces: [],
+      searchError: null,
+    };
+  }
+
+  const hasMatchingResponse = fetcherState === 'idle'
+    && searchResponseMatchesQuery(fetcherData, trimmedQuery)
+    && Array.isArray(fetcherData?.places);
+
+  return {
+    hasMatchingResponse,
+    isAwaitingResults: fetcherState !== 'idle' || !hasMatchingResponse,
+    photonPlaces: hasMatchingResponse ? fetcherData.places : [],
+    searchError: hasMatchingResponse ? fetcherData?.error ?? null : null,
+  };
+}
+
 export function searchDiscoverSpots(query) {
   const trimmed = query.trim().toLowerCase();
   if (trimmed.length < 2) return [];

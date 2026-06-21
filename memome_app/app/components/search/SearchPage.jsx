@@ -10,12 +10,14 @@ import { useAuth } from '../../context/AuthContext';
 import { useSpeechSearch } from '../../hooks/useSpeechSearch';
 import { goBack, paths } from '../../utils/appPaths';
 import SearchListeningView from './SearchListeningView';
+import MicrophonePermissionModal from './MicrophonePermissionModal';
 import {
   buildGroupedSearchResults,
   eventToRecentEntry,
   getNoResultsSuggestions,
   getSearchSuggestions,
   queryToRecentEntry,
+  getSearchFetchState,
   spotToRecentEntry,
 } from '../../utils/searchPlaces';
 import { addRecentSearch, loadRecentSearches } from '../../utils/searchRecentStore';
@@ -136,13 +138,31 @@ export default function SearchPage() {
   const [isFocused, setIsFocused] = useState(false);
   const [recentSearches, setRecentSearches] = useState([]);
 
-  const handleSpeechTranscript = useCallback((transcript) => {
-    if (transcript) setQuery(transcript);
-  }, []);
+  const requestSearch = useCallback((q) => {
+    const trimmed = q.trim();
+    if (trimmed.length < 2) return;
+    searchFetcher.load(`${paths.apiLocationSearch}?q=${encodeURIComponent(trimmed)}`);
+  }, [searchFetcher]);
+
+  const triggerSearch = useDebounceCallback(requestSearch, SEARCH_DEBOUNCE_MS);
+
+  const runSearch = useCallback((q) => {
+    triggerSearch.cancel();
+    requestSearch(q);
+  }, [requestSearch, triggerSearch]);
+
+  const handleSpeechTranscript = useCallback((transcript, meta) => {
+    if (!transcript) return;
+    setQuery(transcript);
+    if (!meta?.isFinal) return;
+    runSearch(transcript);
+  }, [runSearch]);
 
   const {
     isListening,
     error: speechError,
+    permissionBlocked,
+    dismissPermissionBlocked,
     stopListening,
     toggleListening,
   } = useSpeechSearch({ onTranscript: handleSpeechTranscript });
@@ -151,9 +171,12 @@ export default function SearchPage() {
   const showResults = trimmedQuery.length >= 2;
   const suggestions = getSearchSuggestions();
 
-  const photonPlaces = showResults ? (searchFetcher.data?.places ?? []) : [];
-  const searchError = showResults ? searchFetcher.data?.error : null;
-  const isSearching = showResults && searchFetcher.state !== 'idle';
+  const { isAwaitingResults, photonPlaces, searchError } = getSearchFetchState({
+    showResults,
+    trimmedQuery,
+    fetcherState: searchFetcher.state,
+    fetcherData: searchFetcher.data,
+  });
 
   const groupedResults = useMemo(
     () => buildGroupedSearchResults(trimmedQuery, photonPlaces),
@@ -161,7 +184,6 @@ export default function SearchPage() {
   );
   const venueHrefs = useEventVenueHrefs(showResults ? groupedResults.events : []);
 
-  // Focus search field when the page opens.
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
@@ -169,18 +191,12 @@ export default function SearchPage() {
   const stopListeningRef = useRef(stopListening);
   stopListeningRef.current = stopListening;
 
-  // Stop voice recognition if the user leaves mid-dictation.
   useEffect(() => () => stopListeningRef.current(), []);
 
-  // Reload recent searches when auth resolves or the user logs in/out.
   useEffect(() => {
     if (authLoading) return;
     setRecentSearches(loadRecentSearches(userId));
   }, [userId, authLoading]);
-
-  const triggerSearch = useDebounceCallback((q) => {
-    searchFetcher.load(`${paths.apiLocationSearch}?q=${encodeURIComponent(q)}`);
-  }, SEARCH_DEBOUNCE_MS);
 
   function saveRecent(entry) {
     if (authLoading || !entry) return;
@@ -192,6 +208,7 @@ export default function SearchPage() {
 
     if (result.query) {
       setQuery(result.query);
+      runSearch(result.query);
       saveRecent(result);
       inputRef.current?.focus();
       return;
@@ -216,6 +233,7 @@ export default function SearchPage() {
 
   function handleSuggestionClick(term) {
     setQuery(term);
+    runSearch(term);
     const entry = queryToRecentEntry(term);
     if (entry) saveRecent(entry);
     inputRef.current?.focus();
@@ -340,16 +358,16 @@ export default function SearchPage() {
 
           {!isListening && showResults && (
             <section className="search-page-section search-page-section--results">
-              {isSearching && <p className="search-page-status">Searching…</p>}
+              {isAwaitingResults && <p className="search-page-status">Searching…</p>}
               {searchError && <p className="search-page-status search-page-status--error">{searchError}</p>}
 
-              {!isSearching && hasGroupedResults && (
+              {!isAwaitingResults && hasGroupedResults && (
                 <p className="search-page-count">
                   {groupedResults.total} result{groupedResults.total === 1 ? '' : 's'} found
                 </p>
               )}
 
-              {!isSearching && !hasGroupedResults && !searchError && (
+              {!isAwaitingResults && !hasGroupedResults && !searchError && (
                 <SearchNoResults query={trimmedQuery} onSuggestionClick={handleSuggestionClick} />
               )}
 
@@ -422,6 +440,11 @@ export default function SearchPage() {
           )}
         </main>
       </div>
+
+      <MicrophonePermissionModal
+        open={permissionBlocked}
+        onClose={dismissPermissionBlocked}
+      />
     </div>
   );
 }
