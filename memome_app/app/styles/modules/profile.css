@@ -123,6 +123,7 @@
 .profile-identity--account .profile-username {
   font-size: 20px;
   margin-bottom: 12px;
+  font-family: sunAntwerpen;
 }
 
 .profile-identity--account .profile-tags {
@@ -318,7 +319,7 @@
   margin: 1rem 1rem 0 0;
   border: none;
   border-radius: 50%;
-  color: #000000;
+  color: #005938;
   cursor: pointer;
   border-radius: 50%;
   transition: background .15s;
@@ -328,12 +329,22 @@
   text-decoration: none;
   justify-self: start;
   z-index: 999;
-  filter: brightness(0.5);
 }
 
-.profile-settings-btn:hover {
-  background: #f0f0f2;
-  filter: drop-shadow(0px 0px 3px #bbbbbf);
+.profile-settings-btn svg:hover {
+  fill: #00593853;
+  stroke: none;
+}
+
+.profile-settings-btn--disabled {
+  color: #9CA3AF;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.profile-settings-btn--disabled:hover {
+  background: transparent;
+  filter: none;
 }
 
 .profile-identity {
@@ -622,6 +633,31 @@
 /* ─── Guest profile (/profile without account) ──────── */
 .profile-page--guest {
   padding-bottom: calc(var(--nav-h-safe) + 24px);
+}
+
+.profile-page--guest .profile-account-hero-deco .discover-list-grid {
+  filter: brightness(0) saturate(100%) invert(82%);
+}
+
+.profile-page--guest .profile-account-hero-deco .discover-list-grid-pattern {
+  background-image:
+    linear-gradient(#D1D5DB 1px, transparent 1px),
+    linear-gradient(90deg, #D1D5DB 1px, transparent 1px);
+}
+
+.profile-page--guest .profile-remember > svg,
+.profile-page--guest .profile-remember-empty,
+.profile-page--guest .profile-remember-scroll {
+  display: none;
+}
+
+.profile-page--guest .profile-remember-title {
+  background: #D2D2D2;
+  color: #6B7280;
+}
+
+.profile-page--guest .profile-remember {
+  padding-bottom: 3rem;
 }
 
 .profile-guest-hero {

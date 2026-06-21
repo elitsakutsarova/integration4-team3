@@ -208,8 +208,8 @@ After our consult, I changed a lot of things in test5 like:
 ## Test 16 -> Profile - improve/fix issues + design
 - Memos/events/places can be added to favourites even if the user is not logged in - they shouldn’t be able to ✔️
 - Implement the right screen for when the user logs out ✔️
-- You can’t log in with username (even though it says you can) -> fix it
-- Make design fit the wireframe for guest profile
+- You can’t log in with username (even though it says you can) -> fix it ✔️
+- Make design fit the wireframe for guest profile ✔️
 - Fix profile created memos -> should look like the wireframes (same as map ones)
 - Fix favourites/memos -> should look like the wireframes (same as map ones)
 

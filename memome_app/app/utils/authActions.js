@@ -32,7 +32,7 @@ export function loginActionError(error, email = '', password = '') {
   }
   if (
     error.field === 'form'
-    && /incorrect email or password|invalid credentials/i.test(error.message ?? '')
+    && /incorrect username or email|incorrect email or password|invalid credentials/i.test(error.message ?? '')
   ) {
     return {
       email,
