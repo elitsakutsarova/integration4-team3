@@ -11,6 +11,7 @@ import {
 } from '../../utils/privacyPreference';
 import { privacyAssets } from '../../utils/privacyAssets';
 import { settingsAssets } from '../../utils/settingsAssets';
+import SettingsSubpageHeader from './SettingsSubpageHeader';
 
 function PrivacyToggle({ enabled, onToggle, label }) {
   return (
@@ -42,7 +43,7 @@ export default function PrivacyPreferencePage() {
 
   return (
     <div className="settings-page privacy-page">
-      <header className="settings-hero settings-hero--privacy">
+      {/* <header className="settings-hero settings-hero--privacy">
         <div className="settings-hero-deco" aria-hidden="true">
           <img className="settings-hero-mask" src={settingsAssets.maskGroup} alt="" />
           <img className="privacy-hero-grid" src={settingsAssets.grid} alt="" />
@@ -57,10 +58,17 @@ export default function PrivacyPreferencePage() {
             Privacy
           </h1>
         </div>
-      </header>
+      </header> */}
+
+      <SettingsSubpageHeader
+              title="Privacy"
+              onBack={handleBack}
+              backLabel="Back to settings"
+              titleIcon={<img src={settingsAssets.privacyIcon} alt="Privacy icon" />}
+            />
 
       <div className="privacy-content">
-        <h2 className="privacy-section-label">Permissions &amp; Data</h2>
+        <h2 className="privacy-section-label"><span className="privacy-section-label-underline" />Permissions &amp; Data</h2>
 
         <div className="privacy-options-box">
           {PRIVACY_SETTINGS.map((setting, index) => {

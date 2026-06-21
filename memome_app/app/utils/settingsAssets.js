@@ -29,4 +29,7 @@ export const settingsAssets = {
   languageIcon: asset('language_icon.svg'),
   greenGrid: asset('green-grid.svg'),
   blueGears: asset('blue_gears.svg'),
+  privacyIcon: asset('privacy_icon.svg'),
+  supportIcon: asset('support_icon.svg'),
+  changeIcon: asset('change_pass.svg'),
 };

@@ -89,9 +89,11 @@
 }
 
 .auth-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--dark);
+    font-size: 16px;
+      font-weight: 700;
+      color: var(--grey-200, #797979);
+      font-family: SunAntwerpen;
+      font-style: normal;
 }
 
 .auth-label-margin-added {
@@ -106,9 +108,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  background: #fff;
-  border: 1.5px solid #e0e0e4;
-  border-radius: 12px;
+  border-radius: 0.75rem;
+    border: 1px solid var(--grey-150, #9CA3AF);
+    background: var(--grey-0, #FFF);
   transition: border-color .15s, background .15s;
 }
 

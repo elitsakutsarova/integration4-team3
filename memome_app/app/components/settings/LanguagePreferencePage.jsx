@@ -10,6 +10,8 @@ import {
   setLanguagePreference,
 } from '../../utils/languagePreference';
 import { settingsAssets } from '../../utils/settingsAssets';
+import SettingsSubpageHeader from './SettingsSubpageHeader';
+
 
 function LanguageRadio({ selected }) {
   if (selected) {
@@ -46,7 +48,7 @@ export default function LanguagePreferencePage() {
 
   return (
     <div className="settings-page language-page">
-      <header className="settings-hero settings-hero--language">
+      {/* <header className="settings-hero settings-hero--language">
         <div className="settings-hero-deco" aria-hidden="true">
           <img className="language-hero-grid" src={settingsAssets.grid} alt="" />
           <img className="language-hero-grid language-hero-grid--left" src={settingsAssets.topGrid2} alt="" />
@@ -63,12 +65,21 @@ export default function LanguagePreferencePage() {
             Language
           </h1>
         </div>
-      </header>
+      </header> */}
+      <SettingsSubpageHeader
+              title="Language"
+              onBack={handleBack}
+              backLabel="Back to settings"
+              titleIcon={<img src={settingsAssets.languageIcon} alt="Language icon" />}  
+            />
 
       <div className="language-content">
-        <p className="language-intro">
-          Choose the language you want to use for the MemoMe app interface.
-        </p>
+        <div className="content-section-intro">
+          <h2 className="language-section-label settings-section-title"><span class="language-section-label-underline settings-section-title-underline" aria-hidden="true"></span>App Language</h2>
+          <p className="language-intro settings-section-text">
+            Choose the language you want to use for the MemoMe app interface.
+          </p>
+        </div>
 
         <div className="language-options-box" role="radiogroup" aria-label="App language">
           {LANGUAGE_OPTIONS.map((option) => {

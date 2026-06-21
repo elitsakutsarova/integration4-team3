@@ -7,6 +7,7 @@ import { SettingsBackButton } from './SettingsSubpageHeader';
 import { feedbackErrorToFieldMap } from '../../utils/submitFeedbackAction';
 import { sendFeedbackAssets } from '../../utils/sendFeedbackAssets';
 import { settingsAssets } from '../../utils/settingsAssets';
+import SettingsSubpageHeader from './SettingsSubpageHeader';
 
 function AtIcon() {
   return <span className="feedback-at-symbol" aria-hidden="true">@</span>;
@@ -21,7 +22,8 @@ export default function SendFeedbackPage() {
   const submitted = fetcher.data?.success === true;
   const fieldErrors = feedbackErrorToFieldMap(fetcher.data?.error);
   const formError = fieldErrors.form;
-  const emailPlaceholder = user?.username ?? 'alex_explores';
+  const usernamePlaceholder = user?.username ? `${user.username}` : 'Type your username here';
+  const emailPlaceholder = 'Type your email here';
 
   function handleBack() {
     goBack(navigate, paths.profileSettings);
@@ -29,26 +31,19 @@ export default function SendFeedbackPage() {
 
   return (
     <div className="settings-page feedback-page settings-form-page">
-      <header className="settings-hero settings-hero--feedback">
-        <div className="settings-hero-deco" aria-hidden="true">
-          <img className="settings-hero-mask" src={settingsAssets.maskGroup} alt="" />
-          <img className="feedback-hero-grid" src={sendFeedbackAssets.topGrid} alt="" />
-          <img className="feedback-hero-wave" src={sendFeedbackAssets.vector551} alt="" />
-          <img className="feedback-hero-icon" src={sendFeedbackAssets.sendFeedbackIcon} alt="" />
-        </div>
-
-        <div className="settings-title-row">
-          <SettingsBackButton onClick={handleBack} label="Back to settings" />
-          <h1 className="settings-title">
-            <span className="settings-title-highlight settings-title-highlight--feedback" aria-hidden="true" />
-            Send feedback
-          </h1>
-        </div>
-      </header>
+      <SettingsSubpageHeader
+              title="Send feedback"
+              onBack={handleBack}
+              backLabel="Back to settings"
+              titleIcon={<img src={settingsAssets.supportIcon} alt="Star shape looking like gear" />}
+            />
 
       <div className="settings-form-body feedback-content">
         <div className="settings-form-intro">
-          <p className="settings-form-intro-title">Feedback form</p>
+          <h2 className="settings-form-intro-title"><span class="settings-form-intro-title-underline" aria-hidden="true"></span>We’d love to hear from you</h2>
+          <p className="settings-form-intro-text">
+            Need help or have an idea? Send us your feedback so we can make MemoMe better.
+          </p>
         </div>
 
         {submitted ? (
@@ -73,7 +68,7 @@ export default function SendFeedbackPage() {
 
           <div className="feedback-field">
             <label className="feedback-label" htmlFor="feedback-name">
-              Name:
+              Username:
             </label>
             <div className={`feedback-input-wrap${fieldErrors.name ? ' feedback-input-wrap--error' : ''}`}>
               <input
@@ -81,7 +76,8 @@ export default function SendFeedbackPage() {
                 name="name"
                 type="text"
                 className="feedback-input"
-                placeholder="Name"
+                      placeholder={usernamePlaceholder}
+                      defaultValue={user?.username ?? ''}
                 autoComplete="name"
                 required
                 aria-invalid={Boolean(fieldErrors.name)}
@@ -97,9 +93,9 @@ export default function SendFeedbackPage() {
               Email:
             </label>
             <div className={`feedback-input-wrap${fieldErrors.email ? ' feedback-input-wrap--error' : ''}`}>
-              <span className="feedback-input-icon">
+{/*               <span className="feedback-input-icon">
                 <AtIcon />
-              </span>
+              </span> */}
               <input
                 id="feedback-email"
                 name="email"
@@ -127,7 +123,7 @@ export default function SendFeedbackPage() {
                 name="subject"
                 type="text"
                 className="feedback-input"
-                placeholder="enter subject"
+                      placeholder="Give a title to your message"
                 required
                 aria-invalid={Boolean(fieldErrors.subject)}
               />
@@ -146,7 +142,7 @@ export default function SendFeedbackPage() {
                 id="feedback-message"
                 name="message"
                 className="feedback-textarea"
-                placeholder="Enter message"
+                      placeholder="Type your message here"
                 rows={6}
                 required
                 aria-invalid={Boolean(fieldErrors.message)}
