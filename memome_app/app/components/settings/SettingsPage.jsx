@@ -16,7 +16,7 @@ function SettingsRowIcon({ children }) {
 function SettingsChevron() {
   return (
     <svg className="settings-row-chevron" xmlns="http://www.w3.org/2000/svg" width="7" height="13" viewBox="0 0 7 13" fill="none">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M6.72168 7.22211L1.34415 13L0 11.5558L4.70546 6.5L0 1.44422L1.34415 0L6.72168 5.77789C6.89989 5.96943 7 6.22917 7 6.5C7 6.77083 6.89989 7.03057 6.72168 7.22211Z" fill="#797979" />
+      <path fillRule="evenodd" clipRule="evenodd" d="M6.72168 7.22211L1.34415 13L0 11.5558L4.70546 6.5L0 1.44422L1.34415 0L6.72168 5.77789C6.89989 5.96943 7 6.22917 7 6.5C7 6.77083 6.89989 7.03057 6.72168 7.22211Z" fill="#797979" />
     </svg>
   );
 }
@@ -116,8 +116,8 @@ export default function SettingsPage() {
               to={paths.profileSettingsLanguage}
               icon={(
                 <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
-                  <path d="M1 9.40129C1 13.9502 4.68737 17.6375 9.23625 17.6375C13.7851 17.6375 17.4725 13.9502 17.4725 9.40129C17.4725 4.85241 13.7851 1.16504 9.23625 1.16504C4.68737 1.16504 1 4.85241 1 9.40129Z" stroke="#797979" strokeWidth="1.7" stroke-linecap="round" strokeLinejoin="round" />
-                  <path d="M10.0599 1.20605C10.0599 1.20605 12.5308 4.45937 12.5308 9.40112C12.5308 14.3429 10.0599 17.5962 10.0599 17.5962M8.41263 17.5962C8.41263 17.5962 5.94176 14.3429 5.94176 9.40112C5.94176 4.45937 8.41263 1.20605 8.41263 1.20605M1.51889 12.2838H16.9536M1.51889 6.51844H16.9536" stroke="#797979" strokeWidth="1.7" stroke-linecap="round" strokeLinejoin="round" />
+                  <path d="M1 9.40129C1 13.9502 4.68737 17.6375 9.23625 17.6375C13.7851 17.6375 17.4725 13.9502 17.4725 9.40129C17.4725 4.85241 13.7851 1.16504 9.23625 1.16504C4.68737 1.16504 1 4.85241 1 9.40129Z" stroke="#797979" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M10.0599 1.20605C10.0599 1.20605 12.5308 4.45937 12.5308 9.40112C12.5308 14.3429 10.0599 17.5962 10.0599 17.5962M8.41263 17.5962C8.41263 17.5962 5.94176 14.3429 5.94176 9.40112C5.94176 4.45937 8.41263 1.20605 8.41263 1.20605M1.51889 12.2838H16.9536M1.51889 6.51844H16.9536" stroke="#797979" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
             />

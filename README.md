@@ -220,6 +220,6 @@ After our consult, I changed a lot of things in test5 like:
 - Make design fit the wireframes ✔️
 
 ## Test 18 -> Log-in improvement
-- Add terms & privacy policy page (both links lead to one page)
+- Add terms & privacy policy page (both links lead to one page) ✔️
 
 ## Deployment
