@@ -823,6 +823,10 @@ grid-area: 2 / 1 / 3 / 1;
   flex-direction: column;
 }
 
+.collection-scroll--favourites-memos {
+  padding-top: 2rem;
+}
+
 .favourites-empty {
   text-align: center;
     flex-direction: column;

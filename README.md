@@ -211,7 +211,7 @@ After our consult, I changed a lot of things in test5 like:
 - You can’t log in with username (even though it says you can) -> fix it ✔️
 - Make design fit the wireframe for guest profile ✔️
 - Fix profile created memos -> should look like the wireframes (same as map ones) ✔️
-- Fix favourites/memos -> should look like the wireframes (same as map ones)
+- Fix favourites/memos -> should look like the wireframes (same as map ones) ✔️
 
 
 ## Deployment
