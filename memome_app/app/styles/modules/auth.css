@@ -560,7 +560,9 @@
 .register-title-row {
   display: flex;
   justify-content: center;
-  width: 100%;
+  width: fit-content;
+  background: var(--yellow-400);
+  padding: 0.5rem 0.75rem;
 }
 
 .register-title {
@@ -917,6 +919,7 @@
 .register-legal-link {
   text-decoration: underline;
   text-underline-offset: 2px;
+  color: inherit;
 }
 
 .register-login-prompt {
@@ -1106,10 +1109,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  padding: 11px 14px 10px 15px;
+  border: none;
   border-radius: 10px;
   background: #e4eaff;
+  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
   text-decoration: none;
   flex-shrink: 0;
 }
@@ -2384,6 +2388,105 @@
 .onboarding-screen3-page .onboarding-footer__next {
   background: var(--green-400);
   font-weight: 700;
+}
+
+/* ─── Terms of Service page ─────────────────────────── */
+
+.terms-page .auth-flow-shell {
+  padding: 0 16px 40px;
+}
+
+.terms-hero {
+  min-height: 132px;
+  margin-bottom: 0;
+}
+
+.terms-hero__nav {
+  align-self: start;
+  justify-self: start;
+  z-index: 3;
+  padding: 36px 0 0 16px;
+}
+
+.terms-header {
+  margin-top: -7rem;
+}
+
+.terms-lead {
+  margin: 0;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--dark, #202020);
+  text-align: center;
+}
+
+.terms-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 34px;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+.terms-section {
+  width: 100%;
+}
+
+.terms-section-title {
+  margin: 0 0 0;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 28px;
+  color: var(--dark, #202020);
+}
+
+.terms-section-body {
+  margin: 0;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 28px;
+  color: var(--dark, #202020);
+}
+
+.terms-section + .terms-section {
+  margin-top: 0;
+}
+
+.terms-section:not(:first-child) {
+  margin-top: 0;
+}
+
+.terms-content .terms-section:not(:last-of-type) {
+  margin-bottom: 0;
+}
+
+.terms-ack-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 275px);
+  min-height: 48px;
+  padding: 15px 20px;
+  border: 2px dashed #1952ff;
+  border-radius: 8px;
+  background: #1952ff;
+  color: #fff;
+  font-family: 'SunAntwerpen', var(--font);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-decoration: none;
+  text-align: center;
+  transition: opacity 0.15s;
+}
+
+.terms-ack-btn:hover {
+  opacity: 0.88;
 }
 
 @media (max-width: 360px) {

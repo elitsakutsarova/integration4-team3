@@ -43,6 +43,8 @@
       "routes/reset-password": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/reset-password-success": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/register": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/terms-of-service": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/logged-out": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/onboarding.1": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/onboarding.2": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/onboarding.3": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -322,6 +324,20 @@
         "parentId": "root",
         "file": "app/routes/register.jsx",
         "path": "register",
+        "config": {}
+      },
+      "routes/terms-of-service": {
+        "id": "routes/terms-of-service",
+        "parentId": "root",
+        "file": "app/routes/terms-of-service.jsx",
+        "path": "terms-of-service",
+        "config": {}
+      },
+      "routes/logged-out": {
+        "id": "routes/logged-out",
+        "parentId": "root",
+        "file": "app/routes/logged-out.jsx",
+        "path": "logged-out",
         "config": {}
       },
       "routes/onboarding.1": {
@@ -701,6 +717,18 @@
         "file": "routes/register.jsx",
         "path": "register"
       },
+      "routes/terms-of-service": {
+        "id": "routes/terms-of-service",
+        "parentId": "root",
+        "file": "routes/terms-of-service.jsx",
+        "path": "terms-of-service"
+      },
+      "routes/logged-out": {
+        "id": "routes/logged-out",
+        "parentId": "root",
+        "file": "routes/logged-out.jsx",
+        "path": "logged-out"
+      },
       "routes/onboarding.1": {
         "id": "routes/onboarding.1",
         "parentId": "root",
@@ -993,6 +1021,14 @@
           {
             "file": "routes/register.jsx",
             "path": "register"
+          },
+          {
+            "file": "routes/terms-of-service.jsx",
+            "path": "terms-of-service"
+          },
+          {
+            "file": "routes/logged-out.jsx",
+            "path": "logged-out"
           },
           {
             "file": "routes/onboarding.1.jsx",

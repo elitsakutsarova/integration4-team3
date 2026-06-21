@@ -443,9 +443,9 @@ export default function Register() {
 
         <p className="register-legal">
           By creating an account you agree to our{' '}
-          <span className="register-legal-link">Terms</span>
+          <Link to={paths.termsOfService} className="register-legal-link">Terms</Link>
           {' '}and{' '}
-          <span className="register-legal-link">Privacy Policy</span>
+          <Link to={paths.termsOfService} className="register-legal-link">Privacy Policy</Link>
         </p>
 
         <p className="register-login-prompt">
