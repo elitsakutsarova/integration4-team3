@@ -114,31 +114,28 @@ export default function JournalCard({ journal }) {
 
         <div className={`journal-card-pocket ${pocketClass(journal.displayType)}`}>
           <div className="journal-card-pocket-shadow" aria-hidden="true" />
-          <div className="journal-card-pocket-face" aria-hidden="true" />
-        </div>
-
-        <div className="journal-card-stack">
-          <CardVisual journal={journal} />
-        </div>
-
-        <div className="journal-card-meta">
-          <span className="journal-card-title">{journal.title}</span>
-          <span className="journal-card-date">{journal.monthLabel}</span>
+            <div className="journal-card-stack">
+              <CardVisual journal={journal} />
+            </div>
+            <div className="journal-card-pocket-face" aria-hidden="true">
+              <div className="journal-card-meta">
+                <span className="journal-card-title">{journal.title}</span>
+                <span className="journal-card-date">{journal.monthLabel}</span>
+              </div>
+          </div>
         </div>
       </div>
-    </Link>
+    </Link >
   );
 }
 
 export function NewJournalCard() {
   return (
     <Link to={paths.journalsCreate} className="journal-card-new" aria-label="Start a new travel diary">
-      <img
-        className="journal-card-new-icon"
-        src={journalAssets.addMenu}
-        alt=""
-        aria-hidden="true"
-      />
+      <svg class="journal-card-new-icon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <path d="M1.88518 12.875H23.8852" stroke="#1952FF" stroke-width="3.77035" stroke-linecap="square" stroke-linejoin="round" />
+        <path d="M12.8783 1.88477V23.8848" stroke="#1952FF" stroke-width="3.77035" stroke-linecap="square" stroke-linejoin="round" />
+      </svg>
       <span className="journal-card-new-label">New Travel Diary</span>
     </Link>
   );

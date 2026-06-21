@@ -5,6 +5,7 @@ import { journalAssets } from '../../utils/journalAssets';
 export default function JournalsEmptyState() {
   return (
     <div className="journals-empty">
+      <div className="journals-empty-content-wrap">
       <img
         className="journals-empty-illustration"
         src={journalAssets.emptyIllustration}
@@ -15,6 +16,8 @@ export default function JournalsEmptyState() {
       <p className="journals-empty-text">
         Currently you don&apos;t have any recorded memos to create a journal.
       </p>
+      </div>
+      <div className="journals-empty-cta-wrap">
       <Link to={paths.home} className="journals-empty-cta">
         Add one now!
       </Link>
@@ -24,6 +27,7 @@ export default function JournalsEmptyState() {
         alt=""
         aria-hidden="true"
       />
+    </div>
     </div>
   );
 }

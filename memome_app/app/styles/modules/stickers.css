@@ -435,9 +435,8 @@
   top: var(--achievement-backdrop-top);
   width: var(--achievement-backdrop-width);
   height: var(--achievement-backdrop-height);
-  border-radius: var(--achievement-backdrop-radius);
   background: #9CA3AF;
-  transform: rotate(5.1deg);
+  transform: rotate(4.1deg);
   transform-origin: center center;
   z-index: 0;
 }
@@ -445,7 +444,7 @@
 .stickers-achievement-art {
   position: absolute;
   left: 50%;
-  top: 0;
+  top: 5%;
   width: var(--achievement-art-width);
   z-index: 1;
   display: flex;
