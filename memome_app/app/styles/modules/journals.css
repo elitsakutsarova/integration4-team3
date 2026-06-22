@@ -460,6 +460,7 @@
   line-height: 0.75rem;
   color: #fff;
   transform: rotate(-8deg);
+  margin-top: -1.3rem;
 }
 
 .journal-card-new {
