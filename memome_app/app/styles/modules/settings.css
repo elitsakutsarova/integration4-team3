@@ -70,15 +70,14 @@
 
 .settings-back-btn {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  background: var(--grey-0, #fff);
-  border-radius: 10px;
-  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
-  padding: 11px 14px 10px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: var(--blue-10);
+    box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
+    color: #1952ff;
+    text-decoration: none;
 }
 
 .settings-back-btn img {

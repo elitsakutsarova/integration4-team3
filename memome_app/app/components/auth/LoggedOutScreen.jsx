@@ -99,7 +99,10 @@ export default function LoggedOutScreen() {
       <div className="logged-out-page__content logged-out-page__logo-layer">
         <div className="logged-out-page__center">
           <main className="logged-out-page__main">
-            <LoggedOutLogo />
+            {/* <LoggedOutLogo /> */}
+            <div className="logged-out-logo" aria-label="MemoMe">
+              <img className="logged-out-logo-img" src={loggedOutAssets.logoSvg} alt="Logo of MemoMe app" aria-hidden="true" />
+            </div>
           </main>
         </div>
       </div>

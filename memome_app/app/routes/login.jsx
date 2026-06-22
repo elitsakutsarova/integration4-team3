@@ -144,7 +144,7 @@ function LoginHeroContent() {
         <img className="login-hero__photo" src={loginAssets.pinPhoto} alt="" />
       </div>
       <p className="login-subtitle">
-        <span className="login-subtitle-highlight">Sign in to continue</span>
+        <span class="login-subtitle-highlight" aria-hidden="true"></span>Sign in to continue
       </p>
     </div>
   );
@@ -244,55 +244,57 @@ export default function Login() {
             }
           }}
         >
-          <div className="auth-field">
-            <label className="auth-label" htmlFor="login-identifier">Username or email</label>
-            <div className={`auth-input-wrap${identifierError ? ' auth-input-wrap--error' : ''}`}>
-              <span className="auth-input-prefix">@</span>
-              <input
-                id="login-identifier"
-                name="email"
-                type="text"
-                className="auth-input auth-input--prefixed"
-                placeholder="alex_explores"
-                value={identifier}
-                onChange={event => setIdentifier(event.target.value)}
-                onBlur={() => touchField('email')}
-                autoComplete="username email"
-                required
-                aria-invalid={Boolean(identifierError)}
-                aria-describedby={identifierError ? 'login-identifier-error' : undefined}
-              />
+          <div className="auth-fields-container">
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="login-identifier">Username or email</label>
+              <div className={`auth-input-wrap${identifierError ? ' auth-input-wrap--error' : ''}`}>
+                <span className="auth-input-prefix">@</span>
+                <input
+                  id="login-identifier"
+                  name="email"
+                  type="text"
+                  className="auth-input auth-input--prefixed"
+                  placeholder="alex_explores"
+                  value={identifier}
+                  onChange={event => setIdentifier(event.target.value)}
+                  onBlur={() => touchField('email')}
+                  autoComplete="username email"
+                  required
+                  aria-invalid={Boolean(identifierError)}
+                  aria-describedby={identifierError ? 'login-identifier-error' : undefined}
+                />
+              </div>
+              <LoginFieldError message={identifierError} id="login-identifier-error" />
             </div>
-            <LoginFieldError message={identifierError} id="login-identifier-error" />
-          </div>
 
-          <div className="auth-field">
-            <label className="auth-label" htmlFor="login-password">Password*</label>
-            <div className={`auth-input-wrap login-password-wrap${passwordError ? ' auth-input-wrap--error' : ''}`}>
-              <span className="auth-input-icon"><LockIcon /></span>
-              <input
-                id="login-password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                className="auth-input auth-input--icon"
-                value={password}
-                onChange={event => setPassword(event.target.value)}
-                onBlur={() => touchField('password')}
-                autoComplete="current-password"
-                required
-                aria-invalid={Boolean(passwordError)}
-                aria-describedby={passwordError ? 'login-password-error' : undefined}
-              />
-              <button
-                type="button"
-                className="login-password-toggle"
-                onClick={() => setShowPassword(value => !value)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                <EyeIcon off={!showPassword} />
-              </button>
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="login-password">Password*</label>
+              <div className={`auth-input-wrap login-password-wrap${passwordError ? ' auth-input-wrap--error' : ''}`}>
+                <span className="auth-input-icon"><LockIcon /></span>
+                <input
+                  id="login-password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  className="auth-input auth-input--icon"
+                  value={password}
+                  onChange={event => setPassword(event.target.value)}
+                  onBlur={() => touchField('password')}
+                  autoComplete="current-password"
+                  required
+                  aria-invalid={Boolean(passwordError)}
+                  aria-describedby={passwordError ? 'login-password-error' : undefined}
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowPassword(value => !value)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <EyeIcon off={!showPassword} />
+                </button>
+              </div>
+              <LoginFieldError message={passwordError} id="login-password-error" />
             </div>
-            <LoginFieldError message={passwordError} id="login-password-error" />
           </div>
 
           {showFormBanner && (

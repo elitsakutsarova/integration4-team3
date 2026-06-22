@@ -14,6 +14,8 @@ export const onboardingAssets = {
   grid: sharedAsset('grid.svg'),
   greenRightDecor: sharedAsset('green_right_decor.svg'),
   greenStar: sharedAsset('green_star.svg'),
+  logoVideo: sharedAsset('loading-small.mp4'),
+  logoSvg: sharedAsset('logo.svg'),
   screen1: {
     phone: screenAsset('screen1', 'phone.png'),
     doodle1: screenAsset('screen1', 'doodle1.svg'),

@@ -3,7 +3,7 @@ import { loggedOutAssets } from '../../utils/loggedOutAssets';
 export default function LoggedOutLogo() {
   return (
     <div className="logged-out-logo" aria-label="MemoMe">
-      <div className="logged-out-logo__orbit">
+      {/* <div className="logged-out-logo__orbit">
         <img
           className="logged-out-logo__text"
           src={loggedOutAssets.logoPt1}
@@ -17,7 +17,8 @@ export default function LoggedOutLogo() {
             alt=""
           />
         </div>
-      </div>
+      </div> */}
+      <img className="logged-out-logo-img" src={loggedOutAssets.logoSvg} alt="Logo of MemoMe app" aria-hidden="true" />
     </div>
   );
 }

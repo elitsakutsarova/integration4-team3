@@ -198,7 +198,7 @@
 .logged-out-logo {
   display: flex;
   justify-content: center;
-  width: 100%;
+  padding: 3rem;
   animation: logged-out-fade-up var(--logged-out-enter-duration) var(--logged-out-enter-ease) 0.18s both;
 }
 

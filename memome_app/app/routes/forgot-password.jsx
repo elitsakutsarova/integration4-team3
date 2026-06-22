@@ -146,7 +146,7 @@ export default function ForgotPassword() {
         <ForgotPasswordHero />
 
         <div className="forgot-password-intro">
-          <p className="forgot-password-intro__lead">Enter your email address</p>
+          <p className="forgot-password-intro__lead"><span className="forgot-password-subtitle-highlight"></span>Enter your email address</p>
           <p className="forgot-password-intro__hint">
             We&apos;ll send you a link to reset your password
           </p>
@@ -166,7 +166,9 @@ export default function ForgotPassword() {
             <div className="auth-field">
               <label className="auth-label" htmlFor="forgot-password-email">Email</label>
               <div className={`auth-input-wrap${emailError ? ' auth-input-wrap--error' : ''}`}>
-                <span className="auth-input-prefix">@</span>
+              <span className="auth-input-prefix"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="16" viewBox="0 0 20 16" fill="none">
+                <path d="M0 16V0H20V16H0ZM10 9L2 4V14H18V4L10 9ZM10 7L18 2H2L10 7ZM2 4V2V14V4Z" fill="#797979" />
+              </svg></span>
                 <input
                   id="forgot-password-email"
                   name="email"
