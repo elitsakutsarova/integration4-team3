@@ -380,6 +380,11 @@ box-shadow: 0 0.125rem 0.5687rem 0 rgba(43, 43, 44, 0.15);
   cursor: pointer;
 }
 
+a.search-result-row {
+  text-decoration: none;
+  color: inherit;
+}
+
 .search-result-icon {
   flex-shrink: 0;
   width: 1.9375rem;
@@ -451,13 +456,30 @@ box-shadow: 0 0.125rem 0.5687rem 0 rgba(43, 43, 44, 0.15);
 
 .search-spot-card,
 .search-event-card {
+  position: relative;
   width: 100%;
   cursor: pointer;
 }
 
+.search-spot-card-link,
+.search-event-card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  text-decoration: none;
+  color: transparent;
+}
+
 .search-spot-card .discover-fave-btn,
 .search-event-card .discover-fave-btn {
+  position: relative;
+  z-index: 2;
   pointer-events: auto;
+}
+
+.search-event-card .event-location-link {
+  position: relative;
+  z-index: 2;
 }
 
 .search-spot-card .discover-learn-more,

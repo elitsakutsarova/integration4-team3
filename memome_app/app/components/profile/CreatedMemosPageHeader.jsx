@@ -1,11 +1,8 @@
-import { useNavigate } from 'react-router';
 import { paths } from '../../utils/appPaths';
 import BackChevron from '../BackChevron';
 import { accountAssets } from '../../utils/accountAssets';
 
 export default function CreatedMemosPageHeader() {
-  const navigate = useNavigate();
-
   return (
     <header className="created-memos-header">
       <div className="created-memos-hero-deco" aria-hidden="true">
@@ -18,8 +15,8 @@ export default function CreatedMemosPageHeader() {
       <div className="created-memos-title-row">
         <div className="created-memos-titles">
           <BackChevron
-            className="created-memos-back btn-chevron"
-            onClick={() => navigate(paths.profile)}
+            className="created-memos-back"
+            to={paths.profile}
             label="Back to profile"
           />
             <h1 className="created-memos-title">Created Memos</h1>

@@ -274,6 +274,10 @@ flex-shrink: 0;
   padding: 0.6rem;
 }
 
+a.btn-chevron {
+  text-decoration: none;
+}
+
 .favorite-btn--guest-locked {
   cursor: pointer;
 }

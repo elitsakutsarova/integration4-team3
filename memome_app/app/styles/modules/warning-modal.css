@@ -93,6 +93,14 @@
   cursor: pointer;
 }
 
+a.create-journal-warning-discard,
+a.create-journal-warning-continue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .create-journal-warning-discard {
   border: 0.125rem dashed #1952ff;
   background: #fff;

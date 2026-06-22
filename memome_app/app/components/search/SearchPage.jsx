@@ -1,14 +1,14 @@
 // main search page component
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFetcher, useNavigate } from 'react-router';
+import { Link, useFetcher, useNavigate } from 'react-router';
 import { useDebounceCallback } from '../../hooks/useDebounceCallback';
 import { useEventVenueHrefs } from '../../hooks/useEventVenueHrefs';
 import BackChevron from '../BackChevron';
 import { EventCard, PlaceCard } from '../discover/DiscoverCards';
 import { useAuth } from '../../context/AuthContext';
 import { useSpeechSearch } from '../../hooks/useSpeechSearch';
-import { goBack, paths } from '../../utils/appPaths';
+import { goBack, paths, discoverEventPath } from '../../utils/appPaths';
 import SearchListeningView from './SearchListeningView';
 import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
 import MicrophonePermissionModal from './MicrophonePermissionModal';
@@ -35,9 +35,9 @@ function SearchSectionTitle({ label, width = '5rem', id }) {
   );
 }
 
-function SearchRecentRow({ result, onSelect }) {
-  return (
-    <button type="button" className="search-result-row" onClick={() => onSelect(result)}>
+function SearchRecentRow({ result, onSelect, onNavigate }) {
+  const content = (
+    <>
       <span className="search-result-icon" aria-hidden="true">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           <circle cx="12" cy="12" r="9" />
@@ -48,28 +48,39 @@ function SearchRecentRow({ result, onSelect }) {
         <span className="search-result-title">{result.name}</span>
         <span className="search-result-address">{result.address}</span>
       </span>
+    </>
+  );
+
+  if (result.href) {
+    return (
+      <Link
+        to={result.href}
+        className="search-result-row"
+        onClick={() => onNavigate(result)}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" className="search-result-row" onClick={() => onSelect(result)}>
+      {content}
     </button>
   );
 }
 
-function SearchSpotCard({ spot, onSelect }) {
-  function handleActivate() {
-    onSelect(spot);
-  }
+function SearchSpotCard({ spot, onNavigate }) {
+  if (!spot?.href) return null;
 
   return (
-    <div
-      className="search-spot-card"
-      role="button"
-      tabIndex={0}
-      onClick={handleActivate}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleActivate();
-        }
-      }}
-    >
+    <div className="search-spot-card">
+      <Link
+        to={spot.href}
+        className="search-spot-card-link"
+        aria-label={`View ${spot.title}`}
+        onClick={() => onNavigate(spot)}
+      />
       <PlaceCard
         layout="list"
         item={{
@@ -212,24 +223,21 @@ export default function SearchPage() {
       runSearch(result.query);
       saveRecent(result);
       inputRef.current?.focus();
-      return;
     }
-
-    if (!result.href) return;
-    saveRecent(result);
-    navigate(result.href);
   }
 
-  function handleSelectSpot(spot) {
+  function handleNavigateRecent(result) {
+    if (!result?.href) return;
+    saveRecent(result);
+  }
+
+  function handleNavigateSpot(spot) {
     if (!spot?.href) return;
     saveRecent(spotToRecentEntry(spot));
-    navigate(spot.href);
   }
 
-  function handleSelectEvent(event) {
-    const entry = eventToRecentEntry(event);
-    saveRecent(entry);
-    navigate(entry.href);
+  function handleNavigateEvent(event) {
+    saveRecent(eventToRecentEntry(event));
   }
 
   function handleSuggestionClick(term) {
@@ -350,7 +358,11 @@ export default function SearchPage() {
               <div className="search-page-results">
                 {recentSearches.map(result => (
                   <div key={result.placeId} className="search-result-item">
-                    <SearchRecentRow result={result} onSelect={handleSelectRecent} />
+                    <SearchRecentRow
+                      result={result}
+                      onSelect={handleSelectRecent}
+                      onNavigate={handleNavigateRecent}
+                    />
                   </div>
                 ))}
               </div>
@@ -378,7 +390,7 @@ export default function SearchPage() {
                   <SearchSectionTitle label="Spots" />
                   <div className="search-page-spots-list">
                     {groupedResults.spots.map(spot => (
-                      <SearchSpotCard key={spot.id} spot={spot} onSelect={handleSelectSpot} />
+                      <SearchSpotCard key={spot.id} spot={spot} onNavigate={handleNavigateSpot} />
                     ))}
                   </div>
                 </div>
@@ -393,19 +405,13 @@ export default function SearchPage() {
                   <SearchSectionTitle label="Events" width="5.5rem" />
                   <div className="search-page-events-list">
                     {groupedResults.events.map(event => (
-                      <div
-                        key={event.id}
-                        className="search-event-card"
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleSelectEvent(event)}
-                        onKeyDown={(eventKey) => {
-                          if (eventKey.key === 'Enter' || eventKey.key === ' ') {
-                            eventKey.preventDefault();
-                            handleSelectEvent(event);
-                          }
-                        }}
-                      >
+                      <div key={event.id} className="search-event-card">
+                        <Link
+                          to={discoverEventPath(event.id)}
+                          className="search-event-card-link"
+                          aria-label={`View ${event.title}`}
+                          onClick={() => handleNavigateEvent(event)}
+                        />
                         <EventCard
                           item={event}
                           layout="list"
