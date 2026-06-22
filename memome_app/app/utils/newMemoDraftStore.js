@@ -5,6 +5,7 @@ const STORAGE_KEY = 'memome:new-memo-draft';
 const MEDIA_PERSIST_MAX_BYTES = 3 * 1024 * 1024;
 
 export const MEMO_DRAFT_SEARCH_KEYS = [
+  'addMemo',
   'lat',
   'lng',
   'pinLat',
@@ -48,7 +49,11 @@ export function snapshotMemoDraftSearchParams(searchParams) {
 }
 
 export function memoDraftSearchParamsToUrl(snapshot) {
-  if (!snapshot?.lat || !snapshot?.lng) return null;
+  if (!snapshot || typeof snapshot !== 'object') return null;
+
+  const hasCoordinates = Boolean(snapshot.lat && snapshot.lng);
+  if (!hasCoordinates && snapshot.addMemo !== '1') return null;
+
   const params = new URLSearchParams();
   for (const key of MEMO_DRAFT_SEARCH_KEYS) {
     const value = snapshot[key];
