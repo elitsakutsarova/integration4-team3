@@ -73,8 +73,11 @@ export function journalsEditMemosPath(id) {
   return href('/journals/:id/edit/memos', { id });
 }
 
-export function profileMemoEditPath(id) {
-  return href('/profile/memos/:id/edit', { id });
+export function profileMemoEditPath(id, returnTo = null) {
+  const base = href('/profile/memos/:id/edit', { id });
+  const safeReturn = safeInternalRedirectPath(returnTo);
+  if (!safeReturn) return base;
+  return `${base}?${new URLSearchParams({ [ADD_MEMO_RETURN_PARAM]: safeReturn }).toString()}`;
 }
 
 export function collectScanPath(scanKey) {
@@ -133,6 +136,12 @@ export function addMemoPathFromLocation(location, lat, lng) {
 
 export function readAddMemoReturnTo(searchParams) {
   return safeInternalRedirectPath(searchParams.get(ADD_MEMO_RETURN_PARAM) ?? '');
+}
+
+export function readEditMemoReturnTo(searchParams, locationState) {
+  const fromState = safeInternalRedirectPath(locationState?.editReturnTo);
+  if (fromState) return fromState;
+  return readAddMemoReturnTo(searchParams);
 }
 
 export function resetPasswordPath() {

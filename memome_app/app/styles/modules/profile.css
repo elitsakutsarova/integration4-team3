@@ -218,8 +218,10 @@
 }
 
 .profile-remember-track .created-memo-card {
+  flex: 0 0 auto;
+  width: min(calc(100vw - 3rem), 22.5625rem);
   height: fit-content;
-  margin-bottom: calc(-12rem * (1 - var(--memory-sheet-scale)));
+  margin-bottom: calc(-12rem * (1 - var(--memory-sheet-scale) * var(--memory-sheet-responsive-scale, 1)));
 }
 
 .profile-remember-track .memory-sheet--text-only .memory-sheet-body {
@@ -235,7 +237,7 @@
 }
 
 .profile-remember-track .memory-sheet--with-media .memory-sheet-body {
-  padding-bottom: 1.125rem;
+  padding-bottom: 4.125rem;
 }
 
 .profile-remember-track .memory-sheet--with-media .memory-sheet-body--vertical-media {

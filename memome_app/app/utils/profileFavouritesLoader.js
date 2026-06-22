@@ -1,6 +1,6 @@
 import { getAuthSnapshot } from './authSession';
 import { hydrateSavedMemos, hydrateSavedMemosSync } from './hydrateSavedMemos';
-import { enrichMemosWithLocationHrefs, enrichMemosWithLocationHrefsSync } from './memoLocationHrefs';
+import { enrichMemosWithLocationHrefsSync } from './memoLocationHrefs';
 import { resolveDiscoverFaveItems } from './resolveDiscoverFaveItems';
 import {
   getDiscoverFavesSnapshot,
@@ -21,6 +21,5 @@ export function loadProfileFavouritesData() {
     favouritePlaces: resolveDiscoverFaveItems(faves, 'place', userId),
     favouriteEvents: resolveDiscoverFaveItems(faves, 'event'),
     favouriteMemosSync,
-    favouriteMemos: hydrateSavedMemos(savedEntries).then(enrichMemosWithLocationHrefs),
   };
 }

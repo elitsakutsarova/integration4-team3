@@ -122,10 +122,6 @@ export default function MemorySheet({
 
   function handleTakeMeThere(event) {
     event.stopPropagation();
-    if (!canOpenMaps) {
-      event.preventDefault();
-      return;
-    }
     openGoogleMapsDirections(pin.ll[0], pin.ll[1], event);
   }
 
@@ -241,15 +237,16 @@ export default function MemorySheet({
                 {footerCta.label}
               </button>
             ) : canOpenMaps && (
-              <a
-                href={buildGoogleMapsDirectionsUrl(pin.ll[0], pin.ll[1])}
+              <Link
+                to={buildGoogleMapsDirectionsUrl(pin.ll[0], pin.ll[1])}
                 target="_blank"
                 rel="noopener noreferrer"
+                reloadDocument
                 className="memory-sheet-cta"
                 onClick={handleTakeMeThere}
               >
                 Take me there
-              </a>
+              </Link>
             )}
           </footer>
         </div>

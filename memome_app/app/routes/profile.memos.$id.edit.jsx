@@ -6,7 +6,7 @@ import { useLoaderData } from 'react-router';
 import EditMemoPage from '../components/EditMemoPage';
 import FavouritesLoading from '../components/profile/FavouritesLoading';
 import { getAuthSnapshot } from '../utils/authSession';
-import { paths } from '../utils/appPaths';
+import { paths, readAddMemoReturnTo } from '../utils/appPaths';
 import { fetchCreatedMemoById } from '../utils/memoStore';
 
 export function meta() {
@@ -16,7 +16,7 @@ export function meta() {
   ];
 }
 
-export async function clientLoader({ params }) {
+export async function clientLoader({ params, request }) {
   const { user } = getAuthSnapshot();
   if (!user?.id) {
     throw redirect(paths.login);
@@ -27,7 +27,10 @@ export async function clientLoader({ params }) {
     throw data('Memo not found', { status: 404 });
   }
 
-  return { memo };
+  const url = new URL(request.url);
+  const returnTo = readAddMemoReturnTo(url.searchParams);
+
+  return { memo, returnTo };
 }
 
 clientLoader.hydrate = true;
@@ -41,6 +44,6 @@ export function shouldRevalidate() {
 }
 
 export default function ProfileMemoEditRoute() {
-  const { memo } = useLoaderData();
-  return <EditMemoPage memo={memo} />;
+  const { memo, returnTo: returnToFromLoader } = useLoaderData();
+  return <EditMemoPage memo={memo} returnToFromLoader={returnToFromLoader} />;
 }

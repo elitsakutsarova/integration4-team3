@@ -1,6 +1,6 @@
 // place detail page component for the discover page
 
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import BackChevron from '../BackChevron';
 import { DiscoverFavoriteButton } from './DiscoverFavoriteButton';
 import DiscoverShareIcon from './DiscoverShareIcon';
@@ -8,6 +8,7 @@ import DiscoverShareSuccess from './DiscoverShareSuccess';
 import ShareSheet from '../diary/ShareSheet';
 import FeaturedMemosSection from '../memos/FeaturedMemosSection';
 import { buildMemoArchiveHref } from '../../utils/locationHref';
+import { openDirectionsUrl } from '../../utils/googleMaps';
 import { useDiscoverShare } from '../../hooks/useDiscoverShare';
 
 function CategoryBadge({ type }) {
@@ -173,9 +174,16 @@ export default function PlaceDetailPage({ place, featuredMemos = [], totalMemoCo
               <path d="M171.848 20.6681C248.008 25.877 352.317 74.9139 399.365 54.82L398.966 14.4503L1.09783 -1.57932e-06L-0.000111769 39.3493C64.2114 45.1118 95.6875 15.4593 171.848 20.6681Z" fill="#F1F4FF" />
             </svg>
 </div>
-          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="discover-detail-cta">
+          <Link
+            to={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            reloadDocument
+            className="discover-detail-cta"
+            onClick={(event) => openDirectionsUrl(mapsUrl, event)}
+          >
             Take me there
-          </a>
+          </Link>
           <div className="discover-detail-container">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 19" fill="none">
               <path d="M169.089 15.4973C245.433 15.8664 351.164 -3.81079 397.675 7.64529V19H-2.32516V0.00582121C62.0799 -0.343326 92.7442 15.1283 169.089 15.4973Z" fill="#F1F4FF" />

@@ -1,3 +1,5 @@
+import '../styles/modules/map.css';
+import '../styles/modules/profile-collections.css';
 import '../styles/modules/journals.css';
 import CreateJournalPage from '../components/journals/CreateJournalPage';
 

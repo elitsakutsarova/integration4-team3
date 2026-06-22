@@ -41,6 +41,7 @@ export default function CreatedMemosPage({ memos }) {
                 key={memo.id}
                 memo={memo}
                 onShare={() => openShare(memo)}
+                responsiveScale
               />
             ))}
           </div>

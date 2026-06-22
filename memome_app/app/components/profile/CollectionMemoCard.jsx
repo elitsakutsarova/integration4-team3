@@ -14,10 +14,6 @@ export default function CollectionMemoCard({
 
   function handleTakeMeThere(event) {
     event.stopPropagation();
-    if (!canOpenMaps) {
-      event.preventDefault();
-      return;
-    }
     openGoogleMapsDirections(memo.ll[0], memo.ll[1], event);
   }
 
@@ -75,15 +71,16 @@ export default function CollectionMemoCard({
           </span>
 
           {canOpenMaps && (
-            <a
-              href={buildGoogleMapsDirectionsUrl(memo.ll[0], memo.ll[1])}
+            <Link
+              to={buildGoogleMapsDirectionsUrl(memo.ll[0], memo.ll[1])}
               target="_blank"
               rel="noopener noreferrer"
+              reloadDocument
               className="collection-memo-cta"
               onClick={handleTakeMeThere}
             >
               Take me there
-            </a>
+            </Link>
           )}
         </div>
       </div>

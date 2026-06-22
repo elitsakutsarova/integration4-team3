@@ -1,17 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useBlocker, useFetcher, useNavigate, useSearchParams } from 'react-router';
+import { useBlocker, useFetcher, useLocation, useNavigate } from 'react-router';
 import MemoLocationPicker from './MemoLocationPicker';
 import MemoPostSuccess from './MemoPostSuccess';
 import EditMemoWarningModal from './EditMemoWarningModal';
 import SectionTitle from './SectionTitle';
 import MemoTagIcon from './MemoTagIcon';
 import { addMemoFormAssets } from '../utils/addMemoFormAssets';
-import { paths } from '../utils/appPaths';
+import { paths, readEditMemoReturnTo } from '../utils/appPaths';
 import { MEMO_TAG_OPTIONS } from '../data/memoTags';
+import { hasChosenMemoLocation } from '../utils/memoDraft';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 import { isEditMemoDirty } from '../utils/isEditMemoDirty';
 import { validateMemoMediaFile } from '../utils/validators';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
+import { useFetcherSubmitSuccess } from '../hooks/useFetcherSubmitSuccess';
 
 const QUOTE_MAX = 100;
 const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
@@ -70,11 +72,19 @@ function buildInitialMedia(memo) {
   };
 }
 
-export default function EditMemoPage({ memo }) {
+export default function EditMemoPage({ memo, returnToFromLoader = null }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const fetcher = useFetcher({ key: `edit-memo-${memo.id}` });
   const { updateCreatedMemo } = useCreatedMemos();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const returnToRef = useRef(undefined);
+  if (returnToRef.current === undefined) {
+    returnToRef.current = readEditMemoReturnTo(
+      new URLSearchParams(location.search),
+      location.state,
+    ) ?? returnToFromLoader ?? paths.profileMemos;
+  }
+  const returnTo = returnToRef.current;
 
   const initialHadMedia = Boolean(memo?.mediaPreview?.url);
   const initialMedia = buildInitialMedia(memo);
@@ -83,11 +93,16 @@ export default function EditMemoPage({ memo }) {
   const [removeMedia, setRemoveMedia] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
   const [loadingIsVideo, setLoadingIsVideo] = useState(false);
-  const [selectedTags, setSelectedTags] = useState(memo.tags ?? []);
+  const [selectedTags, setSelectedTags] = useState(() => {
+    const tags = memo.tags ?? [];
+    return tags.length ? [tags[0]] : [];
+  });
   const [quote, setQuote] = useState(memo.quote ?? '');
   const [quoteTouched, setQuoteTouched] = useState(false);
+  const [showLocationError, setShowLocationError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [warningOpen, setWarningOpen] = useState(false);
+  const [pickLocationOpen, setPickLocationOpen] = useState(false);
   const [locationDraft, setLocationDraft] = useState({
     lat: memo.ll?.[0] ?? null,
     lng: memo.ll?.[1] ?? null,
@@ -99,16 +114,22 @@ export default function EditMemoPage({ memo }) {
   const cameraRef = useRef(null);
   const mediaPreviewRef = useRef(null);
   const loadTimerRef = useRef(null);
-  const handledSubmitRef = useRef(false);
   const isDiscardingRef = useRef(false);
   const isSubmittingRef = useRef(false);
-  const leaveTargetRef = useRef(paths.profileMemos);
+  const leaveTargetRef = useRef(returnTo);
   mediaPreviewRef.current = mediaPreview;
 
-  const pickLocation = searchParams.get('step') === 'location';
-  const hasLocation = Number.isFinite(locationDraft.lat)
-    && Number.isFinite(locationDraft.lng)
-    && Boolean(locationDraft.name?.trim());
+  const pickLocation = pickLocationOpen;
+  const locationLabel = locationDraft.name?.trim() || 'Choose location';
+  const hasLocationName = Boolean(locationDraft.name?.trim());
+  const hasLocation = hasChosenMemoLocation({
+    lat: locationDraft.lat,
+    lng: locationDraft.lng,
+    locationName: locationDraft.name,
+  });
+  const locationHint = hasLocation
+    ? 'Tap to change location'
+    : 'Pick from map or use current location';
 
   const isSubmitting = fetcher.state !== 'idle';
   const actionError = fetcher.state === 'idle' ? fetcher.data?.error : undefined;
@@ -123,8 +144,8 @@ export default function EditMemoPage({ memo }) {
     : null;
 
   const mediaBlocking = mediaPhase === 'loading';
-  const canSubmit = selectedTags.length > 0 && quoteValid && hasLocation && !mediaBlocking && !isSubmitting;
-  const publishActive = canSubmit;
+  const canSubmit = selectedTags.length > 0 && quoteValid && !mediaBlocking && !isSubmitting;
+  const publishActive = canSubmit && hasLocation;
 
   const isDirty = useMemo(
     () => isEditMemoDirty(memo, {
@@ -140,15 +161,8 @@ export default function EditMemoPage({ memo }) {
 
   const blocker = useBlocker(({ currentLocation, nextLocation }) => {
     if (isSubmittingRef.current || isDiscardingRef.current || !isDirty) return false;
-    if (currentLocation.pathname === nextLocation.pathname) return false;
-    return true;
+    return currentLocation.pathname !== nextLocation.pathname;
   });
-
-  const locationPickerHref = useMemo(() => {
-    const next = new URLSearchParams(searchParams);
-    next.set('step', 'location');
-    return `?${next.toString()}`;
-  }, [searchParams]);
 
   // Revoke blob URLs and clear upload timer when leaving the edit page.
   useEffect(() => () => {
@@ -157,46 +171,50 @@ export default function EditMemoPage({ memo }) {
     if (preview?.url && !preview.isExisting) URL.revokeObjectURL(preview.url);
   }, []);
 
+  useEffect(() => {
+    leaveTargetRef.current = returnTo;
+  }, [returnTo]);
+
   // useBlocker cannot open UI directly — sync blocked navigation to the warning modal.
   useEffect(() => {
     if (blocker.state === 'blocked') {
-      leaveTargetRef.current = blocker.location?.pathname ?? paths.profileMemos;
+      leaveTargetRef.current = blocker.location?.pathname ?? returnTo;
       setWarningOpen(true);
     }
-  }, [blocker.state, blocker.location?.pathname]);
+  }, [blocker.state, blocker.location?.pathname, returnTo]);
 
-  // After a successful update fetcher response, refresh context and show success.
   useEffect(() => {
-    if (fetcher.state === 'submitting' || fetcher.state === 'loading') {
-      handledSubmitRef.current = false;
-      return;
-    }
-    if (fetcher.state !== 'idle' || handledSubmitRef.current) return;
-    if (!fetcher.data?.success || fetcher.data?.kind !== 'update') return;
+    if (hasLocation) setShowLocationError(false);
+  }, [hasLocation]);
 
-    handledSubmitRef.current = true;
+  const handleUpdateMemoSuccess = useCallback((data) => {
     isSubmittingRef.current = true;
-    if (fetcher.data.memo) updateCreatedMemo(fetcher.data.memo);
+    if (data.memo) updateCreatedMemo(data.memo);
     setShowSuccess(true);
-  }, [fetcher.state, fetcher.data, updateCreatedMemo]);
+  }, [updateCreatedMemo]);
 
-  // Auto-return to Created Memos after the success modal is shown briefly.
+  useFetcherSubmitSuccess(fetcher, {
+    when: (data) => Boolean(data?.success && data?.kind === 'update'),
+    onSuccess: handleUpdateMemoSuccess,
+  });
+
+  // Auto-return after the success modal is shown briefly.
   useEffect(() => {
     if (!showSuccess) return undefined;
 
     const timer = window.setTimeout(() => {
-      navigate(paths.profileMemos, { replace: true });
+      navigate(returnTo, { replace: true });
     }, SUCCESS_DISPLAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [showSuccess, navigate]);
+  }, [showSuccess, navigate, returnTo]);
 
   function handleBack() {
     if (!isDirty) {
-      navigate(paths.profileMemos);
+      navigate(returnTo);
       return;
     }
-    leaveTargetRef.current = paths.profileMemos;
+    leaveTargetRef.current = returnTo;
     setWarningOpen(true);
   }
 
@@ -223,9 +241,13 @@ export default function EditMemoPage({ memo }) {
   }
 
   function handleFormSubmit(event) {
-    if (!hasLocation || hasProfanity) {
+    if (!hasLocation) {
       event.preventDefault();
-      if (hasProfanity) setQuoteTouched(true);
+      setShowLocationError(true);
+    }
+    if (hasProfanity) {
+      event.preventDefault();
+      setQuoteTouched(true);
     }
   }
 
@@ -270,7 +292,9 @@ export default function EditMemoPage({ memo }) {
     const url = URL.createObjectURL(file);
     clearLoadTimer();
     setLoadProgress(100);
-    setMediaPreview({ url, isVideo, file, isExisting: false });
+    const { readMediaDimensions } = await import('../utils/memoPinAssets');
+    const { width, height } = await readMediaDimensions(file, { isVideo });
+    setMediaPreview({ url, isVideo, file, width, height, isExisting: false });
     setMediaPhase('preview');
   }
 
@@ -286,27 +310,24 @@ export default function EditMemoPage({ memo }) {
   }
 
   function toggleTag(tag) {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((item) => item !== tag) : [...prev, tag],
-    );
+    setSelectedTags((prev) => {
+      if (prev.includes(tag)) return prev;
+      return [tag];
+    });
+  }
+
+  function openLocationPicker() {
+    setPickLocationOpen(true);
   }
 
   const handleLocationConfirm = useCallback(({ name, lat, lng, placeId = '' }) => {
     setLocationDraft({ lat, lng, name, placeId });
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.delete('step');
-      return next;
-    }, { replace: true });
-  }, [setSearchParams]);
+    setPickLocationOpen(false);
+  }, []);
 
   const handleLocationBack = useCallback(() => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.delete('step');
-      return next;
-    }, { replace: true });
-  }, [setSearchParams]);
+    setPickLocationOpen(false);
+  }, []);
 
   function renderMediaZone() {
     if (mediaPhase === 'preview' && mediaPreview) {
@@ -385,7 +406,8 @@ export default function EditMemoPage({ memo }) {
         action={paths.apiMemos}
         encType="multipart/form-data"
         onSubmit={handleFormSubmit}
-        className="edit-memo-page"
+        className={`edit-memo-page${pickLocation ? ' edit-memo-page--hidden' : ''}`}
+        inert={pickLocation ? true : undefined}
       >
         <input type="hidden" name="intent" value="update-memo" />
         <input type="hidden" name="memoId" value={memo.id} />
@@ -397,6 +419,12 @@ export default function EditMemoPage({ memo }) {
         {selectedTags.map((tag) => (
           <input key={tag} type="hidden" name="tags" value={tag} />
         ))}
+        {mediaPreview?.width ? (
+          <input type="hidden" name="mediaWidth" value={String(mediaPreview.width)} />
+        ) : null}
+        {mediaPreview?.height ? (
+          <input type="hidden" name="mediaHeight" value={String(mediaPreview.height)} />
+        ) : null}
 
         <header className="edit-memo-header memo-form-header">
           <div className="memo-form-hero-deco" aria-hidden="true">
@@ -502,24 +530,31 @@ export default function EditMemoPage({ memo }) {
             </div>
             <div className="section-input">
               <p className="memo-form-section-copy">Help others find great locations</p>
-              <Link to={locationPickerHref} replace className="memo-form-location-card">
+              <button
+                type="button"
+                className="memo-form-location-card"
+                onClick={openLocationPicker}
+              >
                 <div className="memo-form-location-icon" aria-hidden="true">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="25" viewBox="0 0 18 25" fill="none">
                     <path d="M8.72402 0C3.90782 0 0 3.51742 0 7.85162C0 14.8308 8.72402 24.4273 8.72402 24.4273C8.72402 24.4273 17.448 14.8308 17.448 7.85162C17.448 3.51742 13.5402 0 8.72402 0ZM8.72402 12.2136C8.03384 12.2136 7.35916 12.009 6.7853 11.6255C6.21144 11.2421 5.76416 10.6971 5.50004 10.0594C5.23592 9.42179 5.16682 8.72015 5.30146 8.04323C5.43611 7.36631 5.76846 6.74452 6.25649 6.25649C6.74452 5.76846 7.36631 5.43611 8.04323 5.30146C8.72015 5.16682 9.42179 5.23592 10.0594 5.50004C10.6971 5.76416 11.2421 6.21143 11.6255 6.7853C12.009 7.35916 12.2136 8.03384 12.2136 8.72402C12.2126 9.64921 11.8446 10.5362 11.1904 11.1904C10.5362 11.8446 9.64921 12.2126 8.72402 12.2136Z" fill="#202020" />
                   </svg>
                 </div>
                 <div className="memo-form-location-copy">
-                  <span className={`memo-form-location-label${locationDraft.name?.trim() ? '' : ' memo-form-location-label--muted'}`}>
-                    {locationDraft.name?.trim() || 'Choose location'}
+                  <span className={`memo-form-location-label${hasLocationName ? '' : ' memo-form-location-label--muted'}`}>
+                    {locationLabel}
                   </span>
-                  <span className="memo-form-location-sub">
-                    {hasLocation ? 'Location selected' : 'Pick from map or use current location'}
-                  </span>
+                  <span className="memo-form-location-sub">{locationHint}</span>
+                  {showLocationError && !hasLocation ? (
+                    <span className="memo-form-location-error" role="status">
+                      Choose a location before publishing.
+                    </span>
+                  ) : null}
                 </div>
-                <svg class="memo-form-location-chevron" xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
-                  <path d="M0.707031 0.707031L6.70703 6.70703L0.707031 12.707" stroke="#1952FF" stroke-width="2" />
+                <svg className="memo-form-location-chevron" xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
+                  <path d="M0.707031 0.707031L6.70703 6.70703L0.707031 12.707" stroke="#1952FF" strokeWidth="2" />
                 </svg>
-              </Link>
+              </button>
             </div>
           </section>
 

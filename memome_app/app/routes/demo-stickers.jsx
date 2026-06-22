@@ -52,7 +52,8 @@ export default function DemoStickersPage() {
   const { devShare } = useLoaderData();
   const { shareOrigin, lanUrls, isOnLocalhost } = devShare;
   const [copied, setCopied] = useState(false);
-  const collectUrl = shareOrigin ? `${shareOrigin}${paths.collect}?scan=memme-collect` : '';
+  const collectPath = `${paths.collect}?scan=memme-collect`;
+  const collectUrl = shareOrigin ? `${shareOrigin}${collectPath}` : '';
   const qrUsesLocalhost = isLocalhostOrigin(shareOrigin);
 
   async function copyLink() {
@@ -124,14 +125,12 @@ export default function DemoStickersPage() {
             Each scan gives one random sticker you do not own yet — up to 3 in the collection.
           </p>
           <div className="demo-physical-sticker-actions">
-            <a
-              href={collectUrl}
+            <Link
+              to={collectPath}
               className="demo-physical-sticker-btn demo-physical-sticker-btn--primary"
-              target="_blank"
-              rel="noreferrer"
             >
               Open collect page
-            </a>
+            </Link>
             <button
               type="button"
               className="demo-physical-sticker-btn"

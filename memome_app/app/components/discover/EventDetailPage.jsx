@@ -8,6 +8,7 @@ import DiscoverShareSuccess from './DiscoverShareSuccess';
 import ShareSheet from '../diary/ShareSheet';
 import FeaturedMemosSection from '../memos/FeaturedMemosSection';
 import { addEventToCalendar } from '../../utils/eventCalendar';
+import { openDirectionsUrl } from '../../utils/googleMaps';
 import { useDiscoverShare } from '../../hooks/useDiscoverShare';
 
 function CategoryBadge({ type }) {
@@ -217,9 +218,16 @@ export default function EventDetailPage({
             </svg>
           </a>
 
-          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="discover-detail-cta">
+          <Link
+            to={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            reloadDocument
+            className="discover-detail-cta"
+            onClick={(event) => openDirectionsUrl(mapsUrl, event)}
+          >
             Take me there
-          </a>
+          </Link>
           <div className="discover-detail-container">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 19" fill="none">
               <path d="M169.089 15.4973C245.433 15.8664 351.164 -3.81079 397.675 7.64529V19H-2.32516V0.00582121C62.0799 -0.343326 92.7442 15.1283 169.089 15.4973Z" fill="#F1F4FF" />

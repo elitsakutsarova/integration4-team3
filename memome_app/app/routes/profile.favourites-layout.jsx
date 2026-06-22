@@ -1,12 +1,12 @@
 import '../styles/modules/profile-collections.css';
 import '../styles/modules/map.css';
 import '../styles/modules/diary.css';
-import { Suspense } from 'react';
-import { Await, useLoaderData } from 'react-router';
+import { useMemo } from 'react';
 import FavouritesLayout from '../components/profile/FavouritesLayout';
+import CollectionPagePending from '../components/profile/CollectionPagePending';
 import { useDiscoverFaves } from '../context/DiscoverFavesContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
-import { useRevalidateOnCount } from '../hooks/useRevalidateOnCount';
+import { useHydratedSavedMemos } from '../hooks/useHydratedSavedMemos';
 import { loadProfileFavouritesData } from '../utils/profileFavouritesLoader';
 
 export function meta() {
@@ -16,53 +16,29 @@ export function meta() {
   ];
 }
 
-export function clientLoader() {
-  return loadProfileFavouritesData();
-}
-
-export function shouldRevalidate({ defaultShouldRevalidate }) {
-  return defaultShouldRevalidate;
-}
-
-function buildOutletContext(loaderData, favouriteMemos, favouriteMemosPending) {
-  return {
-    ...loaderData,
-    favouriteMemos,
-    favouriteMemosPending,
-  };
-}
-
-function FavouritesLayoutWithSyncData({ loaderData }) {
-  return (
-    <FavouritesLayout
-      outletContext={buildOutletContext(
-        loaderData,
-        loaderData.favouriteMemosSync,
-        true,
-      )}
-    />
-  );
+export function HydrateFallback() {
+  return <CollectionPagePending title="Favourites" showTabs />;
 }
 
 export default function ProfileFavouritesLayoutRoute() {
-  const loaderData = useLoaderData();
   const { savedMemos } = useSavedMemos();
   const { faves } = useDiscoverFaves();
-
-  useRevalidateOnCount(savedMemos.length + faves.length);
+  const favouritesData = useMemo(
+    () => loadProfileFavouritesData(),
+    [savedMemos, faves],
+  );
+  const { memos: favouriteMemos, pending: favouriteMemosPending } = useHydratedSavedMemos(
+    savedMemos,
+    favouritesData.favouriteMemosSync,
+  );
 
   return (
-    <Suspense fallback={<FavouritesLayoutWithSyncData loaderData={loaderData} />}>
-      <Await
-        resolve={loaderData.favouriteMemos}
-        errorElement={<FavouritesLayoutWithSyncData loaderData={loaderData} />}
-      >
-        {(resolvedMemos) => (
-          <FavouritesLayout
-            outletContext={buildOutletContext(loaderData, resolvedMemos, false)}
-          />
-        )}
-      </Await>
-    </Suspense>
+    <FavouritesLayout
+      outletContext={{
+        ...favouritesData,
+        favouriteMemos,
+        favouriteMemosPending,
+      }}
+    />
   );
 }

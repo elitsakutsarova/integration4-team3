@@ -125,13 +125,13 @@ export default function SupportHelpPage() {
               <span className="support-help-row-label">Send feedback</span>
               <RowChevron />
             </Link>
-            <a href={technicalSupportHref} className="support-help-row">
+            <Link to={technicalSupportHref} className="support-help-row">
               <span className="support-help-row-icon">
                 <img src={settingsAssets.technicalSupportIcon} alt="Technical support icon" width={17} height={17} aria-hidden="true" />
               </span>
               <span className="support-help-row-label">Get technical support</span>
               <RowChevron />
-            </a>
+            </Link>
           </div>
         </section>
       </div>

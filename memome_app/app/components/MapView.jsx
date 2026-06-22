@@ -34,6 +34,7 @@ import { addBasemapControl } from '../utils/mapLayers';
 import { syncMapStickerSymbols } from '../utils/mapStickerSymbols';
 import { fetchLocationHrefFromApi } from '../utils/locationHrefClient';
 import { useMemoLocationHref } from '../hooks/useMemoLocationHref';
+import { useFetcherSubmitSuccess } from '../hooks/useFetcherSubmitSuccess';
 import { pinHasMedia, readMediaDimensions } from '../utils/memoPinAssets';
 import {
   buildEventMarker,
@@ -110,8 +111,6 @@ export default function MapView({ savedMemos = [], active = true }) {
   const { user } = useAuth();
   const { dismissSavedNotice } = useSavedMemos();
   const { prependCreatedMemo } = useCreatedMemos();
-  const handledPublishRef = useRef(false);
-  const sawPublishSubmitRef = useRef(false);
   const initTokenRef = useRef(0);
   const mapRef = useRef(null);
   const leafletRef = useRef(null);
@@ -528,37 +527,28 @@ export default function MapView({ savedMemos = [], active = true }) {
     map.setView([latlng.lat, latlng.lng], Math.max(map.getZoom(), 13), { animate: false });
   }, [active, draftMemo?.lat, draftMemo?.lng, draftMemo?.pinLat, draftMemo?.pinLng]);
 
-  // After create-memo fetcher succeeds: update pins, clear URL, show success modal.
-  useEffect(() => {
-    if (fetcher.state === 'submitting' || fetcher.state === 'loading') {
-      sawPublishSubmitRef.current = true;
-      handledPublishRef.current = false;
-      return;
+  const handleCreateMemoSuccess = useCallback((data) => {
+    const memo = data.memo;
+    const draftCoords = draftMemo ? [draftMemo.lat, draftMemo.lng] : null;
+    const latlng = getMemoLatLng(memo) ?? draftCoords;
+    const focusMemo = latlng ? { ...(memo ?? {}), ll: latlng } : memo ?? null;
+
+    if (focusMemo) {
+      pendingMemoRef.current = focusMemo;
+      postedMemoPendingFocusRef.current = focusMemo;
+      prependCreatedMemo(focusMemo);
+      syncMapPins();
     }
-    if (fetcher.state !== 'idle' || handledPublishRef.current) return;
-    if (!sawPublishSubmitRef.current) return;
-    sawPublishSubmitRef.current = false;
 
-    if (fetcher.data?.success) {
-      handledPublishRef.current = true;
+    clearNewMemoDraft(user?.id);
+    setSearchParams({}, { replace: true });
+    setShowPublishSuccess(true);
+  }, [draftMemo, prependCreatedMemo, setSearchParams, syncMapPins, user?.id]);
 
-      const memo = fetcher.data.memo;
-      const draftCoords = draftMemo ? [draftMemo.lat, draftMemo.lng] : null;
-      const latlng = getMemoLatLng(memo) ?? draftCoords;
-      const focusMemo = latlng ? { ...(memo ?? {}), ll: latlng } : memo ?? null;
-
-      if (focusMemo) {
-        pendingMemoRef.current = focusMemo;
-        postedMemoPendingFocusRef.current = focusMemo;
-        prependCreatedMemo(focusMemo);
-        syncMapPins();
-      }
-
-      clearNewMemoDraft(user?.id);
-      setSearchParams({}, { replace: true });
-      setShowPublishSuccess(true);
-    }
-  }, [fetcher.state, fetcher.data, draftMemo, setSearchParams, syncMapPins, prependCreatedMemo, user?.id]);
+  useFetcherSubmitSuccess(fetcher, {
+    when: (data) => Boolean(data?.success),
+    onSuccess: handleCreateMemoSuccess,
+  });
 
   useEffect(() => {
     if (showPublishSuccess) return undefined;

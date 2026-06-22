@@ -189,35 +189,35 @@ export default function JournalDetailPage({
           <img
             className="journals-hero-logo"
             src={journalAssets.logoMark}
-            alt="MemoMe journals logo mark"
+            alt=""
           />
           <img
             className="journals-hero-wave"
             src={journalAssets.headerWave}
-            alt="Decorative wave illustration"
+            alt=""
           />
           <img
             className="journal-detail-hero-grid"
             src={journalAssets.pixelDeco}
-            alt="Decorative pixel grid background"
+            alt=""
           />
           <div className="journal-detail-hero-grid-pattern grid-pattern" />
-          <button
-            type="button"
-            className="journal-detail-share"
-            aria-label="Share journal"
-            onClick={openRecapSelect}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-              <rect width="26" height="26" fill="#F1F4FF" />
-              <path d="M16.25 5.42187C16.25 3.62695 17.7051 2.17188 19.5 2.17188C21.2949 2.17187 22.75 3.62695 22.75 5.42187C22.75 7.2168 21.2949 8.67187 19.5 8.67187C17.7051 8.67187 16.25 7.2168 16.25 5.42187Z" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M3.24219 13C3.24219 11.2051 4.69726 9.75 6.49219 9.75C8.28711 9.75 9.74219 11.2051 9.74219 13C9.74219 14.7949 8.28711 16.25 6.49219 16.25C4.69726 16.25 3.24219 14.7949 3.24219 13Z" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M16.25 20.5781C16.25 18.7832 17.7051 17.3281 19.5 17.3281C21.2949 17.3281 22.75 18.7832 22.75 20.5781C22.75 22.3731 21.2949 23.8281 19.5 23.8281C17.7051 23.8281 16.25 22.3731 16.25 20.5781Z" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M9.30469 14.6328L16.7017 18.9488" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M16.6887 7.05469L9.30469 11.3707" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </button>
         </div>
+        <button
+          type="button"
+          className="journal-detail-share"
+          aria-label="Share journal"
+          onClick={openRecapSelect}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <rect width="26" height="26" fill="#F1F4FF" />
+            <path d="M16.25 5.42187C16.25 3.62695 17.7051 2.17188 19.5 2.17188C21.2949 2.17187 22.75 3.62695 22.75 5.42187C22.75 7.2168 21.2949 8.67187 19.5 8.67187C17.7051 8.67187 16.25 7.2168 16.25 5.42187Z" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M3.24219 13C3.24219 11.2051 4.69726 9.75 6.49219 9.75C8.28711 9.75 9.74219 11.2051 9.74219 13C9.74219 14.7949 8.28711 16.25 6.49219 16.25C4.69726 16.25 3.24219 14.7949 3.24219 13Z" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M16.25 20.5781C16.25 18.7832 17.7051 17.3281 19.5 17.3281C21.2949 17.3281 22.75 18.7832 22.75 20.5781C22.75 22.3731 21.2949 23.8281 19.5 23.8281C17.7051 23.8281 16.25 22.3731 16.25 20.5781Z" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M9.30469 14.6328L16.7017 18.9488" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M16.6887 7.05469L9.30469 11.3707" stroke="#1952FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
     
         <div className="journal-detail-title-bar">
           <div className="journal-detail-titles">

@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { diaryPath, paths } from '../../utils/appPaths';
 import { journalAssets } from '../../utils/journalAssets';
+import CollectionNewBadge from '../stickers/CollectionNewBadge';
 
 function truncateQuote(quote, max = 52) {
   const text = String(quote ?? '').trim();
@@ -97,12 +98,12 @@ function pocketClass(displayType) {
 function NowBadge() {
   return (
     <div className="journal-card-now" aria-label="Current trip">
-      <span className="journal-card-now-label">Now!</span>
+      <span className="journal-card-now-label">New!</span>
     </div>
   );
 }
 
-export default function JournalCard({ journal }) {
+export default function JournalCard({ journal, isNew = false }) {
   return (
     <Link
       to={diaryPath(journal.id)}
@@ -110,20 +111,20 @@ export default function JournalCard({ journal }) {
       aria-label={`${journal.title}, ${journal.monthLabel}`}
     >
       <div className="journal-card-inner">
-        {journal.isActive && <NowBadge />}
-
         <div className={`journal-card-pocket ${pocketClass(journal.displayType)}`}>
           <div className="journal-card-pocket-shadow" aria-hidden="true" />
-            <div className="journal-card-stack">
-              <CardVisual journal={journal} />
+          <div className="journal-card-pocket-face" aria-hidden="true">
+            <div className="journal-card-meta">
+              <span className="journal-card-title">{journal.title}</span>
+              <span className="journal-card-date">{journal.monthLabel}</span>
             </div>
-            <div className="journal-card-pocket-face" aria-hidden="true">
-              <div className="journal-card-meta">
-                <span className="journal-card-title">{journal.title}</span>
-                <span className="journal-card-date">{journal.monthLabel}</span>
-              </div>
           </div>
         </div>
+        <div className="journal-card-stack">
+          <CardVisual journal={journal} />
+        </div>
+        {journal.isActive && <NowBadge />}
+        {isNew && <CollectionNewBadge className="journal-card-new-badge" />}
       </div>
     </Link >
   );
