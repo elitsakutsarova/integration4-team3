@@ -11,7 +11,7 @@ export default function MemoFavoriteButton({
   useCurrentColor = false,
 }) {
   const { isSaved, toggleMemo } = useSavedMemos();
-  const { isGuest, guestLockedClass, guestStroke, activeStroke } = useGuestFavoriteLock();
+  const { isGuest, guestLockedClass, guestStroke, activeStroke, promptGuestFavorite } = useGuestFavoriteLock();
   const saved = !isGuest && isSaved(memoId);
   const stroke = isGuest ? guestStroke : (useCurrentColor ? 'currentColor' : activeStroke);
   const fill = saved ? (useCurrentColor ? 'currentColor' : activeStroke) : 'none';
@@ -19,7 +19,6 @@ export default function MemoFavoriteButton({
   return (
     <button
       type="button"
-      disabled={isGuest}
       className={`${className}${saved ? savedClassName : ''}${guestLockedClass}`}
       aria-label={
         isGuest
@@ -30,9 +29,12 @@ export default function MemoFavoriteButton({
       }
       aria-pressed={saved}
       onClick={event => {
-        if (isGuest) return;
         event.preventDefault();
         event.stopPropagation();
+        if (isGuest) {
+          promptGuestFavorite();
+          return;
+        }
         void toggleMemo(memoId);
       }}
     >

@@ -27,6 +27,7 @@ import {
 } from "./context/CreateJournalContext";
 import { EditJournalProvider } from "./context/EditJournalContext";
 import { CollectedStickersProvider } from "./context/CollectedStickersContext";
+import { GuestFavoriteModalProvider } from "./context/GuestFavoriteModalContext";
 import { DiscoverFavesProvider } from "./context/DiscoverFavesContext";
 import DiscoverSavedModal from "./components/discover/DiscoverSavedModal";
 import { SavedMemosProvider } from "./context/SavedMemosContext";
@@ -165,10 +166,12 @@ export default function App() {
             <EditJournalProvider>
               <DiscoverFavesProvider initialFaves={discoverFaves}>
                 <SavedMemosProvider initialSavedMemos={savedMemos}>
+                  <GuestFavoriteModalProvider>
                   <StickerCatalogProvider stickers={stickers}>
                     <Outlet />
                     <DiscoverSavedModal />
                   </StickerCatalogProvider>
+                  </GuestFavoriteModalProvider>
                 </SavedMemosProvider>
               </DiscoverFavesProvider>
             </EditJournalProvider>
