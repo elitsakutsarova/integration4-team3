@@ -16,9 +16,8 @@ export default function RecapShareSuccess({ onClose }) {
           <p className="recap-share-success-text">
             The recap was
             <br />
-            successfully shared
+            <span className="recap-share-success-highlight" aria-hidden="true">successfully shared</span>
           </p>
-          <span className="recap-share-success-highlight" aria-hidden="true" />
         </div>
 
         <img

@@ -1026,11 +1026,10 @@ flex-shrink: 0;
 }
 
 .memo-post-success-grid {
-  right: -0.5rem;
+  right: 0;
   top: 0;
   width: 8.25rem;
   height: auto;
-  transform: rotate(-90deg);
 }
 
 .memo-post-success-hero {
@@ -1073,8 +1072,11 @@ flex-shrink: 0;
 }
 
 .memo-post-success-desc {
-  margin: 0;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  color: #202020;
+color: var(--grey-300, #202020);
+  text-align: center;
+  font-family: SunAntwerpen;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 350;
+  line-height: 120%;
 }

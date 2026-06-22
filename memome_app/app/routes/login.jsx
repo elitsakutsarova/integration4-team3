@@ -144,7 +144,7 @@ function LoginHeroContent() {
         <img className="login-hero__photo" src={loginAssets.pinPhoto} alt="Sample memo polaroid on map pin" />
       </div>
       <p className="login-subtitle">
-        <span class="login-subtitle-highlight" aria-hidden="true"></span>Sign in to continue
+        <span className="login-subtitle-highlight" aria-hidden="true"></span>Sign in to continue
       </p>
     </div>
   );
