@@ -20,6 +20,7 @@ export default [
       route("settings/change-email", "routes/profile.settings.change-email.jsx"),
       route("settings/language", "routes/profile.settings.language.jsx"),
       route("settings/privacy", "routes/profile.settings.privacy.jsx"),
+      route("settings/support", "routes/profile.settings.support.jsx"),
       route("settings/feedback", "routes/profile.settings.feedback.jsx"),
       route("memos", "routes/profile.memos.jsx"),
       route("memos/:id/edit", "routes/profile.memos.$id.edit.jsx"),

@@ -82,7 +82,7 @@ export default function SettingsPage() {
 
         <div className="settings-title-row title-row">
           <div className="settings-titles titles">
-          <SettingsBackButton className="btn-chevron" onClick={handleBack} label="Back to profile" />
+          <SettingsBackButton onClick={handleBack} label="Back to profile" />
           <h1 className="settings-title title">
             Settings
           </h1>
@@ -142,7 +142,7 @@ export default function SettingsPage() {
           <div className="settings-section-box settings-section-box--compact">
             <SettingsRow
               label="Support & Help"
-              to={paths.profileSettingsFeedback}
+              to={paths.profileSettingsSupport}
               icon={(
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <path d="M8.1 14.4H9.9V12.6H8.1V14.4ZM9 0C7.8181 0 6.64778 0.232792 5.55585 0.685084C4.46392 1.13738 3.47177 1.80031 2.63604 2.63604C0.948211 4.32387 0 6.61305 0 9C0 11.3869 0.948211 13.6761 2.63604 15.364C3.47177 16.1997 4.46392 16.8626 5.55585 17.3149C6.64778 17.7672 7.8181 18 9 18C11.3869 18 13.6761 17.0518 15.364 15.364C17.0518 13.6761 18 11.3869 18 9C18 7.8181 17.7672 6.64778 17.3149 5.55585C16.8626 4.46392 16.1997 3.47177 15.364 2.63604C14.5282 1.80031 13.5361 1.13738 12.4442 0.685084C11.3522 0.232792 10.1819 0 9 0ZM9 16.2C5.031 16.2 1.8 12.969 1.8 9C1.8 5.031 5.031 1.8 9 1.8C12.969 1.8 16.2 5.031 16.2 9C16.2 12.969 12.969 16.2 9 16.2ZM9 3.6C8.04522 3.6 7.12955 3.97928 6.45442 4.65442C5.77928 5.32955 5.4 6.24522 5.4 7.2H7.2C7.2 6.72261 7.38964 6.26477 7.72721 5.92721C8.06477 5.58964 8.52261 5.4 9 5.4C9.47739 5.4 9.93523 5.58964 10.2728 5.92721C10.6104 6.26477 10.8 6.72261 10.8 7.2C10.8 9 8.1 8.775 8.1 11.7H9.9C9.9 9.675 12.6 9.45 12.6 7.2C12.6 6.24522 12.2207 5.32955 11.5456 4.65442C10.8705 3.97928 9.95478 3.6 9 3.6Z" fill="#797979" />
