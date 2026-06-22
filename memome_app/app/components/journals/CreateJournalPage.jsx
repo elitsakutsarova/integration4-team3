@@ -290,6 +290,7 @@ export default function CreateJournalPage() {
           </div>
         )}
       </section>
+      </div>
 
       <div className="create-journal-footer">
         <button

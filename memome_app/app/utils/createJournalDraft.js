@@ -96,9 +96,7 @@ export function validateCreateJournalDraft(draft) {
     errors.title = `Title must be ${TITLE_MAX} characters or fewer`;
   }
 
-  if (!draft.description.trim()) {
-    errors.description = 'Please add a description';
-  } else if (draft.description.trim().length > DESCRIPTION_MAX) {
+  if (draft.description.trim().length > DESCRIPTION_MAX) {
     errors.description = `Description must be ${DESCRIPTION_MAX} characters or fewer`;
   }
 
