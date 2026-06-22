@@ -689,8 +689,8 @@ export default function MapView({ savedMemos = [], active = true }) {
           >
             <img
               className="map-desktop-add-icon"
-              src={journalAssets.addMenu}
-              alt="Add memo menu icon"
+              src={journalAssets.addMenuDesktop}
+              alt=""
               aria-hidden="true"
             />
           </button>

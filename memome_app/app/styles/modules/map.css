@@ -145,6 +145,7 @@ grid-template-rows: 1fr;
   text-align: left;
   font: inherit;
   text-decoration: none;
+  margin-bottom: 1rem;
 }
 
 .map-search-placeholder {
@@ -1780,4 +1781,138 @@ grid-template-rows: 1fr;
   background: var(--yellow-400);
   padding: 0.125rem 0.25rem;
   box-decoration-break: clone;
+}
+
+/* ─── Desktop homepage layout ─────────────────────── */
+.map-desktop-add {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .main-shell-content:not(.main-shell-content--hidden) {
+    left: var(--desktop-nav-end);
+    right: var(--desktop-inset);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    border-radius: 0.75rem;
+  }
+
+  .map-page:not(.map-page--inactive) .map-container {
+    width: auto;
+    height: auto;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .map-home-chrome {
+    left: var(--desktop-nav-end);
+    right: var(--desktop-inset);
+    top: calc(var(--desktop-inset) + env(safe-area-inset-top, 0));
+    display: block;
+    pointer-events: none;
+  }
+
+  .map-pixel-deco {
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+    left: auto;
+    width: min(14.375rem, 22vw);
+    height: auto;
+    background: none;
+    pointer-events: none;
+  }
+
+  .map-search-container {
+    position: relative;
+    z-index: 2;
+    grid-area: unset;
+    width: auto;
+    margin-top: 0;
+    padding: 0.5625rem 0 0;
+    pointer-events: none;
+  }
+
+  .map-home-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .map-search-bar--trigger {
+    width: 22.5625rem;
+    max-width: 100%;
+    min-height: 3.0625rem;
+    flex-shrink: 0;
+    border-radius: 0.75rem;
+    padding: 0.25rem 0.25rem 0.25rem 0.875rem;
+  }
+
+  .map-home-toolbar .map-category-row {
+    flex: 1;
+    gap: 0.4375rem;
+    align-self: center;
+  }
+
+  .map-home-toolbar .map-category-chip {
+    padding: 0.625rem 0.9375rem;
+    font-size: 0.7438rem;
+    border-width: 0.0813rem;
+  }
+
+  .map-container--bottom {
+    left: var(--desktop-nav-end);
+    right: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+  }
+
+  .map-guest-cta {
+    bottom: var(--desktop-inset);
+  }
+
+  .map-desktop-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    z-index: 1001;
+    right: calc(var(--desktop-inset) + 0.5rem);
+    bottom: calc(var(--desktop-inset) + 0.5rem);
+    width: 5.625rem;
+    height: 5.625rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .map-desktop-add:hover {
+    transform: scale(1.06);
+  }
+
+  .map-desktop-add:active {
+    transform: scale(0.96);
+  }
+
+  .map-desktop-add-icon {
+    width: 6.7625rem;
+    height: 6.7625rem;
+    max-width: none;
+    display: block;
+    image-rendering: pixelated;
+    pointer-events: none;
+  }
+
+  .memory-sheet-scrim {
+    left: var(--desktop-nav-end);
+    right: var(--desktop-inset);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    width: auto;
+    height: auto;
+    border-radius: 0.75rem;
+  }
 }

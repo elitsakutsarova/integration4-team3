@@ -4,6 +4,7 @@
 // renders child routes via Outlet
 
 import '../styles/modules/map.css';
+import '../styles/modules/desktop-nav.css';
 import '../styles/modules/bottom-nav.css';
 import { Outlet, useLoaderData, useLocation } from 'react-router';
 import MapView from '../components/MapView';
