@@ -10,9 +10,8 @@ function formatMemoDay(dateLabel) {
 
 function LocationPin() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M12 21s7-4.5 7-10a7 7 0 1 0-14 0c0 5.5 7 10 7 10z" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="27" height="37" viewBox="0 0 27 37" fill="none">
+      <path d="M11.5177 0.120337C19.2915 -0.811757 25.0978 3.76937 26.0335 11.5732C26.9692 19.3769 20.1311 28.1128 15.8843 36.538C9.76611 29.3556 1.05664 22.4839 0.120951 14.6801C-0.814742 6.87635 3.74398 1.05243 11.5177 0.120337ZM12.2975 6.62349C10.5794 6.8295 9.01379 7.71222 7.94513 9.07746C6.87648 10.4427 6.39229 12.1786 6.59909 13.9034C6.80589 15.6281 7.68674 17.2004 9.04786 18.2743C10.409 19.3482 12.1389 19.8358 13.857 19.6298C15.5751 19.4238 17.1407 18.5411 18.2093 17.1758C19.278 15.8106 19.7622 14.0746 19.5554 12.3499C19.3486 10.6252 18.4677 9.05289 17.1066 7.97898C15.7455 6.90507 14.0156 6.41749 12.2975 6.62349Z" fill="#1952FF" />
     </svg>
   );
 }
@@ -38,6 +37,7 @@ function PhotoPolaroid({ memo, align }) {
 function QuoteNote({ quote, align }) {
   return (
     <div className={`journal-memo-quote-note journal-memo-quote-note--${align}`}>
+      <div className="journal-memo-quote-accent" aria-hidden="true" />
       <span>{quote}</span>
     </div>
   );
@@ -59,10 +59,12 @@ export default function JournalMemoEntry({ memo, layout }) {
   if (!hasPhoto || layout === 'text') {
     return (
       <article className="journal-memo-entry journal-memo-entry--text">
-        <QuoteNote quote={quote} align="left" />
-        <p className="journal-memo-date-label journal-memo-date-label--solo">
-          {formatMemoDay(memo.date)}
-        </p>
+        <div className="journal-memo-text-container">
+          <QuoteNote quote={quote} align="left" />
+          <p className="journal-memo-date-label journal-memo-date-label--solo">
+            {formatMemoDay(memo.date)}
+          </p>
+        </div>
         <LocationRow location={memo.location} align="right" />
       </article>
     );
@@ -71,9 +73,14 @@ export default function JournalMemoEntry({ memo, layout }) {
   if (layout === 'right') {
     return (
       <article className="journal-memo-entry journal-memo-entry--photo-right">
-        <QuoteNote quote={quote} align="left" />
+        {/* <QuoteNote quote={quote} align="left" />
         <PhotoPolaroid memo={memo} align="right" />
-        <LocationRow location={memo.location} align="left" />
+        <LocationRow location={memo.location} align="left" /> */}
+        <PhotoPolaroid memo={memo} align="right" />
+        <div className="journal-memo-content-container">
+          <QuoteNote quote={quote} align="left" />
+          <LocationRow location={memo.location} align="left" />
+        </div>
       </article>
     );
   }
@@ -81,8 +88,10 @@ export default function JournalMemoEntry({ memo, layout }) {
   return (
     <article className="journal-memo-entry journal-memo-entry--photo-left">
       <PhotoPolaroid memo={memo} align="left" />
-      <QuoteNote quote={quote} align="right" />
-      <LocationRow location={memo.location} align="right" />
+      <div className="journal-memo-content-container">
+        <QuoteNote quote={quote} align="right" />
+        <LocationRow location={memo.location} align="right" />
+      </div>
     </article>
   );
 }
