@@ -105,7 +105,7 @@ export default function EventDetailPage({
     <div className="discover-detail-page">
       <div className="discover-detail-scroll">
         <div className="discover-detail-hero">
-          <img src={event.image} alt="" className="discover-detail-hero-img" />
+          <img src={event.image} alt={`Photo of ${event.title}`} className="discover-detail-hero-img" />
           <div className="discover-detail-hero-wave">
             <svg xmlns="http://www.w3.org/2000/svg" /* width="393" height="34" */ viewBox="0 0 393 34" fill="none">
               <path d="M224.586 27.7321C149.578 28.3925 45.6965 -6.81931 0 13.681V34H393V0.0104169C329.722 -0.614372 299.594 27.0717 224.586 27.7321Z" fill="white" />
@@ -186,7 +186,7 @@ export default function EventDetailPage({
             </svg>
             <section className="discover-detail-section" aria-labelledby="event-about">
               <h2 id="event-about" className="discover-detail-section-title">
-                <span className="discover-section-highlight" style={{ width: '72px' }} aria-hidden="true" />
+                <span className="discover-section-highlight" style={{ width: '4.5rem' }} aria-hidden="true" />
                 About
               </h2>
               <p className="discover-detail-about">{event.about}</p>

@@ -24,7 +24,7 @@ export function FeaturedMemoPreviewCard({ memo, compact = true }) {
         {hasMedia ? (
           memo.mediaPreview.isVideo
             ? <video src={memo.mediaPreview.url} className="featured-memo-image" muted playsInline />
-            : <img src={memo.mediaPreview.url} alt="" className="featured-memo-image" />
+            : <img src={memo.mediaPreview.url} alt={`Memo photo from ${memo.location}`} className="featured-memo-image" />
         ) : (
           <p className="featured-memo-text-only">&ldquo;{memo.quote}&rdquo;</p>
         )}

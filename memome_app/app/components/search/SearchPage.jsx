@@ -1,15 +1,16 @@
 // main search page component
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFetcher, useNavigate } from 'react-router';
+import { Link, useFetcher, useNavigate } from 'react-router';
 import { useDebounceCallback } from '../../hooks/useDebounceCallback';
 import { useEventVenueHrefs } from '../../hooks/useEventVenueHrefs';
 import BackChevron from '../BackChevron';
 import { EventCard, PlaceCard } from '../discover/DiscoverCards';
 import { useAuth } from '../../context/AuthContext';
 import { useSpeechSearch } from '../../hooks/useSpeechSearch';
-import { goBack, paths } from '../../utils/appPaths';
+import { goBack, paths, discoverEventPath } from '../../utils/appPaths';
 import SearchListeningView from './SearchListeningView';
+import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
 import MicrophonePermissionModal from './MicrophonePermissionModal';
 import {
   buildGroupedSearchResults,
@@ -25,18 +26,18 @@ import { addRecentSearch, loadRecentSearches } from '../../utils/searchRecentSto
 const SEARCH_DEBOUNCE_MS = 600;
 const NO_SEARCHES_ILLUSTRATION = '/search-bar/no-results/no-searches-illustration.svg';
 
-function SearchSectionTitle({ label, width = 80 }) {
+function SearchSectionTitle({ label, width = '5rem', id }) {
   return (
-    <h2 className="search-page-group-title">
+    <h2 id={id} className="search-page-group-title">
       <span className="search-page-group-highlight" style={{ width }} aria-hidden="true" />
       {label}
     </h2>
   );
 }
 
-function SearchRecentRow({ result, onSelect }) {
-  return (
-    <button type="button" className="search-result-row" onClick={() => onSelect(result)}>
+function SearchRecentRow({ result, onSelect, onNavigate }) {
+  const content = (
+    <>
       <span className="search-result-icon" aria-hidden="true">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           <circle cx="12" cy="12" r="9" />
@@ -47,28 +48,39 @@ function SearchRecentRow({ result, onSelect }) {
         <span className="search-result-title">{result.name}</span>
         <span className="search-result-address">{result.address}</span>
       </span>
+    </>
+  );
+
+  if (result.href) {
+    return (
+      <Link
+        to={result.href}
+        className="search-result-row"
+        onClick={() => onNavigate(result)}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" className="search-result-row" onClick={() => onSelect(result)}>
+      {content}
     </button>
   );
 }
 
-function SearchSpotCard({ spot, onSelect }) {
-  function handleActivate() {
-    onSelect(spot);
-  }
+function SearchSpotCard({ spot, onNavigate }) {
+  if (!spot?.href) return null;
 
   return (
-    <div
-      className="search-spot-card"
-      role="button"
-      tabIndex={0}
-      onClick={handleActivate}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleActivate();
-        }
-      }}
-    >
+    <div className="search-spot-card">
+      <Link
+        to={spot.href}
+        className="search-spot-card-link"
+        aria-label={`View ${spot.title}`}
+        onClick={() => onNavigate(spot)}
+      />
       <PlaceCard
         layout="list"
         item={{
@@ -95,17 +107,17 @@ function SearchNoResults({ query, onSuggestionClick }) {
   const suggestions = getNoResultsSuggestions();
 
   return (
-    <section className="search-page-no-results">
+    <section className="search-page-no-results" aria-labelledby="search-no-results-heading">
       <p className="search-page-count">0 results found</p>
 
       <img
         src={NO_SEARCHES_ILLUSTRATION}
-        alt=""
+        alt="Decorative empty search results illustration"
         className="search-page-no-results-art"
         aria-hidden="true"
       />
 
-      <h3 className="search-page-no-results-title">
+      <h3 id="search-no-results-heading" className="search-page-no-results-title">
         Hmm, looks like we can&apos;t find anything for &ldquo;{query}&rdquo;.
       </h3>
 
@@ -211,24 +223,21 @@ export default function SearchPage() {
       runSearch(result.query);
       saveRecent(result);
       inputRef.current?.focus();
-      return;
     }
-
-    if (!result.href) return;
-    saveRecent(result);
-    navigate(result.href);
   }
 
-  function handleSelectSpot(spot) {
+  function handleNavigateRecent(result) {
+    if (!result?.href) return;
+    saveRecent(result);
+  }
+
+  function handleNavigateSpot(spot) {
     if (!spot?.href) return;
     saveRecent(spotToRecentEntry(spot));
-    navigate(spot.href);
   }
 
-  function handleSelectEvent(event) {
-    const entry = eventToRecentEntry(event);
-    saveRecent(entry);
-    navigate(entry.href);
+  function handleNavigateEvent(event) {
+    saveRecent(eventToRecentEntry(event));
   }
 
   function handleSuggestionClick(term) {
@@ -325,8 +334,8 @@ export default function SearchPage() {
           {isListening && <SearchListeningView error={speechError} />}
 
           {!isListening && showSuggestions && (
-            <section className="search-page-section">
-              <h2 className="search-page-section-title">Try searching for</h2>
+            <section className="search-page-section" aria-labelledby="search-suggestions-heading">
+              <h2 id="search-suggestions-heading" className="search-page-section-title">Try searching for</h2>
               <div className="search-page-suggestions">
                 {suggestions.map(term => (
                   <button
@@ -344,12 +353,16 @@ export default function SearchPage() {
           )}
 
           {!isListening && showRecentList && (
-            <section className="search-page-section">
-              <h2 className="search-page-section-title">Recent searches</h2>
+            <section className="search-page-section" aria-labelledby="search-recent-heading">
+              <h2 id="search-recent-heading" className="search-page-section-title">Recent searches</h2>
               <div className="search-page-results">
                 {recentSearches.map(result => (
                   <div key={result.placeId} className="search-result-item">
-                    <SearchRecentRow result={result} onSelect={handleSelectRecent} />
+                    <SearchRecentRow
+                      result={result}
+                      onSelect={handleSelectRecent}
+                      onNavigate={handleNavigateRecent}
+                    />
                   </div>
                 ))}
               </div>
@@ -357,7 +370,8 @@ export default function SearchPage() {
           )}
 
           {!isListening && showResults && (
-            <section className="search-page-section search-page-section--results">
+            <section className="search-page-section search-page-section--results" aria-labelledby="search-results-heading">
+              <VisuallyHiddenTitle id="search-results-heading">Search results</VisuallyHiddenTitle>
               {isAwaitingResults && <p className="search-page-status">Searching…</p>}
               {searchError && <p className="search-page-status search-page-status--error">{searchError}</p>}
 
@@ -376,7 +390,7 @@ export default function SearchPage() {
                   <SearchSectionTitle label="Spots" />
                   <div className="search-page-spots-list">
                     {groupedResults.spots.map(spot => (
-                      <SearchSpotCard key={spot.id} spot={spot} onSelect={handleSelectSpot} />
+                      <SearchSpotCard key={spot.id} spot={spot} onNavigate={handleNavigateSpot} />
                     ))}
                   </div>
                 </div>
@@ -388,22 +402,16 @@ export default function SearchPage() {
 
               {groupedResults.events.length > 0 && (
                 <div className="search-page-group">
-                  <SearchSectionTitle label="Events" width={88} />
+                  <SearchSectionTitle label="Events" width="5.5rem" />
                   <div className="search-page-events-list">
                     {groupedResults.events.map(event => (
-                      <div
-                        key={event.id}
-                        className="search-event-card"
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleSelectEvent(event)}
-                        onKeyDown={(eventKey) => {
-                          if (eventKey.key === 'Enter' || eventKey.key === ' ') {
-                            eventKey.preventDefault();
-                            handleSelectEvent(event);
-                          }
-                        }}
-                      >
+                      <div key={event.id} className="search-event-card">
+                        <Link
+                          to={discoverEventPath(event.id)}
+                          className="search-event-card-link"
+                          aria-label={`View ${event.title}`}
+                          onClick={() => handleNavigateEvent(event)}
+                        />
                         <EventCard
                           item={event}
                           layout="list"
@@ -419,7 +427,10 @@ export default function SearchPage() {
           )}
 
           {!isListening && showEmptyState && (
-            <section className="search-page-empty">
+            <section className="search-page-empty" aria-labelledby="search-empty-heading">
+              <VisuallyHiddenTitle id="search-empty-heading">
+                {isFocused ? 'Recent searches' : 'No recent searches yet'}
+              </VisuallyHiddenTitle>
               <p className="search-page-section-title search-page-section-title--inline">
                 {isFocused ? 'Recent searches' : 'No recent searches yet'}
               </p>
@@ -428,7 +439,7 @@ export default function SearchPage() {
 
               <img
                 src={NO_SEARCHES_ILLUSTRATION}
-                alt=""
+                alt="Decorative empty recent searches illustration"
                 className="search-page-empty-art"
                 aria-hidden="true"
               />

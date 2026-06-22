@@ -9,7 +9,7 @@ export default function JournalsEmptyState() {
       <img
         className="journals-empty-illustration"
         src={journalAssets.emptyIllustration}
-        alt=""
+        alt="Decorative empty journals illustration"
         aria-hidden="true"
       />
       <h2 className="journals-empty-title">No memos yet!</h2>
@@ -24,7 +24,7 @@ export default function JournalsEmptyState() {
       <img
         className="journals-empty-arrow"
         src={journalAssets.emptyArrow}
-        alt=""
+        alt="Decorative arrow pointing to add memo"
         aria-hidden="true"
       />
     </div>

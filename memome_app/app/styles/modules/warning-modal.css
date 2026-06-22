@@ -6,25 +6,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 1.25rem;
   background: rgba(0, 0, 0, 0.45);
 }
 
 .create-journal-warning-modal {
   position: relative;
-  width: min(100%, 320px);
-  padding: 20px 18px 24px;
-  border-radius: 16px;
+  width: min(100%, 20rem);
+  padding: 1.25rem 1.125rem 1.5rem;
+  border-radius: 1rem;
   background: #fff;
   text-align: center;
 }
 
 .create-journal-warning-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
   border: none;
   border-radius: 50%;
   background: #1952ff;
@@ -63,16 +63,16 @@
 }
 
 .create-journal-warning-title {
-  margin: 0 0 10px;
-  font-size: 18px;
+  margin: 0 0 0.625rem;
+  font-size: 1.125rem;
   line-height: 1.35;
   font-weight: 700;
   color: #1e1e1e;
 }
 
 .create-journal-warning-desc {
-  margin: 0 0 22px;
-  font-size: 13px;
+  margin: 0 0 1.375rem;
+  font-size: 0.8125rem;
   line-height: 1.45;
   color: #6b7280;
 }
@@ -81,20 +81,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 0.875rem;
 }
 
 .create-journal-warning-discard,
 .create-journal-warning-continue {
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 14px;
-  line-height: 20px;
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
   cursor: pointer;
 }
 
+a.create-journal-warning-discard,
+a.create-journal-warning-continue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .create-journal-warning-discard {
-  border: 2px dashed #1952ff;
+  border: 0.125rem dashed #1952ff;
   background: #fff;
   color: #1e1e1e;
 }

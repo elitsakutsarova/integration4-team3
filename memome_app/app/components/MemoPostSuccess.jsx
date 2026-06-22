@@ -25,13 +25,13 @@ export default function MemoPostSuccess({
         <img
           className="memo-post-success-wave"
           src={memoPostSuccessAssets.waveLeft}
-          alt=""
+          alt="Decorative wave illustration"
           aria-hidden="true"
         />
         <img
           className="memo-post-success-grid"
           src={memoPostSuccessAssets.gridRight}
-          alt=""
+          alt="Decorative pixel grid background"
           aria-hidden="true"
         />
 
@@ -39,12 +39,12 @@ export default function MemoPostSuccess({
           <img
             className="memo-post-success-shadow"
             src={memoPostSuccessAssets.shadow}
-            alt=""
+            alt="Decorative shadow illustration"
           />
           <img
             className="memo-post-success-illustration"
             src={memoPostSuccessAssets.hero}
-            alt=""
+            alt="Success celebration illustration"
           />
         </div>
 

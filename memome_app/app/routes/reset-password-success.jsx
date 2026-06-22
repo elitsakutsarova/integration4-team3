@@ -21,12 +21,12 @@ function ResetSuccessHeroScene() {
       <img
         className="reset-success-hero-scene__path"
         src={forgotPasswordAssets.doodlePath}
-        alt=""
+        alt="Decorative success path illustration"
       />
       <img
         className="reset-success-hero-scene__icon"
         src={forgotPasswordAssets.successIcon}
-        alt=""
+        alt="Password reset success icon"
       />
     </div>
   );

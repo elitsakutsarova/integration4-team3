@@ -22,7 +22,7 @@ export default function FavouritesEmptyState({ kind }) {
       <img
         className="favourites-empty-illustration"
         src={accountAssets.noFavouritesIllustration}
-        alt=""
+        alt="Decorative empty favourites illustration"
         aria-hidden="true"
       />
 

@@ -55,8 +55,8 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
     <div className="discover-page">
       <header className="discover-hero">
         <div className="discover-grid-deco" aria-hidden="true">
-          <img className="discover-grid" src={discoverAssets.topGrid} alt="" />
-          {/*           <img className="discover-grid-pattern" src={discoverAssets.gridPattern} alt="" />
+          <img className="discover-grid" src={discoverAssets.topGrid} alt="Decorative pixel grid background" />
+          {/*           <img className="discover-grid-pattern" src={discoverAssets.gridPattern} alt="Decorative grid pattern" />
  */}
           <div className="discover-grid-pattern" />
         </div>
@@ -64,7 +64,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
         <div className="discover-search-container">
           <SearchOpenButton className="discover-search discover-search--trigger" variant="discover" />
 
-          <div className="discover-filters" role="tablist" aria-label="Discover categories">
+          <div className="map-category-row" role="tablist" aria-label="Discover categories">
             {DISCOVER_CATEGORIES.map(category => {
               const isActive = activeCategory === category.id;
               return (
@@ -73,7 +73,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  className={`discover-filter-chip${isActive ? ' discover-filter-chip--active' : ''}`}
+                  className={`map-category-chip${isActive ? ' map-category-chip--active' : ''}`}
                   onClick={() => setActiveCategory(category.id)}
                 >
                   {category.icon && <CategoryIcon name={category.icon} />}
@@ -87,7 +87,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
       <section className="discover-section" aria-labelledby="discover-happening-now">
         <SectionHeader
           title="Happening now"
-          highlightWidth="172px"
+          highlightWidth="10.75rem"
           id="discover-happening-now"
           viewAllTo={paths.discoverHappeningNow}
         />
@@ -110,7 +110,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
           <SectionHeader
             id="discover-upcoming"
             title="Upcoming"
-            highlightWidth="116px"
+            highlightWidth="7.25rem"
             viewAllTo={paths.discoverUpcoming}
           />
           <div className="discover-carousel">
@@ -140,7 +140,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
         <SectionHeader
           id="discover-places"
           title="Spots worth a memo"
-          highlightWidth="229px"
+          highlightWidth="14.3125rem"
           underlined
           viewAllTo={paths.discoverPlaces}
         />

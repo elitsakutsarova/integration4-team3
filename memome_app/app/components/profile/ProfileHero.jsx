@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { paths } from '../../utils/appPaths';
 import { settingsAssets } from '../../utils/settingsAssets';
 import { accountAssets } from '../../utils/accountAssets';
+import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
 
 function tagClassName(tag) {
   const slug = tag.toLowerCase().replace(/\s+/g, '-');
@@ -23,7 +24,8 @@ export default function ProfileHero({
   );
 
   return (
-    <section className="profile-account-hero" aria-label="Profile">
+    <section className="profile-account-hero" aria-labelledby="profile-hero-heading">
+      <VisuallyHiddenTitle id="profile-hero-heading">Profile</VisuallyHiddenTitle>
       {settingsDisabled ? (
         <span
           className="profile-settings-btn profile-settings-btn--disabled"
@@ -51,7 +53,11 @@ export default function ProfileHero({
                       ? accountAssets.guestProfilePic
                       : settingsAssets.avatarPlaceholder
                 }
-                alt=""
+                alt={
+                  hasCustomAvatar
+                    ? `Profile photo for ${username}`
+                    : 'Default profile photo placeholder'
+                }
               />
             </div>
             <div className="profile-info">
@@ -67,7 +73,7 @@ export default function ProfileHero({
           </div>
       </header>
       <div className="profile-account-hero-deco" aria-hidden="true">
-        <img className="discover-list-grid" src={accountAssets.greenGrid} alt="" />
+        <img className="discover-list-grid" src={accountAssets.greenGrid} alt="Decorative pixel grid background" />
         <div className="discover-list-grid-pattern" />
       </div>
     </section>

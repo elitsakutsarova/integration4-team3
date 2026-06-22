@@ -208,14 +208,18 @@ export function pinHasMedia(pin) {
   return Boolean(url) && isSafeMediaAssetUrl(url);
 }
 
-export function buildMapPinMediaMarkup({ url, isVideo, orientation, className }) {
+export function buildMapPinMediaMarkup({ url, isVideo, orientation, className, alt = 'Memo photo' }) {
   const mediaClass = buildMemoMediaClassName(className, orientation);
+  const safeAlt = String(alt ?? 'Memo photo')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;');
   if (isVideo) {
     return `<video src="${url}" class="${mediaClass}" muted playsinline preload="metadata"></video>
        <span class="pin-memory-polaroid-play" aria-hidden="true"></span>`;
   }
 
-  return `<img src="${url}" alt="" class="${mediaClass}" loading="lazy" decoding="async" fetchpriority="low" />`;
+  return `<img src="${url}" alt="${safeAlt}" class="${mediaClass}" loading="lazy" decoding="async" fetchpriority="low" />`;
 }
 
 export function memoryPinDimensions(pin) {

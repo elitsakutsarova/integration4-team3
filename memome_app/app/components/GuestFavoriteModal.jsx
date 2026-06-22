@@ -1,21 +1,10 @@
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
 import JournalWarningModal from './journals/JournalWarningModal';
 import { loginPathWithRedirect, paths } from '../utils/appPaths';
 
 export default function GuestFavoriteModal({ open, onClose }) {
-  const navigate = useNavigate();
   const { pathname, search } = useLocation();
   const returnPath = `${pathname}${search}`;
-
-  function handleLogin() {
-    onClose();
-    navigate(loginPathWithRedirect(returnPath));
-  }
-
-  function handleCreateAccount() {
-    onClose();
-    navigate(paths.register);
-  }
 
   return (
     <JournalWarningModal
@@ -23,10 +12,12 @@ export default function GuestFavoriteModal({ open, onClose }) {
       title="You need an account to save favourites"
       description="Create an account or log in to add items to your favourites"
       primaryLabel="Create account"
-      onPrimary={handleCreateAccount}
+      primaryTo={paths.register}
+      onPrimary={onClose}
       onClose={onClose}
       secondaryLabel="Log in"
-      onSecondary={handleLogin}
+      secondaryTo={loginPathWithRedirect(returnPath)}
+      onSecondary={onClose}
     />
   );
 }

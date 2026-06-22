@@ -14,12 +14,13 @@ import {
   snapshotMemoDraftSearchParams,
 } from '../utils/newMemoDraftStore';
 import SectionTitle from './SectionTitle';
+import VisuallyHiddenTitle from './VisuallyHiddenTitle';
 import AddMemoWarningModal from './AddMemoWarningModal';
 import MemoTagIcon from './MemoTagIcon';
 import { validateMemoMediaFile } from '../utils/validators';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 
-const DESKTOP_OVERLAY_QUERY = '(min-width: 600px)';
+const DESKTOP_OVERLAY_QUERY = '(min-width: 37.5rem)';
 
 const QUOTE_MAX = 100;
 const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
@@ -465,12 +466,12 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
         <div className="memo-form-scroll">
             <header className="memo-form-header header">
             <div className="memo-form-hero-deco" aria-hidden="true">
-                <img className="memo-form-hero-grid" src={addMemoFormAssets.greenGrid} alt="" />
+                <img className="memo-form-hero-grid" src={addMemoFormAssets.greenGrid} alt="Decorative pixel grid background" />
               <div className="memo-form-grid-pattern" />
               <img
                   className="memo-form-hero-wave"
                           src={addMemoFormAssets.waveArrow}
-                          alt=""
+                          alt="Decorative wave and arrow illustration"
                         />
             </div>
 
@@ -483,16 +484,16 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
               </button>
               <h2 className="memo-form-title">Add memo</h2>
               </div>
-              <img className="memo-form-camera-deco title-icon" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
+              <img className="memo-form-camera-deco title-icon" src={addMemoFormAssets.camera} alt="Decorative camera illustration" aria-hidden="true" />
             </div>
           </header>
 
           <div className="memo-form-media-zone">{renderMediaZone()}</div>
 
           <div className="memo-form-body">
-          <section className="memo-form-section">
+          <section className="memo-form-section" aria-labelledby="memo-story-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Tell your story</SectionTitle>
+              <SectionTitle id="memo-story-heading">Tell your story</SectionTitle>
             </div>
             <div className="section-input">
             <p className="memo-form-section-copy">Describe a moment that happened here</p>
@@ -529,21 +530,21 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             </div>
           </section>
 
-          <section className="memo-form-section">
+          <section className="memo-form-section" aria-labelledby="memo-tags-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Tag your moment</SectionTitle>
+              <SectionTitle id="memo-tags-heading">Tag your moment</SectionTitle>
             </div>
             <div className="section-input">
             <p className="memo-form-section-copy">Help others find similar experiences</p>
             <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
-              <div className="memo-form-tag-row">
+              <div className="map-category-row">
                 {MEMO_TAG_OPTIONS.map((tag) => {
                   const selected = selectedTags.includes(tag);
                   return (
                     <button
                       key={tag}
                       type="button"
-                      className={`memo-form-tag-chip${selected ? ' memo-form-tag-chip--selected' : ''}`}
+                      className={`map-category-chip${selected ? ' map-category-chip--active' : ''}`}
                       aria-pressed={selected}
                       onClick={() => toggleTag(tag)}
                     >
@@ -557,9 +558,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             </div>
           </section>
 
-          <section className="memo-form-section memo-form-section--location">
+          <section className="memo-form-section memo-form-section--location" aria-labelledby="memo-location-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Add location</SectionTitle>
+              <SectionTitle id="memo-location-heading">Add location</SectionTitle>
             </div>
             <div className="section-input">
             <p className="memo-form-section-copy">Help others find great locations</p>

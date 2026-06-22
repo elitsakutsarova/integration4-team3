@@ -72,9 +72,9 @@ function ForgotPasswordHero() {
   return (
     <header className="forgot-password-hero">
       <div className="forgot-password-hero__backdrop" aria-hidden="true">
-        <img className="forgot-password-hero__grid" src={forgotPasswordAssets.grid} alt="" />
-        <img className="forgot-password-hero__doodle" src={forgotPasswordAssets.doodle} alt="" />
-        <img className="forgot-password-hero__star" src={forgotPasswordAssets.greenStar} alt="" />
+        <img className="forgot-password-hero__grid" src={forgotPasswordAssets.grid} alt="Decorative pixel grid background" />
+        <img className="forgot-password-hero__doodle" src={forgotPasswordAssets.doodle} alt="Decorative doodle illustration" />
+        <img className="forgot-password-hero__star" src={forgotPasswordAssets.greenStar} alt="Decorative star illustration" />
       </div>
 
       <div className="forgot-password-hero__nav">
@@ -94,7 +94,7 @@ function ForgotPasswordHero() {
           <img
             className="forgot-password-title__mark"
             src={forgotPasswordAssets.questionMark}
-            alt=""
+            alt="Decorative question mark illustration"
           />
         </div>
       </div>

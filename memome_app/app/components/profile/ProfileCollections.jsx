@@ -14,25 +14,25 @@ export default function ProfileCollections({
 }) {
   if (locked) {
     return (
-      <section className="profile-section profile-section--collections">
+      <section className="profile-section profile-section--collections" aria-labelledby="profile-collections-heading">
         <svg xmlns="http://www.w3.org/2000/svg" width="363" height="1" viewBox="0 0 363 1" fill="none">
           <path d="M0 0.5H363" stroke="#EFF1F5" />
         </svg>
-        <h2 className="profile-section-label">Collections</h2>
+        <h2 id="profile-collections-heading" className="profile-section-label">Collections</h2>
         <div className="profile-collections profile-collections--account">
           <div className="collection-card collection-card--account collection-card--memos collection-card--guest-locked" aria-disabled="true">
-            <CollectionIcon src={accountAssets.createdMemosIcon} alt="" />
+            <CollectionIcon src={accountAssets.createdMemosIcon} alt="Memos collection icon" />
             <span>Memos</span>
           </div>
           <div className="collection-card collection-card--account collection-card--favourites collection-card--guest-locked" aria-disabled="true">
-            <CollectionIcon src={accountAssets.favouritesIcon} alt="" />
+            <CollectionIcon src={accountAssets.favouritesIcon} alt="Favourites collection icon" />
             <span>Favorites</span>
           </div>
           <Link
             to={paths.stickers}
             className="collection-card collection-card--account collection-card--stickers collection-card--link"
           >
-            <CollectionIcon src={accountAssets.stickersIcon} alt="" />
+            <CollectionIcon src={accountAssets.stickersIcon} alt="Stickers collection icon" />
             <span>Stickers</span>
           </Link>
         </div>
@@ -41,19 +41,19 @@ export default function ProfileCollections({
   }
 
   return (
-    <section className="profile-section profile-section--collections">
-      <h2 className="profile-section-label">Collections</h2>
+    <section className="profile-section profile-section--collections" aria-labelledby="profile-collections-heading">
+      <h2 id="profile-collections-heading" className="profile-section-label">Collections</h2>
       <div className="profile-collections profile-collections--account">
         <Link to={paths.profileMemos} className="collection-card collection-card--memos collection-card--account collection-card--link">
-          <CollectionIcon src={accountAssets.createdMemosIcon} alt="" />
+          <CollectionIcon src={accountAssets.createdMemosIcon} alt="Memos collection icon" />
           <span>{memosLabel} Memos</span>
         </Link>
         <Link to={paths.profileFavouritesMemos} className="collection-card collection-card--favourites collection-card--account collection-card--link">
-          <CollectionIcon src={accountAssets.favouritesIcon} alt="" />
+          <CollectionIcon src={accountAssets.favouritesIcon} alt="Favourites collection icon" />
           <span>{favouritesLabel} Favorites</span>
         </Link>
         <Link to={paths.stickers} className="collection-card collection-card--stickers collection-card--account collection-card--link">
-          <CollectionIcon src={accountAssets.stickersIcon} alt="" />
+          <CollectionIcon src={accountAssets.stickersIcon} alt="Stickers collection icon" />
           <span>{stickersCount} Stickers</span>
         </Link>
       </div>

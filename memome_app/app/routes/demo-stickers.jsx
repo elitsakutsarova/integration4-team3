@@ -110,7 +110,7 @@ export default function DemoStickersPage() {
       <div className="demo-stickers-grid">
         <article className="demo-physical-sticker">
           <div className="demo-physical-sticker-art">
-            <img src={STICKER_ART} alt="" className="demo-physical-sticker-frame" />
+            <img src={STICKER_ART} alt="Physical MemMe sticker frame" className="demo-physical-sticker-frame" />
             <div className="demo-physical-sticker-qr">
               <QrCode
                 value={collectUrl}

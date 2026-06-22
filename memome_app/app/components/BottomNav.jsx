@@ -81,7 +81,7 @@ export default function BottomNav({ onAddClick }) {
         <img
           className="nav-add-icon"
           src={journalAssets.addMenu}
-          alt=""
+          alt="Add memo menu icon"
           aria-hidden="true"
         />
       </button>

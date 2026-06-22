@@ -141,10 +141,10 @@ function RegisterHeroScene() {
   return (
     <>
       <div className="register-hero__path-wrap">
-        <img className="register-hero__path" src={createAccountAssets.path} alt="" />
-        <img className="register-title-heart" src={createAccountAssets.heart} alt="" />
+        <img className="register-hero__path" src={createAccountAssets.path} alt="Decorative path illustration" />
+        <img className="register-title-heart" src={createAccountAssets.heart} alt="Decorative heart illustration" />
       </div>
-      <img className="register-hero__pin" src={createAccountAssets.pin} alt="" />
+      <img className="register-hero__pin" src={createAccountAssets.pin} alt="Decorative map pin illustration" />
     </>
   );
 }
@@ -419,7 +419,7 @@ export default function Register() {
             </div>
             {roleHint && (
               <p className="register-role-hint">
-                <img className="register-role-hint__pin" src={createAccountAssets.pin_smooth} alt="" />
+                <img className="register-role-hint__pin" src={createAccountAssets.pin_smooth} alt="Decorative smooth map pin illustration" />
                 <span className="register-role-hint__text">{roleHint}</span>
               </p>
             )}

@@ -14,7 +14,7 @@ export function meta() {
 export async function loader() {
   return {
     title: 'Spots worth a memo',
-    highlightWidth: '229px',
+    highlightWidth: '14.3125rem',
     underlined: true,
     decoration: 'places',
     items: PLACES_WORTH_MEMO_ALL,
@@ -25,7 +25,7 @@ export async function loader() {
 export async function clientLoader() {
   return {
     title: 'Spots worth a memo',
-    highlightWidth: '229px',
+    highlightWidth: '14.3125rem',
     underlined: true,
     decoration: 'places',
     items: PLACES_WORTH_MEMO_ALL,

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import CreateJournalDecorations from '../journals/CreateJournalDecorations';
 import JournalMemoPickCard from '../journals/JournalMemoPickCard';
+import MemoTagIcon from '../MemoTagIcon';
 import RecapShareSheet from './RecapShareSheet';
 import RecapShareSuccess from './RecapShareSuccess';
 import { MEMO_TAG_OPTIONS } from '../../data/memoTags';
@@ -151,7 +152,6 @@ function useRecapPreviewFiles(journal, selectedMemories) {
 const FILTER_OPTIONS = [
   { id: 'all', label: 'All' },
   ...MEMO_TAG_OPTIONS.map((tag) => ({ id: tag, label: tag })),
-  { id: 'Hidden gems', label: 'Hidden gems' },
 ];
 
 function filterMemos(memos, filterId) {
@@ -163,13 +163,8 @@ function filterMemos(memos, filterId) {
 function RecapFlowShell({ title, onBack, children, footer, headerExtra = null }) {
   return (
     <div className="recap-flow-page">
-      <button type="button" className="create-journal-back" onClick={onBack} aria-label="Back">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
+      <CreateJournalDecorations title={title} onBack={onBack} backLabel="Back" />
       {headerExtra}
-      <CreateJournalDecorations title={title} />
       {children}
       {footer}
     </div>
@@ -237,25 +232,27 @@ export default function RecapSelectView({
       )}
     >
       <div className="create-journal-filter-bar" role="toolbar" aria-label="Filter memos">
-        <div className="create-journal-filter-track">
+        <div className="map-category-row">
           {FILTER_OPTIONS.map((option) => {
             const active = option.id === filterId;
+            const showIcon = option.id !== 'all';
             return (
               <button
                 key={option.id}
                 type="button"
-                className={`create-journal-filter-chip${active ? ' create-journal-filter-chip--active' : ''}`}
+                className={`map-category-chip${active ? ' map-category-chip--active' : ''}`}
                 aria-pressed={active}
                 onClick={() => setFilterId(option.id)}
               >
-                {option.label}
+                {showIcon && <MemoTagIcon tag={option.label} />}
+                <span>{option.label}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="create-journal-pick-list recap-flow-pick-list">
+      <div className="create-journal-pick-list recap-flow-pick-list collection-memo-list collection-memo-list--created">
         {filteredMemos.length === 0 ? (
           <p className="create-journal-pick-empty">No memos match this filter yet.</p>
         ) : (

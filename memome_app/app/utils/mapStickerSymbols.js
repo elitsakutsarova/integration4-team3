@@ -17,7 +17,7 @@ export const MAP_STICKER_SYMBOL_LOCATIONS = [
 ];
 
 function stickerSymbolHtml() {
-  return `<img class="map-sticker-symbol-img" src="${STICKER_SYMBOL_SRC}" alt="" aria-hidden="true" />`;
+  return `<img class="map-sticker-symbol-img" src="${STICKER_SYMBOL_SRC}" alt="Collectible sticker map marker" aria-hidden="true" />`;
 }
 
 function stickerSymbolPopupHtml() {

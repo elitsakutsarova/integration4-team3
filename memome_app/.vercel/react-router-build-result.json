@@ -26,6 +26,7 @@
       "routes/profile.settings.change-email": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.settings.language": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.settings.privacy": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/profile.settings.support": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.settings.feedback": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.memos.$id.edit": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -198,6 +199,13 @@
         "parentId": "routes/account-layout.profile",
         "file": "app/routes/profile.settings.privacy.jsx",
         "path": "settings/privacy",
+        "config": {}
+      },
+      "routes/profile.settings.support": {
+        "id": "routes/profile.settings.support",
+        "parentId": "routes/account-layout.profile",
+        "file": "app/routes/profile.settings.support.jsx",
+        "path": "settings/support",
         "config": {}
       },
       "routes/profile.settings.feedback": {
@@ -609,6 +617,12 @@
         "file": "routes/profile.settings.privacy.jsx",
         "path": "settings/privacy"
       },
+      "routes/profile.settings.support": {
+        "id": "routes/profile.settings.support",
+        "parentId": "routes/account-layout.profile",
+        "file": "routes/profile.settings.support.jsx",
+        "path": "settings/support"
+      },
       "routes/profile.settings.feedback": {
         "id": "routes/profile.settings.feedback",
         "parentId": "routes/account-layout.profile",
@@ -941,6 +955,10 @@
                   {
                     "file": "routes/profile.settings.privacy.jsx",
                     "path": "settings/privacy"
+                  },
+                  {
+                    "file": "routes/profile.settings.support.jsx",
+                    "path": "settings/support"
                   },
                   {
                     "file": "routes/profile.settings.feedback.jsx",

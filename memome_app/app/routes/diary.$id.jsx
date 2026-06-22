@@ -1,12 +1,13 @@
 import '../styles/modules/diary.css';
+import '../styles/modules/map.css';
+import '../styles/modules/profile-collections.css';
 import '../styles/modules/journals.css';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
 import JournalDetailPage from '../components/journals/JournalDetailPage';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useCustomJournals } from '../context/CreateJournalContext';
 import { findJournalById } from '../utils/journalBuilder';
 import { paths } from '../utils/appPaths';
+import { requireJournalClientLoader } from '../utils/journalRouteClientLoader';
 
 export function meta() {
   return [
@@ -15,18 +16,16 @@ export function meta() {
   ];
 }
 
+export async function clientLoader(args) {
+  return requireJournalClientLoader(args);
+}
+
+clientLoader.hydrate = true;
+
 export default function DiaryDetail({ params }) {
-  const navigate = useNavigate();
   const { createdMemos } = useCreatedMemos();
   const { customJournals } = useCustomJournals();
   const journal = findJournalById(createdMemos, params.id, customJournals);
-
-  // Journal lives in client storage — redirect if the URL id is unknown.
-  useEffect(() => {
-    if (!journal) {
-      navigate(paths.journals, { replace: true });
-    }
-  }, [journal, navigate]);
 
   if (!journal) {
     return (

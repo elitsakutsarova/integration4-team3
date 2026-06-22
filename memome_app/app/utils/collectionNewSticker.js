@@ -1,17 +1,13 @@
-/** Id of the most recently collected sticker (by claimedAt), or null if none. */
-export function getNewestCollectedStickerId(stickers) {
-  if (!stickers?.length) return null;
+/** Tracks which collectible should show the "new" badge after a QR scan. */
 
-  let newestId = null;
-  let newestTime = Number.NEGATIVE_INFINITY;
+const LAST_NEW_KEY = 'memome_last_new_sticker_id';
 
-  for (const sticker of stickers) {
-    if (!sticker?.id || !sticker.claimedAt) continue;
-    const claimedTime = Date.parse(sticker.claimedAt);
-    if (!Number.isFinite(claimedTime) || claimedTime <= newestTime) continue;
-    newestTime = claimedTime;
-    newestId = sticker.id;
-  }
+export function writeLastNewStickerId(stickerId) {
+  if (typeof sessionStorage === 'undefined' || !stickerId) return;
+  sessionStorage.setItem(LAST_NEW_KEY, stickerId);
+}
 
-  return newestId;
+export function readLastNewStickerId() {
+  if (typeof sessionStorage === 'undefined') return null;
+  return sessionStorage.getItem(LAST_NEW_KEY);
 }

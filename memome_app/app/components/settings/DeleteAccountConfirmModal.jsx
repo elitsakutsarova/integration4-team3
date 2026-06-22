@@ -19,10 +19,10 @@ export default function DeleteAccountConfirmModal({ onCancel, onConfirm, busy = 
         onClick={(event) => event.stopPropagation()}
       >
         <div className="delete-account-deco" aria-hidden="true">
-          <img className="delete-account-deco-grid" src={deleteWarningAssets.pixelGrid} alt="" />
-          <img className="delete-account-deco-wave" src={deleteWarningAssets.vector554} alt="" />
-          <img className="delete-account-deco-shadow" src={deleteWarningAssets.ellipse73} alt="" />
-          <img className="delete-account-deco-icon" src={deleteWarningAssets.deleteWarningIcon} alt="" />
+          <img className="delete-account-deco-grid" src={deleteWarningAssets.pixelGrid} alt="Decorative pixel grid background" />
+          <img className="delete-account-deco-wave" src={deleteWarningAssets.vector554} alt="Decorative wave illustration" />
+          <img className="delete-account-deco-shadow" src={deleteWarningAssets.ellipse73} alt="Decorative shadow illustration" />
+          <img className="delete-account-deco-icon" src={deleteWarningAssets.deleteWarningIcon} alt="Delete account warning icon" />
         </div>
 
         <h2 id="delete-account-title" className="delete-account-title">

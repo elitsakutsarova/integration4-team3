@@ -15,6 +15,7 @@ import AvatarSuccessModal from './AvatarSuccessModal';
 import DeleteAccountConfirmModal from './DeleteAccountConfirmModal';
 import EditPenIcon from './EditPenIcon';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
+import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
 import UsernameField from './UsernameField';
 
 function AccountField({ label, value, editTo }) {
@@ -138,7 +139,8 @@ export default function AccountDetailsPage() {
       />
 
       <div className="account-details-content">
-        <section className="account-details-avatar-section">
+        <section className="account-details-avatar-section" aria-labelledby="account-details-avatar-heading">
+          <VisuallyHiddenTitle id="account-details-avatar-heading">Profile photo</VisuallyHiddenTitle>
           <input
             ref={fileInputRef}
             type="file"
@@ -156,7 +158,11 @@ export default function AccountDetailsPage() {
             <img
               className={`account-details-avatar${hasCustomAvatar ? ' account-details-avatar--photo' : ' account-details-avatar--placeholder'}`}
               src={hasCustomAvatar ? avatarUrl : settingsAssets.avatarPlaceholder}
-              alt=""
+              alt={
+                hasCustomAvatar
+                  ? `Profile photo for ${user?.username ?? 'you'}`
+                  : 'Default profile photo placeholder'
+              }
             />
             <span className="account-details-avatar-edit" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27" fill="none">
@@ -195,8 +201,8 @@ export default function AccountDetailsPage() {
           </div>
         ) : null}
 
-        <section className="settings-section account-details-section">
-          <h2 className="settings-section-label">
+        <section className="settings-section account-details-section" aria-labelledby="account-details-info-heading">
+          <h2 id="account-details-info-heading" className="settings-section-label">
             <span className="settings-section-underline settings-section-underline--details" aria-hidden="true" />
             Details
           </h2>
@@ -216,8 +222,8 @@ export default function AccountDetailsPage() {
           </div>
         </section>
 
-        <section className="settings-section account-details-section">
-          <h2 className="settings-section-label">
+        <section className="settings-section account-details-section" aria-labelledby="account-details-actions-heading">
+          <h2 id="account-details-actions-heading" className="settings-section-label">
             <span className="settings-section-underline settings-section-underline--actions" aria-hidden="true" />
             Actions
           </h2>

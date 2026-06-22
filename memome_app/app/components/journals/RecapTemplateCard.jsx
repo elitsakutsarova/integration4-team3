@@ -22,7 +22,7 @@ function PhotoTile({ memo, slot }) {
         {/* White polaroid frame */}
         <div className="rtc-polaroid-frame" style={{ transform: `rotate(${frameRot}deg)` }}>
           {photoSrc
-            ? <img src={photoSrc} alt="" className="rtc-polaroid-img" />
+            ? <img src={photoSrc} alt={`Recap photo from ${memo?.location || 'this trip'}`} className="rtc-polaroid-img" />
             : <div className="rtc-polaroid-placeholder" />
           }
         </div>
@@ -101,18 +101,18 @@ export default function RecapTemplateCard({
       <div className="rtc-frame">
 
         {/* Grid dot background – covers upper portion */}
-        <img src={RECAP_ASSETS.grid} alt="" className="rtc-grid-bg" aria-hidden="true" />
+        <img src={RECAP_ASSETS.grid} alt="Decorative pixel grid background" className="rtc-grid-bg" aria-hidden="true" />
 
         {/* Pixel corner decoration – clips slightly outside top-left */}
         <div className="rtc-pixel-corner" aria-hidden="true">
-          <img src={RECAP_ASSETS.pixelCorner} alt="" />
+          <img src={RECAP_ASSETS.pixelCorner} alt="Decorative pixel corner" />
         </div>
 
         {/* "This could be YOU!" star sticker */}
         <div className="rtc-star-sticker" aria-hidden="true">
           <div className="rtc-star-sticker-inner">
-            <img src={RECAP_ASSETS.starUnion} alt="" className="rtc-star-union" />
-            <img src={RECAP_ASSETS.starInner} alt="" className="rtc-star-inner" />
+            <img src={RECAP_ASSETS.starUnion} alt="Decorative star outline" className="rtc-star-union" />
+            <img src={RECAP_ASSETS.starInner} alt="Decorative star fill" className="rtc-star-inner" />
             <span className="rtc-star-label-top">This could be</span>
             <span className="rtc-star-label-bottom">YOU!</span>
           </div>
@@ -121,7 +121,7 @@ export default function RecapTemplateCard({
         {/* Title chips ("Weekends / Getaway") */}
         <div className="rtc-title-group">
           <span className="rtc-title-chip rtc-title-chip--top">{titleParts.top}</span>
-          <img src={RECAP_ASSETS.mapPin} alt="" className="rtc-map-pin" aria-hidden="true" />
+          <img src={RECAP_ASSETS.mapPin} alt="Decorative map pin" className="rtc-map-pin" aria-hidden="true" />
           <span className="rtc-title-chip rtc-title-chip--bottom">{titleParts.bottom}</span>
         </div>
 
@@ -153,7 +153,7 @@ export default function RecapTemplateCard({
 
           {/* Memo me logo */}
           <div className="rtc-logo" aria-hidden="true">
-            <img src={RECAP_ASSETS.memoSubtract} alt="" className="rtc-logo-icon" />
+            <img src={RECAP_ASSETS.memoSubtract} alt="MemoMe logo mark" className="rtc-logo-icon" />
             <div className="rtc-logo-text">
               <span>Memo</span>
               <span>me</span>

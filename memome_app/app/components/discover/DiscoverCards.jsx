@@ -14,7 +14,7 @@ export function EventCard({ item, layout = 'carousel', showFave = true, venueHre
   return (
     <article className={cardClass}>
       <div className="discover-event-card-media">
-        <img src={item.image} alt="" className="discover-event-card-image" />
+        <img src={item.image} alt={`Photo of ${item.title}`} className="discover-event-card-image" />
         {item.live && (
           <div className="discover-live-badge">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 20 20" fill="none">
@@ -80,7 +80,7 @@ export function PlaceCard({ item, layout = 'carousel', faveId, showFave = true, 
   return (
     <article className={cardClass}>
       <div className="discover-place-card-media">
-        <img src={item.image} alt="" className="discover-place-card-image" />
+        <img src={item.image} alt={`Photo of ${item.title}`} className="discover-place-card-image" />
         <span className="discover-tag discover-tag--on-image">{item.tags[0]}</span>
       </div>
       <div className="discover-place-card-body">

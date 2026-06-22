@@ -16,9 +16,9 @@ function TermsHero() {
   return (
     <div className="auth-hero terms-hero">
       <div className="auth-hero__backdrop" aria-hidden="true">
-        <img className="auth-hero__grid" src={createAccountAssets.grid} alt="" />
+        <img className="auth-hero__grid" src={createAccountAssets.grid} alt="Decorative pixel grid background" />
         <div className="auth-hero__accent-wrap">
-          <img className="auth-hero__accent" src={createAccountAssets.accent} alt="" />
+          <img className="auth-hero__accent" src={createAccountAssets.accent} alt="Decorative accent illustration" />
         </div>
       </div>
       <div className="terms-hero__nav">
@@ -44,9 +44,13 @@ export default function TermsOfService() {
         </header>
 
         <div className="terms-content">
-          {TERMS_SECTIONS.map(section => (
-            <section key={section.title} className="terms-section">
-              <h2 className="terms-section-title">{section.title}</h2>
+          {TERMS_SECTIONS.map((section, index) => (
+            <section
+              key={section.title}
+              className="terms-section"
+              aria-labelledby={`terms-section-${index}-heading`}
+            >
+              <h2 id={`terms-section-${index}-heading`} className="terms-section-title">{section.title}</h2>
               <p className="terms-section-body">{section.body}</p>
             </section>
           ))}

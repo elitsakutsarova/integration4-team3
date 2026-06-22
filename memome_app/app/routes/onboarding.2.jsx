@@ -52,31 +52,31 @@ export default function OnboardingScreen2() {
         <img
           className="onboarding-slide__decor-bottom-left"
           src={onboardingAssets.greenStar}
-          alt=""
+          alt="Decorative star illustration"
           aria-hidden="true"
         />
 
         <div className="onboarding-content onboarding-screen2__content">
           <div className="onboarding-screen2__texture" aria-hidden="true">
-            <img src={onboardingAssets.screen2.texture} alt="" />
+            <img src={onboardingAssets.screen2.texture} alt="Decorative scrapbook texture background" />
           </div>
 
           <div className="onboarding-screen2__scrapbook">
             <img
               className="onboarding-screen2__doodle-left"
               src={onboardingAssets.screen2.doodle1}
-              alt=""
+              alt="Decorative doodle illustration"
               aria-hidden="true"
             />
             <img
               className="onboarding-screen2__doodle-right"
               src={onboardingAssets.screen2.doodle2}
-              alt=""
+              alt="Decorative doodle illustration"
               aria-hidden="true"
             />
 
             <figure className="onboarding-screen2__memo onboarding-screen2__memo--1">
-              <img src={onboardingAssets.screen2.memo1} alt="" />
+              <img src={onboardingAssets.screen2.memo1} alt="Sample travel memo polaroid" />
             </figure>
 
             <aside className="onboarding-screen2__sticky-cluster">
@@ -87,17 +87,17 @@ export default function OnboardingScreen2() {
               <img
                 className="onboarding-screen2__sticky-pin"
                 src={onboardingAssets.screen2.pin}
-                alt=""
+                alt="Decorative map pin"
                 aria-hidden="true"
               />
             </aside>
 
             <figure className="onboarding-screen2__memo onboarding-screen2__memo--2">
-              <img src={onboardingAssets.screen2.memo2} alt="" />
+              <img src={onboardingAssets.screen2.memo2} alt="Sample travel memo polaroid" />
             </figure>
 
             <figure className="onboarding-screen2__memo onboarding-screen2__memo--3">
-              <img src={onboardingAssets.screen2.memo3} alt="" />
+              <img src={onboardingAssets.screen2.memo3} alt="Sample travel memo polaroid" />
             </figure>
           </div>
 

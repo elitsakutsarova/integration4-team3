@@ -8,7 +8,7 @@ function truncateQuote(quote, max = 52) {
   return `${text.slice(0, max - 1)}…`;
 }
 
-function PhotoStack({ photos, single = false }) {
+function PhotoStack({ photos, single = false, journalTitle = 'Travel diary' }) {
   const primary = photos[0];
   if (!primary) return null;
 
@@ -19,7 +19,7 @@ function PhotoStack({ photos, single = false }) {
       <div className="journal-card-photos journal-card-photos--single">
         <div className="journal-card-polaroid journal-card-polaroid--front journal-card-polaroid--solo">
           <div className="journal-card-polaroid-frame">
-            <img src={primary} alt="" className="journal-card-polaroid-img" />
+            <img src={primary} alt={`Photo from ${journalTitle}`} className="journal-card-polaroid-img" />
           </div>
         </div>
       </div>
@@ -30,12 +30,12 @@ function PhotoStack({ photos, single = false }) {
     <div className="journal-card-photos">
       <div className="journal-card-polaroid journal-card-polaroid--back">
         <div className="journal-card-polaroid-frame">
-          <img src={secondary} alt="" className="journal-card-polaroid-img" />
+          <img src={secondary} alt={`Photo from ${journalTitle}`} className="journal-card-polaroid-img" />
         </div>
       </div>
       <div className="journal-card-polaroid journal-card-polaroid--front">
         <div className="journal-card-polaroid-frame">
-          <img src={primary} alt="" className="journal-card-polaroid-img" />
+          <img src={primary} alt={`Photo from ${journalTitle}`} className="journal-card-polaroid-img" />
         </div>
       </div>
     </div>
@@ -75,7 +75,7 @@ function CardVisual({ journal }) {
   if (displayType === 'photos-text') {
     return (
       <div className="journal-card-visual journal-card-visual--mixed">
-        <PhotoStack photos={coverPhotos} single />
+        <PhotoStack photos={coverPhotos} single journalTitle={journal.title} />
         <TextNote quote={textQuotes[0]} variant="overlay" />
       </div>
     );
@@ -83,7 +83,7 @@ function CardVisual({ journal }) {
 
   return (
     <div className="journal-card-visual">
-      <PhotoStack photos={coverPhotos} />
+      <PhotoStack photos={coverPhotos} journalTitle={journal.title} />
     </div>
   );
 }

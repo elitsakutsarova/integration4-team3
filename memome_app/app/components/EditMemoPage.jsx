@@ -429,9 +429,9 @@ export default function EditMemoPage({ memo }) {
         <div className="edit-memo-media memo-form-media-zone">{renderMediaZone()}</div>
 
         <div className="edit-memo-body memo-form-body">
-          <section className="memo-form-section">
+          <section className="memo-form-section" aria-labelledby="memo-story-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Tell your story</SectionTitle>
+              <SectionTitle id="memo-story-heading">Tell your story</SectionTitle>
             </div>
             <div className="section-input">
               <p className="memo-form-section-copy">Describe a moment that happened here</p>
@@ -468,21 +468,21 @@ export default function EditMemoPage({ memo }) {
             </div>
           </section>
 
-          <section className="memo-form-section">
+          <section className="memo-form-section" aria-labelledby="memo-tags-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Tag your moment</SectionTitle>
+              <SectionTitle id="memo-tags-heading">Tag your moment</SectionTitle>
             </div>
             <div className="section-input">
               <p className="memo-form-section-copy">Help others find similar experiences</p>
               <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
-                <div className="memo-form-tag-row">
+                <div className="map-category-row">
                   {MEMO_TAG_OPTIONS.map((tag) => {
                     const selected = selectedTags.includes(tag);
                     return (
                       <button
                         key={tag}
                         type="button"
-                        className={`memo-form-tag-chip${selected ? ' memo-form-tag-chip--selected' : ''}`}
+                        className={`map-category-chip${selected ? ' map-category-chip--active' : ''}`}
                         aria-pressed={selected}
                         onClick={() => toggleTag(tag)}
                       >
@@ -496,9 +496,9 @@ export default function EditMemoPage({ memo }) {
             </div>
           </section>
 
-          <section className="memo-form-section memo-form-section--location">
+          <section className="memo-form-section memo-form-section--location" aria-labelledby="memo-location-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Add location</SectionTitle>
+              <SectionTitle id="memo-location-heading">Add location</SectionTitle>
             </div>
             <div className="section-input">
               <p className="memo-form-section-copy">Help others find great locations</p>

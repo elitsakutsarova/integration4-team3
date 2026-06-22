@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useDebounceCallback } from '../hooks/useDebounceCallback';
 import { useSpeechSearch } from '../hooks/useSpeechSearch';
 import SearchListeningView from './search/SearchListeningView';
+import VisuallyHiddenTitle from './VisuallyHiddenTitle';
 import MicrophonePermissionModal from './search/MicrophonePermissionModal';
 import { fetchLocationSearchClient } from '../utils/fetchLocationSearchClient';
 import { locationPickerAssets } from '../utils/locationPickerAssets';
@@ -399,12 +400,12 @@ export default function MemoLocationPicker({
       <div className={`loc-picker-ui${showPanel ? ' loc-picker-ui--panel' : ''}`}>
         <header className={`loc-picker-header${isListening ? ' loc-picker-header--listening' : ''}`}>
           <div className="loc-picker-hero-deco" aria-hidden="true">
-            <img className="loc-picker-hero-grid" src={locationPickerAssets.greenGrid} alt="" />
+            <img className="loc-picker-hero-grid" src={locationPickerAssets.greenGrid} alt="Decorative pixel grid background" />
             <div className="loc-picker-grid-pattern" />
             <img
               className="loc-picker-hero-wave"
               src={locationPickerAssets.waveArrow}
-              alt=""
+              alt="Decorative wave and arrow illustration"
             />
           </div>
 
@@ -421,7 +422,7 @@ export default function MemoLocationPicker({
             <img
               className="loc-picker-pin-deco"
               src={locationPickerAssets.pinDeco}
-              alt=""
+              alt="Decorative map pin illustration"
               aria-hidden="true"
             />
           </div>
@@ -484,8 +485,8 @@ export default function MemoLocationPicker({
             )}
 
             {!isListening && showRecents && (
-              <section className="loc-picker-section">
-                <h3 className="loc-picker-section-title">Recent searches</h3>
+              <section className="loc-picker-section" aria-labelledby="loc-picker-recent-heading">
+                <h3 id="loc-picker-recent-heading" className="loc-picker-section-title">Recent searches</h3>
                 <div className="loc-picker-results">
                   {recentPlaces.map(entry => (
                     <div key={entry.placeId} className="loc-picker-result-item">
@@ -501,7 +502,8 @@ export default function MemoLocationPicker({
             )}
 
             {!isListening && showResults && (
-              <section className="loc-picker-section loc-picker-section--results">
+              <section className="loc-picker-section loc-picker-section--results" aria-labelledby="loc-picker-results-heading">
+                <VisuallyHiddenTitle id="loc-picker-results-heading" as="h3">Search results</VisuallyHiddenTitle>
                 {isSearching && <p className="loc-picker-status">Searching…</p>}
 
                 {!isSearching && searchPlaces.length > 0 && (

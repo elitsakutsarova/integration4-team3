@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Link, useLoaderData } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';
 import ConnectQr from '../components/ConnectQr';
+import VisuallyHiddenTitle from '../components/VisuallyHiddenTitle';
 import { paths } from '../utils/appPaths';
 import { loadDevShareOrigin } from '../utils/devShareOrigin';
 import { connectToRoom } from '../utils/webrtc/peerConnection.js';
@@ -128,7 +129,8 @@ export default function ConnectPage() {
         <h1 className="connect-title">Connect devices</h1>
       </header>
 
-      <section className="connect-card">
+      <section className="connect-card" aria-labelledby="connect-room-heading">
+        <VisuallyHiddenTitle id="connect-room-heading">Join a room</VisuallyHiddenTitle>
         <p className="connect-lead">
           Open this app on another phone or laptop on the same Wi‑Fi, then join the same room code.
           WebRTC uses a persistent DTLS certificate on each device for encrypted peer links.
@@ -193,8 +195,8 @@ export default function ConnectPage() {
       </section>
 
       {(status === 'connected' || status === 'waiting') && (
-        <section className="connect-card connect-chat">
-          <h2 className="connect-subtitle">Messages</h2>
+        <section className="connect-card connect-chat" aria-labelledby="connect-messages-heading">
+          <h2 id="connect-messages-heading" className="connect-subtitle">Messages</h2>
           <ul className="connect-messages">
             {messages.map((msg, index) => (
               <li key={index} className={`connect-msg connect-msg--${msg.from}`}>

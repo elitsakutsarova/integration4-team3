@@ -21,10 +21,10 @@ export default function CollectionPageHeader({
   return (
     <header className="collection-page-header header">
       <div className="collection-page-hero-deco hero-deco" aria-hidden="true">
-              <img className="collection-page-hero-grid hero-grid" src={accountAssets.greenGrid} alt="" />
+              <img className="collection-page-hero-grid hero-grid" src={accountAssets.greenGrid} alt="Decorative pixel grid background" />
               <div className="collection-page-hero-grid-pattern hero-grid-pattern" />
-        <img className="collection-page-hero-wave" src={accountAssets.favouritesWave} alt="" />
-        <img className="collection-page-hero-heart" src={accountAssets.smallHeart} alt="" />
+        <img className="collection-page-hero-wave" src={accountAssets.favouritesWave} alt="Decorative wave illustration" />
+        <img className="collection-page-hero-heart" src={accountAssets.smallHeart} alt="Decorative heart illustration" />
             </div>
             <div className="collection-page-title-row title-row">
               <div className="collection-page-titles titles">

@@ -7,14 +7,14 @@ export default function LoggedOutLogo() {
         <img
           className="logged-out-logo__text"
           src={loggedOutAssets.logoPt1}
-          alt=""
+          alt="MemoMe logo text"
           aria-hidden="true"
         />
         <div className="logged-out-logo__pin-arm" aria-hidden="true">
           <img
             className="logged-out-logo__pin"
             src={loggedOutAssets.logoPt2}
-            alt=""
+            alt="MemoMe logo map pin"
           />
         </div>
       </div> */}

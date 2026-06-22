@@ -1,6 +1,6 @@
-export default function SectionTitle({ children, className = '' }) {
+export default function SectionTitle({ children, className = '', id }) {
   return (
-    <h2 className={`section-title ${className}`.trim()}>
+    <h2 id={id} className={`section-title ${className}`.trim()}>
       {children}
     </h2>
   );

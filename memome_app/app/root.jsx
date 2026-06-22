@@ -221,11 +221,11 @@ export function ErrorBoundary() {
   }
 
   return (
-    <main style={{ padding: '4rem 1rem', maxWidth: '640px', margin: '0 auto' }}>
+    <main style={{ padding: '4rem 1rem', maxWidth: '40rem', margin: '0 auto' }}>
       <h1>{message}</h1>
       <p>{details}</p>
       {stack && (
-        <pre style={{ width: '100%', padding: '1rem', overflowX: 'auto', fontSize: '12px' }}>
+        <pre style={{ width: '100%', padding: '1rem', overflowX: 'auto', fontSize: '0.75rem' }}>
           <code>{stack}</code>
         </pre>
       )}

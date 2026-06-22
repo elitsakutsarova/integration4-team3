@@ -10,7 +10,7 @@ export default function CreatedMemosEmptyState() {
       <img
         className="created-memos-empty-illustration"
         src={createdMemosAssets.emptyIllustration}
-        alt=""
+        alt="Decorative empty memos illustration"
         aria-hidden="true"
       />
       <h2 className="created-memos-empty-title">No memos yet!</h2>
@@ -24,7 +24,7 @@ export default function CreatedMemosEmptyState() {
       <img
         className="created-memos-empty-arrow"
         src={createdMemosAssets.emptyArrow}
-        alt=""
+        alt="Decorative arrow pointing to add memo"
         aria-hidden="true"
       />
       </div>

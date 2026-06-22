@@ -9,7 +9,7 @@ import { accountAssets } from '../../utils/accountAssets';
 
 function RememberTitle() {
   return (
-    <h2 className="profile-remember-title">
+    <h2 id="profile-remember-heading" className="profile-remember-title">
       Remember the time when...
     </h2>
   );
@@ -21,7 +21,7 @@ function RememberEmptyState({ showAddCta }) {
   return (
     <div className="profile-remember-empty">
       <div className="profile-remember-empty-art" aria-hidden="true">
-        <img className="profile-remember-empty-deco profile-remember-empty-deco--memo" src={accountAssets.emptyMemoState} alt="" />
+        <img className="profile-remember-empty-deco profile-remember-empty-deco--memo" src={accountAssets.emptyMemoState} alt="Decorative empty memo illustration" />
       </div>
       <div className="profile-remember-empty-container">
       <p className="profile-remember-empty-heading">No memos yet!</p>
@@ -34,7 +34,7 @@ function RememberEmptyState({ showAddCta }) {
           <Link to={addMemoPathFromLocation(location)} className="profile-remember-empty-cta">
             Add one now!
           </Link>
-          <img className="profile-remember-empty-arrow" src={accountAssets.emptyArrow} alt="" aria-hidden="true" />
+          <img className="profile-remember-empty-arrow" src={accountAssets.emptyArrow} alt="Decorative arrow pointing to add memo" aria-hidden="true" />
         </div>
       )}
     </div>
@@ -53,7 +53,7 @@ export default function RememberMemosSection({ memos, showAddCta = true }) {
   } = useMemoShare();
 
   return (
-    <section className="profile-section profile-remember">
+    <section className="profile-section profile-remember" aria-labelledby="profile-remember-heading">
       <ProfileRememberWaveSvg />
       <RememberTitle />
 

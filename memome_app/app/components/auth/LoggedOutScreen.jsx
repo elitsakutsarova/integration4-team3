@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import LoggedOutLogo from './LoggedOutLogo';
+import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
 import { guestHomePath, paths } from '../../utils/appPaths';
 import { loggedOutAssets } from '../../utils/loggedOutAssets';
 
@@ -23,13 +24,13 @@ export default function LoggedOutScreen() {
       <img
         className="logged-out-page__hero-grid"
         src={loggedOutAssets.heroGrid}
-        alt=""
+        alt="Decorative pixel grid background"
         aria-hidden="true"
       />
       <img
         className="logged-out-page__footer-grid"
         src={loggedOutAssets.heroGrid}
-        alt=""
+        alt="Decorative pixel grid background"
         aria-hidden="true"
       />
 
@@ -38,7 +39,7 @@ export default function LoggedOutScreen() {
           <img
             className="logged-out-page__hand logged-out-page__hand--mobile"
             src={loggedOutAssets.handIllustration}
-            alt=""
+            alt="Decorative hand wave illustration"
           />
         </div>
 
@@ -46,24 +47,25 @@ export default function LoggedOutScreen() {
           <img
             className="logged-out-page__hand logged-out-page__hand--desktop"
             src={loggedOutAssets.handIllustration}
-            alt=""
+            alt="Decorative hand wave illustration"
           />
           <img
             className="logged-out-page__star"
             src={loggedOutAssets.star}
-            alt=""
+            alt="Decorative star illustration"
           />
           <img
             className="logged-out-page__camera"
             src={loggedOutAssets.camera}
-            alt=""
+            alt="Decorative camera illustration"
           />
         </div>
 
         <div className="logged-out-page__center">
           <main className="logged-out-page__main" aria-hidden="true" />
 
-          <section className="logged-out-page__cta" aria-label="Account options">
+          <section className="logged-out-page__cta" aria-labelledby="logged-out-account-heading">
+            <VisuallyHiddenTitle id="logged-out-account-heading">Account options</VisuallyHiddenTitle>
             <Link to={paths.register} className="logged-out-page__create-btn">
               Create Account
             </Link>
@@ -81,17 +83,17 @@ export default function LoggedOutScreen() {
           <img
             className="logged-out-page__photo-star"
             src={loggedOutAssets.photoStar}
-            alt=""
+            alt="Decorative photo star illustration"
           />
           <img
             className="logged-out-page__photo-hero"
             src={loggedOutAssets.photoHero}
-            alt=""
+            alt="Sample memo hero photo"
           />
           <img
             className="logged-out-page__blue-grid"
             src={loggedOutAssets.blueGrid}
-            alt=""
+            alt="Decorative blue pixel grid background"
           />
         </div>
       </div>
@@ -111,7 +113,7 @@ export default function LoggedOutScreen() {
         <img
           className="logged-out-page__blue-grid logged-out-page__blue-grid--mobile"
           src={loggedOutAssets.blueGrid}
-          alt=""
+          alt="Decorative blue pixel grid background"
           aria-hidden="true"
         />
         <Link to={guestHomePath()} replace className="logged-out-page__explore-link">

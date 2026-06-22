@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router';
 import DraggableSticker from '../diary/DraggableSticker';
 import RecapSelectView, { RecapChooseStyleView } from '../diary/RecapViews';
 import { diaryPath, paths } from '../../utils/appPaths';
@@ -9,11 +9,42 @@ import {
   savePageStickers,
   syncDiaryLayoutToStorage,
 } from '../../utils/stickerTracker';
+import JournalBackButton from './JournalBackButton';
 import JournalMemoEntry from './JournalMemoEntry';
 import JournalStickerDock from './JournalStickerDock';
 import { journalAssets } from '../../utils/journalAssets';
 
 const JOURNAL_CANVAS_PAGE = 0;
+
+function recapSelectionKey(journalId) {
+  return `memome_recap_selected_${journalId}`;
+}
+
+function readRecapSelectedIds(journalId) {
+  if (typeof sessionStorage === 'undefined') return [];
+  try {
+    const raw = sessionStorage.getItem(recapSelectionKey(journalId));
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeRecapSelectedIds(journalId, ids) {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.setItem(recapSelectionKey(journalId), JSON.stringify(ids));
+}
+
+function clearRecapSelectedIds(journalId) {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.removeItem(recapSelectionKey(journalId));
+}
+
+function getRecapStep(searchParams) {
+  const step = searchParams.get('recap');
+  return step === 'select' || step === 'choose' ? step : null;
+}
 
 function memoLayout(index, memo) {
   if (!memo.mediaPreview?.url) return 'text';
@@ -38,16 +69,48 @@ export default function JournalDetailPage({
   backTo = paths.journals,
 }) {
   const diaryId = journal.id;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const recapStep = getRecapStep(searchParams);
 
   const [pageStickers, setPageStickers] = useState(() => ({
     [JOURNAL_CANVAS_PAGE]: loadPageStickers(diaryId, JOURNAL_CANVAS_PAGE),
   }));
-  const [view, setView] = useState('journal');
-  const [recapSelectedIds, setRecapSelectedIds] = useState([]);
+  const [recapSelectedIds, setRecapSelectedIds] = useState(() => (
+    recapStep === 'choose' ? readRecapSelectedIds(diaryId) : []
+  ));
   const [successMsg, setSuccessMsg] = useState(null);
 
   const dropZoneRef = useRef(null);
   const trayRef = useRef(null);
+
+  useEffect(() => {
+    if (recapStep !== 'choose') return;
+
+    const storedIds = readRecapSelectedIds(diaryId);
+    if (!storedIds.length) {
+      setSearchParams({ recap: 'select' }, { replace: true });
+      return;
+    }
+
+    setRecapSelectedIds(storedIds);
+  }, [diaryId, recapStep, setSearchParams]);
+
+  function openRecapSelect() {
+    syncDiaryLayoutToStorage(diaryId, pageStickers);
+    setSearchParams({ recap: 'select' });
+  }
+
+  function closeRecapFlow() {
+    clearRecapSelectedIds(diaryId);
+    setRecapSelectedIds([]);
+    setSearchParams({}, { replace: true });
+  }
+
+  function openRecapChoose(ids) {
+    writeRecapSelectedIds(diaryId, ids);
+    setRecapSelectedIds(ids);
+    setSearchParams({ recap: 'choose' });
+  }
 
   const handleDropOnPage = useCallback((stickerDef, x, y, targetPageIndex) => {
     const newSticker = createSticker(stickerDef, x, y);
@@ -88,16 +151,15 @@ export default function JournalDetailPage({
     />
   ));
 
-  if (view === 'recap-select') {
+  if (recapStep === 'select') {
     return (
       <>
         <RecapSelectView
           memories={memories}
-          onBack={() => setView('journal')}
+          onBack={closeRecapFlow}
           onContinue={(ids) => {
             syncDiaryLayoutToStorage(diaryId, pageStickers);
-            setRecapSelectedIds(ids);
-            setView('recap-choose');
+            openRecapChoose(ids);
           }}
         />
         <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />
@@ -105,14 +167,14 @@ export default function JournalDetailPage({
     );
   }
 
-  if (view === 'recap-choose') {
+  if (recapStep === 'choose') {
     return (
       <>
         <RecapChooseStyleView
           journal={journal}
           memories={memories}
           selectedIds={recapSelectedIds}
-          onBack={() => setView('recap-select')}
+          onBack={() => setSearchParams({ recap: 'select' })}
           onShared={(msg) => setSuccessMsg(msg)}
         />
         <SuccessToast message={successMsg} onClose={() => setSuccessMsg(null)} />
@@ -127,27 +189,24 @@ export default function JournalDetailPage({
           <img
             className="journals-hero-logo"
             src={journalAssets.logoMark}
-            alt=""
+            alt="MemoMe journals logo mark"
           />
           <img
             className="journals-hero-wave"
             src={journalAssets.headerWave}
-            alt=""
+            alt="Decorative wave illustration"
           />
           <img
             className="journal-detail-hero-grid"
             src={journalAssets.pixelDeco}
-            alt=""
+            alt="Decorative pixel grid background"
           />
           <div className="journal-detail-hero-grid-pattern grid-pattern" />
           <button
             type="button"
             className="journal-detail-share"
             aria-label="Share journal"
-            onClick={() => {
-              syncDiaryLayoutToStorage(diaryId, pageStickers);
-              setView('recap-select');
-            }}
+            onClick={openRecapSelect}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
               <rect width="26" height="26" fill="#F1F4FF" />
@@ -162,11 +221,11 @@ export default function JournalDetailPage({
     
         <div className="journal-detail-title-bar">
           <div className="journal-detail-titles">
-            <Link to={backTo} className="journal-detail-back btn-chevron" aria-label="Back to journals">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </Link>
+            <JournalBackButton
+              className="journal-detail-back"
+              to={backTo}
+              label="Back to journals"
+            />
           <h1 className="journal-detail-title">{journal.title}</h1>
           </div>
           {/* <div className="settings-title-icon grid-icon">
@@ -216,10 +275,7 @@ export default function JournalDetailPage({
             <button
               type="button"
               className="journal-detail-action journal-detail-action--recap"
-              onClick={() => {
-                syncDiaryLayoutToStorage(diaryId, pageStickers);
-                setView('recap-select');
-              }}
+              onClick={openRecapSelect}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <g clip-path="url(#clip0_584_78134)">

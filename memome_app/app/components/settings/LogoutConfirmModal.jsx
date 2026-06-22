@@ -22,27 +22,27 @@ export default function LogoutConfirmModal({ onCancel, onConfirm }) {
           <img
             className="settings-logout-deco-grid"
             src={settingsAssets.pixelGrid}
-            alt=""
+            alt="Decorative pixel grid background"
           />
           <img
             className="settings-logout-deco-wave"
             src={settingsAssets.vector554}
-            alt=""
+            alt="Decorative wave illustration"
           />
           <img
             className="settings-logout-deco-star"
             src={settingsAssets.star21}
-            alt=""
+            alt="Decorative star illustration"
           />
           <img
             className="settings-logout-deco-shadow"
             src={settingsAssets.ellipse73}
-            alt=""
+            alt="Decorative shadow illustration"
           />
           <img
             className="settings-logout-deco-icon"
             src={settingsAssets.logoutGlyph}
-            alt=""
+            alt="Log out warning icon"
           />
         </div>
 

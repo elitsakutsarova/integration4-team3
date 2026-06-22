@@ -45,7 +45,7 @@ function safeAssetUrl(url) {
 }
 
 export function addPinHtml() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="48" viewBox="0 0 34 48" style="cursor:pointer;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.28))">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="48" viewBox="0 0 34 48" style="cursor:pointer;display:block;filter:drop-shadow(0 0.125rem 0.375rem rgba(0,0,0,.28))">
     <path d="M17 2C9.82 2 4 7.82 4 15C4 25.5 17 46 17 46C17 46 30 25.5 30 15C30 7.82 24.18 2 17 2Z" fill="#18181F"/>
     <circle cx="17" cy="15" r="9" fill="white"/>
     <circle cx="17" cy="15" r="7" fill="none" stroke="#18181F" stroke-width="1.5"/>
@@ -57,7 +57,7 @@ export function addPinHtml() {
 function tagPinHtml(pin) {
   const pinSvg = resolveMemoPinSvg(pin);
   return `<div class="pin-memory-tag">
-    <img class="pin-memory-tag-svg" src="${escapeHtml(pinSvg)}" alt="" />
+    <img class="pin-memory-tag-svg" src="${escapeHtml(pinSvg)}" alt="Memory tag pin marker" />
   </div>`;
 }
 
@@ -74,13 +74,14 @@ function mediaPinHtml(pin) {
     isVideo,
     orientation,
     className: 'pin-memory-polaroid-img',
+    alt: pin.location ? `Memo photo from ${pin.location}` : 'Memo photo',
   });
 
   return `<div class="pin-memory-polaroid ${orientClass}">
     <div class="pin-memory-polaroid-frame">
       <div class="pin-memory-polaroid-photo">${mediaMarkup}</div>
     </div>
-    <img class="pin-memory-polaroid-tag" src="${escapeHtml(pinSvg)}" alt="" />
+    <img class="pin-memory-polaroid-tag" src="${escapeHtml(pinSvg)}" alt="Memory pin tag" />
   </div>`;
 }
 
@@ -113,7 +114,7 @@ export function memoryPinHtml(pin) {
 
 export function memoryClusterPinHtml(count) {
   return `<div class="pin-memory-cluster" aria-label="${count} memories">
-    <img class="pin-memory-cluster-svg" src="/memos/pin_random.svg" alt="" />
+    <img class="pin-memory-cluster-svg" src="/memos/pin_random.svg" alt="Memory cluster pin marker" />
     <span class="pin-memory-cluster-count">${count}</span>
   </div>`;
 }
@@ -121,7 +122,7 @@ export function memoryClusterPinHtml(count) {
 export function eventPinHtml(pin) {
   const iconMarkup = eventCenterIconSvg(resolveEventIconTag(pin));
   return `<div class="pin-event">
-    <img class="pin-event-rings" src="/memos/event_pin_rings.svg" alt="" />
+    <img class="pin-event-rings" src="/memos/event_pin_rings.svg" alt="Event pin marker rings" />
     <div class="pin-event-core"><div class="pin-event-core-disc">${iconMarkup}</div></div>
   </div>`;
 }

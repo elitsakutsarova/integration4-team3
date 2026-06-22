@@ -140,8 +140,8 @@ function LoginHeroContent() {
     <div className="login-hero-content">
       <h1 className="login-title">Welcome back</h1>
       <div className="login-hero-scene" aria-hidden="true">
-        <img className="login-hero__doodle" src={loginAssets.doodle} alt="" />
-        <img className="login-hero__photo" src={loginAssets.pinPhoto} alt="" />
+        <img className="login-hero__doodle" src={loginAssets.doodle} alt="Decorative doodle illustration" />
+        <img className="login-hero__photo" src={loginAssets.pinPhoto} alt="Sample memo polaroid on map pin" />
       </div>
       <p className="login-subtitle">
         <span class="login-subtitle-highlight" aria-hidden="true"></span>Sign in to continue

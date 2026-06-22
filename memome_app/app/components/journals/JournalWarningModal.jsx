@@ -1,5 +1,22 @@
+import { Link } from 'react-router';
 import '../../styles/modules/warning-modal.css';
 import { journalAssets } from '../../utils/journalAssets';
+
+function WarningAction({ className, label, to, onClick }) {
+  if (to) {
+    return (
+      <Link to={to} className={className} onClick={onClick}>
+        {label}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" className={className} onClick={onClick}>
+      {label}
+    </button>
+  );
+}
 
 export default function JournalWarningModal({
   open,
@@ -8,8 +25,10 @@ export default function JournalWarningModal({
   onClose,
   primaryLabel,
   onPrimary,
+  primaryTo,
   secondaryLabel,
   onSecondary,
+  secondaryTo,
   secondaryVariant = 'default',
 }) {
   if (!open) return null;
@@ -48,17 +67,17 @@ export default function JournalWarningModal({
           <img
             className="create-journal-warning-deco-grid"
             src={journalAssets.warningGrid}
-            alt=""
+            alt="Decorative pixel grid background"
           />
           <img
             className="create-journal-warning-deco-wave"
             src={journalAssets.warningWave}
-            alt=""
+            alt="Decorative wave illustration"
           />
           <img
             className="create-journal-warning-deco-icon"
             src={journalAssets.warningIcon}
-            alt=""
+            alt="Warning illustration"
           />
         </div>
 
@@ -71,13 +90,19 @@ export default function JournalWarningModal({
 
         <div className="create-journal-warning-actions">
           {secondaryLabel && (
-            <button type="button" className={secondaryClass} onClick={onSecondary}>
-              {secondaryLabel}
-            </button>
+            <WarningAction
+              className={secondaryClass}
+              label={secondaryLabel}
+              to={secondaryTo}
+              onClick={onSecondary}
+            />
           )}
-          <button type="button" className="create-journal-warning-continue" onClick={onPrimary}>
-            {primaryLabel}
-          </button>
+          <WarningAction
+            className="create-journal-warning-continue"
+            label={primaryLabel}
+            to={primaryTo}
+            onClick={onPrimary}
+          />
         </div>
       </div>
     </div>
