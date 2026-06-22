@@ -10,7 +10,7 @@ export default function MapHomeChrome({
   return (
     <div className="map-home-chrome">
       <div className="map-pixel-deco" aria-hidden="true">
-        <img className="map-pixel-grid" src={mapAssets.greenGrid} alt="" />
+        <img className="map-pixel-grid" src={mapAssets.greenGrid} alt="Decorative pixel grid background" />
       </div>
 
       <div className="map-search-container">

@@ -466,12 +466,12 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
         <div className="memo-form-scroll">
             <header className="memo-form-header header">
             <div className="memo-form-hero-deco" aria-hidden="true">
-                <img className="memo-form-hero-grid" src={addMemoFormAssets.greenGrid} alt="" />
+                <img className="memo-form-hero-grid" src={addMemoFormAssets.greenGrid} alt="Decorative pixel grid background" />
               <div className="memo-form-grid-pattern" />
               <img
                   className="memo-form-hero-wave"
                           src={addMemoFormAssets.waveArrow}
-                          alt=""
+                          alt="Decorative wave and arrow illustration"
                         />
             </div>
 
@@ -484,7 +484,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
               </button>
               <h2 className="memo-form-title">Add memo</h2>
               </div>
-              <img className="memo-form-camera-deco title-icon" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
+              <img className="memo-form-camera-deco title-icon" src={addMemoFormAssets.camera} alt="Decorative camera illustration" aria-hidden="true" />
             </div>
           </header>
 

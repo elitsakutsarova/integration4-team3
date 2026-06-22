@@ -55,8 +55,8 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
     <div className="discover-page">
       <header className="discover-hero">
         <div className="discover-grid-deco" aria-hidden="true">
-          <img className="discover-grid" src={discoverAssets.topGrid} alt="" />
-          {/*           <img className="discover-grid-pattern" src={discoverAssets.gridPattern} alt="" />
+          <img className="discover-grid" src={discoverAssets.topGrid} alt="Decorative pixel grid background" />
+          {/*           <img className="discover-grid-pattern" src={discoverAssets.gridPattern} alt="Decorative grid pattern" />
  */}
           <div className="discover-grid-pattern" />
         </div>

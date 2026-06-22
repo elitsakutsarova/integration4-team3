@@ -18,7 +18,7 @@ export default function DiscoverShareSuccess({ variant, onClose }) {
     <div className="recap-share-success-backdrop" onClick={onClose}>
       <div className="recap-share-success-card" onClick={(event) => event.stopPropagation()}>
         <div className="recap-share-success-decor recap-share-success-decor--top" aria-hidden="true">
-          <img src={SUCCESS_ASSETS.decorTop} alt="" />
+          <img src={SUCCESS_ASSETS.decorTop} alt="Decorative celebration illustration" />
         </div>
 
         <div className="recap-share-success-body">
@@ -32,13 +32,13 @@ export default function DiscoverShareSuccess({ variant, onClose }) {
 
         <img
           src={SUCCESS_ASSETS.decorBottom}
-          alt=""
+          alt="Decorative wave illustration"
           className="recap-share-success-decor recap-share-success-decor--bottom"
           aria-hidden="true"
         />
         <img
           src={SUCCESS_ASSETS.decorRight}
-          alt=""
+          alt="Decorative sparkle illustration"
           className="recap-share-success-decor recap-share-success-decor--right"
           aria-hidden="true"
         />

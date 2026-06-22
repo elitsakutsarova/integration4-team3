@@ -399,12 +399,12 @@ export default function MemoLocationPicker({
       <div className={`loc-picker-ui${showPanel ? ' loc-picker-ui--panel' : ''}`}>
         <header className={`loc-picker-header${isListening ? ' loc-picker-header--listening' : ''}`}>
           <div className="loc-picker-hero-deco" aria-hidden="true">
-            <img className="loc-picker-hero-grid" src={locationPickerAssets.greenGrid} alt="" />
+            <img className="loc-picker-hero-grid" src={locationPickerAssets.greenGrid} alt="Decorative pixel grid background" />
             <div className="loc-picker-grid-pattern" />
             <img
               className="loc-picker-hero-wave"
               src={locationPickerAssets.waveArrow}
-              alt=""
+              alt="Decorative wave and arrow illustration"
             />
           </div>
 
@@ -421,7 +421,7 @@ export default function MemoLocationPicker({
             <img
               className="loc-picker-pin-deco"
               src={locationPickerAssets.pinDeco}
-              alt=""
+              alt="Decorative map pin illustration"
               aria-hidden="true"
             />
           </div>

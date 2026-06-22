@@ -26,7 +26,7 @@ function PhotoPolaroid({ memo, align }) {
       <div className="journal-memo-polaroid-frame">
         {memo.mediaPreview.isVideo
           ? <video src={url} className="journal-memo-polaroid-img" muted playsInline />
-          : <img src={url} alt="" className="journal-memo-polaroid-img" />
+          : <img src={url} alt={`Memo photo from ${memo.location}`} className="journal-memo-polaroid-img" />
         }
       </div>
       <p className="journal-memo-date-label">{formatMemoDay(memo.date)}</p>

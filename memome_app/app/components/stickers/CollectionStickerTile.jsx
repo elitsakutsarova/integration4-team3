@@ -33,7 +33,7 @@ export default function CollectionStickerTile({ sticker, locked = false, isNew =
           <div className="stickers-collection-outline" aria-hidden="true">
             <img
               src={sticker.src}
-              alt=""
+              alt={sticker.label}
               className="stickers-collection-outline-img"
               draggable={false}
             />

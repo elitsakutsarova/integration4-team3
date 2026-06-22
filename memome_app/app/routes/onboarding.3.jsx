@@ -53,7 +53,7 @@ export default function OnboardingScreen3() {
         <img
           className="onboarding-slide__decor-bottom-left"
           src={onboardingAssets.greenStar}
-          alt=""
+          alt="Decorative star illustration"
           aria-hidden="true"
         />
 

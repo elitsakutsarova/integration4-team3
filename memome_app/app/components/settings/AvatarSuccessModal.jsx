@@ -19,16 +19,16 @@ export default function AvatarSuccessModal({ onClose }) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="avatar-success-deco" aria-hidden="true">
-          <img className="avatar-success-deco-wave" src={settingsAssets.vector533} alt="" />
+          <img className="avatar-success-deco-wave" src={settingsAssets.vector533} alt="Decorative wave illustration" />
           <img
             className="avatar-success-deco-grid avatar-success-deco-grid--left"
             src={settingsAssets.topGrid}
-            alt=""
+            alt="Decorative pixel grid background"
           />
           <img
             className="avatar-success-deco-grid avatar-success-deco-grid--right"
             src={settingsAssets.topGrid2}
-            alt=""
+            alt="Decorative pixel grid background"
           />
         </div>
 

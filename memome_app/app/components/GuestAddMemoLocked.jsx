@@ -26,17 +26,17 @@ export default function GuestAddMemoLocked({ onClose }) {
           <img
             className="guest-add-memo-hero-camera"
             src={addMemoAssets.camera}
-            alt=""
+            alt="Decorative camera illustration"
           />
           <img
             className="guest-add-memo-hero-wave"
             src={addMemoAssets.lockedHeaderWave}
-            alt=""
+            alt="Decorative wave illustration"
           />
           <img
             className="guest-add-memo-hero-pixel"
             src={addMemoAssets.lockedPixelDeco}
-            alt=""
+            alt="Decorative pixel grid background"
           />
         </div>
 
@@ -66,14 +66,14 @@ export default function GuestAddMemoLocked({ onClose }) {
       <main className="guest-add-memo-main">
         <div className="guest-add-memo-content">
           <div className="guest-add-memo-stage" aria-hidden="true">
-            <img className="guest-add-memo-locked" src={addMemoAssets.locked} alt="" />
-            {/* <img className="guest-add-memo-star" src={addMemoAssets.star} alt="" />
-            <img className="guest-add-memo-sticker-heart" src={addMemoAssets.stickerHeart} alt="" />
-            <img className="guest-add-memo-sticker-smile" src={addMemoAssets.stickerSmile} alt="" />
-            <img className="guest-add-memo-lock" src={addMemoAssets.lock} alt="" />
-            <img className="guest-add-memo-sticker-burst" src={addMemoAssets.stickerBurst} alt="" />
-            <img className="guest-add-memo-wave" src={addMemoAssets.wave} alt="" />
-            <img className="guest-add-memo-grid-alt" src={addMemoAssets.topGridAlt} alt="" /> */}
+            <img className="guest-add-memo-locked" src={addMemoAssets.locked} alt="Locked add memo illustration" />
+            {/* <img className="guest-add-memo-star" src={addMemoAssets.star} alt="Decorative star illustration" />
+            <img className="guest-add-memo-sticker-heart" src={addMemoAssets.stickerHeart} alt="Decorative heart sticker" />
+            <img className="guest-add-memo-sticker-smile" src={addMemoAssets.stickerSmile} alt="Decorative smile sticker" />
+            <img className="guest-add-memo-lock" src={addMemoAssets.lock} alt="Lock icon" />
+            <img className="guest-add-memo-sticker-burst" src={addMemoAssets.stickerBurst} alt="Decorative burst sticker" />
+            <img className="guest-add-memo-wave" src={addMemoAssets.wave} alt="Decorative wave illustration" />
+            <img className="guest-add-memo-grid-alt" src={addMemoAssets.topGridAlt} alt="Decorative pixel grid background" /> */}
           </div>
 
           <div className="guest-add-memo-panel">

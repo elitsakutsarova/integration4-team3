@@ -42,7 +42,7 @@ function PhotoPickCard({ memo, selected, onToggle }) {
           <div className="memory-sheet-image">
             {memo.mediaPreview.isVideo
               ? <video src={memo.mediaPreview.url} className="memory-sheet-preview-img" muted playsInline />
-              : <img src={memo.mediaPreview.url} alt="" className="memory-sheet-preview-img" />
+              : <img src={memo.mediaPreview.url} alt={`Memo photo from ${memo.location}`} className="memory-sheet-preview-img" />
             }
             {tags.length > 0 && (
               <div className="memory-sheet-tags">
@@ -111,7 +111,7 @@ export function JournalMemoMiniCard({
         {hasPhoto ? (
           <div className="memory-sheet-media-wrap journal-mini-card-media">
             <div className="memory-sheet-image">
-              <img src={memo.mediaPreview.url} alt="" className="memory-sheet-preview-img" />
+              <img src={memo.mediaPreview.url} alt={`Memo photo from ${memo.location}`} className="memory-sheet-preview-img" />
             </div>
           </div>
         ) : (

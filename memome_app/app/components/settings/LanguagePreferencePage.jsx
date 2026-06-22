@@ -50,12 +50,12 @@ export default function LanguagePreferencePage() {
     <div className="settings-page language-page">
       {/* <header className="settings-hero settings-hero--language">
         <div className="settings-hero-deco" aria-hidden="true">
-          <img className="language-hero-grid" src={settingsAssets.grid} alt="" />
-          <img className="language-hero-grid language-hero-grid--left" src={settingsAssets.topGrid2} alt="" />
-          <img className="language-hero-grid language-hero-grid--right" src={settingsAssets.topGrid3} alt="" />
-          <img className="language-hero-wave" src={settingsAssets.vector519} alt="" />
-          <img className="language-hero-star" src={settingsAssets.star21} alt="" />
-          <img className="language-hero-icon" src={settingsAssets.languageIcon} alt="" />
+          <img className="language-hero-grid" src={settingsAssets.grid} alt="Decorative pixel grid background" />
+          <img className="language-hero-grid language-hero-grid--left" src={settingsAssets.topGrid2} alt="Decorative pixel grid background" />
+          <img className="language-hero-grid language-hero-grid--right" src={settingsAssets.topGrid3} alt="Decorative pixel grid background" />
+          <img className="language-hero-wave" src={settingsAssets.vector519} alt="Decorative wave illustration" />
+          <img className="language-hero-star" src={settingsAssets.star21} alt="Decorative star illustration" />
+          <img className="language-hero-icon" src={settingsAssets.languageIcon} alt="Language page icon" />
         </div>
 
         <div className="settings-title-row">

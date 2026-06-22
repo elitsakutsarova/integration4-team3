@@ -6,19 +6,19 @@ export default function CreateJournalDecorations({ title }) {
       <img
         className="create-journal-hero-pixel"
         src={journalAssets.pixelDeco}
-        alt=""
+        alt="Decorative pixel grid background"
         aria-hidden="true"
       />
       <img
         className="create-journal-hero-wave"
         src={journalAssets.createHeaderWave}
-        alt=""
+        alt="Decorative wave illustration"
         aria-hidden="true"
       />
       <img
         className="create-journal-hero-pin"
         src={journalAssets.createPixelDeco}
-        alt=""
+        alt="Decorative map pin illustration"
         aria-hidden="true"
       />
       <div className="create-journal-title-bar">

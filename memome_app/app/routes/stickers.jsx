@@ -97,9 +97,9 @@ function GuestStickerCollection() {
       <StickerOutlineDefs />
       <header className="stickers-header">
         <div className="sticker-header-deco" aria-hidden="true">
-          <img className="stickers-header-deco-grid" src={accountAssets.greenGrid} alt="" />
+          <img className="stickers-header-deco-grid" src={accountAssets.greenGrid} alt="Decorative pixel grid background" />
           <div className="stickers-header-deco-grid-pattern" />
-          <img className="stickers-header-deco-art" src={accountAssets.stickerDeco} alt="" />
+          <img className="stickers-header-deco-art" src={accountAssets.stickerDeco} alt="Decorative sticker illustration" />
         </div>
         <div className="stickers-header-title-row">
           <div className="stickers-header-titles">
@@ -110,7 +110,7 @@ function GuestStickerCollection() {
           </div>
           {/*  <span className="stickers-header-spacer" aria-hidden="true" /> */}
           <div className="stickers-header-title-icon">
-            <img src={accountAssets.blueSticker} alt="" />
+            <img src={accountAssets.blueSticker} alt="Decorative blue sticker icon" />
           </div>
         </div>
       </header>
@@ -214,9 +214,9 @@ export default function StickersGallery() {
       <StickerOutlineDefs />
       <header className="stickers-header">
         <div className="sticker-header-deco" aria-hidden="true">
-          <img className="stickers-header-deco-grid" src={accountAssets.greenGrid} alt="" />
+          <img className="stickers-header-deco-grid" src={accountAssets.greenGrid} alt="Decorative pixel grid background" />
           <div className="stickers-header-deco-grid-pattern" />
-          <img className="stickers-header-deco-art" src={accountAssets.stickerDeco} alt="" />
+          <img className="stickers-header-deco-art" src={accountAssets.stickerDeco} alt="Decorative sticker illustration" />
         </div>
         <div className="stickers-header-title-row">
           <div className="stickers-header-titles">
@@ -227,7 +227,7 @@ export default function StickersGallery() {
           </div>
           {/*  <span className="stickers-header-spacer" aria-hidden="true" /> */}
           <div className="stickers-header-title-icon">
-            <img src={accountAssets.blueSticker} alt="" />
+            <img src={accountAssets.blueSticker} alt="Decorative blue sticker icon" />
           </div>
         </div>
       </header>

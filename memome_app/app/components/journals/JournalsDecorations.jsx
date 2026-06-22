@@ -6,17 +6,17 @@ export default function JournalsDecorations() {
       <img
         className="journals-hero-logo"
         src={journalAssets.logoMark}
-        alt=""
+        alt="MemoMe journals logo mark"
       />
       <img
         className="journals-hero-wave"
         src={journalAssets.headerWave}
-        alt=""
+        alt="Decorative wave illustration"
       />
       <img
         className="journals-hero-pixel"
         src={journalAssets.pixelDeco}
-        alt=""
+        alt="Decorative pixel grid background"
       />
     </header>
   );

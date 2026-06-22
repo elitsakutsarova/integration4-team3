@@ -154,8 +154,8 @@ function ResetPasswordHero() {
   return (
     <header className="reset-password-hero">
       <div className="reset-password-hero__backdrop" aria-hidden="true">
-        <img className="reset-password-hero__grid" src={forgotPasswordAssets.grid} alt="" />
-        <img className="reset-password-hero__doodle" src={forgotPasswordAssets.doodle} alt="" />
+        <img className="reset-password-hero__grid" src={forgotPasswordAssets.grid} alt="Decorative pixel grid background" />
+        <img className="reset-password-hero__doodle" src={forgotPasswordAssets.doodle} alt="Decorative doodle illustration" />
       </div>
 
       <div className="reset-password-hero__nav">
@@ -168,7 +168,7 @@ function ResetPasswordHero() {
           <img
             className="reset-password-title__icon"
             src={forgotPasswordAssets.resetIcon}
-            alt=""
+            alt="Reset password lock icon"
           />
         </div>
       </div>

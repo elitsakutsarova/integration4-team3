@@ -428,7 +428,7 @@ export default function EditMemoPage({ memo }) {
               </svg>
             </button>
             <h1 className="memo-form-title">Edit memo</h1>
-            <img className="memo-form-camera-deco" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
+            <img className="memo-form-camera-deco" src={addMemoFormAssets.camera} alt="Decorative camera illustration" aria-hidden="true" />
           </div>
         </header>
 

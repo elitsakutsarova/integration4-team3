@@ -45,10 +45,10 @@ export default function PrivacyPreferencePage() {
     <div className="settings-page privacy-page">
       {/* <header className="settings-hero settings-hero--privacy">
         <div className="settings-hero-deco" aria-hidden="true">
-          <img className="settings-hero-mask" src={settingsAssets.maskGroup} alt="" />
-          <img className="privacy-hero-grid" src={settingsAssets.grid} alt="" />
-          <img className="privacy-hero-wave" src={privacyAssets.vector552} alt="" />
-          <img className="privacy-hero-icon" src={privacyAssets.privacyPageIcon} alt="" />
+          <img className="settings-hero-mask" src={settingsAssets.maskGroup} alt="Decorative hero mask" />
+          <img className="privacy-hero-grid" src={settingsAssets.grid} alt="Decorative pixel grid background" />
+          <img className="privacy-hero-wave" src={privacyAssets.vector552} alt="Decorative wave illustration" />
+          <img className="privacy-hero-icon" src={privacyAssets.privacyPageIcon} alt="Privacy page icon" />
         </div>
 
         <div className="settings-title-row">
@@ -80,7 +80,7 @@ export default function PrivacyPreferencePage() {
                 key={setting.id}
                 className={`privacy-option${index < PRIVACY_SETTINGS.length - 1 ? ' privacy-option--bordered' : ''}`}
               >
-                <img className="privacy-option-icon" src={iconSrc} alt="" aria-hidden="true" />
+                <img className="privacy-option-icon" src={iconSrc} alt="Privacy option icon" aria-hidden="true" />
                 <div className="privacy-option-copy">
                   <span className="privacy-option-label">{setting.label}</span>
                   <span className="privacy-option-description">{setting.description}</span>

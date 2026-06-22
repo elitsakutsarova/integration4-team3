@@ -76,7 +76,7 @@ export default function SettingsPage() {
     <div className="settings-page">
       <header className="settings-hero header">
         <div className="settings-hero-deco" aria-hidden="true">
-          <img className="settings-hero-grid" src={settingsAssets.greenGrid} alt="" />
+          <img className="settings-hero-grid" src={settingsAssets.greenGrid} alt="Decorative pixel grid background" />
           <div className="settings-hero-grid-pattern grid-pattern" />
         </div>
 

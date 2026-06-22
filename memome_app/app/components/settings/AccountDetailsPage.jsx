@@ -156,7 +156,11 @@ export default function AccountDetailsPage() {
             <img
               className={`account-details-avatar${hasCustomAvatar ? ' account-details-avatar--photo' : ' account-details-avatar--placeholder'}`}
               src={hasCustomAvatar ? avatarUrl : settingsAssets.avatarPlaceholder}
-              alt=""
+              alt={
+                hasCustomAvatar
+                  ? `Profile photo for ${user?.username ?? 'you'}`
+                  : 'Default profile photo placeholder'
+              }
             />
             <span className="account-details-avatar-edit" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 27 27" fill="none">

@@ -27,7 +27,7 @@ export default function CollectionMemoCard({
         {hasMedia ? (
           memo.mediaPreview.isVideo
             ? <video src={memo.mediaPreview.url} className="collection-memo-img" muted playsInline />
-            : <img src={memo.mediaPreview.url} alt="" className="collection-memo-img" />
+            : <img src={memo.mediaPreview.url} alt={`Memo photo from ${memo.location}`} className="collection-memo-img" />
         ) : (
           <div className="collection-memo-placeholder">
             {(memo.tags ?? []).slice(0, 1).map(tag => (

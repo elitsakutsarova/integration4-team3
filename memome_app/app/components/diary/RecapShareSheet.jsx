@@ -70,15 +70,15 @@ export default function RecapShareSheet({
   return (
     <div className="recap-share-backdrop" onClick={onClose}>
       <div className="recap-share-sheet" onClick={(event) => event.stopPropagation()}>
-        <img src={SHARE_ASSETS.decorLeft} alt="" className="recap-share-decor recap-share-decor--left" aria-hidden="true" />
-        <img src={SHARE_ASSETS.decorRight} alt="" className="recap-share-decor recap-share-decor--right" aria-hidden="true" />
+        <img src={SHARE_ASSETS.decorLeft} alt="Decorative share sheet illustration" className="recap-share-decor recap-share-decor--left" aria-hidden="true" />
+        <img src={SHARE_ASSETS.decorRight} alt="Decorative share sheet illustration" className="recap-share-decor recap-share-decor--right" aria-hidden="true" />
 
         <div className="recap-share-handle" aria-hidden="true" />
 
         <div className="recap-share-header">
           <h2 className="recap-share-title">Share recap</h2>
           <div className="recap-share-trip-banner">
-            <img src={SHARE_ASSETS.decorTop} alt="" className="recap-share-trip-line" aria-hidden="true" />
+            <img src={SHARE_ASSETS.decorTop} alt="Decorative trip banner line" className="recap-share-trip-line" aria-hidden="true" />
             <p className="recap-share-trip-name">{journalTitle}</p>
           </div>
         </div>

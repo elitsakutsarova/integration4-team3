@@ -46,7 +46,7 @@ export function FavouriteSavedNotice({ type, onClose }) {
         <img
           className="discover-saved-pin"
           src={discoverSavedAssets.pin}
-          alt=""
+          alt="Decorative map pin"
           aria-hidden="true"
         />
 
@@ -55,14 +55,14 @@ export function FavouriteSavedNotice({ type, onClose }) {
             <img
               className="discover-saved-doodle"
               src={discoverSavedAssets.doodle}
-              alt=""
+              alt="Decorative doodle illustration"
               aria-hidden="true"
             />
 
             <img
               className="discover-saved-grid-deco"
               src={discoverSavedAssets.gridDecoration}
-              alt=""
+              alt="Decorative pixel grid background"
               aria-hidden="true"
             />
 
@@ -79,7 +79,7 @@ export function FavouriteSavedNotice({ type, onClose }) {
             <img
               className="discover-saved-hearts"
               src={discoverSavedAssets.hearts}
-              alt=""
+              alt="Decorative hearts illustration"
               aria-hidden="true"
             />
           </div>

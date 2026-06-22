@@ -48,33 +48,33 @@ export default function OnboardingScreen1() {
           <img
             className="onboarding-slide__grid"
             src={onboardingAssets.grid}
-            alt=""
+            alt="Decorative pixel grid background"
           />
         </div>
 
         <img
           className="onboarding-slide__decor-top-right"
           src={onboardingAssets.greenRightDecor}
-          alt=""
+          alt="Decorative green corner illustration"
           aria-hidden="true"
         />
         <img
           className="onboarding-slide__decor-bottom-left"
           src={onboardingAssets.greenStar}
-          alt=""
+          alt="Decorative star illustration"
           aria-hidden="true"
         />
 
         <img
           className="onboarding-slide__doodle-left"
           src={onboardingAssets.screen1.doodle1}
-          alt=""
+          alt="Decorative doodle illustration"
           aria-hidden="true"
         />
         <img
           className="onboarding-slide__doodle-right"
           src={onboardingAssets.screen1.doodle2}
-          alt=""
+          alt="Decorative doodle illustration"
           aria-hidden="true"
         />
 
@@ -98,13 +98,13 @@ export default function OnboardingScreen1() {
             <img
               className="onboarding-slide__music-icon"
               src={onboardingAssets.screen1.music}
-              alt=""
+              alt="Decorative music note icon"
               aria-hidden="true"
             />
             <img
               className="onboarding-slide__memo-img"
               src={onboardingAssets.screen1.memo}
-              alt=""
+              alt="Sample memo polaroid preview"
               aria-hidden="true"
             />
           </div>

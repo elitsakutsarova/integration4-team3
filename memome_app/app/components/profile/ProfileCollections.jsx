@@ -21,18 +21,18 @@ export default function ProfileCollections({
         <h2 className="profile-section-label">Collections</h2>
         <div className="profile-collections profile-collections--account">
           <div className="collection-card collection-card--account collection-card--memos collection-card--guest-locked" aria-disabled="true">
-            <CollectionIcon src={accountAssets.createdMemosIcon} alt="" />
+            <CollectionIcon src={accountAssets.createdMemosIcon} alt="Memos collection icon" />
             <span>Memos</span>
           </div>
           <div className="collection-card collection-card--account collection-card--favourites collection-card--guest-locked" aria-disabled="true">
-            <CollectionIcon src={accountAssets.favouritesIcon} alt="" />
+            <CollectionIcon src={accountAssets.favouritesIcon} alt="Favourites collection icon" />
             <span>Favorites</span>
           </div>
           <Link
             to={paths.stickers}
             className="collection-card collection-card--account collection-card--stickers collection-card--link"
           >
-            <CollectionIcon src={accountAssets.stickersIcon} alt="" />
+            <CollectionIcon src={accountAssets.stickersIcon} alt="Stickers collection icon" />
             <span>Stickers</span>
           </Link>
         </div>
@@ -45,15 +45,15 @@ export default function ProfileCollections({
       <h2 className="profile-section-label">Collections</h2>
       <div className="profile-collections profile-collections--account">
         <Link to={paths.profileMemos} className="collection-card collection-card--memos collection-card--account collection-card--link">
-          <CollectionIcon src={accountAssets.createdMemosIcon} alt="" />
+          <CollectionIcon src={accountAssets.createdMemosIcon} alt="Memos collection icon" />
           <span>{memosLabel} Memos</span>
         </Link>
         <Link to={paths.profileFavouritesMemos} className="collection-card collection-card--favourites collection-card--account collection-card--link">
-          <CollectionIcon src={accountAssets.favouritesIcon} alt="" />
+          <CollectionIcon src={accountAssets.favouritesIcon} alt="Favourites collection icon" />
           <span>{favouritesLabel} Favorites</span>
         </Link>
         <Link to={paths.stickers} className="collection-card collection-card--stickers collection-card--account collection-card--link">
-          <CollectionIcon src={accountAssets.stickersIcon} alt="" />
+          <CollectionIcon src={accountAssets.stickersIcon} alt="Stickers collection icon" />
           <span>{stickersCount} Stickers</span>
         </Link>
       </div>

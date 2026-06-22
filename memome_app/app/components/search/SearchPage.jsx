@@ -100,7 +100,7 @@ function SearchNoResults({ query, onSuggestionClick }) {
 
       <img
         src={NO_SEARCHES_ILLUSTRATION}
-        alt=""
+        alt="Decorative empty search results illustration"
         className="search-page-no-results-art"
         aria-hidden="true"
       />
@@ -428,7 +428,7 @@ export default function SearchPage() {
 
               <img
                 src={NO_SEARCHES_ILLUSTRATION}
-                alt=""
+                alt="Decorative empty recent searches illustration"
                 className="search-page-empty-art"
                 aria-hidden="true"
               />

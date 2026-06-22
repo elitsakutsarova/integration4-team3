@@ -173,7 +173,7 @@ export default function MemorySheet({
                       : (
                         <img
                           src={pin.mediaPreview.url}
-                          alt=""
+                          alt={`Memo photo from ${pin.location}`}
                           className={buildMemoMediaClassName('memory-sheet-preview-img', orientation)}
                           decoding="async"
                           fetchPriority="high"

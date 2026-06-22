@@ -4,11 +4,11 @@ export default function OnboardingHeader({ title }) {
   return (
     <header className="onboarding-header">
       <div className="onboarding-header__backdrop" aria-hidden="true">
-        <img className="onboarding-header__grid" src={onboardingAssets.grid} alt="" />
+        <img className="onboarding-header__grid" src={onboardingAssets.grid} alt="Decorative pixel grid background" />
         <img
           className="onboarding-header__decor"
           src={onboardingAssets.greenRightDecor}
-          alt=""
+          alt="Decorative green corner illustration"
         />
       </div>
 

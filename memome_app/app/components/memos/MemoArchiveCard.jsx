@@ -23,7 +23,7 @@ export default function MemoArchiveCard({ memo }) {
           <div className="memory-sheet-image">
             {memo.mediaPreview.isVideo
               ? <video src={memo.mediaPreview.url} className="memory-sheet-preview-img" muted playsInline />
-              : <img src={memo.mediaPreview.url} alt="" className="memory-sheet-preview-img" />
+              : <img src={memo.mediaPreview.url} alt={`Memo photo from ${memo.location}`} className="memory-sheet-preview-img" />
             }
             <MemoFavoriteButton memoId={memo.id} label={memo.location} iconSize={20} />
             {(memo.tags ?? []).length > 0 && (

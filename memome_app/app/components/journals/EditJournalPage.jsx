@@ -291,19 +291,19 @@ export default function EditJournalPage({ journal }) {
         <img
           className="create-journal-hero-grid"
           src={journalAssets.pixelDeco}
-          alt=""
+          alt="Decorative pixel grid background"
           aria-hidden="true"
         />
         <img
           className="create-journal-hero-wave"
           src={journalAssets.headerWave}
-          alt=""
+          alt="Decorative wave illustration"
           aria-hidden="true"
         />
         <img
           className="create-journal-hero-pin"
           src={journalAssets.logoMark}
-          alt=""
+          alt="MemoMe journals logo mark"
           aria-hidden="true"
         />
           <div className="grid-pattern" />

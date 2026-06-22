@@ -9,17 +9,17 @@ export default function GuestJournalsLockedPage() {
         <img
           className="journals-guest-hero-logo"
           src={journalAssets.lockedLogoMark}
-          alt=""
+          alt="MemoMe journals logo mark"
         />
         <img
           className="journals-guest-hero-wave"
           src={journalAssets.lockedHeaderWave}
-          alt=""
+          alt="Decorative wave illustration"
         />
         <img
           className="journals-guest-hero-pixel"
           src={journalAssets.lockedPixelDeco}
-          alt=""
+          alt="Decorative pixel grid background"
         />
       </header>
 
@@ -28,7 +28,7 @@ export default function GuestJournalsLockedPage() {
           <img
             className="journals-guest-illustration"
             src={journalAssets.lockedIllustration}
-            alt=""
+            alt="Locked journals illustration"
           />
           <GuestAuthCta copy="Create account or log in to create journals" />
         </div>

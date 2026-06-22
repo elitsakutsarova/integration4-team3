@@ -104,7 +104,7 @@ export default function PlaceDetailPage({ place, featuredMemos = [], totalMemoCo
         <div className="discover-detail-hero">
           <div className="discover-detail-collage">
             {place.collage.map((src, index) => (
-              <img key={`${src}-${index}`} src={src} alt="" className="discover-detail-collage-img" />
+              <img key={`${src}-${index}`} src={src} alt={`${place.title} photo ${index + 1}`} className="discover-detail-collage-img" />
             ))}
           </div>
           <div className="discover-detail-hero-wave">

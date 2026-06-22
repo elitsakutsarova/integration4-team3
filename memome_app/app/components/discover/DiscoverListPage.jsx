@@ -20,7 +20,7 @@ function DiscoverListHeader({
   return (
     <header className="discover-list-header">
       <div className="discover-list-grid-deco" aria-hidden="true">
-        <img className="discover-list-grid" src={discoverAssets.greenGrid} alt="" />
+        <img className="discover-list-grid" src={discoverAssets.greenGrid} alt="Decorative pixel grid background" />
         <div className="discover-list-grid-pattern" />
       </div>
       <div className="discover-list-title-row">

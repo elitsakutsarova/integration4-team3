@@ -97,7 +97,7 @@ export default function SupportHelpPage() {
         title="Support & Help"
         onBack={handleBack}
         backLabel="Back to settings"
-        titleIcon={<img src={settingsAssets.supportIcon} alt="" />}
+        titleIcon={<img src={settingsAssets.supportIcon} alt="Support and help icon" />}
       />
 
       <div className="support-help-content">
@@ -127,7 +127,7 @@ export default function SupportHelpPage() {
             </Link>
             <a href={technicalSupportHref} className="support-help-row">
               <span className="support-help-row-icon">
-                <img src={settingsAssets.technicalSupportIcon} alt="" width={17} height={17} aria-hidden="true" />
+                <img src={settingsAssets.technicalSupportIcon} alt="Technical support icon" width={17} height={17} aria-hidden="true" />
               </span>
               <span className="support-help-row-label">Get technical support</span>
               <RowChevron />

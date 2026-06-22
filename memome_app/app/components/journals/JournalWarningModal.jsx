@@ -48,17 +48,17 @@ export default function JournalWarningModal({
           <img
             className="create-journal-warning-deco-grid"
             src={journalAssets.warningGrid}
-            alt=""
+            alt="Decorative pixel grid background"
           />
           <img
             className="create-journal-warning-deco-wave"
             src={journalAssets.warningWave}
-            alt=""
+            alt="Decorative wave illustration"
           />
           <img
             className="create-journal-warning-deco-icon"
             src={journalAssets.warningIcon}
-            alt=""
+            alt="Warning illustration"
           />
         </div>
 

@@ -127,17 +127,17 @@ export default function JournalDetailPage({
           <img
             className="journals-hero-logo"
             src={journalAssets.logoMark}
-            alt=""
+            alt="MemoMe journals logo mark"
           />
           <img
             className="journals-hero-wave"
             src={journalAssets.headerWave}
-            alt=""
+            alt="Decorative wave illustration"
           />
           <img
             className="journal-detail-hero-grid"
             src={journalAssets.pixelDeco}
-            alt=""
+            alt="Decorative pixel grid background"
           />
           <div className="journal-detail-hero-grid-pattern grid-pattern" />
           <button
