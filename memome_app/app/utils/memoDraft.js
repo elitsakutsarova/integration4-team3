@@ -4,6 +4,7 @@ import { isInAntwerpBounds } from './locationHelpers';
 
 export function hasChosenMemoLocation(draft) {
   if (!draft) return false;
+  if (draft.lat == null || draft.lng == null || draft.lat === '' || draft.lng === '') return false;
 
   const lat = Number(draft.lat);
   const lng = Number(draft.lng);
@@ -14,9 +15,25 @@ export function hasChosenMemoLocation(draft) {
 }
 
 export function readDraftMemo(searchParams) {
+  const pickLocation = searchParams.get('step') === 'location';
+  const placeId = searchParams.get('placeId') ?? '';
   const latRaw = searchParams.get('lat');
   const lngRaw = searchParams.get('lng');
-  if (latRaw == null || lngRaw == null || latRaw === '' || lngRaw === '') return null;
+  const hasCoordinates = latRaw != null && lngRaw != null && latRaw !== '' && lngRaw !== '';
+
+  if (searchParams.get('addMemo') === '1' && !hasCoordinates) {
+    return {
+      lat: null,
+      lng: null,
+      pinLat: null,
+      pinLng: null,
+      locationName: searchParams.get('locationName') ?? '',
+      placeId,
+      pickLocation,
+    };
+  }
+
+  if (!hasCoordinates) return null;
 
   const lat = Number(latRaw);
   const lng = Number(lngRaw);
@@ -28,8 +45,6 @@ export function readDraftMemo(searchParams) {
   const pinLng = Number(pinLngRaw);
 
   const locationName = searchParams.get('locationName') ?? '';
-  const placeId = searchParams.get('placeId') ?? '';
-  const pickLocation = searchParams.get('step') === 'location';
 
   return {
     lat,

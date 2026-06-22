@@ -251,4 +251,10 @@ After our consult, I changed a lot of things in test5 like:
 - fix useEffect hooks
 - When the user clicks on an event on the map, it should center it in the viewpoint
 
+# Test 24 -> Desktop design
+- Homepage ✔️
+- Discover
+- Journals
+- Profile
+
 ## Deployment

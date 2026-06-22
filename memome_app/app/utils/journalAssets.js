@@ -14,6 +14,7 @@ export const journalAssets = {
   emptyIllustration: '/journals/empty_state_journals.svg',
   emptyArrow: '/journals/Vector 500.svg',
   addMenu: '/journals/add-menu.svg',
+  addMenuDesktop: '/journals/add-menu-desktop.svg',
   lockedIllustration: lockedAsset('Group 2085666392.svg'),
   lockedHeaderWave: lockedAsset('Vector 421.svg'),
   lockedPixelDeco: lockedAsset('Vector.svg'),

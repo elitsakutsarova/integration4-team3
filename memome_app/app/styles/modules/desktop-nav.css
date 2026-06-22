@@ -1,0 +1,84 @@
+/* ─── Desktop sidebar nav (hidden on mobile) ───────── */
+.desktop-nav {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .desktop-nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    z-index: 1100;
+    left: var(--desktop-inset);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    width: var(--desktop-nav-width);
+    padding: 1.25rem 0.75rem;
+    background: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.125rem 0.2844rem rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
+  }
+
+  .desktop-nav-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5625rem;
+    width: 100%;
+  }
+
+  .desktop-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    width: 100%;
+    border: none;
+    background: none;
+    padding: 0;
+    text-decoration: none;
+    color: var(--grey-150);
+    cursor: pointer;
+    font-family: var(--font);
+  }
+
+  .desktop-nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .desktop-nav-icon svg {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .desktop-nav-icon svg path {
+    fill: var(--grey-150);
+  }
+
+  .desktop-nav-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .desktop-nav-item--active {
+    color: var(--grey-300);
+  }
+
+  .desktop-nav-item--active .desktop-nav-label {
+    font-weight: 700;
+  }
+
+  .desktop-nav-item--active .desktop-nav-icon svg path {
+    fill: var(--grey-300);
+  }
+}

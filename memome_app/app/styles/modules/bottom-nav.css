@@ -111,3 +111,10 @@
 }
 
 .nav-add-btn:active { transform: scale(0.96); }
+
+@media (min-width: 48rem) {
+  .bottom-nav,
+  .bottom-nav-container {
+    display: none !important;
+  }
+}

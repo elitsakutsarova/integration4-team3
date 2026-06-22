@@ -12,6 +12,12 @@ import {
 } from '../utils/memoPinAssets';
 import { buildMemorySheetTags } from '../utils/memoAuthor';
 import {
+  MAP_DESKTOP_BREAKPOINT,
+  buildAnchoredSheetStyle,
+  isDesktopMapLayout,
+  measureMemorySheetPlacement,
+} from '../utils/mapMemoryAnchor';
+import {
   getMapPopupScale,
 } from '../utils/mapPopupScale';
 
@@ -55,8 +61,23 @@ function useLongQuote(quote, layoutKey) {
   return { quoteRef, isLongQuote };
 }
 
+function useDesktopMapLayout() {
+  const [isDesktop, setIsDesktop] = useState(() => isDesktopMapLayout());
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MAP_DESKTOP_BREAKPOINT);
+    const update = () => setIsDesktop(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener('change', update);
+    return () => mediaQuery.removeEventListener('change', update);
+  }, []);
+
+  return isDesktop;
+}
+
 export default function MemorySheet({
   pin,
+  anchor = null,
   locationHref = null,
   onClose,
   embedded = false,
@@ -65,6 +86,10 @@ export default function MemorySheet({
   hideToolbar = false,
   footerCta = null,
 }) {
+  const sheetRef = useRef(null);
+  const [placement, setPlacement] = useState(null);
+  const isDesktopMap = useDesktopMapLayout();
+  const useAnchoredPopup = Boolean(anchor) && isDesktopMap && !embedded;
   const hasMedia = Boolean(pin?.mediaPreview?.url);
   const [orientation, setOrientation] = useState(() => resolvePolaroidOrientation(pin));
   const [mediaSheetScale, setMediaSheetScale] = useState(1);
@@ -114,7 +139,17 @@ export default function MemorySheet({
     };
   }, [pin?.id, pin?.mediaPreview?.url, pin?.mediaPreview?.width, pin?.mediaPreview?.height, pin?.mediaPreview?.isVideo]);
 
+  useLayoutEffect(() => {
+    if (!useAnchoredPopup || !anchor || !sheetRef.current) {
+      setPlacement(null);
+      return;
+    }
+
+    setPlacement(measureMemorySheetPlacement(anchor, sheetRef.current));
+  }, [anchor, useAnchoredPopup, pin, locationHref, hasMedia, orientation, isLongQuote]);
+
   if (!pin) return null;
+  if (useAnchoredPopup && !anchor) return null;
 
   const canOpenMaps = Array.isArray(pin.ll) && pin.ll.length >= 2;
   const sheetTags = buildMemorySheetTags(pin);
@@ -127,14 +162,19 @@ export default function MemorySheet({
 
   const sheet = (
     <article
+      ref={useAnchoredPopup ? sheetRef : undefined}
       className={[
         'memory-sheet',
-        'memory-sheet--dock',
+        useAnchoredPopup ? 'memory-sheet--anchored' : 'memory-sheet--dock',
         hasMedia ? 'memory-sheet--with-media' : 'memory-sheet--text-only',
+        useAnchoredPopup && placement?.below ? 'memory-sheet--below' : '',
       ].filter(Boolean).join(' ')}
-      style={usesResponsiveScale ? {
-        '--memory-sheet-responsive-scale': mediaSheetScale,
-      } : undefined}
+      style={{
+        ...(usesResponsiveScale && !useAnchoredPopup ? {
+          '--memory-sheet-responsive-scale': mediaSheetScale,
+        } : undefined),
+        ...(useAnchoredPopup ? buildAnchoredSheetStyle(placement, anchor) : undefined),
+      }}
       onClick={embedded ? undefined : (event => event.stopPropagation())}
     >
       <div className="memory-sheet-dock-motion">
@@ -256,6 +296,14 @@ export default function MemorySheet({
 
   if (embedded) {
     return sheet;
+  }
+
+  if (useAnchoredPopup) {
+    return (
+      <div className="memory-sheet-backdrop memory-sheet-backdrop--anchored">
+        {sheet}
+      </div>
+    );
   }
 
   return (

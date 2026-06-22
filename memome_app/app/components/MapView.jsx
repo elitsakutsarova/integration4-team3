@@ -44,6 +44,11 @@ import {
 import { useCollectedStickersActions } from '../context/CollectedStickersContext';
 import { clearStickerReveal, readStickerReveal } from '../utils/stickerReveal';
 import { journalAssets } from '../utils/journalAssets';
+import {
+  MAP_DESKTOP_BREAKPOINT,
+  getMapPinAnchorPoint,
+  isDesktopMapLayout,
+} from '../utils/mapMemoryAnchor';
 
 const DEMO_MEMORIES = [...MOCK_MEMORIES, ...GROTE_MARKT_CLUSTER_MEMORIES];
 
@@ -51,22 +56,22 @@ const ANTWERP_CENTER = [51.2194, 4.4025];
 const ANTWERP_BOUNDS = ANTWERP_BOUNDS_LEAFLET;
 const POSTED_MEMO_FOCUS_ZOOM = 15;
 
-function getMemoLatLng(memo) {
-  if (Array.isArray(memo?.ll) && memo.ll.length >= 2) {
-    const lat = Number(memo.ll[0]);
-    const lng = Number(memo.ll[1]);
+function getMapPinLatLng(pin) {
+  if (Array.isArray(pin?.ll) && pin.ll.length >= 2) {
+    const lat = Number(pin.ll[0]);
+    const lng = Number(pin.ll[1]);
     if (Number.isFinite(lat) && Number.isFinite(lng)) return [lat, lng];
   }
 
-  const lat = Number(memo?.lat);
-  const lng = Number(memo?.lng);
+  const lat = Number(pin?.lat);
+  const lng = Number(pin?.lng);
   if (Number.isFinite(lat) && Number.isFinite(lng)) return [lat, lng];
 
   return null;
 }
 
-function focusMapOnMemo(map, memo) {
-  const latlng = getMemoLatLng(memo);
+function focusMapOnPin(map, pin) {
+  const latlng = getMapPinLatLng(pin);
   if (!map || !latlng) return;
 
   const targetZoom = Math.max(map.getZoom(), POSTED_MEMO_FOCUS_ZOOM);
@@ -78,6 +83,10 @@ function focusMapOnMemo(map, memo) {
   }
 
   map.setView(latlng, targetZoom, { animate: true });
+}
+
+function focusMapOnMemo(map, memo) {
+  focusMapOnPin(map, memo);
 }
 
 function mergeMapMemories(savedMemos) {
@@ -134,8 +143,11 @@ export default function MapView({ savedMemos = [], active = true }) {
   promptGuestAddMemoRef.current = () => setGuestAddMemoLocked(true);
 
   const [selectedMemory, setSelectedMemory] = useState(null);
+  const [memoryAnchor, setMemoryAnchor] = useState(null);
+  const selectedMemoryRef = useRef(null);
+  selectedMemoryRef.current = selectedMemory;
+  const [isDesktopMap, setIsDesktopMap] = useState(() => isDesktopMapLayout());
   const selectedMemoryLocationHref = useMemoLocationHref(selectedMemory);
-  const ignoreMemoScrimClickRef = useRef(false);
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [showPublishSuccess, setShowPublishSuccess] = useState(false);
@@ -191,7 +203,17 @@ export default function MapView({ savedMemos = [], active = true }) {
 
   const selectMemoryRef = useRef(null);
   selectMemoryRef.current = (pin) => {
+    if (selectedMemoryRef.current?.id === pin?.id) {
+      closeMemoryRef.current?.();
+      return;
+    }
+
     dismissSavedNotice();
+    const map = mapRef.current;
+    if (map) {
+      focusMapOnMemo(map, pin);
+    }
+    setMemoryAnchor(getMapPinAnchorPoint(map, pin));
     setSelectedMemory(pin);
     if (isGuestRef.current) {
       retractGuestCtaRef.current?.();
@@ -203,6 +225,13 @@ export default function MapView({ savedMemos = [], active = true }) {
   closeMemoryRef.current = () => {
     dismissSavedNotice();
     setSelectedMemory(null);
+    setMemoryAnchor(null);
+  };
+
+  const focusEventPinRef = useRef(null);
+  focusEventPinRef.current = (pin) => {
+    if (!isDesktopMapLayout()) return;
+    focusMapOnPin(mapRef.current, pin);
   };
 
   function closeSelectedMemory() {
@@ -257,13 +286,12 @@ export default function MapView({ savedMemos = [], active = true }) {
   }, [active, mapReady, user]);
 
   useEffect(() => {
-    if (!selectedMemory) return undefined;
-    ignoreMemoScrimClickRef.current = true;
-    const timer = window.setTimeout(() => {
-      ignoreMemoScrimClickRef.current = false;
-    }, 450);
-    return () => window.clearTimeout(timer);
-  }, [selectedMemory?.id]);
+    const mediaQuery = window.matchMedia(MAP_DESKTOP_BREAKPOINT);
+    const update = () => setIsDesktopMap(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener('change', update);
+    return () => mediaQuery.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     const mediaUrl = selectedMemory?.mediaPreview?.url;
@@ -278,6 +306,27 @@ export default function MapView({ savedMemos = [], active = true }) {
       link.remove();
     };
   }, [selectedMemory?.id, selectedMemory?.mediaPreview?.url, selectedMemory?.mediaPreview?.isVideo]);
+
+  useEffect(() => {
+    if (!active || !selectedMemory) return undefined;
+
+    const map = mapRef.current;
+    if (!map || !Array.isArray(selectedMemory.ll) || selectedMemory.ll.length < 2) return undefined;
+
+    function updateAnchor() {
+      setMemoryAnchor(getMapPinAnchorPoint(map, selectedMemory));
+    }
+
+    map.on('move', updateAnchor);
+    map.on('zoom', updateAnchor);
+    map.on('resize', updateAnchor);
+
+    return () => {
+      map.off('move', updateAnchor);
+      map.off('zoom', updateAnchor);
+      map.off('resize', updateAnchor);
+    };
+  }, [active, selectedMemory]);
 
   const syncMapPins = useCallback(() => {
     const L = leafletRef.current;
@@ -330,6 +379,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   useEffect(() => {
     if (!active) {
       setSelectedMemory(null);
+      setMemoryAnchor(null);
       setGuestAddMemoLocked(false);
       setSearchParams({}, { replace: true });
       return;
@@ -405,6 +455,7 @@ export default function MapView({ savedMemos = [], active = true }) {
         onLocationClick: locationHref => {
           if (locationHref) navigateRef.current(locationHref);
         },
+        onPinClick: pin => focusEventPinRef.current?.(pin),
       });
     }).filter(Boolean);
   }, [active, activeCategory, eventLocationHrefs, mapReady]);
@@ -481,16 +532,18 @@ export default function MapView({ savedMemos = [], active = true }) {
           onLocationClick: locationHref => {
             if (locationHref) navigateRef.current(locationHref);
           },
+          onPinClick: eventPin => focusEventPinRef.current?.(eventPin),
         });
       }).filter(Boolean);
 
       map.on('click', e => {
         if (suppressClickRef.current) return;
         if (!e.latlng || !Number.isFinite(e.latlng.lat) || !Number.isFinite(e.latlng.lng)) return;
-        if (isGuestRef.current) {
+        if (selectedMemoryRef.current) {
           closeMemoryRef.current?.();
           return;
         }
+        if (isGuestRef.current) return;
         placePendingPin(L, map, e.latlng, pendingMarkerRef, suppressClickRef, openFormRef);
         openFormRef.current(e.latlng);
       });
@@ -521,6 +574,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     const L = leafletRef.current;
     const map = mapRef.current;
     if (!L || !map) return;
+    if (!Number.isFinite(draftMemo.pinLat) || !Number.isFinite(draftMemo.pinLng)) return;
 
     const latlng = { lat: draftMemo.pinLat, lng: draftMemo.pinLng };
     placePendingPin(L, map, latlng, pendingMarkerRef, suppressClickRef, openFormRef);
@@ -530,7 +584,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const handleCreateMemoSuccess = useCallback((data) => {
     const memo = data.memo;
     const draftCoords = draftMemo ? [draftMemo.lat, draftMemo.lng] : null;
-    const latlng = getMemoLatLng(memo) ?? draftCoords;
+    const latlng = getMapPinLatLng(memo) ?? draftCoords;
     const focusMemo = latlng ? { ...(memo ?? {}), ll: latlng } : memo ?? null;
 
     if (focusMemo) {
@@ -565,7 +619,6 @@ export default function MapView({ savedMemos = [], active = true }) {
       const map = mapRef.current;
       if (!map) return;
       syncMapPins();
-      focusMapOnMemo(map, memo);
       selectMemoryRef.current?.(memo);
     }, 200);
 
@@ -577,17 +630,19 @@ export default function MapView({ savedMemos = [], active = true }) {
   }
 
   function handleAddBtnClick() {
+    closeSelectedMemory();
+
     if (isGuestRef.current) {
       promptGuestAddMemoRef.current?.();
       return;
     }
 
-    const L = leafletRef.current;
-    const map = mapRef.current;
-    if (!L || !map) return;
-    const center = map.getCenter();
-    placePendingPin(L, map, center, pendingMarkerRef, suppressClickRef, openFormRef);
-    openFormRef.current(center);
+    if (pendingMarkerRef.current) {
+      pendingMarkerRef.current.remove();
+      pendingMarkerRef.current = null;
+    }
+
+    setSearchParams({ addMemo: '1' }, { replace: true });
   }
 
   function exitAddMemoFlow() {
@@ -689,8 +744,8 @@ export default function MapView({ savedMemos = [], active = true }) {
           >
             <img
               className="map-desktop-add-icon"
-              src={journalAssets.addMenu}
-              alt="Add memo menu icon"
+              src={journalAssets.addMenuDesktop}
+              alt=""
               aria-hidden="true"
             />
           </button>
@@ -699,22 +754,15 @@ export default function MapView({ savedMemos = [], active = true }) {
             <GuestAddMemoLocked onClose={dismissGuestAddMemoLocked} />
           )}
 
-          {selectedMemory && (
-            <button
-              type="button"
-              className="memory-sheet-scrim"
-              aria-label="Close memo"
-              onClick={() => {
-                if (ignoreMemoScrimClickRef.current) return;
-                closeSelectedMemory();
-              }}
-            />
+          {selectedMemory && !isDesktopMap && (
+            <div className="memory-sheet-scrim" aria-hidden="true" />
           )}
 
           {selectedMemory && (
             <MemorySheet
               key={selectedMemory.id}
               pin={selectedMemory}
+              anchor={memoryAnchor}
               locationHref={selectedMemoryLocationHref}
               onClose={closeSelectedMemory}
             />

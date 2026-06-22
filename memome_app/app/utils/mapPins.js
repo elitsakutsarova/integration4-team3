@@ -349,7 +349,7 @@ async function resolveEventPopupPin(pin) {
   return locationHref ? { ...pin, locationHref } : pin;
 }
 
-export function buildEventMarker(L, map, pin, { onLocationClick } = {}) {
+export function buildEventMarker(L, map, pin, { onLocationClick, onPinClick } = {}) {
   const size = EVENT_PIN_SIZE;
   const icon = L.divIcon({
     className: 'pin-event-marker',
@@ -365,6 +365,12 @@ export function buildEventMarker(L, map, pin, { onLocationClick } = {}) {
     minWidth: 265,
     closeButton: true,
   });
+
+  if (onPinClick) {
+    marker.on('click', () => {
+      onPinClick(pin);
+    });
+  }
 
   marker.on('popupopen', () => {
     applyEventPopupScale(marker);
