@@ -50,10 +50,10 @@ function DateField({ id, value, onChange, hasError, max }) {
       <span className="create-journal-date-display">
         {value
           ? new Date(`${value}T12:00:00`).toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'short',
-              year: 'numeric',
-            })
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          })
           : 'Pick date'}
       </span>
       <span className="create-journal-date-icon" aria-hidden="true">
@@ -250,18 +250,21 @@ export default function CreateJournalPage() {
         </div>
       </div>
 
-      <section className="create-journal-memories" aria-labelledby="create-journal-memories-heading">
-        <div className="create-journal-memories-head">
-          <h2 id="create-journal-memories-heading" className="create-journal-memories-title">Memories</h2>
-          {selectedMemos.length > 0 && (
-            <Link to={paths.journalsCreateMemos} className="create-journal-memories-add" aria-label="Add more memos">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-              </svg>
-            </Link>
-          )}
-        </div>
+      <div className="create-journal-memories-container">
+        <svg className="create-journal-wave" xmlns="http://www.w3.org/2000/svg" width="393" height="30" viewBox="0 0 393 30" fill="none">
+          <path d="M168.271 23.7166C243.661 24.2813 348.071 -5.8319 394 11.7001V29.0769H-1V0.00890857C62.6 -0.525414 92.881 23.1518 168.271 23.7166Z" fill="#F1F4FF" />
+        </svg>
+        <section className="create-journal-memories" aria-labelledby="create-journal-memories-heading">
+          <div className="create-journal-memories-head">
+            <h2 id="create-journal-memories-heading" className="create-journal-memories-title">Memories</h2>
+            {selectedMemos.length > 0 && (
+              <Link to={paths.journalsCreateMemos} className="create-journal-memories-add" aria-label="Add more memos">
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 17 17" fill="none">
+                  <path d="M-0.000178514 9.04438L-0.00017902 7.23553H7.23522L7.23522 0.000128454H9.04407L9.04407 7.23553H16.2795L16.2795 9.04438L9.04407 9.04438L9.04407 16.2798H7.23522L7.23522 9.04438L-0.000178514 9.04438Z" fill="#1952FF" />
+                </svg>
+              </Link>
+            )}
+          </div>
 
         {selectedMemos.length === 0 ? (
           <div className="create-journal-memories-empty">

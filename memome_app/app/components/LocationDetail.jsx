@@ -104,8 +104,8 @@ export default function LocationDetail({ place, imageUrl: initialImageUrl = null
             categoryLabel={place.categoryLabel}
           />
           <button type="button" className="loc-detail-icon-btn loc-detail-back" onClick={handleBack} aria-label="Back">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="15 18 9 12 15 6" />
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
+              <path d="M25.7886 11.8838H1.78857M12.7886 22.3838L1.78857 11.8838L12.7886 0.883789" stroke="#1952FF" stroke-width="2.5" />
             </svg>
           </button>
           <button

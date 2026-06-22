@@ -994,6 +994,7 @@
   border-radius: 0;
   overflow: visible;
   animation: form-enter 0.25s ease-out;
+  border-radius: 1.25rem;
 }
 
 .recap-share-success-decor {
@@ -1016,14 +1017,14 @@
 
 .recap-share-success-decor--bottom {
   left: 0;
-  bottom: -4.0625rem;
+  bottom: 0;
   width: 5.5rem;
   height: auto;
 }
 
 .recap-share-success-decor--right {
-  right: -1rem;
-  bottom: 3rem;
+  right: 0;
+  top: 0;
   width: 5.5rem;
   height: auto;
 }
@@ -1050,14 +1051,24 @@
 }
 
 .recap-share-success-highlight {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+}
+
+.recap-share-success-highlight::before {
+  content: "";
   position: absolute;
-  left: 50%;
-  bottom: 4.875rem;
-  transform: translateX(-50%);
-  width: 12.75rem;
-  height: 1.75rem;
-  background: #f9ff75;
-  z-index: 0;
+  left: -0.15em;
+  right: -0.15em;
+  bottom: 0.05em;
+
+  height: 1em;
+
+  background: var(--yellow-400);
+  z-index: -1;
+
+  border-radius: 0.15em;
 }
 
 /* ─── Recap select & preview ──────────────────────── */

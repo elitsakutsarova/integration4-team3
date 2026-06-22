@@ -132,11 +132,13 @@ flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
+  color: var(--dark);
+  cursor: pointer;
   border-radius: 0.625rem;
-  background: #fff;
-  box-shadow: 0 0 0.25rem rgba(43, 43, 44, 0.1);
-  color: #1952ff;
-  text-decoration: none;
+  background: var(--grey-0, #FFF);
+  box-shadow: 0 0 0.5rem 0 rgba(43, 43, 44, 0.10);
+  padding: 0.8rem;
 }
 
 .memo-form-title {
@@ -1075,8 +1077,11 @@ flex-shrink: 0;
 }
 
 .memo-post-success-desc {
-  margin: 0;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  color: #202020;
+color: var(--grey-300, #202020);
+  text-align: center;
+  font-family: SunAntwerpen;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 350;
+  line-height: 120%;
 }

@@ -25,9 +25,10 @@ export default function DiscoverShareSuccess({ variant, onClose }) {
           <p className="recap-share-success-text">
             {copy.subject}
             <br />
-            {copy.highlight}
+            <span className="recap-share-success-highlight" aria-hidden="true">
+              {copy.highlight}
+            </span>
           </p>
-          <span className="recap-share-success-highlight" aria-hidden="true" />
         </div>
 
         <img
