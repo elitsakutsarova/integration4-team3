@@ -2068,7 +2068,7 @@ position: relative;
 .journal-memo-location-row span {
   text-decoration: underline;
   width: max-content;
-    max-width: 8rem;
+    max-width: 7rem;
     white-space: normal;
       overflow-wrap: break-word;
 }
