@@ -454,7 +454,9 @@ export default function EditJournalPage({ journal }) {
               </Link>
             )}
 
-            <div className="edit-journal-wave" aria-hidden="true" />
+            <div className="journal-detail-wave" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 391 86" fill="none">
+              <path d="M529.311 9.57344C400.118 -24.5679 299.879 59.2893 105.171 26.8324C33.7887 14.9333 -80.1233 14.4542 -126.701 43.6372C-160.38 64.7391 -106.297 69.1191 -67.1521 84.6642" stroke="#A3BAFF" stroke-width="2.47" stroke-dasharray="8 8" />
+            </svg></div>
 
             <button
               type="button"

@@ -43,10 +43,9 @@ function UploadIdleIcon() {
 
 function UploadErrorIcon() {
   return (
-    <svg width="37" height="37" viewBox="0 0 37 37" fill="none" aria-hidden="true">
-      <circle cx="18.5" cy="18.5" r="18.5" fill="#E8E8EC" />
-      <path d="M18.5 12v10" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="18.5" cy="26" r="1.5" fill="#9CA3AF" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 3L22.22 20.7H1.78L12 3Z" stroke="#797979" stroke-width="2" stroke-linecap="square" />
+      <path d="M12 10.5V14M12 17.5H12.004V17.504H12V17.5Z" stroke="#797979" stroke-width="2" stroke-linecap="square" />
     </svg>
   );
 }

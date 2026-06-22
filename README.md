@@ -247,7 +247,7 @@ After our consult, I changed a lot of things in test5 like:
 - add visually hidden titles to sections for semantic purposes ✔️
 - make all px into rem ✔️
 - check for buttons that are supposed to be links styled as buttons instead ✔️
-- fix journal -> create recap -> select memos page
+- fix journal -> create recap -> select memos page ✔️
 - fix useEffect hooks
 - When the user clicks on an event on the map, it should center it in the viewpoint
 

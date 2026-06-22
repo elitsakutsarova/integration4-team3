@@ -573,7 +573,7 @@
   position: relative;
   z-index: 10;
   display: grid;
-      grid-template-columns: fit-content(100%) auto;
+  grid-template-columns: fit-content(100%) auto;
   grid-template-rows: 1fr;
 }
 
@@ -670,7 +670,7 @@
   grid-area: 1 / 1 / 1 / 1;
   justify-self: end;
   align-self: start;
-  
+
 }
 
 .discover-list-arrow-deco svg {
@@ -692,7 +692,7 @@
   align-self: end;
   pointer-events: none;
   z-index: 0;
-    margin-top: -2.5rem;
+  margin-top: -2.5rem;
 }
 
 .discover-list-title-icon:has(.discover-list-pin-deco) {
@@ -1317,8 +1317,8 @@ detail-hero-wave svg {
   grid-template-rows: 5.9375rem auto auto;
   grid-template-areas:
     "doodle . grid"
-    "text text grid"
-    "hearts hearts .";
+    "text text text"
+    "hearts hearts hearts";
 }
 
 .discover-saved-doodle {
@@ -1340,9 +1340,11 @@ detail-hero-wave svg {
 
 .discover-saved-text {
   grid-area: text;
+  grid-area: 2 / 1 / 2 / 4;
   position: relative;
   padding: 0;
-  left: 2rem;
+  align-self: center;
+  justify-self: center;
   font-family: SunAntwerpen, var(--font);
   font-size: 1.375rem;
   font-weight: 400;
@@ -1370,7 +1372,7 @@ detail-hero-wave svg {
   grid-row: 3 / 3;
   object-fit: contain;
   justify-self: center;
-  align-self: end;
+  align-self: center;
   margin-bottom: 1.5rem;
 }
 
