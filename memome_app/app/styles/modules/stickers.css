@@ -92,6 +92,7 @@
   color: #1952ff;
   text-decoration: none;
   transition: background .15s;
+  padding: 0.8rem;
 }
 
 .stickers-back-btn:hover {

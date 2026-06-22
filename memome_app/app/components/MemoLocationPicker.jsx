@@ -412,8 +412,8 @@ export default function MemoLocationPicker({
           <div className="loc-picker-title-bar">
             <div className="loc-picker-titles">
               <button type="button" className="loc-picker-back-btn btn-chevron" onClick={handleBack} aria-label="Back">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <polyline points="15 18 9 12 15 6" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
+                  <path d="M25.7886 11.8838H1.78857M12.7886 22.3838L1.78857 11.8838L12.7886 0.883789" stroke="#1952FF" stroke-width="2.5" />
                 </svg>
               </button>
               <h2 className="loc-picker-title">Location</h2>

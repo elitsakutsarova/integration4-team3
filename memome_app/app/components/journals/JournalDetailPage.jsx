@@ -222,7 +222,7 @@ export default function JournalDetailPage({
         <div className="journal-detail-title-bar">
           <div className="journal-detail-titles">
             <JournalBackButton
-              className="journal-detail-back"
+              className="journal-detail-back btn-chevron"
               to={backTo}
               label="Back to journals"
             />
