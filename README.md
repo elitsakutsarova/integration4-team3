@@ -245,7 +245,7 @@ After our consult, I changed a lot of things in test5 like:
 # Test 23 -> Fix problems globally
 - add alts to images ✔️
 - add visually hidden titles to sections for semantic purposes ✔️
-- make all px into rem
+- make all px into rem ✔️
 - check for buttons that are supposed to be links styled as buttons instead
 - fix useEffect hooks
 - When the user clicks on an event on the map, it should center it in the viewpoint

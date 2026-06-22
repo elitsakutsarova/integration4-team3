@@ -5,12 +5,12 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   background: #fff;
-  padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(6.875rem + env(safe-area-inset-bottom, 0));
 }
 
 .memo-archive-header {
   position: relative;
-  min-height: 150px;
+  min-height: 9.375rem;
   overflow: hidden;
 }
 
@@ -19,33 +19,33 @@
   inset: 0;
   background:
     linear-gradient(196deg, rgba(209, 220, 255, 0.95) 2%, rgba(209, 220, 255, 0) 52%),
-    repeating-linear-gradient(0deg, rgba(25, 82, 255, 0.06) 0 1px, transparent 1px 24px),
-    repeating-linear-gradient(90deg, rgba(25, 82, 255, 0.06) 0 1px, transparent 1px 24px);
+    repeating-linear-gradient(0deg, rgba(25, 82, 255, 0.06) 0 0.0625rem, transparent 0.0625rem 1.5rem),
+    repeating-linear-gradient(90deg, rgba(25, 82, 255, 0.06) 0 0.0625rem, transparent 0.0625rem 1.5rem);
 }
 
 .memo-archive-header-wave {
   position: absolute;
-  top: 24px;
-  right: 24px;
-  width: 120px;
-  height: 80px;
-  border: 2px dashed #1952ff;
-  border-radius: 999px 999px 0 0;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 7.5rem;
+  height: 5rem;
+  border: 0.125rem dashed #1952ff;
+  border-radius: 62.4375rem 62.4375rem 0 0;
   transform: rotate(8deg);
   opacity: 0.55;
 }
 
 .memo-archive-back {
   position: absolute;
-  top: 95px;
-  left: 16px;
+  top: 5.9375rem;
+  left: 1rem;
   z-index: 2;
-  width: 53px;
-  height: 49px;
+  width: 3.3125rem;
+  height: 3.0625rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   background: #fff;
-  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
+  box-shadow: 0 0 0.25rem rgba(43, 43, 44, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,18 +54,18 @@
 
 .memo-archive-title-banner {
   position: absolute;
-  top: 86px;
+  top: 5.375rem;
   left: 0;
-  width: min(100%, 319px);
-  padding: 23px 16px 23px 87px;
+  width: min(100%, 19.9375rem);
+  padding: 1.4375rem 1rem 1.4375rem 5.4375rem;
   background: #f9ff75;
 }
 
 .memo-archive-title {
   margin: 0;
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: 400;
-  letter-spacing: 0.7px;
+  letter-spacing: 0.0437rem;
   color: #1e1e1e;
 }
 
@@ -73,13 +73,13 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px 20px;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 1.25rem;
 }
 
 .memo-archive-spot-title {
   margin: 0;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.2;
   color: #000;
@@ -87,27 +87,27 @@
 
 .memo-archive-spot-highlight {
   background: #d1dcff;
-  padding: 2px 6px;
+  padding: 0.125rem 0.375rem;
   box-decoration-break: clone;
 }
 
 .memo-archive-count {
-  margin: 8px 0 0;
+  margin: 0.5rem 0 0;
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 300;
   color: #6b7280;
   white-space: nowrap;
 }
 
 .memo-archive-scroll {
-  padding: 0 16px 24px;
+  padding: 0 1rem 1.5rem;
 }
 
 .memo-archive-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .memory-sheet--archive {
@@ -122,19 +122,19 @@
 
 .memo-archive-empty {
   margin: 0;
-  padding: 24px 0 40px;
-  font-size: 15px;
+  padding: 1.5rem 0 2.5rem;
+  font-size: 0.9375rem;
   color: #6b7280;
   text-align: center;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 48rem) {
   .featured-memos-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .memo-archive-page {
-    max-width: 480px;
+    max-width: 30rem;
     margin: 0 auto;
   }
 }

@@ -26,7 +26,7 @@ import { addRecentSearch, loadRecentSearches } from '../../utils/searchRecentSto
 const SEARCH_DEBOUNCE_MS = 600;
 const NO_SEARCHES_ILLUSTRATION = '/search-bar/no-results/no-searches-illustration.svg';
 
-function SearchSectionTitle({ label, width = 80, id }) {
+function SearchSectionTitle({ label, width = '5rem', id }) {
   return (
     <h2 id={id} className="search-page-group-title">
       <span className="search-page-group-highlight" style={{ width }} aria-hidden="true" />
@@ -390,7 +390,7 @@ export default function SearchPage() {
 
               {groupedResults.events.length > 0 && (
                 <div className="search-page-group">
-                  <SearchSectionTitle label="Events" width={88} />
+                  <SearchSectionTitle label="Events" width="5.5rem" />
                   <div className="search-page-events-list">
                     {groupedResults.events.map(event => (
                       <div

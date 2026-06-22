@@ -14,7 +14,7 @@ export function meta() {
 export async function loader() {
   return {
     title: 'Happening now',
-    highlightWidth: '172px',
+    highlightWidth: '10.75rem',
     decoration: 'live',
     items: HAPPENING_NOW_ALL,
     itemType: 'event',
@@ -24,7 +24,7 @@ export async function loader() {
 export async function clientLoader() {
   return {
     title: 'Happening now',
-    highlightWidth: '172px',
+    highlightWidth: '10.75rem',
     decoration: 'live',
     items: HAPPENING_NOW_ALL,
     itemType: 'event',

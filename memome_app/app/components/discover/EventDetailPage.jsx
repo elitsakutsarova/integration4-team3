@@ -186,7 +186,7 @@ export default function EventDetailPage({
             </svg>
             <section className="discover-detail-section" aria-labelledby="event-about">
               <h2 id="event-about" className="discover-detail-section-title">
-                <span className="discover-section-highlight" style={{ width: '72px' }} aria-hidden="true" />
+                <span className="discover-section-highlight" style={{ width: '4.5rem' }} aria-hidden="true" />
                 About
               </h2>
               <p className="discover-detail-about">{event.about}</p>

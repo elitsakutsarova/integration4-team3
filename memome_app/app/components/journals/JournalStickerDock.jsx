@@ -248,7 +248,7 @@ export default function JournalStickerDock({
     <div
       ref={attachTrayRef}
       className={`journal-sticker-dock${isCollapsed ? ' journal-sticker-dock--collapsed' : ''}`}
-      style={{ height: `${dockHeight}px` }}
+      style={{ height: `${dockHeight / 16}rem` }}
       aria-label="Sticker menu"
     >
       <div

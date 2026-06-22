@@ -87,7 +87,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
       <section className="discover-section" aria-labelledby="discover-happening-now">
         <SectionHeader
           title="Happening now"
-          highlightWidth="172px"
+          highlightWidth="10.75rem"
           id="discover-happening-now"
           viewAllTo={paths.discoverHappeningNow}
         />
@@ -110,7 +110,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
           <SectionHeader
             id="discover-upcoming"
             title="Upcoming"
-            highlightWidth="116px"
+            highlightWidth="7.25rem"
             viewAllTo={paths.discoverUpcoming}
           />
           <div className="discover-carousel">
@@ -140,7 +140,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
         <SectionHeader
           id="discover-places"
           title="Spots worth a memo"
-          highlightWidth="229px"
+          highlightWidth="14.3125rem"
           underlined
           viewAllTo={paths.discoverPlaces}
         />

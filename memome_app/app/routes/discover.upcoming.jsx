@@ -14,7 +14,7 @@ export function meta() {
 export async function loader() {
   return {
     title: 'Upcoming',
-    highlightWidth: '116px',
+    highlightWidth: '7.25rem',
     decoration: 'upcoming',
     items: UPCOMING_ALL,
     itemType: 'event',
@@ -24,7 +24,7 @@ export async function loader() {
 export async function clientLoader() {
   return {
     title: 'Upcoming',
-    highlightWidth: '116px',
+    highlightWidth: '7.25rem',
     decoration: 'upcoming',
     items: UPCOMING_ALL,
     itemType: 'event',

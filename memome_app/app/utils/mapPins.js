@@ -45,7 +45,7 @@ function safeAssetUrl(url) {
 }
 
 export function addPinHtml() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="48" viewBox="0 0 34 48" style="cursor:pointer;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.28))">
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="48" viewBox="0 0 34 48" style="cursor:pointer;display:block;filter:drop-shadow(0 0.125rem 0.375rem rgba(0,0,0,.28))">
     <path d="M17 2C9.82 2 4 7.82 4 15C4 25.5 17 46 17 46C17 46 30 25.5 30 15C30 7.82 24.18 2 17 2Z" fill="#18181F"/>
     <circle cx="17" cy="15" r="9" fill="white"/>
     <circle cx="17" cy="15" r="7" fill="none" stroke="#18181F" stroke-width="1.5"/>

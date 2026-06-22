@@ -156,7 +156,7 @@ export default function PlaceDetailPage({ place, featuredMemos = [], totalMemoCo
 
           <section className="discover-detail-section" aria-labelledby="place-about">
             <h2 id="place-about" className="discover-detail-section-title">
-              <span className="discover-section-highlight" style={{ width: '72px' }} aria-hidden="true" />
+              <span className="discover-section-highlight" style={{ width: '4.5rem' }} aria-hidden="true" />
               About
             </h2>
             <p className="discover-detail-about">{place.about}</p>

@@ -20,7 +20,7 @@ import MemoTagIcon from './MemoTagIcon';
 import { validateMemoMediaFile } from '../utils/validators';
 import { containsProfanity, PROFANITY_ERROR_MESSAGE } from '../utils/profanityFilter';
 
-const DESKTOP_OVERLAY_QUERY = '(min-width: 600px)';
+const DESKTOP_OVERLAY_QUERY = '(min-width: 37.5rem)';
 
 const QUOTE_MAX = 100;
 const MEDIA_MAX_BYTES = 10 * 1024 * 1024;

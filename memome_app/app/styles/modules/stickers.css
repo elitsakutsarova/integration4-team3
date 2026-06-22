@@ -7,9 +7,9 @@
   overflow: hidden;
 }
 
-@media (min-width: 520px) {
+@media (min-width: 32.5rem) {
   .stickers-page {
-    max-width: 640px;
+    max-width: 40rem;
     margin: 0 auto;
   }
 }
@@ -19,7 +19,7 @@
   align-items: center;
   grid-template-columns: 1fr;
   grid-template-rows: auto auto;
-  padding-top: env(safe-area-inset-top, 0px);
+  padding-top: env(safe-area-inset-top, 0);
 }
 
 .sticker-header-deco {
@@ -37,9 +37,9 @@
 .stickers-header-deco-grid-pattern {
   grid-area: 1 / 1 / 1 / 3;
   background-image:
-    linear-gradient(rgba(170, 191, 255, 1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(170, 191, 255, 1) 1px, transparent 1px);
-  background-size: 20px 20px;
+    linear-gradient(rgba(170, 191, 255, 1) 0.0625rem, transparent 0.0625rem),
+    linear-gradient(90deg, rgba(170, 191, 255, 1) 0.0625rem, transparent 0.0625rem);
+  background-size: 1.25rem 1.25rem;
   mask-image: linear-gradient(200deg,
       #fff 0%,
       rgba(255, 255, 255, 0) 60%);
@@ -72,8 +72,8 @@
 }
 
 .stickers-back-btn {
-  /* width: 44px;
-  height: 44px;
+  /* width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,9 +86,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   background: #fff;
-  box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
+  box-shadow: 0 0 0.25rem rgba(43, 43, 44, 0.1);
   color: #1952ff;
   text-decoration: none;
   transition: background .15s;
@@ -116,7 +116,7 @@
 }
 
 .stickers-header-spacer {
-  width: 44px;
+  width: 2.75rem;
 }
 
 .stickers-tabs {
@@ -139,13 +139,13 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
-  padding-bottom: calc(var(--nav-h-safe) + 16px);
+  padding-bottom: calc(var(--nav-h-safe) + 1rem);
 }
 
 .stickers-count-row {
   display: flex;
   justify-content: center;
-  padding: 10px 20px 2px;
+  padding: 0.625rem 1.25rem 0.125rem;
   flex-shrink: 0;
 }
 
@@ -154,14 +154,14 @@
   bottom: 15%;
   left: 65%;
   margin: 0;
-  padding: 6px 16px;
-  border-radius: 6px;
+  padding: 0.375rem 1rem;
+  border-radius: 0.375rem;
   background: #00B26F;
   color: #fff;
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
   line-height: 1.2;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.1);
   z-index: 100;
 }
 
@@ -189,7 +189,7 @@
 
 .stickers-tab:hover {
   background: var(--yellow-400);
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
 }
 
 .stickers-tab-wrapper--active>.stickers-tab {
@@ -209,8 +209,8 @@
   content: '';
   display: inline-block;
   flex-shrink: 0;
-  width: 10px;
-  height: 45px;
+  width: 0.625rem;
+  height: 2.8125rem;
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="45" viewBox="0 0 10 45" fill="none"><path d="M4.90234 0C7.60987 0 9.80459 2.19484 9.80469 4.90234C9.80469 7.44251 7.87308 9.53066 5.39844 9.7793V44.9102H4.4082V9.7793C1.9328 9.53139 0 7.44304 0 4.90234C9.92103e-05 2.1949 2.1949 9.92125e-05 4.90234 0Z" fill="%234775FF"/></svg>');
   background-size: contain;
   background-repeat: no-repeat;
@@ -224,8 +224,8 @@
   content: '';
   display: inline-block;
   flex-shrink: 0;
-  width: 10px;
-  height: 45px;
+  width: 0.625rem;
+  height: 2.8125rem;
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="45" viewBox="0 0 10 45" fill="none"><path d="M4.90234 0C7.60987 0 9.80459 2.19484 9.80469 4.90234C9.80469 7.44251 7.87308 9.53066 5.39844 9.7793V44.9102H4.4082V9.7793C1.9328 9.53139 0 7.44304 0 4.90234C9.92103e-05 2.1949 2.1949 9.92125e-05 4.90234 0Z" fill="%234775FF"/></svg>');
   background-size: contain;
   background-repeat: no-repeat;
@@ -238,7 +238,7 @@
 }
 
 .stickers-content {
-  padding: 20px 20px 28px;
+  padding: 1.25rem 1.25rem 1.75rem;
 }
 
 /* Collection sticker dashed shape outline — see .stickers-collection-outline-img */
@@ -249,7 +249,7 @@
   column-gap: 2rem;
 }
 
-@media (max-width: 519px) {
+@media (max-width: 32.4375rem) {
   .stickers-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -257,7 +257,7 @@
 
 .stickers-tile {
   aspect-ratio: 1;
-  border-radius: 14px;
+  border-radius: 0.875rem;
   background: var(--white);
   display: flex;
   align-items: center;
@@ -267,7 +267,7 @@
 
 .stickers-tile--collection {
   aspect-ratio: auto;
-  min-height: 118px;
+  min-height: 7.375rem;
   background: transparent;
   border-radius: 0;
   overflow: visible;
@@ -293,10 +293,10 @@
 }
 
 .stickers-collection-frame {
-  --sticker-collection-size: 118px;
+  --sticker-collection-size: 7.375rem;
   --sticker-outline-gap: 0.25rem;
-  --sticker-outline-stroke: 1.5px;
-  --sticker-outline-bleed: calc(var(--sticker-outline-gap) + var(--sticker-outline-stroke) + 6px);
+  --sticker-outline-stroke: 0.0938rem;
+  --sticker-outline-bleed: calc(var(--sticker-outline-gap) + var(--sticker-outline-stroke) + 0.375rem);
   position: relative;
   display: grid;
   place-items: center;
@@ -395,22 +395,22 @@
 /* Figma Frame 14918 — white card, blue backdrop, tilted sticker, label on card */
 .stickers-achievement-frame {
   --achievement-scale: 1;
-  --achievement-card-width: calc(139px * var(--achievement-scale));
-  --achievement-card-height: calc(136px * var(--achievement-scale));
-  --achievement-frame-width: calc(144px * var(--achievement-scale));
-  --achievement-frame-height: calc(196px * var(--achievement-scale));
-  --achievement-card-top: calc(60px * var(--achievement-scale));
-  --achievement-card-left: calc(3px * var(--achievement-scale));
-  --achievement-backdrop-left: calc(7px * var(--achievement-scale));
-  --achievement-backdrop-top: calc(2px * var(--achievement-scale));
-  --achievement-backdrop-width: calc(125px * var(--achievement-scale));
-  --achievement-backdrop-height: calc(146px * var(--achievement-scale));
-  --achievement-backdrop-radius: calc(7px * var(--achievement-scale));
+  --achievement-card-width: calc(8.6875rem * var(--achievement-scale));
+  --achievement-card-height: calc(8.5rem * var(--achievement-scale));
+  --achievement-frame-width: calc(9rem * var(--achievement-scale));
+  --achievement-frame-height: calc(12.25rem * var(--achievement-scale));
+  --achievement-card-top: calc(3.75rem * var(--achievement-scale));
+  --achievement-card-left: calc(0.1875rem * var(--achievement-scale));
+  --achievement-backdrop-left: calc(0.4375rem * var(--achievement-scale));
+  --achievement-backdrop-top: calc(0.125rem * var(--achievement-scale));
+  --achievement-backdrop-width: calc(7.8125rem * var(--achievement-scale));
+  --achievement-backdrop-height: calc(9.125rem * var(--achievement-scale));
+  --achievement-backdrop-radius: calc(0.4375rem * var(--achievement-scale));
   --achievement-art-width: clamp(7rem, 40vw, 10rem);
-  --achievement-art-max-height: calc(152px * var(--achievement-scale));
-  --achievement-label-top: calc(167px * var(--achievement-scale));
-  --achievement-label-size: calc(16px * var(--achievement-scale));
-  --achievement-card-radius: calc(12px * var(--achievement-scale));
+  --achievement-art-max-height: calc(9.5rem * var(--achievement-scale));
+  --achievement-label-top: calc(10.4375rem * var(--achievement-scale));
+  --achievement-label-size: calc(1rem * var(--achievement-scale));
+  --achievement-card-radius: calc(0.75rem * var(--achievement-scale));
   position: relative;
   width: var(--achievement-frame-width);
   height: var(--achievement-frame-height);
@@ -426,7 +426,7 @@
   height: var(--achievement-card-height);
   border-radius: var(--achievement-card-radius);
   background: #fff;
-  box-shadow: 0 2px 9.1px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0.125rem 0.5687rem rgba(0, 0, 0, 0.25);
 }
 
 .stickers-achievement-backdrop {
@@ -472,7 +472,7 @@
   top: var(--achievement-label-top);
   transform: translateX(-50%);
   width: max-content;
-  max-width: calc(var(--achievement-card-width) - 12px);
+  max-width: calc(var(--achievement-card-width) - 0.75rem);
   padding: 0;
   text-align: center;
   font-family: var(--font);
@@ -499,31 +499,31 @@
   filter: none;
 }
 
-@media (max-width: 360px) {
+@media (max-width: 22.5rem) {
   .stickers-content {
-    padding-inline: calc(20px * 100vw / 360px);
+    padding-inline: calc(1.25rem * 100vw / 22.5rem);
   }
 
   .stickers-grid {
-    row-gap: calc(2rem * 100vw / 360px);
-    column-gap: calc(2rem * 100vw / 360px);
+    row-gap: calc(2rem * 100vw / 22.5rem);
+    column-gap: calc(2rem * 100vw / 22.5rem);
   }
 
   .stickers-grid--achievements {
-    gap: calc(1.375rem * 100vw / 360px) calc(1.25rem * 100vw / 360px);
+    gap: calc(1.375rem * 100vw / 22.5rem) calc(1.25rem * 100vw / 22.5rem);
   }
 
   .stickers-achievement-frame {
-    --achievement-scale: calc(100vw / 360px);
-    --achievement-art-width: calc(126px * var(--achievement-scale));
+    --achievement-scale: calc(100vw / 22.5rem);
+    --achievement-art-width: calc(7.875rem * var(--achievement-scale));
   }
 
   .stickers-collection-frame {
-    --sticker-collection-size: calc(118px * 100vw / 360px);
+    --sticker-collection-size: calc(7.375rem * 100vw / 22.5rem);
   }
 
   .stickers-tile--collection {
-    min-height: calc(118px * 100vw / 360px);
+    min-height: calc(7.375rem * 100vw / 22.5rem);
   }
 }
 
@@ -547,33 +547,33 @@
 
 .stickers-empty-block {
   text-align: center;
-  padding: 48px 12px;
+  padding: 3rem 0.75rem;
 }
 
 .stickers-empty {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--dark);
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .stickers-empty-hint {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--mid);
   line-height: 1.5;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .stickers-empty-link {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--dark);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 0.125rem;
 }
 
 .stickers-page--guest .stickers-scroll {
-  padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(11.25rem + env(safe-area-inset-bottom, 0));
 }
 
 /* ─── Guest stickers CTA ──────────────────────────── */
@@ -583,14 +583,14 @@
   flex-direction: column;
   align-self: center;
   align-items: center;
-  gap: clamp(10px, 2.5vw, 14px);
+  gap: clamp(0.625rem, 2.5vw, 0.875rem);
   width: 100%;
   margin: 0 auto;
   text-align: center;
   pointer-events: auto;
   bottom: var(--nav-h-safe);
   z-index: 20;
-  padding: 20px 20px calc(4rem + env(safe-area-inset-bottom));
+  padding: 1.25rem 1.25rem calc(4rem + env(safe-area-inset-bottom));
   background: #fff;
   text-align: center;
 }
@@ -601,12 +601,12 @@
   left: 0;
   right: 0;
   bottom: 100%;
-  height: 56px;
+  height: 3.5rem;
   background: linear-gradient(to top, #fff 0%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
 }
 
-@media (min-width: 520px) {
+@media (min-width: 32.5rem) {
   .stickers-guest-cta {
     left: 50%;
     right: auto;
@@ -616,10 +616,10 @@
 }
 
 .stickers-guest-cta-copy {
-  font-size: clamp(13px, 3.6vw, 14px);
+  font-size: clamp(0.8125rem, 3.6vw, 0.875rem);
   line-height: 1.5;
   color: var(--dark);
-  margin-bottom: 14px;
+  margin-bottom: 0.875rem;
 }
 
 .stickers-guest-cta-btn {
@@ -627,19 +627,19 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 280px;
-  min-height: clamp(44px, 12vw, 48px);
-  border-radius: 999px;
+  max-width: 17.5rem;
+  min-height: clamp(2.75rem, 12vw, 3rem);
+  border-radius: 62.4375rem;
   background: var(--blue, #1952ff);
   color: #fff;
-  font-size: clamp(14px, 3.8vw, 15px);
+  font-size: clamp(0.875rem, 3.8vw, 0.9375rem);
   font-weight: 700;
   text-decoration: none;
 }
 
 .stickers-guest-cta-login {
-  margin-top: 12px;
-  font-size: clamp(12px, 3.4vw, 13px);
+  margin-top: 0.75rem;
+  font-size: clamp(0.75rem, 3.4vw, 0.8125rem);
   color: var(--mid);
 }
 

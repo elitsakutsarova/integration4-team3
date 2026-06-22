@@ -21,15 +21,15 @@
   pointer-events: auto;
   height: var(--nav-h-safe);
   /* padding: 0.5rem 0; */
-  /* padding-bottom: env(safe-area-inset-bottom, 0px); */
+  /* padding-bottom: env(safe-area-inset-bottom, 0); */
   /* margin: 0 1rem 1rem 1rem; */
-  margin: 0 0.875rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  margin: 0 0.875rem calc(0.75rem + env(safe-area-inset-bottom, 0));
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: space-around;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 9.1px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0.125rem 0.5687rem 0 rgba(0, 0, 0, 0.25);
 }
 
 .nav-item {
@@ -37,7 +37,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 0.1875rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -62,7 +62,7 @@
 .nav-icon { display: flex; }
 
 .nav-label {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 500;
   letter-spacing: .01em;
 }
@@ -72,16 +72,16 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 4px;
-  height: 4px;
+  width: 0.25rem;
+  height: 0.25rem;
   background: var(--dark);
   border-radius: 50%;
   margin-bottom: -0.5rem;
 }
 
 .nav-add-btn {
-  width: 64px;
-  height: 64px;
+  width: 4rem;
+  height: 4rem;
   background: transparent;
   border: none;
   border-radius: 0;
@@ -96,12 +96,12 @@
   box-shadow: none;
   transition: transform .15s;
   -webkit-tap-highlight-color: transparent;
-  margin-top: -22px;
+  margin-top: -1.375rem;
 }
 
 .nav-add-icon {
-  width: 64px;
-  height: 64px;
+  width: 4rem;
+  height: 4rem;
   display: block;
   image-rendering: pixelated;
 }
