@@ -19,32 +19,25 @@ const SUCCESS_DISPLAY_MS = 2000;
 
 function TrashIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M3 6h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M8 6V4h8v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M6 6l1 14h10l1-14" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="20" viewBox="0 0 18 20" fill="none">
+      <path d="M5.625 0V1.11111H0V3.33333H1.125V17.7778C1.125 18.3671 1.36205 18.9324 1.78401 19.3491C2.20597 19.7659 2.77826 20 3.375 20H14.625C15.2217 20 15.794 19.7659 16.216 19.3491C16.6379 18.9324 16.875 18.3671 16.875 17.7778V3.33333H18V1.11111H12.375V0H5.625ZM3.375 3.33333H14.625V17.7778H3.375V3.33333ZM5.625 5.55556V15.5556H7.875V5.55556H5.625ZM10.125 5.55556V15.5556H12.375V5.55556H10.125Z" fill="#FF4400" />
     </svg>
   );
 }
 
 function UploadIdleIcon() {
   return (
-    <svg width="37" height="37" viewBox="0 0 37 37" fill="none" aria-hidden="true">
-      <circle cx="18.5" cy="18.5" r="18.5" fill="#E8E8EC" />
-      <path d="M18.5 11v10M13.5 16l5-5 5 5" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M11 24h15" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="19" viewBox="0 0 16 19" fill="none">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M7.47656 0.5C7.62658 0.350028 7.97656 0 7.97656 0C7.97656 0 8.3281 0.365011 8.47812 0.514983C8.62813 0.664955 11.478 3.51488 11.478 3.51488L10.3469 4.64605L8.79971 3.1005V10.2011H7.19976V2.9245L5.47822 4.64605L4.34706 3.51488L7.47656 0.5ZM9.08971e-07 7.00117C9.08971e-07 6.789 1.60933e-06 6.20119 1.60933e-06 6.20119C1.60933e-06 6.20119 0.587808 6.20119 0.799974 6.20119H3.41749V7.80114H1.59995V17.4008H14.3995V7.80114H12.582V6.20119H15.1995C15.4117 6.20119 15.9995 6.20119 15.9995 6.20119C15.9995 6.20119 15.9995 6.789 15.9995 7.00117V18.2008C15.9995 18.413 15.9995 19.0008 15.9995 19.0008C15.9995 19.0008 15.4117 19.0008 15.1995 19.0008H0.799974C0.587808 19.0008 0 19.0008 0 19.0008C0 19.0008 9.08971e-07 18.413 9.08971e-07 18.2008V7.00117Z" fill="#1952FF" />
     </svg>
   );
 }
 
 function UploadErrorIcon() {
   return (
-    <svg width="37" height="37" viewBox="0 0 37 37" fill="none" aria-hidden="true">
-      <circle cx="18.5" cy="18.5" r="18.5" fill="#E8E8EC" />
-      <path d="M18.5 12v10" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="18.5" cy="26" r="1.5" fill="#9CA3AF" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 3L22.22 20.7H1.78L12 3Z" stroke="#797979" stroke-width="2" stroke-linecap="square" />
+      <path d="M12 10.5V14M12 17.5H12.004V17.504H12V17.5Z" stroke="#797979" stroke-width="2" stroke-linecap="square" />
     </svg>
   );
 }
@@ -52,17 +45,15 @@ function UploadErrorIcon() {
 function MediaLoadingIcon({ isVideo }) {
   if (isVideo) {
     return (
-      <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true">
-        <rect x="4" y="10" width="38" height="26" rx="4" stroke="#9CA3AF" strokeWidth="2" />
-        <path d="M20 18l10 5-10 5V18z" fill="#9CA3AF" />
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <path d="M2 2H33.5V33.5H2V2Z" stroke="#797979" stroke-width="4" />
+        <path d="M24.3125 17.75L12.5 24.5698V10.9303L24.3125 17.75Z" stroke="#797979" stroke-width="4" />
       </svg>
     );
   }
   return (
-    <svg width="46" height="46" viewBox="0 0 46 46" fill="none" aria-hidden="true">
-      <rect x="6" y="10" width="34" height="26" rx="4" stroke="#9CA3AF" strokeWidth="2" />
-      <circle cx="16" cy="19" r="3" fill="#9CA3AF" />
-      <path d="M6 30l9-9 7 7 6-6 12 12" stroke="#9CA3AF" strokeWidth="2" strokeLinejoin="round" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
+      <path d="M5.75 26.8333H28.75L21.5625 17.25L15.8125 24.9167L11.5 19.1667L5.75 26.8333ZM0 34.5V0H34.5V34.5H0ZM3.83333 30.6667H30.6667V3.83333H3.83333V30.6667Z" fill="#797979" />
     </svg>
   );
 }
@@ -409,26 +400,29 @@ export default function EditMemoPage({ memo }) {
 
         <header className="edit-memo-header memo-form-header">
           <div className="memo-form-hero-deco" aria-hidden="true">
-            <div className="memo-form-grid-gradient" />
+            <img className="memo-form-hero-grid" src={addMemoFormAssets.greenGrid} alt="" />
             <div className="memo-form-grid-pattern" />
-            <div className="memo-form-pixel-deco">
-              <span /><span /><span /><span />
-            </div>
+            <img
+              className="memo-form-hero-wave"
+              src={addMemoFormAssets.waveArrow}
+              alt=""
+            />
           </div>
-
           <div className="memo-form-title-bar">
-            <button
-              type="button"
-              className="memo-form-back-btn"
-              onClick={handleBack}
-              aria-label="Back to created memos"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <h1 className="memo-form-title">Edit memo</h1>
-            <img className="memo-form-camera-deco" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
+            <div className="memo-form-titles">
+              <button
+                type="button"
+                className="memo-form-back-btn btn-chevron"
+                onClick={handleBack}
+                aria-label="Back to created memos"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <h1 className="memo-form-title">Edit memo</h1>
+            </div>
+            <img className="memo-form-camera-deco title-icon" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
           </div>
         </header>
 
@@ -439,36 +433,38 @@ export default function EditMemoPage({ memo }) {
             <div className="memo-form-section-heading">
               <SectionTitle>Tell your story</SectionTitle>
             </div>
-            <p className="memo-form-section-copy">Describe a moment that happened here</p>
-            <div className="memo-form-quote-wrap">
-              <textarea
-                className={`memo-form-textarea${quoteFeedback?.tone === 'error' ? ' memo-form-textarea--error' : ''}${quoteFeedback?.tone === 'success' ? ' memo-form-textarea--success' : ''}`}
-                name="quote"
-                placeholder="I had the best kebab at 4 am here..."
-                maxLength={QUOTE_MAX}
-                value={quote}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setQuote(value);
-                  if (containsProfanity(value)) setQuoteTouched(true);
-                }}
-                onBlur={() => setQuoteTouched(true)}
-                aria-label="Memory quote"
-                aria-invalid={quoteFeedback?.tone === 'error'}
-              />
-              {quote.length > 0 && (
-                <p className="memo-form-char-counter" aria-live="polite">
-                  {quote.length}/{QUOTE_MAX} characters used
-                </p>
-              )}
-            </div>
-            <div className="memo-form-field-meta">
-              {quoteFeedback && (
-                <p className={`memo-form-field-feedback memo-form-field-feedback--${quoteFeedback.tone}`} role="status">
-                  {quoteFeedback.message}
-                </p>
-              )}
-              <p className="memo-form-char-hint">max. {QUOTE_MAX} characters</p>
+            <div className="section-input">
+              <p className="memo-form-section-copy">Describe a moment that happened here</p>
+              <div className="memo-form-quote-wrap">
+                <textarea
+                  className={`memo-form-textarea${quoteFeedback?.tone === 'error' ? ' memo-form-textarea--error' : ''}${quoteFeedback?.tone === 'success' ? ' memo-form-textarea--success' : ''}`}
+                  name="quote"
+                  placeholder="I had the best kebab at 4 am here..."
+                  maxLength={QUOTE_MAX}
+                  value={quote}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setQuote(value);
+                    if (containsProfanity(value)) setQuoteTouched(true);
+                  }}
+                  onBlur={() => setQuoteTouched(true)}
+                  aria-label="Memory quote"
+                  aria-invalid={quoteFeedback?.tone === 'error'}
+                />
+                {quote.length > 0 && (
+                  <p className="memo-form-char-counter" aria-live="polite">
+                    {quote.length}/{QUOTE_MAX} characters used
+                  </p>
+                )}
+              </div>
+              <div className="memo-form-field-meta">
+                {quoteFeedback && (
+                  <p className={`memo-form-field-feedback memo-form-field-feedback--${quoteFeedback.tone}`} role="status">
+                    {quoteFeedback.message}
+                  </p>
+                )}
+                <p className="memo-form-char-hint">max. {QUOTE_MAX} characters</p>
+              </div>
             </div>
           </section>
 
@@ -476,24 +472,26 @@ export default function EditMemoPage({ memo }) {
             <div className="memo-form-section-heading">
               <SectionTitle>Tag your moment</SectionTitle>
             </div>
-            <p className="memo-form-section-copy">Help others find similar experiences</p>
-            <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
-              <div className="memo-form-tag-row">
-                {MEMO_TAG_OPTIONS.map((tag) => {
-                  const selected = selectedTags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      className={`memo-form-tag-chip${selected ? ' memo-form-tag-chip--selected' : ''}`}
-                      aria-pressed={selected}
-                      onClick={() => toggleTag(tag)}
-                    >
-                      <MemoTagIcon tag={tag} />
-                      <span>{tag}</span>
-                    </button>
-                  );
-                })}
+            <div className="section-input">
+              <p className="memo-form-section-copy">Help others find similar experiences</p>
+              <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
+                <div className="memo-form-tag-row">
+                  {MEMO_TAG_OPTIONS.map((tag) => {
+                    const selected = selectedTags.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={`memo-form-tag-chip${selected ? ' memo-form-tag-chip--selected' : ''}`}
+                        aria-pressed={selected}
+                        onClick={() => toggleTag(tag)}
+                      >
+                        <MemoTagIcon tag={tag} />
+                        <span>{tag}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>
@@ -502,26 +500,27 @@ export default function EditMemoPage({ memo }) {
             <div className="memo-form-section-heading">
               <SectionTitle>Add location</SectionTitle>
             </div>
-            <p className="memo-form-section-copy">Help others find great locations</p>
-            <Link to={locationPickerHref} replace className="memo-form-location-card">
-              <div className="memo-form-location-icon" aria-hidden="true">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
+            <div className="section-input">
+              <p className="memo-form-section-copy">Help others find great locations</p>
+              <Link to={locationPickerHref} replace className="memo-form-location-card">
+                <div className="memo-form-location-icon" aria-hidden="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="25" viewBox="0 0 18 25" fill="none">
+                    <path d="M8.72402 0C3.90782 0 0 3.51742 0 7.85162C0 14.8308 8.72402 24.4273 8.72402 24.4273C8.72402 24.4273 17.448 14.8308 17.448 7.85162C17.448 3.51742 13.5402 0 8.72402 0ZM8.72402 12.2136C8.03384 12.2136 7.35916 12.009 6.7853 11.6255C6.21144 11.2421 5.76416 10.6971 5.50004 10.0594C5.23592 9.42179 5.16682 8.72015 5.30146 8.04323C5.43611 7.36631 5.76846 6.74452 6.25649 6.25649C6.74452 5.76846 7.36631 5.43611 8.04323 5.30146C8.72015 5.16682 9.42179 5.23592 10.0594 5.50004C10.6971 5.76416 11.2421 6.21143 11.6255 6.7853C12.009 7.35916 12.2136 8.03384 12.2136 8.72402C12.2126 9.64921 11.8446 10.5362 11.1904 11.1904C10.5362 11.8446 9.64921 12.2126 8.72402 12.2136Z" fill="#202020" />
+                  </svg>
+                </div>
+                <div className="memo-form-location-copy">
+                  <span className={`memo-form-location-label${locationDraft.name?.trim() ? '' : ' memo-form-location-label--muted'}`}>
+                    {locationDraft.name?.trim() || 'Choose location'}
+                  </span>
+                  <span className="memo-form-location-sub">
+                    {hasLocation ? 'Location selected' : 'Pick from map or use current location'}
+                  </span>
+                </div>
+                <svg class="memo-form-location-chevron" xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
+                  <path d="M0.707031 0.707031L6.70703 6.70703L0.707031 12.707" stroke="#1952FF" stroke-width="2" />
                 </svg>
-              </div>
-              <div className="memo-form-location-copy">
-                <span className={`memo-form-location-label${locationDraft.name?.trim() ? '' : ' memo-form-location-label--muted'}`}>
-                  {locationDraft.name?.trim() || 'Choose location'}
-                </span>
-                <span className="memo-form-location-sub">
-                  {hasLocation ? 'Location selected' : 'Pick from map or use current location'}
-                </span>
-              </div>
-              <svg className="memo-form-location-chevron" width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="#1952FF" strokeWidth="2" aria-hidden="true">
-                <path d="M1 1l5 6-5 6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
+              </Link>
+            </div>
           </section>
 
           {actionError && (
@@ -536,7 +535,7 @@ export default function EditMemoPage({ memo }) {
               className={`memo-form-publish-btn${publishActive ? ' memo-form-publish-btn--active' : ''}`}
               disabled={!canSubmit}
             >
-              {isSubmitting ? 'Publishing…' : 'Publish'}
+              {isSubmitting ? 'Saving…' : 'Save changes'}
             </button>
           </div>
         </div>
