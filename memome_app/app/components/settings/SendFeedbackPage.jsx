@@ -1,5 +1,6 @@
 // settings page for sending feedback to us through Subapase
 
+import { useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { goBack, paths } from '../../utils/appPaths';
@@ -24,9 +25,22 @@ export default function SendFeedbackPage() {
   const formError = fieldErrors.form;
   const usernamePlaceholder = user?.username ? `${user.username}` : 'Type your username here';
   const emailPlaceholder = 'Type your email here';
+  const [formValues, setFormValues] = useState({
+    name: user?.username ?? '',
+    email: user?.email ?? '',
+    subject: '',
+    message: '',
+  });
+
+  const canSubmit = Object.values(formValues).every((value) => value.trim());
+
+  function handleFieldChange(event) {
+    const { name, value } = event.target;
+    setFormValues((current) => ({ ...current, [name]: value }));
+  }
 
   function handleBack() {
-    goBack(navigate, paths.profileSettings);
+    goBack(navigate, paths.profileSettingsSupport);
   }
 
   return (
@@ -34,7 +48,7 @@ export default function SendFeedbackPage() {
       <SettingsSubpageHeader
               title="Send feedback"
               onBack={handleBack}
-              backLabel="Back to settings"
+              backLabel="Back to support"
               titleIcon={<img src={settingsAssets.supportIcon} alt="Star shape looking like gear" />}
             />
 
@@ -76,8 +90,9 @@ export default function SendFeedbackPage() {
                 name="name"
                 type="text"
                 className="feedback-input"
-                      placeholder={usernamePlaceholder}
-                      defaultValue={user?.username ?? ''}
+                placeholder={usernamePlaceholder}
+                value={formValues.name}
+                onChange={handleFieldChange}
                 autoComplete="name"
                 required
                 aria-invalid={Boolean(fieldErrors.name)}
@@ -102,7 +117,8 @@ export default function SendFeedbackPage() {
                 type="email"
                 className="feedback-input feedback-input--icon"
                 placeholder={emailPlaceholder}
-                defaultValue={user?.email ?? ''}
+                value={formValues.email}
+                onChange={handleFieldChange}
                 autoComplete="email"
                 required
                 aria-invalid={Boolean(fieldErrors.email)}
@@ -123,7 +139,9 @@ export default function SendFeedbackPage() {
                 name="subject"
                 type="text"
                 className="feedback-input"
-                      placeholder="Give a title to your message"
+                placeholder="Give a title to your message"
+                value={formValues.subject}
+                onChange={handleFieldChange}
                 required
                 aria-invalid={Boolean(fieldErrors.subject)}
               />
@@ -142,8 +160,10 @@ export default function SendFeedbackPage() {
                 id="feedback-message"
                 name="message"
                 className="feedback-textarea"
-                      placeholder="Type your message here"
+                placeholder="Type your message here"
                 rows={6}
+                value={formValues.message}
+                onChange={handleFieldChange}
                 required
                 aria-invalid={Boolean(fieldErrors.message)}
               />
@@ -153,7 +173,11 @@ export default function SendFeedbackPage() {
             ) : null}
           </div>
 
-          <button type="submit" className="feedback-submit" disabled={submitting}>
+          <button
+            type="submit"
+            className={`feedback-submit${canSubmit ? ' feedback-submit--active' : ''}`}
+            disabled={!canSubmit || submitting}
+          >
             {submitting ? 'Sending…' : 'Submit'}
           </button>
         </fetcher.Form>

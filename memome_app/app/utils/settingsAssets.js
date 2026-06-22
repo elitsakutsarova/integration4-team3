@@ -32,4 +32,6 @@ export const settingsAssets = {
   privacyIcon: asset('privacy_icon.svg'),
   supportIcon: asset('support_icon.svg'),
   changeIcon: asset('change_pass.svg'),
+  arrowBack: asset('arrow_back.svg'),
+  technicalSupportIcon: asset('technical_support_icon.svg'),
 };

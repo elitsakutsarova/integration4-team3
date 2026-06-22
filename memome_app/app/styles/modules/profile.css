@@ -135,14 +135,16 @@
   font-weight: 600;
   padding: 6px 14px;
   border-radius: 0.3125rem;
+  background: var(--green-400, #00de8b);
 }
 
 .profile-tag--foodie {
   background: #d1dcff;
 }
 
-.profile-tag--local {
-  background: #c8f5d4;
+.profile-tag--local,
+.profile-tag--visitor {
+  background: var(--green-400, #00de8b);
 }
 
 .profile-section--collections {

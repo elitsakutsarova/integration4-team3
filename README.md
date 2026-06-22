@@ -236,4 +236,7 @@ After our consult, I changed a lot of things in test5 like:
 - When clicking on map to add memo, the form opens and the user has to manually choose a location - make it so the map already has their coordinates, and the user can choose to change them if they want ✔️
 - You can’t add video from “Open camera” on laptop and overall can’t add video on phone -> fix it ✔️
 
+# Test 21 -> Settings page
+- Add the FAQs page before the Feedback form ✔️
+
 ## Deployment
