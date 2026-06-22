@@ -409,20 +409,6 @@ export default function EditMemoPage({ memo }) {
             />
           </div>
           <div className="memo-form-title-bar">
-<<<<<<< HEAD
-            <button
-              type="button"
-              className="memo-form-back-btn"
-              onClick={handleBack}
-              aria-label="Back to created memos"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1952FF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-            <h1 className="memo-form-title">Edit memo</h1>
-            <img className="memo-form-camera-deco" src={addMemoFormAssets.camera} alt="Decorative camera illustration" aria-hidden="true" />
-=======
             <div className="memo-form-titles">
               <button
                 type="button"
@@ -437,7 +423,6 @@ export default function EditMemoPage({ memo }) {
               <h1 className="memo-form-title">Edit memo</h1>
             </div>
             <img className="memo-form-camera-deco title-icon" src={addMemoFormAssets.camera} alt="" aria-hidden="true" />
->>>>>>> main
           </div>
         </header>
 
@@ -487,37 +472,17 @@ export default function EditMemoPage({ memo }) {
             <div className="memo-form-section-heading">
               <SectionTitle id="memo-tags-heading">Tag your moment</SectionTitle>
             </div>
-<<<<<<< HEAD
-            <p className="memo-form-section-copy">Help others find similar experiences</p>
-            <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
-              <div className="map-category-row">
-                {MEMO_TAG_OPTIONS.map((tag) => {
-                  const selected = selectedTags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      className={`map-category-chip${selected ? ' map-category-chip--active' : ''}`}
-                      aria-pressed={selected}
-                      onClick={() => toggleTag(tag)}
-                    >
-                      <MemoTagIcon tag={tag} />
-                      <span>{tag}</span>
-                    </button>
-                  );
-                })}
-=======
             <div className="section-input">
               <p className="memo-form-section-copy">Help others find similar experiences</p>
               <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
-                <div className="memo-form-tag-row">
+                <div className="map-category-row">
                   {MEMO_TAG_OPTIONS.map((tag) => {
                     const selected = selectedTags.includes(tag);
                     return (
                       <button
                         key={tag}
                         type="button"
-                        className={`memo-form-tag-chip${selected ? ' memo-form-tag-chip--selected' : ''}`}
+                        className={`map-category-chip${selected ? ' map-category-chip--active' : ''}`}
                         aria-pressed={selected}
                         onClick={() => toggleTag(tag)}
                       >
@@ -527,7 +492,6 @@ export default function EditMemoPage({ memo }) {
                     );
                   })}
                 </div>
->>>>>>> main
               </div>
             </div>
           </section>

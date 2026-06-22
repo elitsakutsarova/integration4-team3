@@ -70,7 +70,6 @@
 
 .settings-back-btn {
   flex-shrink: 0;
-<<<<<<< HEAD
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,16 +79,6 @@
   border-radius: 0.625rem;
   box-shadow: 0 0 0.25rem rgba(43, 43, 44, 0.1);
   padding: 0.6875rem 0.875rem 0.625rem 0.9375rem;
-=======
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background: var(--blue-10);
-    box-shadow: 0 0 4px rgba(43, 43, 44, 0.1);
-    color: #1952ff;
-    text-decoration: none;
->>>>>>> main
 }
 
 .settings-back-btn img {
