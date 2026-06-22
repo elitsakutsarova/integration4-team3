@@ -239,4 +239,8 @@ After our consult, I changed a lot of things in test5 like:
 # Test 21 -> Settings page
 - Add the FAQs page before the Feedback form ✔️
 
+# Test 22 -> Discover page
+- When a guest tries to add something to favourites, they should get a popup that they need an account for that ✔️
+
+
 ## Deployment

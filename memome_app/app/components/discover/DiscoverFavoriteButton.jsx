@@ -9,13 +9,12 @@ export function DiscoverFavoriteButton({
   className = 'discover-fave-btn',
 }) {
   const { isFaved, toggleFave } = useDiscoverFaves();
-  const { isGuest, guestLockedClass, guestStroke, activeStroke } = useGuestFavoriteLock();
+  const { isGuest, guestLockedClass, guestStroke, activeStroke, promptGuestFavorite } = useGuestFavoriteLock();
   const saved = !isGuest && isFaved(type, itemId);
 
   return (
     <button
       type="button"
-      disabled={isGuest}
       className={`${className}${saved ? ' discover-fave-btn--saved' : ''}${guestLockedClass}`}
       aria-label={
         isGuest
@@ -26,9 +25,12 @@ export function DiscoverFavoriteButton({
       }
       aria-pressed={saved}
       onClick={event => {
-        if (isGuest) return;
         event.preventDefault();
         event.stopPropagation();
+        if (isGuest) {
+          promptGuestFavorite();
+          return;
+        }
         toggleFave(type, itemId, meta);
       }}
     >
