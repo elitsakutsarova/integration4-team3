@@ -435,9 +435,9 @@ export default function EditMemoPage({ memo }) {
         <div className="edit-memo-media memo-form-media-zone">{renderMediaZone()}</div>
 
         <div className="edit-memo-body memo-form-body">
-          <section className="memo-form-section">
+          <section className="memo-form-section" aria-labelledby="memo-story-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Tell your story</SectionTitle>
+              <SectionTitle id="memo-story-heading">Tell your story</SectionTitle>
             </div>
             <p className="memo-form-section-copy">Describe a moment that happened here</p>
             <div className="memo-form-quote-wrap">
@@ -472,9 +472,9 @@ export default function EditMemoPage({ memo }) {
             </div>
           </section>
 
-          <section className="memo-form-section">
+          <section className="memo-form-section" aria-labelledby="memo-tags-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Tag your moment</SectionTitle>
+              <SectionTitle id="memo-tags-heading">Tag your moment</SectionTitle>
             </div>
             <p className="memo-form-section-copy">Help others find similar experiences</p>
             <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
@@ -498,9 +498,9 @@ export default function EditMemoPage({ memo }) {
             </div>
           </section>
 
-          <section className="memo-form-section memo-form-section--location">
+          <section className="memo-form-section memo-form-section--location" aria-labelledby="memo-location-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Add location</SectionTitle>
+              <SectionTitle id="memo-location-heading">Add location</SectionTitle>
             </div>
             <p className="memo-form-section-copy">Help others find great locations</p>
             <Link to={locationPickerHref} replace className="memo-form-location-card">

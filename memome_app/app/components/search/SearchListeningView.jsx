@@ -25,7 +25,7 @@ export default function SearchListeningView({
   copy = 'Searching by place name, event name, memo or address.',
 }) {
   return (
-    <section className="search-listening" aria-live="polite">
+    <section className="search-listening" aria-live="polite" aria-labelledby="search-listening-heading">
       <div className="search-listening-visual" aria-hidden="true">
         <span className="search-listening-ring search-listening-ring--4" />
         <span className="search-listening-ring search-listening-ring--3" />
@@ -36,7 +36,7 @@ export default function SearchListeningView({
         </div>
       </div>
 
-      <h2 className="search-listening-title">{title}</h2>
+      <h2 id="search-listening-heading" className="search-listening-title">{title}</h2>
       <p className="search-listening-copy">{copy}</p>
 
       {error && (

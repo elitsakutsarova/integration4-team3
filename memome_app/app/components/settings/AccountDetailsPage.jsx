@@ -15,6 +15,7 @@ import AvatarSuccessModal from './AvatarSuccessModal';
 import DeleteAccountConfirmModal from './DeleteAccountConfirmModal';
 import EditPenIcon from './EditPenIcon';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
+import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
 import UsernameField from './UsernameField';
 
 function AccountField({ label, value, editTo }) {
@@ -138,7 +139,8 @@ export default function AccountDetailsPage() {
       />
 
       <div className="account-details-content">
-        <section className="account-details-avatar-section">
+        <section className="account-details-avatar-section" aria-labelledby="account-details-avatar-heading">
+          <VisuallyHiddenTitle id="account-details-avatar-heading">Profile photo</VisuallyHiddenTitle>
           <input
             ref={fileInputRef}
             type="file"
@@ -199,8 +201,8 @@ export default function AccountDetailsPage() {
           </div>
         ) : null}
 
-        <section className="settings-section account-details-section">
-          <h2 className="settings-section-label">
+        <section className="settings-section account-details-section" aria-labelledby="account-details-info-heading">
+          <h2 id="account-details-info-heading" className="settings-section-label">
             <span className="settings-section-underline settings-section-underline--details" aria-hidden="true" />
             Details
           </h2>
@@ -220,8 +222,8 @@ export default function AccountDetailsPage() {
           </div>
         </section>
 
-        <section className="settings-section account-details-section">
-          <h2 className="settings-section-label">
+        <section className="settings-section account-details-section" aria-labelledby="account-details-actions-heading">
+          <h2 id="account-details-actions-heading" className="settings-section-label">
             <span className="settings-section-underline settings-section-underline--actions" aria-hidden="true" />
             Actions
           </h2>

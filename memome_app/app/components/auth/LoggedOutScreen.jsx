@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import LoggedOutLogo from './LoggedOutLogo';
+import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
 import { guestHomePath, paths } from '../../utils/appPaths';
 import { loggedOutAssets } from '../../utils/loggedOutAssets';
 
@@ -63,7 +64,8 @@ export default function LoggedOutScreen() {
         <div className="logged-out-page__center">
           <main className="logged-out-page__main" aria-hidden="true" />
 
-          <section className="logged-out-page__cta" aria-label="Account options">
+          <section className="logged-out-page__cta" aria-labelledby="logged-out-account-heading">
+            <VisuallyHiddenTitle id="logged-out-account-heading">Account options</VisuallyHiddenTitle>
             <Link to={paths.register} className="logged-out-page__create-btn">
               Create Account
             </Link>

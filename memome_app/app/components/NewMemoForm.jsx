@@ -14,6 +14,7 @@ import {
   snapshotMemoDraftSearchParams,
 } from '../utils/newMemoDraftStore';
 import SectionTitle from './SectionTitle';
+import VisuallyHiddenTitle from './VisuallyHiddenTitle';
 import AddMemoWarningModal from './AddMemoWarningModal';
 import MemoTagIcon from './MemoTagIcon';
 import { validateMemoMediaFile } from '../utils/validators';
@@ -491,9 +492,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
           <div className="memo-form-media-zone">{renderMediaZone()}</div>
 
           <div className="memo-form-body">
-          <section className="memo-form-section">
+          <section className="memo-form-section" aria-labelledby="memo-story-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Tell your story</SectionTitle>
+              <SectionTitle id="memo-story-heading">Tell your story</SectionTitle>
             </div>
             <div className="section-input">
             <p className="memo-form-section-copy">Describe a moment that happened here</p>
@@ -530,9 +531,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             </div>
           </section>
 
-          <section className="memo-form-section">
+          <section className="memo-form-section" aria-labelledby="memo-tags-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Tag your moment</SectionTitle>
+              <SectionTitle id="memo-tags-heading">Tag your moment</SectionTitle>
             </div>
             <div className="section-input">
             <p className="memo-form-section-copy">Help others find similar experiences</p>
@@ -558,9 +559,9 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             </div>
           </section>
 
-          <section className="memo-form-section memo-form-section--location">
+          <section className="memo-form-section memo-form-section--location" aria-labelledby="memo-location-heading">
             <div className="memo-form-section-heading">
-              <SectionTitle>Add location</SectionTitle>
+              <SectionTitle id="memo-location-heading">Add location</SectionTitle>
             </div>
             <div className="section-input">
             <p className="memo-form-section-copy">Help others find great locations</p>

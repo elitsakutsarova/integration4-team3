@@ -4,6 +4,7 @@ import '../styles/modules/map.css';
 import '../styles/modules/diary.css';
 import { useAuth } from '../context/AuthContext';
 import GuestAuthCta from '../components/GuestAuthCta';
+import VisuallyHiddenTitle from '../components/VisuallyHiddenTitle';
 import ProfileHero from '../components/profile/ProfileHero';
 import ProfileCollections from '../components/profile/ProfileCollections';
 import RememberMemosSection from '../components/profile/RememberMemosSection';
@@ -37,7 +38,8 @@ function GuestProfile() {
 
       <RememberMemosSection memos={[]} showAddCta={false} />
 
-      <section className="guest-create-account">
+      <section className="guest-create-account" aria-labelledby="guest-create-account-heading">
+        <VisuallyHiddenTitle id="guest-create-account-heading">Create account</VisuallyHiddenTitle>
         <GuestAuthCta copy="Create account or log in to add memos" />
       </section>
     </div>

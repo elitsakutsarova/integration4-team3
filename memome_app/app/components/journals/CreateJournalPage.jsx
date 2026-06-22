@@ -245,9 +245,9 @@ export default function CreateJournalPage() {
         </div>
       </div>
 
-      <section className="create-journal-memories">
+      <section className="create-journal-memories" aria-labelledby="create-journal-memories-heading">
         <div className="create-journal-memories-head">
-          <h2 className="create-journal-memories-title">Memories</h2>
+          <h2 id="create-journal-memories-heading" className="create-journal-memories-title">Memories</h2>
           {selectedMemos.length > 0 && (
             <Link to={paths.journalsCreateMemos} className="create-journal-memories-add" aria-label="Add more memos">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">

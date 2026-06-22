@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useSpeechSearch } from '../../hooks/useSpeechSearch';
 import { goBack, paths } from '../../utils/appPaths';
 import SearchListeningView from './SearchListeningView';
+import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
 import MicrophonePermissionModal from './MicrophonePermissionModal';
 import {
   buildGroupedSearchResults,
@@ -25,9 +26,9 @@ import { addRecentSearch, loadRecentSearches } from '../../utils/searchRecentSto
 const SEARCH_DEBOUNCE_MS = 600;
 const NO_SEARCHES_ILLUSTRATION = '/search-bar/no-results/no-searches-illustration.svg';
 
-function SearchSectionTitle({ label, width = 80 }) {
+function SearchSectionTitle({ label, width = 80, id }) {
   return (
-    <h2 className="search-page-group-title">
+    <h2 id={id} className="search-page-group-title">
       <span className="search-page-group-highlight" style={{ width }} aria-hidden="true" />
       {label}
     </h2>
@@ -95,7 +96,7 @@ function SearchNoResults({ query, onSuggestionClick }) {
   const suggestions = getNoResultsSuggestions();
 
   return (
-    <section className="search-page-no-results">
+    <section className="search-page-no-results" aria-labelledby="search-no-results-heading">
       <p className="search-page-count">0 results found</p>
 
       <img
@@ -105,7 +106,7 @@ function SearchNoResults({ query, onSuggestionClick }) {
         aria-hidden="true"
       />
 
-      <h3 className="search-page-no-results-title">
+      <h3 id="search-no-results-heading" className="search-page-no-results-title">
         Hmm, looks like we can&apos;t find anything for &ldquo;{query}&rdquo;.
       </h3>
 
@@ -325,8 +326,8 @@ export default function SearchPage() {
           {isListening && <SearchListeningView error={speechError} />}
 
           {!isListening && showSuggestions && (
-            <section className="search-page-section">
-              <h2 className="search-page-section-title">Try searching for</h2>
+            <section className="search-page-section" aria-labelledby="search-suggestions-heading">
+              <h2 id="search-suggestions-heading" className="search-page-section-title">Try searching for</h2>
               <div className="search-page-suggestions">
                 {suggestions.map(term => (
                   <button
@@ -344,8 +345,8 @@ export default function SearchPage() {
           )}
 
           {!isListening && showRecentList && (
-            <section className="search-page-section">
-              <h2 className="search-page-section-title">Recent searches</h2>
+            <section className="search-page-section" aria-labelledby="search-recent-heading">
+              <h2 id="search-recent-heading" className="search-page-section-title">Recent searches</h2>
               <div className="search-page-results">
                 {recentSearches.map(result => (
                   <div key={result.placeId} className="search-result-item">
@@ -357,7 +358,8 @@ export default function SearchPage() {
           )}
 
           {!isListening && showResults && (
-            <section className="search-page-section search-page-section--results">
+            <section className="search-page-section search-page-section--results" aria-labelledby="search-results-heading">
+              <VisuallyHiddenTitle id="search-results-heading">Search results</VisuallyHiddenTitle>
               {isAwaitingResults && <p className="search-page-status">Searching…</p>}
               {searchError && <p className="search-page-status search-page-status--error">{searchError}</p>}
 
@@ -419,7 +421,10 @@ export default function SearchPage() {
           )}
 
           {!isListening && showEmptyState && (
-            <section className="search-page-empty">
+            <section className="search-page-empty" aria-labelledby="search-empty-heading">
+              <VisuallyHiddenTitle id="search-empty-heading">
+                {isFocused ? 'Recent searches' : 'No recent searches yet'}
+              </VisuallyHiddenTitle>
               <p className="search-page-section-title search-page-section-title--inline">
                 {isFocused ? 'Recent searches' : 'No recent searches yet'}
               </p>

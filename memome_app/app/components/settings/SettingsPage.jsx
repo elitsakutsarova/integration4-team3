@@ -94,8 +94,8 @@ export default function SettingsPage() {
       </header>
 
       <div className="settings-content">
-        <section className="settings-section">
-          <h2 className="settings-section-label">
+        <section className="settings-section" aria-labelledby="settings-preferences-heading">
+          <h2 id="settings-preferences-heading" className="settings-section-label">
             <span className="settings-section-underline" aria-hidden="true" />
             Preferences
           </h2>
@@ -133,8 +133,8 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        <section className="settings-section">
-          <h2 className="settings-section-label">
+        <section className="settings-section" aria-labelledby="settings-other-heading">
+          <h2 id="settings-other-heading" className="settings-section-label">
             <span className="settings-section-underline settings-section-underline--short" aria-hidden="true" />
             Other
           </h2>

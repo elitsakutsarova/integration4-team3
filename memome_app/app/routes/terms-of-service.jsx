@@ -44,9 +44,13 @@ export default function TermsOfService() {
         </header>
 
         <div className="terms-content">
-          {TERMS_SECTIONS.map(section => (
-            <section key={section.title} className="terms-section">
-              <h2 className="terms-section-title">{section.title}</h2>
+          {TERMS_SECTIONS.map((section, index) => (
+            <section
+              key={section.title}
+              className="terms-section"
+              aria-labelledby={`terms-section-${index}-heading`}
+            >
+              <h2 id={`terms-section-${index}-heading`} className="terms-section-title">{section.title}</h2>
               <p className="terms-section-body">{section.body}</p>
             </section>
           ))}

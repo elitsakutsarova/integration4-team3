@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import MemoFavoriteButton from './MemoFavoriteButton';
+import VisuallyHiddenTitle from './VisuallyHiddenTitle';
 import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../utils/googleMaps';
 import {
   buildMemoMediaClassName,
@@ -148,7 +149,8 @@ export default function MemorySheet({
           ].filter(Boolean).join(' ')}
         >
           {hasMedia ? (
-            <section className="memory-sheet-media" aria-label="Memo photo">
+            <section className="memory-sheet-media" aria-labelledby="memory-sheet-media-heading">
+              <VisuallyHiddenTitle id="memory-sheet-media-heading" as="h3">Memo photo</VisuallyHiddenTitle>
               <div className={`memory-sheet-media-toolbar${actions ? ' memory-sheet-media-toolbar--created-actions' : ''}`}>
                 {actions ?? (
                   <MemoFavoriteButton

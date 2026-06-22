@@ -9,7 +9,7 @@ import { accountAssets } from '../../utils/accountAssets';
 
 function RememberTitle() {
   return (
-    <h2 className="profile-remember-title">
+    <h2 id="profile-remember-heading" className="profile-remember-title">
       Remember the time when...
     </h2>
   );
@@ -53,7 +53,7 @@ export default function RememberMemosSection({ memos, showAddCta = true }) {
   } = useMemoShare();
 
   return (
-    <section className="profile-section profile-remember">
+    <section className="profile-section profile-remember" aria-labelledby="profile-remember-heading">
       <ProfileRememberWaveSvg />
       <RememberTitle />
 

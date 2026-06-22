@@ -7,9 +7,9 @@ import { SUPPORT_HELP_FAQS, SUPPORT_TECHNICAL_EMAIL } from '../../data/supportHe
 import { settingsAssets } from '../../utils/settingsAssets';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 
-function SectionLabel({ children, className = '' }) {
+function SectionLabel({ children, className = '', id }) {
   return (
-    <h2 className={`support-help-section-label ${className}`.trim()}>
+    <h2 id={id} className={`support-help-section-label ${className}`.trim()}>
       <span className="support-help-section-underline" aria-hidden="true" />
       {children}
     </h2>
@@ -101,8 +101,8 @@ export default function SupportHelpPage() {
       />
 
       <div className="support-help-content">
-        <section className="support-help-section">
-          <SectionLabel>FAQs</SectionLabel>
+        <section className="support-help-section" aria-labelledby="support-faqs-heading">
+          <SectionLabel id="support-faqs-heading">FAQs</SectionLabel>
           <div className="support-help-box">
             {SUPPORT_HELP_FAQS.map((item) => (
               <FaqItem
@@ -115,8 +115,8 @@ export default function SupportHelpPage() {
           </div>
         </section>
 
-        <section className="support-help-section">
-          <SectionLabel className="support-help-section-label--wide">Support</SectionLabel>
+        <section className="support-help-section" aria-labelledby="support-links-heading">
+          <SectionLabel id="support-links-heading" className="support-help-section-label--wide">Support</SectionLabel>
           <div className="support-help-box">
             <Link to={paths.profileSettingsFeedback} className="support-help-row">
               <span className="support-help-row-icon">
