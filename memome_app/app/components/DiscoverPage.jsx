@@ -64,7 +64,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
         <div className="discover-search-container">
           <SearchOpenButton className="discover-search discover-search--trigger" variant="discover" />
 
-          <div className="discover-filters" role="tablist" aria-label="Discover categories">
+          <div className="map-category-row" role="tablist" aria-label="Discover categories">
             {DISCOVER_CATEGORIES.map(category => {
               const isActive = activeCategory === category.id;
               return (
@@ -73,7 +73,7 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
                   type="button"
                   role="tab"
                   aria-selected={isActive}
-                  className={`discover-filter-chip${isActive ? ' discover-filter-chip--active' : ''}`}
+                  className={`map-category-chip${isActive ? ' map-category-chip--active' : ''}`}
                   onClick={() => setActiveCategory(category.id)}
                 >
                   {category.icon && <CategoryIcon name={category.icon} />}

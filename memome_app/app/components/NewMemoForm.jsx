@@ -538,14 +538,14 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
             <div className="section-input">
             <p className="memo-form-section-copy">Help others find similar experiences</p>
             <div className="memo-form-tag-scroll" role="group" aria-label="Memo tags">
-              <div className="memo-form-tag-row">
+              <div className="map-category-row">
                 {MEMO_TAG_OPTIONS.map((tag) => {
                   const selected = selectedTags.includes(tag);
                   return (
                     <button
                       key={tag}
                       type="button"
-                      className={`memo-form-tag-chip${selected ? ' memo-form-tag-chip--selected' : ''}`}
+                      className={`map-category-chip${selected ? ' map-category-chip--active' : ''}`}
                       aria-pressed={selected}
                       onClick={() => toggleTag(tag)}
                     >

@@ -1,16 +1,17 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { useCreateJournal } from '../../context/CreateJournalContext';
 import { useEditJournal } from '../../context/EditJournalContext';
 import { useCreatedMemos } from '../../context/CreatedMemosContext';
 import { paths } from '../../utils/appPaths';
 import { MEMO_TAG_OPTIONS } from '../../data/memoTags';
+import MemoTagIcon from '../MemoTagIcon';
+import CreateJournalDecorations from './CreateJournalDecorations';
 import JournalMemoPickCard from './JournalMemoPickCard';
 
 const FILTER_OPTIONS = [
   { id: 'all', label: 'All' },
   ...MEMO_TAG_OPTIONS.map((tag) => ({ id: tag, label: tag })),
-  { id: 'Hidden gems', label: 'Hidden gems' },
 ];
 
 function filterMemos(memos, filterId) {
@@ -56,15 +57,11 @@ export default function AddJournalMemosPage({ flow = 'create', journalId = null 
 
   return (
     <>
-      <Link
-        to={backPath}
-        className="create-journal-back"
-        aria-label={isEditFlow ? 'Back to edit journal' : 'Back to create journal'}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </Link>
+      <CreateJournalDecorations
+        title="Add memories"
+        backTo={backPath}
+        backLabel={isEditFlow ? 'Back to edit journal' : 'Back to create journal'}
+      />
 
       <div className="create-journal-pick-count" aria-live="polite">
         <span className="create-journal-pick-count-dot" aria-hidden="true" />
@@ -72,25 +69,27 @@ export default function AddJournalMemosPage({ flow = 'create', journalId = null 
       </div>
 
       <div className="create-journal-filter-bar" role="toolbar" aria-label="Filter memos">
-        <div className="create-journal-filter-track">
+        <div className="map-category-row">
           {FILTER_OPTIONS.map((option) => {
             const active = option.id === filterId;
+            const showIcon = option.id !== 'all';
             return (
               <button
                 key={option.id}
                 type="button"
-                className={`create-journal-filter-chip${active ? ' create-journal-filter-chip--active' : ''}`}
+                className={`map-category-chip${active ? ' map-category-chip--active' : ''}`}
                 aria-pressed={active}
                 onClick={() => setFilterId(option.id)}
               >
-                {option.label}
+                {showIcon && <MemoTagIcon tag={option.label} />}
+                <span>{option.label}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="create-journal-pick-list">
+      <div className="create-journal-pick-list collection-memo-list collection-memo-list--created">
         {!ready ? (
           <p className="create-journal-pick-loading">Loading your memos…</p>
         ) : filteredMemos.length === 0 ? (

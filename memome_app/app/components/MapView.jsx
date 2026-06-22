@@ -7,7 +7,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate, useRevalidator, useSearchParams } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
-import { useCollectedStickersActions } from '../context/CollectedStickersContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import NewMemoForm from './NewMemoForm';
 import MemoLocationPicker from './MemoLocationPicker';
@@ -41,6 +40,7 @@ import {
   placePendingPin,
   syncMemoryLayers,
 } from '../utils/mapPins';
+import { useCollectedStickersActions } from '../context/CollectedStickersContext';
 import { clearStickerReveal, readStickerReveal } from '../utils/stickerReveal';
 import { journalAssets } from '../utils/journalAssets';
 
@@ -109,7 +109,6 @@ export default function MapView({ savedMemos = [], active = true }) {
   const revalidator = useRevalidator();
   const { user } = useAuth();
   const { dismissSavedNotice } = useSavedMemos();
-  const { addCollectedSticker } = useCollectedStickersActions();
   const { prependCreatedMemo } = useCreatedMemos();
   const handledPublishRef = useRef(false);
   const sawPublishSubmitRef = useRef(false);
@@ -326,6 +325,8 @@ export default function MapView({ savedMemos = [], active = true }) {
     };
   }, [active, mapReady, filterFingerprint, syncMapPins]);
 
+  const { addCollectedSticker } = useCollectedStickersActions();
+
   // Leaving home: reset map UI and URL params. Entering: restore sticker reveal + fix map size.
   useEffect(() => {
     if (!active) {
@@ -337,15 +338,14 @@ export default function MapView({ savedMemos = [], active = true }) {
 
     const pendingReveal = readStickerReveal();
     if (pendingReveal) {
-      setRevealedSticker(pendingReveal);
       addCollectedSticker(pendingReveal);
-      revalidator.revalidate();
+      setRevealedSticker(pendingReveal);
     }
 
     const map = mapRef.current;
     if (!map) return;
     requestAnimationFrame(() => map.invalidateSize());
-  }, [active, setSearchParams, revalidator, addCollectedSticker]);
+  }, [active, addCollectedSticker, setSearchParams]);
 
   function dismissStickerReveal() {
     clearStickerReveal();

@@ -153,53 +153,6 @@ grid-template-rows: 1fr;
   pointer-events: none;
 }
 
-.map-category-row {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  margin-right: -1rem;
-  padding: 0 0.125rem 0.5rem;
-  scrollbar-width: none;
-  pointer-events: auto;
-}
-
-.map-category-row::-webkit-scrollbar {
-  display: none;
-}
-
-.map-category-chip {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  /* padding: 0.625rem 0.9375rem; */
-  padding: 0.525rem 0.9375rem;
-  border-radius: 0.5rem;
-  border: 0.0813rem dashed var(--blue);
-  background: #fff;
-  color: var(--dark);
-  font-family: var(--font);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.map-category-chip svg path {
-  fill: #202020
-}
-
-.map-category-chip--active {
-  background: var(--blue);
-  border-style: solid;
-  border-color: var(--blue);
-  color: #fff;
-}
-
-.map-category-chip--active svg path {
-  fill: #fff;
-}
-
 
 
 .map-container--bottom {
@@ -1329,6 +1282,7 @@ grid-template-rows: 1fr;
 
 /* ─── Memory map popup card ───────────────────────── */
 :root {
+  --memory-sheet-scale: 0.875;
   --memory-sheet-shape-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 361 251' fill='none'%3E%3Cpath d='M349 0C355.627 0 361 5.37258 361 12V221C361 227.627 355.627 233 349 233H18.293L0 250.979V12C0 5.37259 5.37258 0 12 0H349Z' fill='white'/%3E%3C/svg%3E");
   --memory-sheet-shape-mask-below: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 361 251' fill='none'%3E%3Cpath d='M349 251C355.627 251 361 245.627 361 239V30C361 23.3726 355.627 18 349 18H18.293L0 0.021V239C0 245.627 5.37258 251 12 251H349Z' fill='white'/%3E%3C/svg%3E");
   --memory-sheet-text-tail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 19 31' fill='none'%3E%3Cpath d='M0 0H19L0 31V0Z' fill='white'/%3E%3C/svg%3E");
@@ -1383,6 +1337,8 @@ grid-template-rows: 1fr;
   animation: none;
   overflow: visible;
   margin-bottom: 1rem;
+  transform: translateX(-50%) scale(calc(var(--memory-sheet-scale) * var(--memory-sheet-responsive-scale, 1)));
+  transform-origin: center bottom;
 }
 
 .memory-sheet-dock-motion {
@@ -1432,6 +1388,10 @@ grid-template-rows: 1fr;
   .memory-sheet--anchored.memory-sheet--with-media,
   .memory-sheet--dock.memory-sheet--with-media {
     width: 22.5625rem;
+  }
+
+  .memory-sheet-body::before {
+    margin-top: 2rem;
   }
 }
 

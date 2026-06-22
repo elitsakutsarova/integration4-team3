@@ -3,14 +3,14 @@
 export default function CollectionSortChips({ options, value, onChange }) {
   return (
     <div className="collection-sort-bar" role="toolbar" aria-label="Sort and filter">
-      <div className="collection-sort-track">
+      <div className="map-category-row collection-sort-track">
         {options.map(option => {
           const active = option.id === value;
           return (
             <button
               key={option.id}
               type="button"
-              className={`collection-sort-chip${active ? ' collection-sort-chip--active' : ''}`}
+              className={`map-category-chip${active ? ' map-category-chip--active' : ''}`}
               aria-pressed={active}
               onClick={() => onChange(option.id)}
             >

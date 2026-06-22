@@ -455,39 +455,6 @@ flex-shrink: 0;
   display: none;
 }
 
-.memo-form-tag-row {
-  display: flex;
-  gap: 0.4375rem;
-  width: max-content;
-  min-width: 100%;
-}
-
-.memo-form-tag-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  flex-shrink: 0;
-  padding: 0.625rem 0.9375rem;
-  border: 0.0813rem dashed #1952ff;
-  border-radius: 0.5rem;
-  background: #fff;
-  color: #202020;
-  font-family: var(--font);
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: background .15s, color .15s, border-style .15s;
-}
-
-.memo-form-tag-chip--selected {
-  background: #1952ff;
-  border-style: solid;
-  color: #fff;
-}
-
-.memo-form-tag-chip svg path {
-  fill: currentColor;
-}
-
 .memo-form-location-card {
   display: grid;
   grid-template-columns: auto 1fr auto;

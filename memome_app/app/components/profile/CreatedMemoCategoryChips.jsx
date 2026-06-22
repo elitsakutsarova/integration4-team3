@@ -4,7 +4,7 @@ import MemoTagIcon from '../MemoTagIcon';
 export default function CreatedMemoCategoryChips({ value, onChange }) {
   return (
     <div className="created-memos-category-bar" role="toolbar" aria-label="Filter by category">
-      <div className="created-memos-category-track">
+      <div className="map-category-row created-memos-category-track">
         {MAP_CATEGORIES.map(category => {
           const active = category.id === value;
           return (

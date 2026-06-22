@@ -10,31 +10,30 @@ import CollectionStickerTile from '../components/stickers/CollectionStickerTile'
 import ProfileRememberWave from '../components/profile/ProfileRememberWave';
 import StickerOutlineDefs from '../components/stickers/StickerOutlineDefs';
 import { useAuth } from '../context/AuthContext';
-import { useCollectedStickers, useCollectedStickersLoading } from '../context/CollectedStickersContext';
+import {
+  useCollectedStickers,
+  useCollectedStickersLoading,
+  useLastNewStickerId,
+} from '../context/CollectedStickersContext';
 import { ACHIEVEMENT_TOTAL, getAchievementStates } from '../data/achievementStickers';
 import { withDefaultJournalStickers } from '../data/defaultJournalStickers';
 import { useOwnedStickerCount } from '../hooks/useOwnedStickerCount';
 import { assignUniqueCollectionRotations } from '../utils/collectionStickerRotation';
-import { getNewestCollectedStickerId } from '../utils/collectionNewSticker';
 import { paths } from '../utils/appPaths';
 import { accountAssets } from '../utils/accountAssets';
 import { discoverAssets } from '../utils/discoverAssets';
 import {
-  fetchCollectedStickers,
   loadDigitalStickerCatalog,
 } from '../utils/collectibleStore';
 
 export async function clientLoader() {
   const { getAuthSnapshot } = await import('../utils/authSession');
   if (getAuthSnapshot().user?.id) {
-    return { guestCatalog: [], guestCollected: [] };
+    return { guestCatalog: [] };
   }
 
-  const [guestCatalog, guestCollected] = await Promise.all([
-    loadDigitalStickerCatalog(),
-    fetchCollectedStickers(null),
-  ]);
-  return { guestCatalog, guestCollected };
+  const guestCatalog = await loadDigitalStickerCatalog();
+  return { guestCatalog };
 }
 
 clientLoader.hydrate = true;
@@ -75,7 +74,9 @@ function StickersCountBadge({ tab, collectionCount, achievementUnlocked }) {
 }
 
 function GuestStickerCollection() {
-  const { guestCatalog: catalog, guestCollected: collected } = useLoaderData();
+  const { guestCatalog: catalog } = useLoaderData();
+  const collected = useCollectedStickers();
+  const lastNewStickerId = useLastNewStickerId();
   const [tab, setTab] = useState('collection');
 
   const collectedIds = new Set(collected.map(sticker => sticker.id));
@@ -86,10 +87,6 @@ function GuestStickerCollection() {
   const catalogWithRotation = useMemo(
     () => assignUniqueCollectionRotations(catalog),
     [catalog],
-  );
-  const newestStickerId = useMemo(
-    () => getNewestCollectedStickerId(collected),
-    [collected],
   );
 
   return (
@@ -160,7 +157,7 @@ function GuestStickerCollection() {
                     sticker={item}
                     locked={!owned}
                     guestLockedStyle={!owned}
-                    isNew={owned && item.id === newestStickerId}
+                    isNew={owned && item.id === lastNewStickerId}
                   />
                 );
               })}
@@ -191,14 +188,11 @@ export default function StickersGallery() {
   const { user } = useAuth();
   const collected = useCollectedStickers();
   const loading = useCollectedStickersLoading();
+  const lastNewStickerId = useLastNewStickerId();
   const { collectedCount, achievementUnlocked, achievements } = useOwnedStickerCount();
   const collectionStickers = useMemo(
     () => assignUniqueCollectionRotations(withDefaultJournalStickers(collected, user)),
     [collected, user],
-  );
-  const newestStickerId = useMemo(
-    () => getNewestCollectedStickerId(collected),
-    [collected],
   );
 
   if (!user) {
@@ -284,7 +278,7 @@ export default function StickersGallery() {
                     <CollectionStickerTile
                       key={sticker.id}
                       sticker={sticker}
-                      isNew={sticker.id === newestStickerId}
+                      isNew={sticker.id === lastNewStickerId}
                     />
                   ))}
                 </div>

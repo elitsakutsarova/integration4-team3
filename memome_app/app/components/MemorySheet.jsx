@@ -12,7 +12,6 @@ import {
 } from '../utils/memoPinAssets';
 import { buildMemorySheetTags } from '../utils/memoAuthor';
 import {
-  buildMapPopupDockTransform,
   getMapPopupScale,
 } from '../utils/mapPopupScale';
 
@@ -61,7 +60,10 @@ export default function MemorySheet({
   locationHref = null,
   onClose,
   embedded = false,
+  responsiveScale = false,
   actions = null,
+  hideToolbar = false,
+  footerCta = null,
 }) {
   const hasMedia = Boolean(pin?.mediaPreview?.url);
   const [orientation, setOrientation] = useState(() => resolvePolaroidOrientation(pin));
@@ -72,7 +74,8 @@ export default function MemorySheet({
   );
 
   useEffect(() => {
-    if (embedded || !hasMedia) {
+    const shouldScale = responsiveScale || (!embedded && hasMedia);
+    if (!shouldScale) {
       setMediaSheetScale(1);
       return undefined;
     }
@@ -84,7 +87,7 @@ export default function MemorySheet({
     updateScale();
     window.addEventListener('resize', updateScale);
     return () => window.removeEventListener('resize', updateScale);
-  }, [embedded, hasMedia]);
+  }, [embedded, hasMedia, responsiveScale]);
 
   useEffect(() => {
     if (!pin?.mediaPreview?.url) {
@@ -115,8 +118,7 @@ export default function MemorySheet({
 
   const canOpenMaps = Array.isArray(pin.ll) && pin.ll.length >= 2;
   const sheetTags = buildMemorySheetTags(pin);
-  const dockTransform = embedded ? undefined : buildMapPopupDockTransform(mediaSheetScale);
-  const dockTransformOrigin = embedded || mediaSheetScale === 1 ? undefined : 'center bottom';
+  const usesResponsiveScale = responsiveScale || !embedded;
 
   function handleTakeMeThere(event) {
     event.stopPropagation();
@@ -134,10 +136,9 @@ export default function MemorySheet({
         'memory-sheet--dock',
         hasMedia ? 'memory-sheet--with-media' : 'memory-sheet--text-only',
       ].filter(Boolean).join(' ')}
-      style={embedded ? undefined : {
-        transform: dockTransform,
-        transformOrigin: dockTransformOrigin,
-      }}
+      style={usesResponsiveScale ? {
+        '--memory-sheet-responsive-scale': mediaSheetScale,
+      } : undefined}
       onClick={embedded ? undefined : (event => event.stopPropagation())}
     >
       <div className="memory-sheet-dock-motion">
@@ -151,14 +152,16 @@ export default function MemorySheet({
           {hasMedia ? (
             <section className="memory-sheet-media" aria-labelledby="memory-sheet-media-heading">
               <VisuallyHiddenTitle id="memory-sheet-media-heading" as="h3">Memo photo</VisuallyHiddenTitle>
-              <div className={`memory-sheet-media-toolbar${actions ? ' memory-sheet-media-toolbar--created-actions' : ''}`}>
-                {actions ?? (
-                  <MemoFavoriteButton
-                    memoId={pin.id}
-                    label={pin.location}
-                  />
-                )}
-              </div>
+              {!hideToolbar && (
+                <div className={`memory-sheet-media-toolbar${actions ? ' memory-sheet-media-toolbar--created-actions' : ''}`}>
+                  {actions ?? (
+                    <MemoFavoriteButton
+                      memoId={pin.id}
+                      label={pin.location}
+                    />
+                  )}
+                </div>
+              )}
               <div className={`memory-sheet-polaroid memory-sheet-polaroid--${orientation}`}>
                 <div className="memory-sheet-polaroid-frame">
                   <div className="memory-sheet-polaroid-photo">
@@ -188,14 +191,14 @@ export default function MemorySheet({
             </section>
           ) : (
             <>
-              {actions && (
+              {!hideToolbar && actions && (
                 <div className="created-memo-card__toolbar created-memo-card__toolbar--text-only">
                   {actions}
                 </div>
               )}
               <header className="memory-sheet-text-only-head">
                 <MemoTags tags={sheetTags} className="memory-sheet-tags--inline" />
-                {!actions && (
+                {!hideToolbar && !actions && (
                   <MemoFavoriteButton
                     memoId={pin.id}
                     label={pin.location}
@@ -226,7 +229,18 @@ export default function MemorySheet({
                 </span>
               )}
             </div>
-            {canOpenMaps && (
+            {footerCta ? (
+              <button
+                type="button"
+                className={footerCta.className ?? 'memory-sheet-cta'}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  footerCta.onClick?.(event);
+                }}
+              >
+                {footerCta.label}
+              </button>
+            ) : canOpenMaps && (
               <a
                 href={buildGoogleMapsDirectionsUrl(pin.ll[0], pin.ll[1])}
                 target="_blank"

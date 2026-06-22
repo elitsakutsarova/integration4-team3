@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useBlocker, useNavigate } from 'react-router';
 import { useCustomJournals } from '../../context/CreateJournalContext';
 import { useCreatedMemos } from '../../context/CreatedMemosContext';
@@ -18,9 +18,13 @@ import {
   validateEditJournalDraft,
 } from '../../utils/editJournalDraft';
 import { journalAssets } from '../../utils/journalAssets';
+import JournalBackButton from './JournalBackButton';
 import CreateJournalWarningModal from './CreateJournalWarningModal';
 import DeleteJournalWarningModal from './DeleteJournalWarningModal';
 import EditJournalMemoRow from './EditJournalMemoRow';
+import { useEditJournalMemoReorder } from '../../hooks/useEditJournalMemoReorder';
+
+const DESCRIPTION_ROW_ID = 'description';
 
 function buildEditFlowPaths(journalId) {
   return new Set([
@@ -64,8 +68,7 @@ export default function EditJournalPage({ journal }) {
   const [showErrors, setShowErrors] = useState(false);
   const [leaveWarningOpen, setLeaveWarningOpen] = useState(false);
   const [deleteWarningOpen, setDeleteWarningOpen] = useState(false);
-  const [selectMode, setSelectMode] = useState(false);
-  const [selectedItems, setSelectedItems] = useState(() => new Set());
+  const [selectedMemoRows, setSelectedMemoRows] = useState(() => new Set());
   const [editingTitle, setEditingTitle] = useState(false);
   const [descriptionOpen, setDescriptionOpen] = useState(false);
   const leaveTargetRef = useRef(diaryPath(journal.id));
@@ -99,8 +102,28 @@ export default function EditJournalPage({ journal }) {
 
   const hasDescription = Boolean(draft.description.trim());
   const showDescription = descriptionOpen || hasDescription;
-  const selectedCount = selectedItems.size;
+  const isDescriptionSelected = selectedMemoRows.has(DESCRIPTION_ROW_ID);
   const canSave = isEditJournalDraftComplete(draft);
+
+  const handleReorderMemos = useCallback((fromIndex, toIndex) => {
+    if (fromIndex === toIndex) return;
+    setDraft((prev) => {
+      const ids = [...prev.selectedMemoIds];
+      const [moved] = ids.splice(fromIndex, 1);
+      ids.splice(toIndex, 0, moved);
+      return { ...prev, selectedMemoIds: ids };
+    });
+  }, [setDraft]);
+
+  const {
+    setRowRef,
+    draggingIndex,
+    overIndex,
+    getMenuPointerHandlers,
+  } = useEditJournalMemoReorder({
+    itemCount: selectedMemos.length,
+    onReorder: handleReorderMemos,
+  });
 
   const blocker = useBlocker(
     ({ nextLocation }) =>
@@ -145,9 +168,8 @@ export default function EditJournalPage({ journal }) {
   }
 
   function handleBack() {
-    if (selectMode) {
-      setSelectMode(false);
-      setSelectedItems(new Set());
+    if (selectedMemoRows.size > 0) {
+      setSelectedMemoRows(new Set());
       return;
     }
 
@@ -176,32 +198,19 @@ export default function EditJournalPage({ journal }) {
     navigate(leaveTargetRef.current);
   }
 
-  function enterSelectMode(itemId) {
-    setSelectMode(true);
-    setSelectedItems(new Set([itemId]));
-  }
-
-  function toggleSelection(itemId) {
-    setSelectedItems((prev) => {
+  function toggleSelectedRow(rowId) {
+    setSelectedMemoRows((prev) => {
       const next = new Set(prev);
-      if (next.has(itemId)) next.delete(itemId);
-      else next.add(itemId);
+      if (next.has(rowId)) next.delete(rowId);
+      else next.add(rowId);
       return next;
     });
   }
 
-  function handleDeleteItems() {
-    if (!selectedCount) return;
-
-    const removeDescription = selectedItems.has('description');
-    const memoIdsToRemove = new Set(
-      [...selectedItems]
-        .filter((id) => id !== 'description')
-        .map(normalizeMemoId),
-    );
-
+  function handleRemoveMemo(memoId) {
+    const normalizedId = normalizeMemoId(memoId);
     const nextMemoIds = draft.selectedMemoIds.filter(
-      (id) => !memoIdsToRemove.has(normalizeMemoId(id)),
+      (id) => normalizeMemoId(id) !== normalizedId,
     );
     const removesAllMemos = countResolvedMemos(nextMemoIds, createdMemos) === 0;
 
@@ -215,19 +224,29 @@ export default function EditJournalPage({ journal }) {
 
     setDraft((prev) => ({
       ...prev,
-      description: removeDescription ? '' : prev.description,
       selectedMemoIds: prev.selectedMemoIds.filter(
-        (id) => !memoIdsToRemove.has(normalizeMemoId(id)),
+        (id) => normalizeMemoId(id) !== normalizedId,
       ),
     }));
-
-    if (removeDescription) setDescriptionOpen(false);
-    setSelectMode(false);
-    setSelectedItems(new Set());
+    setSelectedMemoRows((prev) => {
+      const next = new Set(prev);
+      next.delete(normalizedId);
+      return next;
+    });
 
     if (removesAllMemos) {
       setDeleteWarningOpen(true);
     }
+  }
+
+  function handleRemoveDescription() {
+    setDraft((prev) => ({ ...prev, description: '' }));
+    setDescriptionOpen(false);
+    setSelectedMemoRows((prev) => {
+      const next = new Set(prev);
+      next.delete(DESCRIPTION_ROW_ID);
+      return next;
+    });
   }
 
   function handleKeepJournal() {
@@ -310,11 +329,11 @@ export default function EditJournalPage({ journal }) {
 </div>
           <div className="edit-journal-title-bar">
             <div className="edit-journal-titles">
-            <button type="button" className="create-journal-back btn-chevron" onClick={handleBack} aria-label="Back to journal">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
+            <JournalBackButton
+              className="create-journal-back"
+              onClick={handleBack}
+              label="Back to journal"
+            />
             {editingTitle ? (
               <input
                 ref={titleInputRef}
@@ -353,27 +372,29 @@ export default function EditJournalPage({ journal }) {
           <div className="edit-journal-content">
             {showDescription ? (
               <div
-                className={`edit-journal-description-box${selectMode && hasDescription ? ' edit-journal-description-box--selectable' : ''}${selectedItems.has('description') ? ' edit-journal-description-box--selected' : ''}`}
-                onClick={selectMode && hasDescription ? () => toggleSelection('description') : undefined}
-                onKeyDown={selectMode && hasDescription ? (event) => {
+                className={`edit-journal-description-box${isDescriptionSelected ? ' edit-journal-description-box--active' : ''}`}
+                onClick={() => toggleSelectedRow(DESCRIPTION_ROW_ID)}
+                onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
-                    toggleSelection('description');
+                    toggleSelectedRow(DESCRIPTION_ROW_ID);
                   }
-                } : undefined}
-                role={selectMode && hasDescription ? 'button' : undefined}
-                tabIndex={selectMode && hasDescription ? 0 : undefined}
+                }}
+                role="button"
+                tabIndex={0}
+                aria-pressed={isDescriptionSelected}
               >
-                {!selectMode && hasDescription && (
+                {isDescriptionSelected && (
                   <button
                     type="button"
-                    className="edit-journal-description-menu"
-                    aria-label="Description options"
-                    onClick={() => enterSelectMode('description')}
+                    className="edit-journal-memo-remove"
+                    aria-label="Remove description from journal"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleRemoveDescription();
+                    }}
                   >
-                    <span aria-hidden="true" />
-                    <span aria-hidden="true" />
-                    <span aria-hidden="true" />
+                    <span aria-hidden="true">-</span>
                   </button>
                 )}
                 <textarea
@@ -381,21 +402,24 @@ export default function EditJournalPage({ journal }) {
                   value={draft.description}
                   maxLength={DESCRIPTION_MAX}
                   placeholder="Trip with friends to Antwerp. Lots of laughs, fun had, clubbing and treats had."
-                  readOnly={selectMode}
+                  readOnly={isDescriptionSelected}
+                  onClick={(event) => {
+                    if (!isDescriptionSelected) event.stopPropagation();
+                  }}
                   onChange={(event) => updateField('description', event.target.value)}
                 />
                 {errors.description && <p className="create-journal-error">{errors.description}</p>}
               </div>
             ) : (
-              !selectMode && (
+              selectedMemoRows.size === 0 && (
                 <button
                   type="button"
                   className="edit-journal-add-description"
                   onClick={() => setDescriptionOpen(true)}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                    <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                    <path d="M0 8.99361H18" stroke="#1952FF" strokeWidth="3.77035" strokeLinejoin="round" />
+                    <path d="M8.99361 0V18" stroke="#1952FF" strokeWidth="3.77035" strokeLinejoin="round" />
                   </svg>
                   Add description
                 </button>
@@ -405,16 +429,22 @@ export default function EditJournalPage({ journal }) {
             {selectedMemos.map((memo, index) => (
               <EditJournalMemoRow
                 key={memo.id}
+                rowRef={setRowRef(index)}
                 memo={memo}
                 layout={memoLayout(index, memo)}
-                selectMode={selectMode}
-                selected={selectedItems.has(memo.id)}
-                onSelect={() => toggleSelection(memo.id)}
-                onMenuClick={() => enterSelectMode(memo.id)}
+                active={selectedMemoRows.has(normalizeMemoId(memo.id))}
+                dragging={draggingIndex === index}
+                dragOver={draggingIndex !== null && overIndex === index && draggingIndex !== index}
+                onRowClick={() => toggleSelectedRow(normalizeMemoId(memo.id))}
+                onRemove={() => handleRemoveMemo(memo.id)}
+                menuPointerHandlers={getMenuPointerHandlers(
+                  index,
+                  () => toggleSelectedRow(normalizeMemoId(memo.id)),
+                )}
               />
             ))}
 
-            {!selectMode && (
+            {selectedMemoRows.size === 0 && (
               <Link to={paths.journalsEditMemos(journal.id)} className="edit-journal-add-memos">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
                   <path d="M0.000610352 10.9922H22.0006" stroke="#1952FF" stroke-width="3.77035" stroke-linejoin="round" />
@@ -439,25 +469,14 @@ export default function EditJournalPage({ journal }) {
       </div>
 
       <div className="edit-journal-footer-bar">
-        {selectMode ? (
-          <button
-            type="button"
-            className={`edit-journal-save-btn${selectedCount ? ' edit-journal-save-btn--active' : ''}`}
-            disabled={!selectedCount}
-            onClick={handleDeleteItems}
-          >
-            Delete item(s)
-          </button>
-        ) : (
-          <button
-            type="button"
-            className={`edit-journal-save-btn${canSave ? ' edit-journal-save-btn--active' : ''}`}
-            disabled={!canSave}
-            onClick={handleSave}
-          >
-            Save changes
-          </button>
-        )}
+        <button
+          type="button"
+          className={`edit-journal-save-btn${canSave ? ' edit-journal-save-btn--active' : ''}`}
+          disabled={!canSave}
+          onClick={handleSave}
+        >
+          Save changes
+        </button>
       </div>
 
       <CreateJournalWarningModal

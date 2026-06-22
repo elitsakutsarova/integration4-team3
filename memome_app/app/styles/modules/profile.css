@@ -213,25 +213,13 @@
   display: flex;
   align-items: flex-start;
   margin-top: 1.5rem;
-  gap: 2rem;
   width: max-content;
   padding-right: 1rem;
-  padding-left: 1rem;
 }
 
 .profile-remember-track .created-memo-card {
   height: fit-content;
-}
-
-.profile-remember-track .memory-sheet--dock {
-  flex: 0 0 min(calc(100vw - 2rem), 22.5625rem);
-  width: min(calc(100vw - 2rem), 22.5625rem);
-  z-index: 1;
-  margin-bottom: 0;
-}
-
-.profile-remember-track .memory-sheet--with-media {
-  margin-top: 7rem;
+  margin-bottom: calc(-12rem * (1 - var(--memory-sheet-scale)));
 }
 
 .profile-remember-track .memory-sheet--text-only .memory-sheet-body {

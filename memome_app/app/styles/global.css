@@ -421,6 +421,54 @@ a.btn-chevron {
   padding-bottom: 0.875rem 0;
 }
 
+/* Homepage map filter model — shared chip row across the app */
+.map-category-row {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  margin-right: -1rem;
+  padding: 0 0.125rem 1rem;
+  scrollbar-width: none;
+  pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.map-category-row::-webkit-scrollbar {
+  display: none;
+}
+
+.map-category-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.525rem 0.9375rem;
+  border-radius: 0.5rem;
+  border: 0.0813rem dashed var(--blue);
+  background: #fff;
+  color: var(--dark);
+  font-family: var(--font);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.map-category-chip svg path {
+  fill: #202020;
+}
+
+.map-category-chip--active {
+  background: var(--blue);
+  border-style: solid;
+  border-color: var(--blue);
+  color: #fff;
+}
+
+.map-category-chip--active svg path {
+  fill: #fff;
+}
+
 .center {
   text-align: center;
 }

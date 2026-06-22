@@ -1,12 +1,22 @@
 import JournalMemoEntry from './JournalMemoEntry';
 
-function MemoMenuButton({ onClick, label = 'Memo options' }) {
+function MemoMenuButton({
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onPointerCancel,
+  label = 'Drag to reorder memo',
+}) {
   return (
     <button
       type="button"
       className="edit-journal-memo-menu"
       aria-label={label}
-      onClick={onClick}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
+      onClick={(event) => event.preventDefault()}
     >
       <span aria-hidden="true" />
       <span aria-hidden="true" />
@@ -15,40 +25,59 @@ function MemoMenuButton({ onClick, label = 'Memo options' }) {
   );
 }
 
+function MemoRemoveButton({ onClick, label = 'Remove memo from journal' }) {
+  return (
+    <button
+      type="button"
+      className="edit-journal-memo-remove"
+      aria-label={label}
+      onClick={onClick}
+    >
+      <span aria-hidden="true">-</span>
+    </button>
+  );
+}
+
 export default function EditJournalMemoRow({
   memo,
   layout,
-  selectMode = false,
-  selected = false,
-  onSelect,
-  onMenuClick,
+  active = false,
+  dragging = false,
+  dragOver = false,
+  rowRef,
+  onRowClick,
+  onRemove,
+  menuPointerHandlers,
 }) {
   function handleRowClick() {
-    if (selectMode) onSelect?.();
+    onRowClick?.();
   }
 
   return (
     <article
-      className={`edit-journal-memo-row${selectMode ? ' edit-journal-memo-row--selectable' : ''}${selected ? ' edit-journal-memo-row--selected' : ''}`}
-      onClick={selectMode ? handleRowClick : undefined}
-      onKeyDown={selectMode ? (event) => {
+      ref={rowRef}
+      className={`edit-journal-memo-row${active ? ' edit-journal-memo-row--active' : ''}${dragging ? ' edit-journal-memo-row--dragging' : ''}${dragOver ? ' edit-journal-memo-row--drag-over' : ''}`}
+      onClick={handleRowClick}
+      onKeyDown={(event) => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          onSelect?.();
+          onRowClick?.();
         }
-      } : undefined}
-      role={selectMode ? 'button' : undefined}
-      tabIndex={selectMode ? 0 : undefined}
-      aria-pressed={selectMode ? selected : undefined}
+      }}
+      role="button"
+      tabIndex={0}
+      aria-pressed={active}
     >
       <JournalMemoEntry memo={memo} layout={layout} />
-      {!selectMode && (
-        <MemoMenuButton onClick={(event) => {
-          event.stopPropagation();
-          onMenuClick?.();
-        }}
+      {active && (
+        <MemoRemoveButton
+          onClick={(event) => {
+            event.stopPropagation();
+            onRemove?.();
+          }}
         />
       )}
+      <MemoMenuButton {...menuPointerHandlers} />
     </article>
   );
 }

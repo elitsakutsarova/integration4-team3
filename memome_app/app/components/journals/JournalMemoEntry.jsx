@@ -1,3 +1,10 @@
+import { useEffect, useState } from 'react';
+import {
+  buildMemoMediaClassName,
+  readMediaDimensions,
+  resolvePolaroidOrientation,
+} from '../../utils/memoPinAssets';
+
 function formatMemoDay(dateLabel) {
   const text = String(dateLabel ?? '').trim();
   if (!text) return '';
@@ -18,15 +25,45 @@ function LocationPin() {
 
 function PhotoPolaroid({ memo, align }) {
   const url = memo.mediaPreview?.url;
+  const [orientation, setOrientation] = useState(() => resolvePolaroidOrientation(memo));
+
+  useEffect(() => {
+    if (!url) {
+      setOrientation('vertical');
+      return undefined;
+    }
+
+    const storedWidth = Number(memo.mediaPreview.width);
+    const storedHeight = Number(memo.mediaPreview.height);
+    if (storedWidth > 0 && storedHeight > 0) {
+      setOrientation(storedWidth >= storedHeight ? 'horizontal' : 'vertical');
+      return undefined;
+    }
+
+    let cancelled = false;
+    readMediaDimensions(url, { isVideo: Boolean(memo.mediaPreview.isVideo) })
+      .then(({ width, height }) => {
+        if (cancelled || width <= 0 || height <= 0) return;
+        setOrientation(width >= height ? 'horizontal' : 'vertical');
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memo.id, url, memo.mediaPreview?.width, memo.mediaPreview?.height, memo.mediaPreview?.isVideo]);
+
   if (!url) return null;
 
+  const mediaClassName = buildMemoMediaClassName('journal-memo-polaroid-img', orientation);
+
   return (
-    <div className={`journal-memo-polaroid journal-memo-polaroid--${align}`}>
+    <div className={`journal-memo-polaroid journal-memo-polaroid--${orientation} journal-memo-polaroid--${align}`}>
       <div className="journal-memo-polaroid-accent" aria-hidden="true" />
       <div className="journal-memo-polaroid-frame">
         {memo.mediaPreview.isVideo
-          ? <video src={url} className="journal-memo-polaroid-img" muted playsInline />
-          : <img src={url} alt={`Memo photo from ${memo.location}`} className="journal-memo-polaroid-img" />
+          ? <video src={url} className={mediaClassName} muted playsInline />
+          : <img src={url} alt={`Memo photo from ${memo.location}`} className={mediaClassName} />
         }
       </div>
       <p className="journal-memo-date-label">{formatMemoDay(memo.date)}</p>
@@ -34,7 +71,18 @@ function PhotoPolaroid({ memo, align }) {
   );
 }
 
-function QuoteNote({ quote, align }) {
+function QuoteNote({ quote, align, accentBelow = false }) {
+  if (accentBelow) {
+    return (
+      <div className="journal-memo-quote-stack">
+        <div className={`journal-memo-quote-note journal-memo-quote-note--${align}`}>
+          <span>{quote}</span>
+        </div>
+        <div className="journal-memo-quote-accent" aria-hidden="true" />
+      </div>
+    );
+  }
+
   return (
     <div className={`journal-memo-quote-note journal-memo-quote-note--${align}`}>
       <div className="journal-memo-quote-accent" aria-hidden="true" />
@@ -60,7 +108,7 @@ export default function JournalMemoEntry({ memo, layout }) {
     return (
       <article className="journal-memo-entry journal-memo-entry--text">
         <div className="journal-memo-text-container">
-          <QuoteNote quote={quote} align="left" />
+          <QuoteNote quote={quote} align="left" accentBelow />
           <p className="journal-memo-date-label journal-memo-date-label--solo">
             {formatMemoDay(memo.date)}
           </p>

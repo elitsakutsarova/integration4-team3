@@ -102,7 +102,7 @@ export default function DiscoverListPage({
       />
 
       <div className="discover-list-filters-container">
-        <div className="discover-filters discover-list-filters" role="tablist" aria-label="Discover categories">
+        <div className="map-category-row discover-list-filters" role="tablist" aria-label="Discover categories">
           {DISCOVER_CATEGORIES.map(category => {
             const isActive = activeCategory === category.id;
             return (
@@ -111,7 +111,7 @@ export default function DiscoverListPage({
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                className={`discover-filter-chip${isActive ? ' discover-filter-chip--active' : ''}`}
+                className={`map-category-chip${isActive ? ' map-category-chip--active' : ''}`}
                 onClick={() => setActiveCategory(category.id)}
               >
                 {category.icon && <CategoryIcon name={category.icon} />}

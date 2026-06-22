@@ -1,7 +1,7 @@
 import '../styles/modules/map.css';
+import '../styles/modules/profile-collections.css';
 import '../styles/modules/journals.css';
 import AddJournalMemosPage from '../components/journals/AddJournalMemosPage';
-import CreateJournalDecorations from '../components/journals/CreateJournalDecorations';
 
 export function meta() {
   return [
@@ -13,7 +13,6 @@ export function meta() {
 export default function JournalsCreateMemosRoute() {
   return (
     <div className="create-journal-page create-journal-page--pick-memos">
-      <CreateJournalDecorations title="Add memories" />
       <AddJournalMemosPage />
     </div>
   );

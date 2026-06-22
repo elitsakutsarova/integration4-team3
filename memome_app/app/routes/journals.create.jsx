@@ -1,6 +1,5 @@
 import '../styles/modules/journals.css';
 import CreateJournalPage from '../components/journals/CreateJournalPage';
-import CreateJournalDecorations from '../components/journals/CreateJournalDecorations';
 
 export function meta() {
   return [
@@ -12,7 +11,6 @@ export function meta() {
 export default function JournalsCreateRoute() {
   return (
     <div className="create-journal-page">
-      <CreateJournalDecorations title="Create Journal" />
       <CreateJournalPage />
     </div>
   );
