@@ -286,63 +286,35 @@ export default function EditJournalPage({ journal }) {
 
   return (
     <div className="edit-journal-page">
-      <header className="edit-journal-hero">
+      <header className="edit-journal-header">
+        <div className="edit-journal-hero" aria-hidden="true">
         <img
-          className="create-journal-hero-pixel"
+          className="create-journal-hero-grid"
           src={journalAssets.pixelDeco}
           alt=""
           aria-hidden="true"
         />
         <img
           className="create-journal-hero-wave"
-          src={journalAssets.createHeaderWave}
+          src={journalAssets.headerWave}
           alt=""
           aria-hidden="true"
         />
         <img
           className="create-journal-hero-pin"
-          src={journalAssets.createPixelDeco}
+          src={journalAssets.logoMark}
           alt=""
           aria-hidden="true"
         />
-
-        {selectMode ? (
-          <div className="edit-journal-select-header">
-            <button
-              type="button"
-              className="edit-journal-select-trash"
-              aria-label="Delete selected items"
-              onClick={handleDeleteItems}
-              disabled={!selectedCount}
-            >
-              <TrashIcon />
-            </button>
-            <h2 className="edit-journal-select-title">Select item</h2>
-            <button
-              type="button"
-              className="edit-journal-select-close"
-              aria-label="Cancel selection"
-              onClick={() => {
-                setSelectMode(false);
-                setSelectedItems(new Set());
-              }}
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <line x1="1" y1="1" x2="13" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="13" y1="1" x2="1" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <div className="grid-pattern" />
+</div>
+          <div className="edit-journal-title-bar">
+            <div className="edit-journal-titles">
+            <button type="button" className="create-journal-back btn-chevron" onClick={handleBack} aria-label="Back to journal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
-          </div>
-        ) : (
-          <button type="button" className="create-journal-back" onClick={handleBack} aria-label="Back to journal">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        )}
-
-        {!selectMode && (
-          <div className="edit-journal-title-bar">
             {editingTitle ? (
               <input
                 ref={titleInputRef}
@@ -364,20 +336,13 @@ export default function EditJournalPage({ journal }) {
               aria-label="Edit journal title"
               onClick={() => setEditingTitle(true)}
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 20h9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M15.2307 8.45822L13.5386 6.76579L2.39326 17.9138V19.6062H4.08529L15.2307 8.45822ZM16.9227 6.76579L18.6147 5.07337L16.9227 3.38094L15.2307 5.07337L16.9227 6.76579ZM5.07609 22H0V16.9215L16.0767 0.841109C16.3011 0.616724 16.7778 0.139124 16.9169 0C17.1951 0.278249 17.5443 0.616724 17.7687 0.841109L21.154 4.22715C21.3783 4.45161 21.7218 4.79512 22 5.07337C21.7218 5.35161 21.3783 5.69513 21.154 5.91958L5.07609 22Z" fill="black" />
               </svg>
             </button>
+            </div>
           </div>
-        )}
       </header>
-
-      {selectMode && (
-        <p className="edit-journal-select-banner" role="status">
-          Please select an item to delete it permanently
-        </p>
-      )}
 
       {dateRange && (
         <p className="edit-journal-dates">{dateRange}</p>
@@ -451,9 +416,9 @@ export default function EditJournalPage({ journal }) {
 
             {!selectMode && (
               <Link to={paths.journalsEditMemos(journal.id)} className="edit-journal-add-memos">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                  <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M0.000610352 10.9922H22.0006" stroke="#1952FF" stroke-width="3.77035" stroke-linejoin="round" />
+                  <path d="M10.9938 0V22" stroke="#1952FF" stroke-width="3.77035" stroke-linejoin="round" />
                 </svg>
                 Add memos
               </Link>
