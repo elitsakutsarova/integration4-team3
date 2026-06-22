@@ -3,6 +3,7 @@ import { Link, useBlocker, useNavigate } from 'react-router';
 import { useCreateJournal, useCustomJournals } from '../../context/CreateJournalContext';
 import { useCreatedMemos } from '../../context/CreatedMemosContext';
 import { paths } from '../../utils/appPaths';
+import { writeLastNewJournalId } from '../../utils/journalNewBadge';
 import { buildCustomJournalId } from '../../utils/customJournalStore';
 import {
   DESCRIPTION_MAX,
@@ -14,7 +15,8 @@ import {
 } from '../../utils/createJournalDraft';
 import CreateJournalDecorations from './CreateJournalDecorations';
 import CreateJournalWarningModal from './CreateJournalWarningModal';
-import { CalendarIcon, JournalMemoMiniCard } from './JournalMemoPickCard';
+import CreatedMemoCard from '../profile/CreatedMemoCard';
+import { CalendarIcon } from './JournalMemoPickCard';
 
 const CREATE_FLOW_PATHS = new Set([paths.journalsCreate, paths.journalsCreateMemos]);
 
@@ -169,6 +171,8 @@ export default function CreateJournalPage() {
     const saved = saveCustomJournal(journal);
     if (!saved) return;
 
+    writeLastNewJournalId(journal.id);
+
     isSubmittingRef.current = true;
     clearCreateJournalDraft();
     resetDraft();
@@ -268,14 +272,18 @@ export default function CreateJournalPage() {
             {errors.memos && <p className="create-journal-error create-journal-error--center">{errors.memos}</p>}
           </div>
         ) : (
-          <div className="create-journal-memories-strip">
-            {selectedMemos.map((memo) => (
-              <JournalMemoMiniCard
-                key={memo.id}
-                memo={memo}
-                onRemove={() => removeMemo(memo.id)}
-              />
-            ))}
+          <div className="create-journal-memories-strip profile-remember-scroll">
+            <div className="profile-remember-track">
+              {selectedMemos.map((memo) => (
+                <CreatedMemoCard
+                  key={memo.id}
+                  memo={memo}
+                  responsiveScale
+                  showEdit={false}
+                  onRemove={() => removeMemo(memo.id)}
+                />
+              ))}
+            </div>
           </div>
         )}
       </section>

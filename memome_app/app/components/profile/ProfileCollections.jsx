@@ -44,11 +44,11 @@ export default function ProfileCollections({
     <section className="profile-section profile-section--collections" aria-labelledby="profile-collections-heading">
       <h2 id="profile-collections-heading" className="profile-section-label">Collections</h2>
       <div className="profile-collections profile-collections--account">
-        <Link to={paths.profileMemos} className="collection-card collection-card--memos collection-card--account collection-card--link">
+        <Link to={paths.profileMemos} prefetch="intent" className="collection-card collection-card--memos collection-card--account collection-card--link">
           <CollectionIcon src={accountAssets.createdMemosIcon} alt="Memos collection icon" />
           <span>{memosLabel} Memos</span>
         </Link>
-        <Link to={paths.profileFavouritesMemos} className="collection-card collection-card--favourites collection-card--account collection-card--link">
+        <Link to={paths.profileFavouritesMemos} prefetch="intent" className="collection-card collection-card--favourites collection-card--account collection-card--link">
           <CollectionIcon src={accountAssets.favouritesIcon} alt="Favourites collection icon" />
           <span>{favouritesLabel} Favorites</span>
         </Link>

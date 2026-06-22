@@ -8,6 +8,7 @@ import { MEMO_TAG_OPTIONS } from '../../data/memoTags';
 import MemoTagIcon from '../MemoTagIcon';
 import CreateJournalDecorations from './CreateJournalDecorations';
 import JournalMemoPickCard from './JournalMemoPickCard';
+import JournalPickCountButton from './JournalPickCountButton';
 
 const FILTER_OPTIONS = [
   { id: 'all', label: 'All' },
@@ -38,6 +39,9 @@ export default function AddJournalMemosPage({ flow = 'create', journalId = null 
     [createdMemos, filterId],
   );
 
+  const allVisibleSelected = filteredMemos.length > 0
+    && filteredMemos.every((memo) => selectedSet.has(memo.id));
+
   function toggleMemo(memoId) {
     setDraft((prev) => {
       const exists = prev.selectedMemoIds.includes(memoId);
@@ -46,6 +50,28 @@ export default function AddJournalMemosPage({ flow = 'create', journalId = null 
         selectedMemoIds: exists
           ? prev.selectedMemoIds.filter((id) => id !== memoId)
           : [...prev.selectedMemoIds, memoId],
+      };
+    });
+  }
+
+  function toggleSelectAllVisible() {
+    if (!filteredMemos.length) return;
+
+    const visibleIds = filteredMemos.map((memo) => memo.id);
+    const everyVisibleSelected = visibleIds.every((id) => selectedSet.has(id));
+
+    setDraft((prev) => {
+      if (everyVisibleSelected) {
+        const visibleIdSet = new Set(visibleIds);
+        return {
+          ...prev,
+          selectedMemoIds: prev.selectedMemoIds.filter((id) => !visibleIdSet.has(id)),
+        };
+      }
+
+      return {
+        ...prev,
+        selectedMemoIds: [...new Set([...prev.selectedMemoIds, ...visibleIds])],
       };
     });
   }
@@ -63,10 +89,12 @@ export default function AddJournalMemosPage({ flow = 'create', journalId = null 
         backLabel={isEditFlow ? 'Back to edit journal' : 'Back to create journal'}
       />
 
-      <div className="create-journal-pick-count" aria-live="polite">
-        <span className="create-journal-pick-count-dot" aria-hidden="true" />
-        <span className="create-journal-pick-count-value">{selectedSet.size}</span>
-      </div>
+      <JournalPickCountButton
+        countLabel={selectedSet.size}
+        allVisibleSelected={allVisibleSelected}
+        onToggleSelectAll={toggleSelectAllVisible}
+        disabled={!ready || filteredMemos.length === 0}
+      />
 
       <div className="create-journal-filter-bar" role="toolbar" aria-label="Filter memos">
         <div className="map-category-row">

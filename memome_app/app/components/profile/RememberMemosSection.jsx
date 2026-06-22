@@ -4,7 +4,7 @@ import { ProfileRememberWaveSvg } from './ProfileRememberWave';
 import ShareSheet from '../diary/ShareSheet';
 import DiscoverShareSuccess from '../discover/DiscoverShareSuccess';
 import { useMemoShare } from '../../hooks/useMemoShare';
-import { addMemoPathFromLocation } from '../../utils/appPaths';
+import { addMemoPathFromLocation, paths } from '../../utils/appPaths';
 import { accountAssets } from '../../utils/accountAssets';
 
 function RememberTitle() {
@@ -65,7 +65,8 @@ export default function RememberMemosSection({ memos, showAddCta = true }) {
                 key={memo.id}
                 memo={memo}
                 onShare={() => openShare(memo)}
-                showFavoriteInsteadOfEdit
+                responsiveScale
+                editReturnTo={paths.profile}
               />
             ))}
           </div>

@@ -37,11 +37,6 @@ export default function MemoPostSuccess({
 
         <div className="memo-post-success-hero" aria-hidden="true">
           <img
-            className="memo-post-success-shadow"
-            src={memoPostSuccessAssets.shadow}
-            alt="Decorative shadow illustration"
-          />
-          <img
             className="memo-post-success-illustration"
             src={memoPostSuccessAssets.hero}
             alt="Success celebration illustration"

@@ -1,20 +1,12 @@
 // memo archive card — matches map memory-sheet polaroid style
 
+import { Link } from 'react-router';
 import MemoFavoriteButton from '../MemoFavoriteButton';
-import { openGoogleMapsDirections } from '../../utils/googleMaps';
+import { buildGoogleMapsDirectionsUrl, openGoogleMapsDirections } from '../../utils/googleMaps';
 
 export default function MemoArchiveCard({ memo }) {
   const hasMedia = Boolean(memo.mediaPreview?.url);
   const canOpenMaps = Array.isArray(memo.ll) && memo.ll.length >= 2;
-
-  function handleTakeMeThere(event) {
-    event.stopPropagation();
-    if (!canOpenMaps) {
-      event.preventDefault();
-      return;
-    }
-    openGoogleMapsDirections(memo.ll[0], memo.ll[1], event);
-  }
 
   return (
     <article className={`memory-sheet memory-sheet--archive${hasMedia ? '' : ' memory-sheet--text-only'}`}>
@@ -66,15 +58,19 @@ export default function MemoArchiveCard({ memo }) {
             </span>
           </span>
           {canOpenMaps && (
-            <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${memo.ll[0]},${memo.ll[1]}`}
+            <Link
+              to={buildGoogleMapsDirectionsUrl(memo.ll[0], memo.ll[1])}
               target="_blank"
               rel="noopener noreferrer"
+              reloadDocument
               className="memory-sheet-cta"
-              onClick={handleTakeMeThere}
+              onClick={(event) => {
+                event.stopPropagation();
+                openGoogleMapsDirections(memo.ll[0], memo.ll[1], event);
+              }}
             >
               Take me there
-            </a>
+            </Link>
           )}
         </div>
       </div>

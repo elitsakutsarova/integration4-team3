@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import CreateJournalDecorations from '../journals/CreateJournalDecorations';
 import JournalMemoPickCard from '../journals/JournalMemoPickCard';
+import JournalPickCountButton from '../journals/JournalPickCountButton';
 import MemoTagIcon from '../MemoTagIcon';
 import RecapShareSheet from './RecapShareSheet';
 import RecapShareSuccess from './RecapShareSuccess';
@@ -185,6 +186,8 @@ export default function RecapSelectView({
     [memories, filterId],
   );
   const selectedCount = selected.size;
+  const allVisibleSelected = filteredMemos.length > 0
+    && filteredMemos.every((memo) => selected.has(memo.id));
 
   function toggleMemo(memoId) {
     setSelected((prev) => {
@@ -199,6 +202,27 @@ export default function RecapSelectView({
     });
   }
 
+  function toggleSelectAllVisible() {
+    if (!filteredMemos.length) return;
+
+    const visibleIds = filteredMemos.map((memo) => memo.id);
+    const everyVisibleSelected = visibleIds.every((id) => selected.has(id));
+
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (everyVisibleSelected) {
+        visibleIds.forEach((id) => next.delete(id));
+        return next;
+      }
+
+      for (const id of visibleIds) {
+        if (next.size >= RECAP_MAX_MEMOS) break;
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
   const footerLabel = selectedCount === 0
     ? 'Select memos'
     : `Select ${selectedCount} memo${selectedCount === 1 ? '' : 's'}`;
@@ -208,14 +232,12 @@ export default function RecapSelectView({
       title="Select memos"
       onBack={onBack}
       headerExtra={(
-        <div className="create-journal-pick-count" aria-live="polite">
-          <span className="create-journal-pick-count-dot" aria-hidden="true" />
-          <span className="create-journal-pick-count-value">
-            {selectedCount}
-            /
-            {RECAP_MAX_MEMOS}
-          </span>
-        </div>
+        <JournalPickCountButton
+          countLabel={`${selectedCount}/${RECAP_MAX_MEMOS}`}
+          allVisibleSelected={allVisibleSelected}
+          onToggleSelectAll={toggleSelectAllVisible}
+          disabled={filteredMemos.length === 0}
+        />
       )}
       footer={(
         <div className="recap-flow-footer">

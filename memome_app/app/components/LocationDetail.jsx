@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import BottomNav from './BottomNav';
 import DiscoverShareIcon from './discover/DiscoverShareIcon';
 import DiscoverShareSuccess from './discover/DiscoverShareSuccess';
 import ShareSheet from './diary/ShareSheet';
 import FeaturedMemosSection from './memos/FeaturedMemosSection';
 import { buildMemoArchiveHref } from '../utils/locationHref';
+import { openDirectionsUrl } from '../utils/googleMaps';
 import { goBack, paths } from '../utils/appPaths';
 import { useDiscoverShare } from '../hooks/useDiscoverShare';
 import { parsePhotonPlaceId } from '../utils/placeId';
@@ -154,9 +155,16 @@ export default function LocationDetail({ place, imageUrl: initialImageUrl = null
             </ul>
           )}
 
-          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="loc-detail-cta">
+          <Link
+            to={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            reloadDocument
+            className="loc-detail-cta"
+            onClick={(event) => openDirectionsUrl(mapsUrl, event)}
+          >
             Take me there
-          </a>
+          </Link>
 
           <FeaturedMemosSection
             memos={featuredMemos}

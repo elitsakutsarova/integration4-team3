@@ -128,6 +128,17 @@ function buildJournalFromAlbum(albumMemos, index, totalAlbums, now) {
   };
 }
 
+function getJournalCreatedAt(journal) {
+  const ts = new Date(journal?.createdAt ?? 0).getTime();
+  return Number.isFinite(ts) ? ts : 0;
+}
+
+function sortJournalsNewestFirst(journals) {
+  return [...journals].sort(
+    (a, b) => getJournalCreatedAt(b) - getJournalCreatedAt(a),
+  );
+}
+
 /** Build trip journals from the user's created memos, newest first. */
 export function buildJournalsFromMemos(memos, customJournals = []) {
   const activeRecords = (customJournals ?? []).filter((journal) => !journal.deleted);
@@ -149,7 +160,19 @@ export function buildJournalsFromMemos(memos, customJournals = []) {
     buildCustomJournal(record, memos ?? []),
   );
 
-  return [...manualJournals, ...autoJournals];
+  const manualJournalIds = new Set(manualJournals.map((journal) => journal.id));
+  const dedupedAutoJournals = autoJournals.filter(
+    (journal) => !manualJournalIds.has(journal.id),
+  );
+
+  const seenIds = new Set();
+  const journals = [...manualJournals, ...dedupedAutoJournals].filter((journal) => {
+    if (seenIds.has(journal.id)) return false;
+    seenIds.add(journal.id);
+    return true;
+  });
+
+  return sortJournalsNewestFirst(journals);
 }
 
 function buildCustomJournal(record, memos) {

@@ -1,9 +1,8 @@
 // checks whether the user has made any changes while editing a memo
 
 function tagsEqual(left, right) {
-  const a = [...(left ?? [])].sort().join(',');
-  const b = [...(right ?? [])].sort().join(',');
-  return a === b;
+  const primary = (tags) => (tags ?? [])[0] ?? '';
+  return primary(left) === primary(right);
 }
 
 export function isEditMemoDirty(memo, state) {

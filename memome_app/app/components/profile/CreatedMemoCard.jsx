@@ -4,7 +4,7 @@ import MemoFavoriteButton from '../MemoFavoriteButton';
 import MemorySheet from '../MemorySheet';
 import { homePathWithAddMemo, profileMemoEditPath } from '../../utils/appPaths';
 
-function MemoEditLink({ memo }) {
+function MemoEditLink({ memo, returnTo = null }) {
   if (!memo.fromDb || !memo.id) {
     const mapPath = Array.isArray(memo.ll) && memo.ll.length >= 2
       ? homePathWithAddMemo(memo.ll[0], memo.ll[1])
@@ -38,7 +38,8 @@ function MemoEditLink({ memo }) {
 
   return (
     <Link
-      to={profileMemoEditPath(memo.id)}
+      to={profileMemoEditPath(memo.id, returnTo)}
+      state={returnTo ? { editReturnTo: returnTo } : undefined}
       className="created-memo-card__action created-memo-card__action--edit"
       aria-label={`Edit memo at ${memo.location}`}
     >
@@ -62,7 +63,42 @@ function MemoEditLink({ memo }) {
   );
 }
 
-function CreatedMemoActions({ memo, onShare, showEdit, showFavorite }) {
+function MemoRemoveButton({ memo, onRemove }) {
+  return (
+    <button
+      type="button"
+      className="created-memo-card__action created-memo-card__action--remove"
+      aria-label={`Remove memo at ${memo.location} from journal`}
+      onClick={(event) => {
+        event.stopPropagation();
+        onRemove?.();
+      }}
+    >
+      <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <line x1="1" y1="1" x2="13" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <line x1="13" y1="1" x2="1" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </button>
+  );
+}
+
+function CreatedMemoActions({
+  memo,
+  onShare,
+  showEdit,
+  showFavorite,
+  onRemove,
+  editReturnTo = null,
+}) {
+  if (onRemove) {
+    return (
+      <>
+        <span aria-hidden="true" />
+        <MemoRemoveButton memo={memo} onRemove={onRemove} />
+      </>
+    );
+  }
+
   return (
     <>
       {onShare ? (
@@ -86,7 +122,7 @@ function CreatedMemoActions({ memo, onShare, showEdit, showFavorite }) {
           useCurrentColor
         />
       ) : showEdit ? (
-        <MemoEditLink memo={memo} />
+        <MemoEditLink memo={memo} returnTo={editReturnTo} />
       ) : null}
     </>
   );
@@ -95,15 +131,20 @@ function CreatedMemoActions({ memo, onShare, showEdit, showFavorite }) {
 export default function CreatedMemoCard({
   memo,
   onShare,
+  onRemove,
   showEdit = true,
   showFavoriteInsteadOfEdit = false,
+  responsiveScale = false,
+  editReturnTo = null,
 }) {
   const actions = (
     <CreatedMemoActions
       memo={memo}
       onShare={onShare}
+      onRemove={onRemove}
       showEdit={!showFavoriteInsteadOfEdit && showEdit}
       showFavorite={showFavoriteInsteadOfEdit}
+      editReturnTo={editReturnTo}
     />
   );
 
@@ -111,6 +152,7 @@ export default function CreatedMemoCard({
     <article className="created-memo-card">
       <MemorySheet
         embedded
+        responsiveScale={responsiveScale}
         pin={memo}
         locationHref={memo.locationHref ?? null}
         actions={actions}

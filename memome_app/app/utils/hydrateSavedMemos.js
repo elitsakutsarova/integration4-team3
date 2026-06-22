@@ -20,7 +20,14 @@ export async function hydrateSavedMemos(savedEntries) {
   const ids = savedEntries.map(entry => String(entry.id));
   if (!ids.length) return [];
 
-  const dbMemos = await fetchMemosByIds(ids);
+  const syncMemos = savedEntries
+    .map(entry => DEMO_MEMO_BY_ID.get(String(entry.id)))
+    .filter(Boolean);
+
+  const missingIds = ids.filter(id => !DEMO_MEMO_BY_ID.has(id));
+  if (!missingIds.length) return syncMemos;
+
+  const dbMemos = await fetchMemosByIds(missingIds);
   const dbById = new Map(dbMemos.map(memo => [String(memo.id), memo]));
 
   return savedEntries

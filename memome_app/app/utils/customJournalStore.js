@@ -26,7 +26,15 @@ export function addCustomJournal(userId, journal) {
 
   const all = readAll();
   const existing = Array.isArray(all[userId]) ? all[userId] : [];
-  all[userId] = [journal, ...existing];
+  const duplicateIndex = existing.findIndex((row) => row.id === journal.id);
+
+  if (duplicateIndex >= 0) {
+    existing[duplicateIndex] = { ...existing[duplicateIndex], ...journal };
+    all[userId] = existing;
+  } else {
+    all[userId] = [journal, ...existing];
+  }
+
   writeAll(all);
 }
 

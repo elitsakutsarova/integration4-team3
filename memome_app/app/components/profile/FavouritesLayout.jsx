@@ -1,6 +1,6 @@
 // this component displays the favourites layour
 
-import { Link, Outlet, useLocation } from 'react-router';
+import { NavLink, Outlet } from 'react-router';
 import BottomNav from '../BottomNav';
 import CollectionPageHeader from './CollectionPageHeader';
 import { paths } from '../../utils/appPaths';
@@ -11,9 +11,26 @@ const TABS = [
   { id: 'events', label: 'Events', to: paths.profileFavouritesEvents },
 ];
 
-export default function FavouritesLayout({ outletContext }) {
-  const { pathname } = useLocation();
+function CollectionTab({ tab }) {
+  return (
+    <NavLink
+      to={tab.to}
+      end
+      role="tab"
+      className={({ isActive }) =>
+        `collection-tab-wrapper${isActive ? ' collection-tab-wrapper--active' : ''}`
+      }
+    >
+      {({ isActive }) => (
+        <span className="collection-tab" aria-selected={isActive}>
+          {tab.label}
+        </span>
+      )}
+    </NavLink>
+  );
+}
 
+export default function FavouritesLayout({ outletContext }) {
   return (
     <div className="collection-page">
       <CollectionPageHeader title="Favourites" explicitBack />
@@ -33,26 +50,9 @@ export default function FavouritesLayout({ outletContext }) {
       </div> */}
 
       <div className="collection-tabs" role="tablist" aria-label="Favourites categories">
-        {TABS.map(tab => {
-          const isActive = pathname === tab.to;
-
-          return (
-            <div
-              key={tab.id}
-              className={`collection-tab-wrapper${isActive ? ' collection-tab-wrapper--active' : ''
-                }`}
-            >
-              <Link
-                to={tab.to}
-                role="tab"
-                aria-selected={isActive}
-                className="collection-tab"
-              >
-                {tab.label}
-              </Link>
-            </div>
-          );
-        })}
+        {TABS.map(tab => (
+          <CollectionTab key={tab.id} tab={tab} />
+        ))}
       </div>
       <svg className="collection-line" xmlns="http://www.w3.org/2000/svg" width="363" height="1" viewBox="0 0 363 1" fill="none">
         <path d="M0 0.5H363" stroke="#EFF1F5" />

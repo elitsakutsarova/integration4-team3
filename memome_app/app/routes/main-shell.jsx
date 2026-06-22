@@ -39,12 +39,19 @@ export default function MainShell() {
   const { memos } = useLoaderData();
   const { pathname } = useLocation();
   const isHome = pathname === paths.home;
+  const isAccountRoute = pathname.startsWith('/profile') || pathname.startsWith('/stickers');
 
   return (
     <div className="main-shell">
       <DesktopNav />
       <MapView savedMemos={memos} active={isHome} />
-      <div className={`main-shell-content${isHome ? ' main-shell-content--hidden' : ''}`}>
+      <div
+        className={[
+          'main-shell-content',
+          isHome ? 'main-shell-content--hidden' : '',
+          isAccountRoute ? 'main-shell-content--account' : '',
+        ].filter(Boolean).join(' ')}
+      >
         <Outlet />
       </div>
     </div>
