@@ -11,7 +11,7 @@ import { loadLocationPageServer } from '../utils/locationPage.server';
 export function meta({ data: loaderData }) {
   const name = loaderData?.place?.name ?? 'Location';
   return [
-    { title: `MemoMe — ${name}` },
+    { title: `MemoMe - ${name}` },
     { name: 'description', content: loaderData?.place?.description ?? 'Explore this spot in Antwerp.' },
   ];
 }

@@ -7,7 +7,7 @@ import { requireJournalClientLoader } from '../utils/journalRouteClientLoader';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Edit Journal' },
+    { title: 'MemoMe - Edit Journal' },
     { name: 'description', content: 'Edit your travel journal.' },
   ];
 }

@@ -34,7 +34,7 @@ function ResetSuccessHeroScene() {
 
 export function meta() {
   return [
-    { title: 'MemMe — Password reset' },
+    { title: 'MemMe - Password reset' },
     { name: 'description', content: 'Your MemMe password was reset successfully.' },
   ];
 }

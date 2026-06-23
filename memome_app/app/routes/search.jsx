@@ -4,7 +4,7 @@ import SearchPage from '../components/search/SearchPage';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Search' },
+    { title: 'MemoMe - Search' },
     { name: 'description', content: 'Search for places and spots in Antwerp.' },
   ];
 }

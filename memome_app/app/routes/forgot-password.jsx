@@ -9,6 +9,7 @@ import { beginPasswordResetFlow } from '../utils/passwordResetFlow';
 import { forgotPasswordAssets } from '../utils/forgotPasswordAssets';
 import { guestOnlyMiddleware } from '../middleware/clientAuth';
 import { validateEmail } from '../utils/validators';
+import { SUCCESS_MESSAGE_DISMISS_MS } from '../utils/successMessage';
 
 export const clientMiddleware = guestOnlyMiddleware;
 
@@ -43,7 +44,7 @@ function ForgotPasswordFieldError({ message, id }) {
 
 export function meta() {
   return [
-    { title: 'MemMe — Forgot password' },
+    { title: 'MemMe - Forgot password' },
     { name: 'description', content: 'Reset your MemMe password.' },
   ];
 }
@@ -135,7 +136,7 @@ export default function ForgotPassword() {
     const timer = window.setTimeout(() => {
       beginPasswordResetFlow(actionData.email);
       navigate(resetPasswordPath());
-    }, 1000);
+    }, SUCCESS_MESSAGE_DISMISS_MS);
 
     return () => window.clearTimeout(timer);
   }, [actionData?.success, actionData?.email, navigate]);

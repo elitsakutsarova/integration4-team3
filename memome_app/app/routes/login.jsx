@@ -87,7 +87,7 @@ function isCredentialFormError(message) {
 
 export function meta() {
   return [
-    { title: 'MemMe — Log in' },
+    { title: 'MemMe - Log in' },
     { name: 'description', content: 'Log in to MemMe.' },
   ];
 }

@@ -10,7 +10,7 @@ import {
 
 export function meta() {
   return [
-    { title: 'MemoMe — Discover' },
+    { title: 'MemoMe - Discover' },
     { name: 'description', content: 'Discover events and places in Antwerp.' },
   ];
 }

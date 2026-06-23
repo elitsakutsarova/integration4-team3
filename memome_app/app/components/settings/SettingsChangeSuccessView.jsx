@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { createPortal } from 'react-dom';
+import { useAutoDismissSuccess } from '../../hooks/useAutoDismissSuccess';
 import { changeEmailAssets } from '../../utils/settingsAssets';
 
 export default function SettingsChangeSuccessView({
@@ -10,6 +11,8 @@ export default function SettingsChangeSuccessView({
 }) {
   const titleId = useId();
   const descId = useId();
+
+  useAutoDismissSuccess(onDismiss);
 
   if (typeof document === 'undefined') return null;
 

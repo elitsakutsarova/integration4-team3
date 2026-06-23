@@ -6,7 +6,7 @@ import { UPCOMING_ALL } from '../data/discoverContent';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Upcoming' },
+    { title: 'MemoMe - Upcoming' },
     { name: 'description', content: 'Upcoming events in Antwerp.' },
   ];
 }

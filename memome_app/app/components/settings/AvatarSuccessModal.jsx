@@ -1,6 +1,8 @@
 import { settingsAssets } from '../../utils/settingsAssets';
+import { useAutoDismissSuccess } from '../../hooks/useAutoDismissSuccess';
 
 export default function AvatarSuccessModal({ onClose }) {
+  useAutoDismissSuccess(onClose);
   return (
     <div
       className="avatar-success-backdrop"

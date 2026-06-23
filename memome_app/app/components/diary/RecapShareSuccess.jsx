@@ -1,3 +1,5 @@
+import { useAutoDismissSuccess } from '../../hooks/useAutoDismissSuccess';
+
 const SUCCESS_ASSETS = {
   decorTop: '/journals/recap/message-success/Frame 15149.svg',
   decorBottom: '/journals/recap/message-success/Frame 15149-1.svg',
@@ -5,6 +7,8 @@ const SUCCESS_ASSETS = {
 };
 
 export default function RecapShareSuccess({ onClose }) {
+  useAutoDismissSuccess(onClose);
+
   return (
     <div className="recap-share-success-backdrop" onClick={onClose}>
       <div className="recap-share-success-card" onClick={(event) => event.stopPropagation()}>

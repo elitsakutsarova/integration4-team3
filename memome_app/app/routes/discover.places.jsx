@@ -6,7 +6,7 @@ import { PLACES_WORTH_MEMO_ALL } from '../data/discoverContent';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Spots worth a memo' },
+    { title: 'MemoMe - Spots worth a memo' },
     { name: 'description', content: 'Places worth a memo in Antwerp.' },
   ];
 }

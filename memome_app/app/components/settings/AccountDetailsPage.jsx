@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Link, useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useAutoDismissSuccess } from '../../hooks/useAutoDismissSuccess';
 import { useAuth } from '../../context/AuthContext';
 import { useUserAvatar } from '../../hooks/useUserAvatar';
 import { consumeAccountCredentialChangeFlag, goBack, paths } from '../../utils/appPaths';
@@ -53,9 +54,15 @@ export default function AccountDetailsPage() {
   const [emailSuccessOpen, setEmailSuccessOpen] = useState(false);
   const [passwordSuccessOpen, setPasswordSuccessOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
 
   const deleting = fetcher.state !== 'idle';
+  const deleteModalError =
+    deleteModalOpen &&
+    fetcher.state === 'idle' &&
+    fetcher.data?.error &&
+    !fetcher.data?.success
+      ? fetcher.data.error.message ?? 'Could not delete your account.'
+      : null;
   const updated = searchParams.get('updated');
   const successMessage = SUCCESS_MESSAGES[updated] ?? null;
   const hasCustomAvatar = Boolean(avatarUrl);
@@ -75,19 +82,12 @@ export default function AccountDetailsPage() {
 
     async function finishDelete() {
       setDeleteModalOpen(false);
-      setDeleteError('');
       await signOut();
       navigate(paths.loggedOut, { replace: true });
     }
 
     void finishDelete();
   }, [fetcher.data, navigate, signOut]);
-
-  // Surface delete-account API errors inside the confirmation modal.
-  useEffect(() => {
-    if (!fetcher.data?.error || fetcher.data?.success) return;
-    setDeleteError(fetcher.data.error.message ?? 'Could not delete your account.');
-  }, [fetcher.data]);
 
   function collapseCredentialChangeHistory() {
     if (!consumeAccountCredentialChangeFlag()) return;
@@ -110,6 +110,8 @@ export default function AccountDetailsPage() {
     next.delete('updated');
     setSearchParams(next, { replace: true });
   }
+
+  useAutoDismissSuccess(dismissSuccess, Boolean(successMessage));
 
   function clearSuccessNavigationState() {
     navigate(
@@ -160,7 +162,6 @@ export default function AccountDetailsPage() {
   }
 
   function openDeleteModal() {
-    setDeleteError('');
     setDeleteModalOpen(true);
   }
 
@@ -278,11 +279,6 @@ export default function AccountDetailsPage() {
 </svg>
               <span>Delete account</span>
             </button>
-            {deleteError ? (
-              <p className="account-details-delete-error" role="alert">
-                {deleteError}
-              </p>
-            ) : null}
           </div>
         </section>
       </div>
@@ -310,6 +306,7 @@ export default function AccountDetailsPage() {
       {deleteModalOpen ? (
         <DeleteAccountConfirmModal
           busy={deleting}
+          error={deleteModalError}
           onCancel={() => {
             if (!deleting) setDeleteModalOpen(false);
           }}

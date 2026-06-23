@@ -443,8 +443,8 @@ export default function EditJournalPage({ journal }) {
             {selectedMemoRows.size === 0 && (
               <Link to={paths.journalsEditMemos(journal.id)} className="edit-journal-add-memos">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                  <path d="M0.000610352 10.9922H22.0006" stroke="#1952FF" stroke-width="3.77035" stroke-linejoin="round" />
-                  <path d="M10.9938 0V22" stroke="#1952FF" stroke-width="3.77035" stroke-linejoin="round" />
+                  <path d="M0.000610352 10.9922H22.0006" stroke="#1952FF" strokeWidth="3.77035" strokeLinejoin="round" />
+                  <path d="M10.9938 0V22" stroke="#1952FF" strokeWidth="3.77035" strokeLinejoin="round" />
                 </svg>
                 Add memos
               </Link>
@@ -452,7 +452,7 @@ export default function EditJournalPage({ journal }) {
 
             <div className="journal-detail-wave" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none">
-                <path d="M529.311 9.57344C400.118 -24.5679 299.879 59.2893 105.171 26.8324C33.7887 14.9333 -80.1233 14.4542 -126.701 43.6372C-160.38 64.7391 -106.297 69.1191 -67.1521 84.6642" stroke="#A3BAFF" stroke-width="2.47" stroke-dasharray="8 8" />
+                <path d="M529.311 9.57344C400.118 -24.5679 299.879 59.2893 105.171 26.8324C33.7887 14.9333 -80.1233 14.4542 -126.701 43.6372C-160.38 64.7391 -106.297 69.1191 -67.1521 84.6642" stroke="#A3BAFF" strokeWidth="2.47" strokeDasharray="8 8" />
               </svg>
             </div>
 

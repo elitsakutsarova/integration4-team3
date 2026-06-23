@@ -10,7 +10,7 @@ import { requireJournalClientLoader } from '../utils/journalRouteClientLoader';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Journal' },
+    { title: 'MemoMe - Journal' },
     { name: 'description', content: 'Your travel journal memories and stickers.' },
   ];
 }

@@ -5,7 +5,7 @@ import AddJournalMemosPage from '../components/journals/AddJournalMemosPage';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Add memories' },
+    { title: 'MemoMe - Add memories' },
     { name: 'description', content: 'Choose memos for your travel journal.' },
   ];
 }

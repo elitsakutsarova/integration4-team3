@@ -20,7 +20,7 @@ export const clientMiddleware = [
 
 export function meta() {
   return [
-    { title: 'MemMe — Collect stickers' },
+    { title: 'MemMe - Collect stickers' },
     {
       name: 'description',
       content: 'Scan stickers across the city and grow your collection.',

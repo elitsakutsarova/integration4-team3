@@ -4,7 +4,7 @@ import SendFeedbackPage from '../components/settings/SendFeedbackPage';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Send feedback' },
+    { title: 'MemoMe - Send feedback' },
     { name: 'description', content: 'Send feedback to the MemoMe team.' },
   ];
 }

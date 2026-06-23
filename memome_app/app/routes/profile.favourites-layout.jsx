@@ -11,7 +11,7 @@ import { loadProfileFavouritesData } from '../utils/profileFavouritesLoader';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Favourites' },
+    { title: 'MemoMe - Favourites' },
     { name: 'description', content: 'Your favourite memos, spots, and events.' },
   ];
 }

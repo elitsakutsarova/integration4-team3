@@ -13,7 +13,7 @@ const STICKER_ART = '/physicalStickers/physicalSticker.svg';
 
 export function meta() {
   return [
-    { title: 'MemMe — Collect QR' },
+    { title: 'MemMe - Collect QR' },
     { name: 'description', content: 'Display or print the MemMe collect QR code.' },
   ];
 }
