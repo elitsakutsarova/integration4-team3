@@ -54,7 +54,7 @@ export default function SendFeedbackPage() {
 
       <div className="settings-form-body feedback-content">
         <div className="settings-form-intro">
-          <h2 className="settings-form-intro-title"><span class="settings-form-intro-title-underline" aria-hidden="true"></span>We’d love to hear from you</h2>
+          <h2 className="settings-form-intro-title"><span className="settings-form-intro-title-underline" aria-hidden="true"></span>We’d love to hear from you</h2>
           <p className="settings-form-intro-text">
             Need help or have an idea? Send us your feedback so we can make MemoMe better.
           </p>

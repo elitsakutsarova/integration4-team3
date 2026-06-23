@@ -21,7 +21,7 @@ function ExploreArrowIcon() {
 export default function LoggedOutScreen() {
   return (
     <div className="logged-out-page">
-      <img
+      {/* <img
         className="logged-out-page__hero-grid"
         src={loggedOutAssets.heroGrid}
         alt="Decorative pixel grid background"
@@ -32,9 +32,10 @@ export default function LoggedOutScreen() {
         src={loggedOutAssets.heroGrid}
         alt="Decorative pixel grid background"
         aria-hidden="true"
-      />
+      /> */}
 
       <div className="logged-out-page__content">
+        <div className="logged-out-page__deco--top" aria-hidden="true">
         <div className="logged-out-page__deco logged-out-page__deco--top-left" aria-hidden="true">
           <img
             className="logged-out-page__hand logged-out-page__hand--mobile"
@@ -60,7 +61,8 @@ export default function LoggedOutScreen() {
             alt="Decorative camera illustration"
           />
         </div>
-
+          <div className="logged-out-grid-pattern--top" />
+</div>
         <div className="logged-out-page__center">
           <main className="logged-out-page__main" aria-hidden="true" />
 
@@ -101,7 +103,6 @@ export default function LoggedOutScreen() {
       <div className="logged-out-page__content logged-out-page__logo-layer">
         <div className="logged-out-page__center">
           <main className="logged-out-page__main">
-            {/* <LoggedOutLogo /> */}
             <div className="logged-out-logo" aria-label="MemoMe">
               <img className="logged-out-logo-img" src={loggedOutAssets.logoSvg} alt="Logo of MemoMe app" aria-hidden="true" />
             </div>
@@ -120,6 +121,7 @@ export default function LoggedOutScreen() {
           Explore map without account
           <ExploreArrowIcon  />
         </Link>
+        <div className="logged-out-grid-pattern--bottom" />
       </footer>
     </div>
   );

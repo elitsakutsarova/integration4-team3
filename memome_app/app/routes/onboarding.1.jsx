@@ -44,14 +44,15 @@ export default function OnboardingScreen1() {
   return (
     <div className="auth-page onboarding-page onboarding-screen1-page">
       <div className="onboarding-slide">
-        <div className="onboarding-slide__backdrop" aria-hidden="true">
+        {/* <div className="onboarding-slide__backdrop" aria-hidden="true">
           <img
             className="onboarding-slide__grid"
             src={onboardingAssets.grid}
             alt="Decorative pixel grid background"
           />
         </div>
-
+ */}
+        <div className="onboarding-grid-pattern--top" />
         <img
           className="onboarding-slide__decor-top-right"
           src={onboardingAssets.greenRightDecor}
@@ -65,24 +66,23 @@ export default function OnboardingScreen1() {
           aria-hidden="true"
         />
 
-        <img
-          className="onboarding-slide__doodle-left"
-          src={onboardingAssets.screen1.doodle1}
-          alt="Decorative doodle illustration"
-          aria-hidden="true"
-        />
-        <img
-          className="onboarding-slide__doodle-right"
-          src={onboardingAssets.screen1.doodle2}
-          alt="Decorative doodle illustration"
-          aria-hidden="true"
-        />
-
         <div className="onboarding-slide__headline-top">
           <span className="onboarding-slide__headline-bar">The best stories</span>
         </div>
 
         <div className="onboarding-slide__phone-section">
+          <img
+            className="onboarding-slide__doodle-left"
+            src={onboardingAssets.screen1.doodle1}
+            alt="Decorative doodle illustration"
+            aria-hidden="true"
+          />
+          <img
+            className="onboarding-slide__doodle-right"
+            src={onboardingAssets.screen1.doodle2}
+            alt="Decorative doodle illustration"
+            aria-hidden="true"
+          />
           <div className="onboarding-slide__phone-wrap">
             <img
               className="onboarding-slide__phone-img"
@@ -110,13 +110,13 @@ export default function OnboardingScreen1() {
           </div>
         </div>
 
-        <div className="onboarding-slide__bottom">
+        <div className="onboarding-slide__bottom bottom-one">
           <div className="onboarding-slide__headline-bottom">
             <span className="onboarding-slide__headline-bar onboarding-slide__headline-bar-right">happen in Antwerp</span>
           </div>
 
           <div className="onboarding-slide__description">
-            <div className="onboarding-slide__bubble">
+            <div className="onboarding-slide__bubble bubble--one">
               <svg
                 className="onboarding-slide__bubble-shape"
                 viewBox="0 0 246 92"

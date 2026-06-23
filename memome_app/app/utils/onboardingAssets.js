@@ -35,5 +35,6 @@ export const onboardingAssets = {
   screen3: {
     phone: screenAsset('screen3', 'phone.png'),
     stickersVisual: screenAsset('screen3', 'stickers_visual.png'),
+    stickersBig: screenAsset('screen3', 'stickers-big.png'),
   },
 };
