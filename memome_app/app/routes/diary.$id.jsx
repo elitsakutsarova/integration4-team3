@@ -1,5 +1,4 @@
 import '../styles/modules/diary.css';
-import '../styles/modules/map.css';
 import '../styles/modules/profile-collections.css';
 import '../styles/modules/journals.css';
 import JournalDetailPage from '../components/journals/JournalDetailPage';

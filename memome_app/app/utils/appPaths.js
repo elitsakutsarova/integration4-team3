@@ -222,6 +222,10 @@ export const FALLBACK_DIARY = diaryPath(TRAVEL_DIARY.id);
 
 const VALID_OSM_TYPES = new Set(['N', 'W', 'R']);
 
+export function isJournalsPanelRoute(pathname) {
+  return pathname.startsWith('/journals') || pathname.startsWith('/diary/');
+}
+
 /** Map an invalid pathname to the closest sensible default page. */
 export function getSafeFallbackPath(pathname) {
   const path = pathname.toLowerCase();

@@ -939,9 +939,82 @@
   }
 
   .main-shell--add-memo-panel .discover-desktop-panel,
-  .main-shell--memo-selected .discover-desktop-panel {
+  .main-shell--map-focus .discover-desktop-panel {
     visibility: hidden;
     pointer-events: none;
+  }
+
+  .main-shell-content--discover-map .journals-page,
+  .main-shell-content--discover-map .journals-page--guest-locked,
+  .main-shell-content--discover-map .create-journal-page,
+  .main-shell-content--discover-map .create-journal-page--pick-memos,
+  .main-shell-content--discover-map .create-journal-page--loading,
+  .main-shell-content--discover-map .edit-journal-page,
+  .main-shell-content--discover-map .edit-journal-page--loading,
+  .main-shell-content--discover-map .journal-detail-page,
+  .main-shell-content--discover-map .journal-detail-page--loading,
+  .main-shell-content--discover-map .recap-flow-page {
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    overflow: visible;
+    border-left: none;
+    border-right: none;
+  }
+
+  .main-shell-content--discover-map .journal-detail-scroll,
+  .main-shell-content--discover-map .edit-journal-scroll {
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .create-journal-footer,
+  .main-shell-content--discover-map .create-journal-pick-footer,
+  .main-shell-content--discover-map .recap-flow-footer {
+    position: sticky;
+    bottom: 0;
+    left: auto;
+    right: auto;
+    width: 100%;
+    max-width: none;
+  }
+
+  .main-shell-content--discover-map .recap-share-backdrop {
+    inset: auto;
+    left: var(--desktop-nav-end);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    width: min(24.5rem, calc(100vw - var(--desktop-nav-end) - var(--desktop-inset) - 8rem));
+    z-index: 1003;
+    background: transparent;
+    align-items: stretch;
+    justify-content: stretch;
+    pointer-events: auto;
+  }
+
+  .main-shell-content--discover-map .recap-share-sheet {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1.1875rem;
+    box-shadow: 0 0.125rem 0.5687rem rgba(0, 0, 0, 0.25);
+    animation: none;
+    overflow-y: auto;
+    padding-bottom: 0.75rem;
+  }
+
+  .main-shell-content--discover-map .recap-share-handle {
+    display: none;
+  }
+
+  .main-shell-content--discover-map .journals-guest-main {
+    padding-bottom: clamp(0.75rem, 3vw, 1rem);
   }
 
   .main-shell-content--discover-map .discover-list-page,

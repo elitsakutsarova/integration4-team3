@@ -13,7 +13,7 @@ import MapPixelDeco from '../components/MapPixelDeco';
 import AuthLoading from '../components/auth/AuthLoading';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { fetchMemos } from '../utils/memoStore';
-import { paths } from '../utils/appPaths';
+import { isJournalsPanelRoute, paths } from '../utils/appPaths';
 import { shouldRevalidateForFormAction } from '../utils/revalidatePolicy';
 
 export async function clientLoader() {
@@ -42,6 +42,7 @@ export default function MainShell() {
   const { pathname } = useLocation();
   const isHome = pathname === paths.home;
   const isDiscoverRoute = pathname.startsWith('/discover');
+  const isDiscoverMapRoute = isDiscoverRoute || isJournalsPanelRoute(pathname);
   const isAccountRoute = pathname.startsWith('/profile') || pathname.startsWith('/stickers');
 
   return (
@@ -52,12 +53,12 @@ export default function MainShell() {
           <MapPixelDeco />
         </div>
       )}
-      <MapView savedMemos={memos} active={isHome || isDiscoverRoute} />
+      <MapView savedMemos={memos} active={isHome || isDiscoverMapRoute} />
       <div
         className={[
           'main-shell-content',
           isHome ? 'main-shell-content--hidden' : '',
-          isDiscoverRoute ? 'main-shell-content--discover-map' : '',
+          isDiscoverMapRoute ? 'main-shell-content--discover-map' : '',
           isAccountRoute ? 'main-shell-content--account' : '',
         ].filter(Boolean).join(' ')}
       >
