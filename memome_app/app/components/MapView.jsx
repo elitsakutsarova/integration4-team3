@@ -4,7 +4,7 @@ import '../styles/modules/new-memo.css';
 import '../styles/modules/sticker-reveal.css';
 import '../styles/modules/auth.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useFetcher, useNavigate, useRevalidator, useSearchParams } from 'react-router';
+import { useFetcher, useLocation, useNavigate, useRevalidator, useSearchParams } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { useSavedMemos } from '../context/SavedMemosContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
@@ -21,7 +21,7 @@ import MemoPostSuccess from './MemoPostSuccess';
 import { MOCK_MEMORIES, INITIAL_EVENTS } from '../data/mockUser';
 import { GROTE_MARKT_CLUSTER_MEMORIES } from '../data/groteMarktClusterMemories';
 
-import { readAddMemoReturnTo } from '../utils/appPaths';
+import { paths, readAddMemoReturnTo } from '../utils/appPaths';
 import { readDraftMemo } from '../utils/memoDraft';
 import {
   clearNewMemoDraft,
@@ -111,6 +111,8 @@ function dbMemoFingerprint(savedMemos) {
 }
 
 export default function MapView({ savedMemos = [], active = true }) {
+  const { pathname } = useLocation();
+  const isHomeRoute = pathname === paths.home;
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const draftMemo = readDraftMemo(searchParams);
@@ -201,11 +203,20 @@ export default function MapView({ savedMemos = [], active = true }) {
     }, { replace: true });
   };
 
+  const draftMemoRef = useRef(draftMemo);
+  draftMemoRef.current = draftMemo;
+
+  const exitAddMemoFlowRef = useRef(null);
+
   const selectMemoryRef = useRef(null);
   selectMemoryRef.current = (pin) => {
     if (selectedMemoryRef.current?.id === pin?.id) {
       closeMemoryRef.current?.();
       return;
+    }
+
+    if (isDesktopMapLayout() && draftMemoRef.current) {
+      exitAddMemoFlowRef.current?.({ skipReturnTo: true });
     }
 
     dismissSavedNotice();
@@ -645,7 +656,7 @@ export default function MapView({ savedMemos = [], active = true }) {
     setSearchParams({ addMemo: '1' }, { replace: true });
   }
 
-  function exitAddMemoFlow() {
+  function exitAddMemoFlow({ skipReturnTo = false } = {}) {
     if (pendingMarkerRef.current) {
       pendingMarkerRef.current.remove();
       pendingMarkerRef.current = null;
@@ -653,7 +664,7 @@ export default function MapView({ savedMemos = [], active = true }) {
 
     clearNewMemoDraft(user?.id);
 
-    const returnTo = readAddMemoReturnTo(searchParams);
+    const returnTo = skipReturnTo ? null : readAddMemoReturnTo(searchParams);
     if (returnTo) {
       navigate(returnTo, { replace: true });
       return;
@@ -662,17 +673,36 @@ export default function MapView({ savedMemos = [], active = true }) {
     setSearchParams({}, { replace: true });
   }
 
+  exitAddMemoFlowRef.current = exitAddMemoFlow;
+
   function dismissGuestAddMemoLocked() {
     setGuestAddMemoLocked(false);
     exitAddMemoFlow();
   }
+
+  const showAddMemoInDiscoverPanel = Boolean(
+    isDesktopMap && draftMemo && user && !draftMemo.pickLocation,
+  );
+  const showDesktopMemoFocus = Boolean(isDesktopMap && selectedMemory);
+
+  useEffect(() => {
+    const shell = document.querySelector('.main-shell');
+    if (!shell) return undefined;
+
+    shell.classList.toggle('main-shell--add-memo-panel', showAddMemoInDiscoverPanel);
+    shell.classList.toggle('main-shell--memo-selected', showDesktopMemoFocus);
+
+    return () => {
+      shell.classList.remove('main-shell--add-memo-panel', 'main-shell--memo-selected');
+    };
+  }, [showAddMemoInDiscoverPanel, showDesktopMemoFocus]);
 
   // Leaflet must recalculate size when overlays change the visible map area.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !active) return;
     requestAnimationFrame(() => map.invalidateSize());
-  }, [active, guestAddMemoLocked, draftMemo]);
+  }, [active, guestAddMemoLocked, draftMemo, selectedMemory]);
 
   function handleFormClose() {
     exitAddMemoFlow();
@@ -723,11 +753,12 @@ export default function MapView({ savedMemos = [], active = true }) {
     >
       <div ref={attachMapContainer} className="map-container" />
 
-      {active && (
+      {active && isHomeRoute && (
         <>
           <MapHomeChrome
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
+            searchTo={isDesktopMap ? paths.discoverSearch : paths.search}
           />
           <div className="map-container--bottom">
             {!user && !revealedSticker && !draftMemo && !selectedMemory && !showGuestAddMemoLocked && (
@@ -736,6 +767,11 @@ export default function MapView({ savedMemos = [], active = true }) {
 
             {!hideBottomNav && <BottomNav onAddClick={handleAddBtnClick} />}
           </div>
+        </>
+      )}
+
+      {active && (
+        <>
           <button
             type="button"
             className="map-desktop-add"
@@ -785,6 +821,7 @@ export default function MapView({ savedMemos = [], active = true }) {
               draft={draftMemo}
               fetcher={fetcher}
               hidden={draftMemo.pickLocation}
+              discoverPanel={showAddMemoInDiscoverPanel}
               onClose={handleFormClose}
             />
           )}

@@ -9,6 +9,7 @@ import '../styles/modules/bottom-nav.css';
 import { Outlet, useLoaderData, useLocation } from 'react-router';
 import MapView from '../components/MapView';
 import DesktopNav from '../components/DesktopNav';
+import MapPixelDeco from '../components/MapPixelDeco';
 import AuthLoading from '../components/auth/AuthLoading';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { fetchMemos } from '../utils/memoStore';
@@ -40,19 +41,31 @@ export default function MainShell() {
   const { memos } = useLoaderData();
   const { pathname } = useLocation();
   const isHome = pathname === paths.home;
+  const isDiscoverRoute = pathname.startsWith('/discover');
   const isAccountRoute = pathname.startsWith('/profile') || pathname.startsWith('/stickers');
 
   return (
     <div className="main-shell">
       <DesktopNav />
-      <MapView savedMemos={memos} active={isHome} />
+      {isHome && (
+        <div className="main-shell-pixel-deco main-shell-pixel-deco--map" aria-hidden="true">
+          <MapPixelDeco />
+        </div>
+      )}
+      <MapView savedMemos={memos} active={isHome || isDiscoverRoute} />
       <div
         className={[
           'main-shell-content',
           isHome ? 'main-shell-content--hidden' : '',
+          isDiscoverRoute ? 'main-shell-content--discover-map' : '',
           isAccountRoute ? 'main-shell-content--account' : '',
         ].filter(Boolean).join(' ')}
       >
+        {!isHome && (
+          <div className="main-shell-pixel-deco main-shell-pixel-deco--content" aria-hidden="true">
+            <MapPixelDeco />
+          </div>
+        )}
         <Outlet />
       </div>
     </div>

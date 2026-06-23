@@ -139,7 +139,10 @@ function SearchNoResults({ query, onSuggestionClick }) {
   );
 }
 
-export default function SearchPage() {
+export default function SearchPage({
+  fallbackPath = paths.home,
+  className = '',
+}) {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const userId = user?.id ?? null;
@@ -265,11 +268,13 @@ export default function SearchPage() {
 
   function handleBack() {
     stopListening();
-    goBack(navigate, paths.home);
+    goBack(navigate, fallbackPath);
   }
 
+  const pageClassName = ['search-page', className].filter(Boolean).join(' ');
+
   return (
-    <div className="search-page">
+    <div className={pageClassName}>
       <div className="search-page-shell">
         <header className={`search-page-header${isListening ? ' search-page-header--listening' : ''}`}>
           {isListening && (

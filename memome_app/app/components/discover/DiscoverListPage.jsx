@@ -10,6 +10,7 @@ import {
   DISCOVER_CATEGORIES,
   filterDiscoverItems,
 } from '../../data/discoverContent';
+import DiscoverDesktopToolbar from './DiscoverDesktopToolbar';
 
 function DiscoverListHeader({
   title,
@@ -92,8 +93,38 @@ export default function DiscoverListPage({
   );
   const venueHrefs = useEventVenueHrefs(itemType === 'event' ? items : []);
 
+  const categoryFilters = useMemo(
+    () => (
+      <div
+        className="map-category-row discover-list-filters discover-desktop-toolbar-filters"
+        role="tablist"
+        aria-label="Discover categories"
+      >
+        {DISCOVER_CATEGORIES.map(category => {
+          const isActive = activeCategory === category.id;
+          return (
+            <button
+              key={category.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`map-category-chip${isActive ? ' map-category-chip--active' : ''}`}
+              onClick={() => setActiveCategory(category.id)}
+            >
+              {category.icon && <CategoryIcon name={category.icon} />}
+              {category.label}
+            </button>
+          );
+        })}
+      </div>
+    ),
+    [activeCategory],
+  );
+
   return (
     <div className="discover-list-page">
+      <DiscoverDesktopToolbar>{categoryFilters}</DiscoverDesktopToolbar>
+
       <DiscoverListHeader
         title={title}
         highlightWidth={highlightWidth}
@@ -101,25 +132,8 @@ export default function DiscoverListPage({
         decoration={decoration}
       />
 
-      <div className="discover-list-filters-container">
-        <div className="map-category-row discover-list-filters" role="tablist" aria-label="Discover categories">
-          {DISCOVER_CATEGORIES.map(category => {
-            const isActive = activeCategory === category.id;
-            return (
-              <button
-                key={category.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                className={`map-category-chip${isActive ? ' map-category-chip--active' : ''}`}
-                onClick={() => setActiveCategory(category.id)}
-              >
-                {category.icon && <CategoryIcon name={category.icon} />}
-                {category.label}
-              </button>
-            );
-          })}
-        </div>
+      <div className="discover-list-filters-container discover-list-filters-container--mobile">
+        {categoryFilters}
       </div>
       <div className={`discover-list-content${itemType === 'place' ? ' discover-list-content--places' : ''}`}>
         {filteredItems.length > 0 ? (

@@ -7,6 +7,7 @@ export const paths = {
   home: href('/'),
   search: href('/search'),
   discover: href('/discover'),
+  discoverSearch: href('/discover/search'),
   discoverHappeningNow: href('/discover/happening-now'),
   discoverUpcoming: href('/discover/upcoming'),
   discoverPlaces: href('/discover/places'),

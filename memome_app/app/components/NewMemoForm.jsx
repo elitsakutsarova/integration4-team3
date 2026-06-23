@@ -66,7 +66,7 @@ function MediaLoadingIcon({ isVideo }) {
   );
 }
 
-export default function NewMemoForm({ draft, fetcher, hidden = false, onClose }) {
+export default function NewMemoForm({ draft, fetcher, hidden = false, discoverPanel = false, onClose }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const [mediaPreview, setMediaPreview] = useState(null);
@@ -246,6 +246,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
 
   function handleOverlayClick(event) {
     if (event.target !== event.currentTarget) return;
+    if (discoverPanel) return;
     if (!window.matchMedia(DESKTOP_OVERLAY_QUERY).matches) return;
     requestClose();
   }
@@ -440,7 +441,11 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
       action={paths.apiMemos}
       encType="multipart/form-data"
       onSubmit={handleFormSubmit}
-      className={`form-overlay${hidden ? ' form-overlay--hidden' : ''}`}
+      className={[
+        'form-overlay',
+        hidden ? 'form-overlay--hidden' : '',
+        discoverPanel ? 'form-overlay--discover-panel' : '',
+      ].filter(Boolean).join(' ')}
       role={hidden ? undefined : 'dialog'}
       aria-modal={hidden ? undefined : true}
       inert={hidden ? true : undefined}

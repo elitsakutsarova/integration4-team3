@@ -1,7 +1,10 @@
 // featured memos section component for the location detail page
 
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
+import CreatedMemoCard from '../profile/CreatedMemoCard';
 import MemoFavoriteButton from '../MemoFavoriteButton';
+import { enrichMemosWithLocationHrefs } from '../../utils/memoLocationHrefs';
 
 function MemoSaveButton({ memoId, label, className = 'featured-memo-heart' }) {
   return (
@@ -46,6 +49,50 @@ export function FeaturedMemoPreviewCard({ memo, compact = true }) {
   );
 }
 
+export function DiscoverFeaturedMemosList({ memos, orientation = 'row' }) {
+  const [enrichedMemos, setEnrichedMemos] = useState(memos);
+  const isColumn = orientation === 'column';
+
+  useEffect(() => {
+    setEnrichedMemos(memos);
+
+    let cancelled = false;
+    void enrichMemosWithLocationHrefs(memos).then((next) => {
+      if (!cancelled) setEnrichedMemos(next);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [memos]);
+
+  return (
+    <div
+      className={[
+        'profile-remember-scroll',
+        'featured-memos-profile-scroll',
+        isColumn ? 'memo-archive-memos-scroll' : '',
+      ].filter(Boolean).join(' ')}
+    >
+      <div
+        className={[
+          'profile-remember-track',
+          isColumn ? 'memo-archive-memos-track' : '',
+        ].filter(Boolean).join(' ')}
+      >
+        {enrichedMemos.map(memo => (
+          <CreatedMemoCard
+            key={memo.id}
+            memo={memo}
+            showFavoriteInsteadOfEdit
+            responsiveScale
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function FeaturedMemosSection({
   memos,
   totalMemoCount,
@@ -56,6 +103,7 @@ export default function FeaturedMemosSection({
 }) {
   const count = totalMemoCount ?? memos.length;
   const showViewMore = Boolean(archiveHref && count > 0);
+  const useProfileCards = layout === 'discover';
 
   return (
     <section
@@ -83,11 +131,15 @@ export default function FeaturedMemosSection({
       </div>
 
       {memos.length > 0 ? (
-        <div className={layout === 'grid' ? 'featured-memos-grid' : 'featured-memos-carousel'}>
-          {memos.map(memo => (
-            <FeaturedMemoPreviewCard key={memo.id} memo={memo} />
-          ))}
-        </div>
+        useProfileCards ? (
+          <DiscoverFeaturedMemosList memos={memos} />
+        ) : (
+          <div className={layout === 'grid' ? 'featured-memos-grid' : 'featured-memos-carousel'}>
+            {memos.map(memo => (
+              <FeaturedMemoPreviewCard key={memo.id} memo={memo} />
+            ))}
+          </div>
+        )
       ) : (
         <p className="featured-memos-empty">{emptyMessage}</p>
       )}

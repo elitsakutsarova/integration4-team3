@@ -14,23 +14,12 @@ const POI_OSM_KEYS = new Set([
   'amenity', 'shop', 'tourism', 'leisure', 'craft', 'office', 'healthcare',
 ]);
 
-const FOOD_VALUES = new Set([
-  'restaurant', 'cafe', 'fast_food', 'food_court', 'biergarten', 'ice_cream', 'bakery',
-]);
-const NIGHTLIFE_VALUES = new Set(['bar', 'pub', 'nightclub', 'biergarten']);
-const FASHION_VALUES = new Set(['clothes', 'fashion', 'boutique', 'jewelry', 'shoes']);
-const ART_VALUES = new Set(['museum', 'gallery', 'arts_centre', 'theatre', 'cinema']);
-
-function categoryLabel(osmKey, osmValue) {
-  if (FOOD_VALUES.has(osmValue)) return 'Food';
-  if (NIGHTLIFE_VALUES.has(osmValue)) return 'Nightlife';
-  if (FASHION_VALUES.has(osmValue)) return 'Fashion';
-  if (ART_VALUES.has(osmValue)) return 'Art & Culture';
-  if (osmKey === 'amenity' && osmValue) {
-    return osmValue.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-  }
-  return 'Place';
-}
+import {
+  ART_VALUES,
+  FOOD_VALUES,
+  NIGHTLIFE_VALUES,
+  resolveLocationCategoryLabel,
+} from './locationCategory';
 
 function formatAddress(props) {
   const street = [props.street, props.housenumber].filter(Boolean).join(' ');
@@ -109,7 +98,7 @@ export function photonFeatureToPlaceDetail(feature, fallbackName) {
     name: featureName,
     lat,
     lng,
-    categoryLabel: categoryLabel(props.osm_key, props.osm_value),
+    categoryLabel: resolveLocationCategoryLabel(props.osm_key, props.osm_value),
     address: formatAddress(props),
     description: buildDescription(props),
     details: buildDetails(props),
@@ -228,7 +217,7 @@ export async function fetchPhotonPlaceDetail({ lat, lng, placeId, name }) {
           name: match.name ?? name,
           lat: match.lat,
           lng: match.lng,
-          categoryLabel: 'Place',
+          categoryLabel: resolveLocationCategoryLabel(match.osmKey, match.category),
           address: match.address ?? '',
           description: `${match.name ?? name} is a spot in Antwerp.`,
           details: [],
