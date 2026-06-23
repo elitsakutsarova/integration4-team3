@@ -1287,7 +1287,7 @@ detail-hero-wave svg {
   max-width: 3rem;
   max-height: 3rem;
   border: none;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgb(255, 255, 255);
   color: #1952ff;
   display: flex;
   align-items: center;

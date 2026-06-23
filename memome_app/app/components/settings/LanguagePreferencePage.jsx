@@ -75,7 +75,7 @@ export default function LanguagePreferencePage() {
 
       <div className="language-content">
         <div className="content-section-intro">
-          <h2 className="language-section-label settings-section-title"><span class="language-section-label-underline settings-section-title-underline" aria-hidden="true"></span>App Language</h2>
+          <h2 className="language-section-label settings-section-title"><span className="language-section-label-underline settings-section-title-underline" aria-hidden="true"></span>App Language</h2>
           <p className="language-intro settings-section-text">
             Choose the language you want to use for the MemoMe app interface.
           </p>

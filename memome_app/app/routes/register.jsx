@@ -36,9 +36,26 @@ import {
 import { createAccountAssets } from '../utils/createAccountAssets';
 
 export const clientMiddleware = guestOnlyMiddleware;
+export function guestHomePath() {
+  return paths.home;
+}
 
 const ROLE_REQUIRED_MESSAGE = 'Please select if you are a Visitor or a Local to continue';
 const USERNAME_TAKEN_MESSAGE = 'Username already taken';
+
+function ExploreArrowIcon() {
+  return (
+    <svg width="18" height="16" viewBox="0 0 18 16" fill="none" aria-hidden="true" className="register__explore-arrow">
+      <path
+        d="M1 8h14M10 2l6 6-6 6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function clientFieldError(field, value) {
   if (field === 'username') {
@@ -452,6 +469,10 @@ export default function Register() {
           <span className="register-login-prompt__lead">Already have an account?</span>{' '}
           <Link to={paths.login} className="register-login-link">Log in</Link>
         </p>
+        <Link to={guestHomePath()} replace className="register__explore-link">
+                  Explore map without account
+                  <ExploreArrowIcon  />
+                </Link>
       </div>
     </div>
   );

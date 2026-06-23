@@ -57,9 +57,9 @@ export default function OnboardingScreen2() {
         />
 
         <div className="onboarding-content onboarding-screen2__content">
-          <div className="onboarding-screen2__texture" aria-hidden="true">
+         {/*  <div className="onboarding-screen2__texture" aria-hidden="true">
             <img src={onboardingAssets.screen2.texture} alt="Decorative scrapbook texture background" />
-          </div>
+          </div> */}
 
           <div className="onboarding-screen2__scrapbook">
             <img
@@ -109,7 +109,7 @@ export default function OnboardingScreen2() {
             </div>
 
             <div className="onboarding-slide__description onboarding-screen2__description">
-              <div className="onboarding-slide__bubble">
+              <div className="onboarding-slide__bubble bubble--two">
                 <svg
                   className="onboarding-slide__bubble-shape"
                   viewBox="0 0 246 92"

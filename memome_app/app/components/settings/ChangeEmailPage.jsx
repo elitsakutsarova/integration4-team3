@@ -98,7 +98,7 @@ export default function ChangeEmailPage() {
 
       <div className="settings-form-body">
         <div className="settings-form-intro content-section-intro">
-          <p className="settings-form-intro-title settings-section-title"><span class="settings-section-title-underline" aria-hidden="true"></span>Choose a new email</p>
+          <p className="settings-form-intro-title settings-section-title"><span className="settings-section-title-underline" aria-hidden="true"></span>Choose a new email</p>
           <p className="settings-form-intro-desc settings-section-text">
             Enter and confirm your new e-mail to change your old e-mail
           </p>
