@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MemoMe — Antwerp</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream: #FAF0F5;
+      --dark:  #28101A;
+      --mid:   #A080A0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--cream); font-family: 'Space Grotesk', sans-serif; overflow: hidden; }
+    #map { width: 100vw; height: 100vh; }
+
+    /* ── Pink-saturated illustrated map ── */
+    /* sepia warms the base to yellow-orange, hue-rotate(-50deg) swings it into
+       magenta/pink, then high saturation locks in the colour pop               */
+    .leaflet-layer {
+      filter: sepia(0.65) hue-rotate(-50deg) saturate(2.4) brightness(1.12) contrast(0.88);
+    }
+
+    /* ── Leaflet UI overrides ── */
+    .leaflet-control-zoom {
+      border: none !important;
+      border-radius: 14px !important;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.14) !important;
+    }
+    .leaflet-control-zoom a {
+      width: 36px !important; height: 36px !important; line-height: 36px !important;
+      background: white !important; color: var(--dark) !important;
+      font-family: 'Space Grotesk', sans-serif !important; font-weight: 700 !important; font-size: 18px !important;
+      border: none !important;
+    }
+    .leaflet-control-zoom a + a { border-top: 1px solid rgba(0,0,0,.07) !important; }
+    .leaflet-control-zoom a:hover { background: #fce8f3 !important; }
+
+    .leaflet-control-attribution {
+      background: rgba(255,255,255,.65) !important;
+      font-family: 'Space Grotesk', sans-serif !important; font-size: 10px !important;
+      border-radius: 6px 0 0 0 !important;
+    }
+
+    /* ── Popup ── */
+    .leaflet-popup-content-wrapper {
+      background: white !important; border-radius: 14px !important;
+      box-shadow: 0 4px 18px rgba(0,0,0,.14) !important; padding: 0 !important;
+    }
+    .leaflet-popup-tip { background: white !important; }
+    .leaflet-popup-close-button { font-size: 18px !important; top: 8px !important; right: 10px !important; }
+    .leaflet-popup-content { margin: 13px 16px 11px !important; font-family: 'Space Grotesk', sans-serif !important; }
+    .pop-name { font-weight: 700; font-size: 14px; color: #18180e; }
+    .pop-sub  { color: #999; font-size: 11px; margin-top: 3px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   MAP  —  Antwerp, Belgium
+═══════════════════════════════════════════════════════════ */
+
+/* Antwerp bounding box — prevents panning outside the city */
+const ANTWERP_BOUNDS = L.latLngBounds(
+  [51.15, 4.28],   // SW corner
+  [51.30, 4.55],   // NE corner
+);
+
+const map = L.map('map', {
+  center: [51.2194, 4.4025],
+  zoom: 16,
+  minZoom: 14,
+  maxZoom: 19,
+  maxBounds: ANTWERP_BOUNDS,
+  maxBoundsViscosity: 1.0,   // hard boundary — no rubberbanding outside
+  zoomControl: false,
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+/* Location accuracy ring — Grote Markt area */
+L.circle([51.2205, 4.4000], {
+  radius: 160,
+  color: 'rgba(70,110,180,0.35)',
+  weight: 1.5,
+  fillColor: 'rgba(70,110,180,0.05)',
+}).addTo(map);
+
+/* ═══════════════════════════════════════════════════════════
+   MARKER FACTORIES
+═══════════════════════════════════════════════════════════ */
+
+/**
+ * Circular sticker — emoji inside a colored circle with inner dashed ring
+ */
+function mkCircle({ emoji, bg, border, size = 54, rot = 0 }) {
+  const f = Math.round(size * 0.40);
+  return L.divIcon({
+    className: '',
+    html: `
+      <div style="
+        width:${size}px;height:${size}px;
+        background:${bg};
+        border:3px solid ${border};
+        border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        font-size:${f}px;
+        transform:rotate(${rot}deg);
+        filter:drop-shadow(0 2px 7px rgba(0,0,0,.20));
+        position:relative;cursor:pointer;
+      ">
+        <div style="
+          position:absolute;inset:4px;
+          border:1.5px dashed ${border};
+          border-radius:50%;opacity:.35;
+        "></div>
+        <span style="position:relative">${emoji}</span>
+      </div>`,
+    iconSize:  [size, size],
+    iconAnchor:[size/2, size/2],
+    popupAnchor:[0, -(size/2+8)],
+  });
+}
+
+/**
+ * Stamp marker — circular with inner ring + stacked text lines
+ */
+function mkStamp({ lines, bg, border, color, size = 70, rot = 0 }) {
+  const inner = lines.map((l, i) => `
+    <div style="
+      color:${color};
+      font-size:${i === 0 ? 20 : i === lines.length-1 ? 8 : 11}px;
+      font-weight:${i === 0 ? 400 : 700};
+      letter-spacing:${i === 0 ? 0 : 0.07}em;
+      text-transform:${i === 0 ? 'none' : 'uppercase'};
+      line-height:1.15;
+    ">${l}</div>`).join('');
+  return L.divIcon({
+    className: '',
+    html: `
+      <div style="
+        width:${size}px;height:${size}px;
+        background:${bg};
+        border:3px solid ${border};
+        border-radius:50%;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        transform:rotate(${rot}deg);
+        filter:drop-shadow(0 2px 7px rgba(0,0,0,.18));
+        position:relative;cursor:pointer;padding:6px;
+      ">
+        <div style="
+          position:absolute;inset:5px;
+          border:1.5px solid ${border};
+          border-radius:50%;opacity:.45;
+        "></div>
+        <div style="position:relative;text-align:center;">${inner}</div>
+      </div>`,
+    iconSize:  [size, size],
+    iconAnchor:[size/2, size/2],
+    popupAnchor:[0, -(size/2+8)],
+  });
+}
+
+/**
+ * Photo cutout — rotated rectangle with simulated photo gradient
+ */
+function mkPhoto({ c1, c2, w = 74, h = 58, rot = -7 }) {
+  return L.divIcon({
+    className: '',
+    html: `
+      <div style="
+        width:${w}px;height:${h}px;
+        background:linear-gradient(145deg,${c1},${c2});
+        border:4px solid white;
+        transform:rotate(${rot}deg);
+        filter:drop-shadow(0 3px 9px rgba(0,0,0,.24));
+        cursor:pointer;
+      "></div>`,
+    iconSize:  [w, h],
+    iconAnchor:[w/2, h/2],
+    popupAnchor:[0, -(h/2+8)],
+  });
+}
+
+/**
+ * Chat bubble — pill shape with downward tail
+ */
+function mkBubble({ text, bg, color = 'white', tailRight = false }) {
+  const big = text.length > 9;
+  return L.divIcon({
+    className: '',
+    html: `
+      <div style="position:relative;display:inline-block;">
+        <div style="
+          background:${bg};color:${color};
+          font-family:'Space Grotesk',sans-serif;
+          font-size:${big ? 11 : 13}px;font-weight:600;
+          padding:${big ? '6px 11px' : '6px 13px'};
+          border-radius:22px;white-space:nowrap;
+          filter:drop-shadow(0 2px 5px rgba(0,0,0,.13));
+        ">${text}</div>
+        <div style="
+          position:absolute;bottom:-7px;
+          ${tailRight ? 'right:13px' : 'left:13px'};
+          width:0;height:0;
+          border-left:6px solid transparent;
+          border-right:6px solid transparent;
+          border-top:8px solid ${bg};
+        "></div>
+      </div>`,
+    iconSize:   [big ? 130 : 90, 36],
+    iconAnchor: [big ? 65 : 45, 43],
+    popupAnchor:[0, -43],
+  });
+}
+
+/**
+ * Card sticker — rectangular with text (like "ta da ima")
+ */
+function mkCard({ top, main, bg, color = 'white', w = 66, h = 54, rot = 5 }) {
+  return L.divIcon({
+    className: '',
+    html: `
+      <div style="
+        width:${w}px;height:${h}px;
+        background:${bg};
+        transform:rotate(${rot}deg);
+        display:flex;flex-direction:column;justify-content:center;
+        padding:7px 10px;
+        filter:drop-shadow(0 2px 8px rgba(0,0,0,.20));
+        cursor:pointer;
+      ">
+        <div style="color:${color};font-size:8px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;opacity:.65;">${top}</div>
+        <div style="color:${color};font-size:13px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin-top:1px;">${main}</div>
+      </div>`,
+    iconSize:  [w, h],
+    iconAnchor:[w/2, h/2],
+    popupAnchor:[0, -(h/2+8)],
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PLACE MARKERS  —  Antwerp
+═══════════════════════════════════════════════════════════ */
+
+/* — Coffee sticker — Koffie Chocolate, near Groenplaats */
+L.marker([51.2200, 4.3990], { icon: mkCircle({ emoji:'☕', bg:'#5C7D56', border:'#3C5536', size:56, rot:7 }) })
+  .addTo(map)
+  .bindPopup('<div class="pop-name">Koffie spot</div><div class="pop-sub">Flat white · great light</div>');
+
+/* — Sushi small circular — near Meir */
+L.marker([51.2215, 4.4075], { icon: mkCircle({ emoji:'🍣', bg:'#F4EDE0', border:'#B82828', size:50, rot:-9 }) })
+  .addTo(map);
+
+/* — Stamp: Het Steen (castle icon) */
+L.marker([51.2228, 4.3952], { icon: mkStamp({
+  lines: ['🏰', 'Het', 'Steen'],
+  bg: '#F4EDE0', border: '#7A5A30', color: '#7A5A30',
+  size: 74, rot: -5,
+}) }).addTo(map)
+  .bindPopup('<div class="pop-name">Het Steen</div><div class="pop-sub">Historic fortress · Scheldekaaien</div>');
+
+/* — Stamp: tea room near Sint-Andries */
+L.marker([51.2165, 4.3980], { icon: mkStamp({
+  lines: ['🫖', 'Sint', 'Andries'],
+  bg: '#8E4A70', border: '#6A2850', color: 'white',
+  size: 70, rot: 8,
+}) }).addTo(map)
+  .bindPopup('<div class="pop-name">Sint-Andries</div><div class="pop-sub">Tea & bites · cosy neighbourhood</div>');
+
+/* — Grote Markt / Cathedral stickers */
+L.marker([51.2210, 4.4010], { icon: mkCircle({ emoji:'⛪', bg:'#E8DEC8', border:'#8A7A5A', size:46, rot:0 }) })
+  .addTo(map).bindPopup('<div class="pop-name">Onze-Lieve-Vrouwekathedraal</div>');
+L.marker([51.2206, 4.4022], { icon: mkCircle({ emoji:'🏛', bg:'#E8DEC8', border:'#8A7A5A', size:42, rot:3 }) })
+  .addTo(map).bindPopup('<div class="pop-name">Grote Markt</div>');
+
+/* — Photo cutouts */
+L.marker([51.2188, 4.3975], { icon: mkPhoto({ c1:'#4A6858', c2:'#6A8870', rot:-8 }) })
+  .addTo(map).bindPopup('<div class="pop-name">Dinner in the Eilandje 🍽</div>');
+L.marker([51.2235, 4.4060], { icon: mkPhoto({ c1:'#9E7E6A', c2:'#C4A080', w:70, h:55, rot:7 }) })
+  .addTo(map).bindPopup('<div class="pop-name">Meir Sunday stroll</div>');
+L.marker([51.2178, 4.4038], { icon: mkPhoto({ c1:'#4A6070', c2:'#6A8898', w:66, h:52, rot:-5 }) })
+  .addTo(map).bindPopup('<div class="pop-name">MoMu fashion show</div>');
+
+/* — Circular avatar (user) — near Groenplaats */
+L.marker([51.2205, 4.4000], { icon: mkCircle({ emoji:'🧑', bg:'#D4A87A', border:'white', size:54, rot:0 }) })
+  .addTo(map).bindPopup('<div class="pop-name">You are here</div>');
+
+/* — Pet circular */
+L.marker([51.2196, 4.4018], { icon: mkCircle({ emoji:'🐹', bg:'#C8B89A', border:'white', size:48, rot:3 }) })
+  .addTo(map);
+
+/* — Card sticker — "nu hier" (Dutch for "here now") */
+L.marker([51.2220, 4.4048], { icon: mkCard({ top:'now', main:'nu\nhier', bg:'#2C4830', color:'white', w:66, h:54, rot:6 }) })
+  .addTo(map).bindPopup('<div class="pop-name">Nu hier 🏠</div><div class="pop-sub">Just arrived</div>');
+
+/* — Chat bubbles */
+L.marker([51.2240, 4.3990], { icon: mkBubble({ text:'20 min', bg:'#CEC0A0', color:'#221E14' }) })
+  .addTo(map);
+L.marker([51.2185, 4.4030], { icon: mkBubble({ text:'5 min', bg:'#CEC0A0', color:'#221E14', tailRight:true }) })
+  .addTo(map);
+L.marker([51.2158, 4.4060], { icon: mkBubble({ text:'wanna hang out?', bg:'#4A8E8E', color:'white' }) })
+  .addTo(map);
+
+/* ═══════════════════════════════════════════════════════════
+   BRANDING
+═══════════════════════════════════════════════════════════ */
+const Brand = L.Control.extend({
+  options: { position: 'topleft' },
+  onAdd() {
+    const el = L.DomUtil.create('div');
+    el.style.cssText = `
+      background:white;padding:7px 14px;border-radius:22px;
+      font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;
+      color:#18180e;box-shadow:0 2px 10px rgba(0,0,0,.12);letter-spacing:-.3px;
+    `;
+    el.innerHTML = `MemoMe <span style="font-weight:400;color:#aaa;font-size:13px">Antwerp</span>`;
+    L.DomEvent.disableClickPropagation(el);
+    return el;
+  },
+});
+new Brand().addTo(map);
+</script>
+</body>
+</html>

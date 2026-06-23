@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MemoMe — Antwerp</title>
+
+  <!-- MapLibre GL JS — vector tile renderer, full per-layer colour control -->
+  <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Space Grotesk', sans-serif; }
+    #map { width: 100vw; height: 100vh; }
+
+    /* Zoom controls */
+    .maplibregl-ctrl-group {
+      border-radius: 14px !important;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.14) !important;
+      border: none !important;
+    }
+    .maplibregl-ctrl-group button {
+      width: 36px !important; height: 36px !important;
+      background: white !important;
+      border-bottom: 1px solid rgba(0,0,0,.07) !important;
+    }
+    .maplibregl-ctrl-group button:last-child { border-bottom: none !important; }
+    .maplibregl-ctrl-group button:hover { background: #fce8f3 !important; }
+
+    /* Attribution */
+    .maplibregl-ctrl-attrib {
+      font-family: 'Space Grotesk', sans-serif !important;
+      font-size: 10px !important;
+      background: rgba(255,255,255,.65) !important;
+    }
+
+    /* Popup */
+    .maplibregl-popup-content {
+      border-radius: 14px !important;
+      box-shadow: 0 4px 18px rgba(0,0,0,.14) !important;
+      font-family: 'Space Grotesk', sans-serif !important;
+      padding: 12px 16px 11px !important;
+    }
+    .maplibregl-popup-close-button {
+      font-size: 18px !important; top: 6px !important; right: 8px !important;
+    }
+    .pop-name { font-weight: 700; font-size: 14px; color: #28101A; }
+    .pop-sub  { color: #C070A0; font-size: 11px; margin-top: 3px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+/* ══════════════════════════════════════════════════════════
+   COLOUR PALETTE
+══════════════════════════════════════════════════════════ */
+const P = {
+  bg:        '#F5B8D4',   // blush — land / background
+  road_maj:  '#C83068',   // deep pink — motorway / primary
+  road_min:  '#E888AE',   // medium pink — secondary / local streets
+  road_foot: '#F0B0C8',   // pale pink — footways / cycleways
+  building:  '#CC1E2E',   // vivid red — buildings
+  bldg_out:  '#8B0018',   // dark red — building outlines
+  water:     '#A850A0',   // purple — rivers, Schelde
+  park:      '#E080A8',   // rose — parks, greenery
+  lbl:       '#3A0820',   // dark plum — text labels
+  lbl_halo:  '#FDE8F0',   // blush white — label halo
+};
+
+/* ══════════════════════════════════════════════════════════
+   MAP  —  Antwerp, Belgium
+══════════════════════════════════════════════════════════ */
+const map = new maplibregl.Map({
+  container: 'map',
+  // OpenFreeMap — completely free vector tiles, no API key needed
+  style: 'https://tiles.openfreemap.org/styles/liberty',
+  center: [4.4025, 51.2194],
+  zoom: 15,
+  minZoom: 13,
+  maxZoom: 19,
+  maxBounds: [[4.28, 51.15], [4.55, 51.30]],
+});
+
+map.addControl(
+  new maplibregl.NavigationControl({ showCompass: false }),
+  'bottom-right'
+);
+
+/* ══════════════════════════════════════════════════════════
+   RECOLOUR — runs once the vector style is loaded
+══════════════════════════════════════════════════════════ */
+map.on('load', () => {
+
+  map.getStyle().layers.forEach(layer => {
+    const sl = layer['source-layer'] || '';  // e.g. 'building', 'water', 'transportation'
+    const t  = layer.type;
+    const id = layer.id;
+
+    try {
+      /* ── background ── */
+      if (t === 'background') {
+        map.setPaintProperty(id, 'background-color', P.bg);
+        return;
+      }
+
+      /* ── fill layers ── */
+      if (t === 'fill') {
+        if (sl === 'water') {
+          map.setPaintProperty(id, 'fill-color', P.water);
+          try { map.setPaintProperty(id, 'fill-opacity', 0.9); } catch(_) {}
+        } else if (sl === 'building') {
+          map.setPaintProperty(id, 'fill-color', P.building);
+          try { map.setPaintProperty(id, 'fill-opacity', 0.88); } catch(_) {}
+        } else if (['park', 'landuse', 'landcover'].includes(sl)) {
+          map.setPaintProperty(id, 'fill-color', P.park);
+          try { map.setPaintProperty(id, 'fill-opacity', 0.75); } catch(_) {}
+        } else {
+          map.setPaintProperty(id, 'fill-color', P.bg);
+        }
+      }
+
+      /* ── line layers ── */
+      if (t === 'line') {
+        if (sl === 'water' || sl === 'waterway') {
+          map.setPaintProperty(id, 'line-color', P.water);
+        } else if (sl === 'building') {
+          map.setPaintProperty(id, 'line-color', P.bldg_out);
+        } else if (sl === 'transportation') {
+          if (/motorway|trunk|primary/.test(id)) {
+            map.setPaintProperty(id, 'line-color', P.road_maj);
+          } else if (/path|foot|pedestrian|cycleway|track/.test(id)) {
+            map.setPaintProperty(id, 'line-color', P.road_foot);
+          } else {
+            map.setPaintProperty(id, 'line-color', P.road_min);
+          }
+        } else {
+          map.setPaintProperty(id, 'line-color', P.road_min);
+        }
+      }
+
+      /* ── symbol / label layers ── */
+      if (t === 'symbol') {
+        try { map.setPaintProperty(id, 'text-color', P.lbl); } catch(_) {}
+        try { map.setPaintProperty(id, 'text-halo-color', P.lbl_halo); } catch(_) {}
+      }
+
+    } catch(_) { /* skip layers where the property doesn't exist */ }
+  });
+
+  addLocationRing();
+  addMarkers();
+});
+
+/* ══════════════════════════════════════════════════════════
+   LOCATION ACCURACY RING  (circle polygon in real metres)
+══════════════════════════════════════════════════════════ */
+function circleGeoJSON(center, radiusM, pts = 64) {
+  const [lng, lat] = center;
+  const coords = [];
+  for (let i = 0; i <= pts; i++) {
+    const a    = (i / pts) * 2 * Math.PI;
+    const dLng = (radiusM * Math.cos(a)) / (111320 * Math.cos(lat * Math.PI / 180));
+    const dLat = (radiusM * Math.sin(a)) / 110540;
+    coords.push([lng + dLng, lat + dLat]);
+  }
+  return { type: 'Feature', geometry: { type: 'Polygon', coordinates: [coords] } };
+}
+
+function addLocationRing() {
+  map.addSource('loc', { type: 'geojson', data: circleGeoJSON([4.4000, 51.2205], 180) });
+  map.addLayer({ id: 'loc-fill',   type: 'fill', source: 'loc',
+    paint: { 'fill-color': 'rgba(80,120,200,0.06)' } });
+  map.addLayer({ id: 'loc-stroke', type: 'line', source: 'loc',
+    paint: { 'line-color': 'rgba(80,120,200,0.35)', 'line-width': 1.5 } });
+}
+
+/* ══════════════════════════════════════════════════════════
+   MARKER HELPERS
+══════════════════════════════════════════════════════════ */
+function addMarker(lngLat, html, popupHtml, anchor = 'center') {
+  const el = document.createElement('div');
+  el.innerHTML = html;
+  const m = new maplibregl.Marker({ element: el, anchor })
+    .setLngLat(lngLat);
+  if (popupHtml) {
+    m.setPopup(new maplibregl.Popup({ offset: 30, closeButton: true })
+      .setHTML(popupHtml));
+  }
+  m.addTo(map);
+  return m;
+}
+
+function hCircle({ emoji, bg, border, size = 54, rot = 0 }) {
+  const f = Math.round(size * 0.40);
+  return `<div style="
+    width:${size}px;height:${size}px;background:${bg};
+    border:3px solid ${border};border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:${f}px;transform:rotate(${rot}deg);
+    filter:drop-shadow(0 2px 7px rgba(0,0,0,.22));
+    position:relative;cursor:pointer;">
+    <div style="position:absolute;inset:4px;border:1.5px dashed ${border};
+      border-radius:50%;opacity:.35;pointer-events:none;"></div>
+    <span style="position:relative">${emoji}</span>
+  </div>`;
+}
+
+function hStamp({ lines, bg, border, color, size = 70, rot = 0 }) {
+  const rows = lines.map((l, i) => `<div style="color:${color};
+    font-size:${i===0?20:i===lines.length-1?8:11}px;
+    font-weight:${i===0?400:700};
+    letter-spacing:${i===0?0:0.07}em;
+    text-transform:${i===0?'none':'uppercase'};
+    line-height:1.15;">${l}</div>`).join('');
+  return `<div style="
+    width:${size}px;height:${size}px;background:${bg};
+    border:3px solid ${border};border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transform:rotate(${rot}deg);
+    filter:drop-shadow(0 2px 7px rgba(0,0,0,.18));
+    position:relative;cursor:pointer;padding:6px;">
+    <div style="position:absolute;inset:5px;border:1.5px solid ${border};
+      border-radius:50%;opacity:.45;pointer-events:none;"></div>
+    <div style="position:relative;text-align:center;
+      font-family:'Space Grotesk',sans-serif;">${rows}</div>
+  </div>`;
+}
+
+function hPhoto({ c1, c2, w = 74, h = 58, rot = -7 }) {
+  return `<div style="
+    width:${w}px;height:${h}px;
+    background:linear-gradient(145deg,${c1},${c2});
+    border:4px solid white;transform:rotate(${rot}deg);
+    filter:drop-shadow(0 3px 9px rgba(0,0,0,.24));cursor:pointer;"></div>`;
+}
+
+function hBubble({ text, bg, color = 'white', tailRight = false }) {
+  const big = text.length > 9;
+  return `<div style="position:relative;display:inline-block;">
+    <div style="background:${bg};color:${color};
+      font-family:'Space Grotesk',sans-serif;
+      font-size:${big?11:13}px;font-weight:600;
+      padding:${big?'6px 11px':'6px 13px'};border-radius:22px;white-space:nowrap;
+      filter:drop-shadow(0 2px 5px rgba(0,0,0,.13));">${text}</div>
+    <div style="position:absolute;bottom:-7px;
+      ${tailRight?'right:13px':'left:13px'};
+      width:0;height:0;
+      border-left:6px solid transparent;border-right:6px solid transparent;
+      border-top:8px solid ${bg};"></div>
+  </div>`;
+}
+
+function hCard({ top, main, bg, color = 'white', w = 66, h = 54, rot = 5 }) {
+  return `<div style="
+    width:${w}px;height:${h}px;background:${bg};
+    transform:rotate(${rot}deg);
+    display:flex;flex-direction:column;justify-content:center;
+    padding:7px 10px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.20));cursor:pointer;">
+    <div style="color:${color};font-family:'Space Grotesk',sans-serif;
+      font-size:8px;font-weight:500;letter-spacing:.08em;
+      text-transform:uppercase;opacity:.65;">${top}</div>
+    <div style="color:${color};font-family:'Space Grotesk',sans-serif;
+      font-size:13px;font-weight:700;letter-spacing:-.02em;line-height:1.15;
+      margin-top:1px;">${main}</div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MARKERS — Antwerp locations
+══════════════════════════════════════════════════════════ */
+function addMarkers() {
+  const pop = (n, s) =>
+    `<div class="pop-name">${n}</div>${s?`<div class="pop-sub">${s}</div>`:''}`;
+
+  addMarker([4.3990, 51.2200],
+    hCircle({ emoji:'☕', bg:'#5C7D56', border:'#3C5536', size:56, rot:7 }),
+    pop('Koffie spot', 'Flat white · great light'));
+
+  addMarker([4.4075, 51.2215],
+    hCircle({ emoji:'🍣', bg:'#F4EDE0', border:'#B82828', size:50, rot:-9 }));
+
+  addMarker([4.3952, 51.2228],
+    hStamp({ lines:['🏰','Het','Steen'], bg:'#F4EDE0', border:'#7A5A30', color:'#7A5A30', size:74, rot:-5 }),
+    pop('Het Steen', 'Historic fortress · Scheldekaaien'));
+
+  addMarker([4.3980, 51.2165],
+    hStamp({ lines:['🫖','Sint','Andries'], bg:'#8E4A70', border:'#6A2850', color:'white', size:70, rot:8 }),
+    pop('Sint-Andries', 'Tea & bites · cosy neighbourhood'));
+
+  addMarker([4.4010, 51.2210],
+    hCircle({ emoji:'⛪', bg:'#E8DEC8', border:'#8A7A5A', size:46 }),
+    pop('Onze-Lieve-Vrouwekathedraal', ''));
+
+  addMarker([4.4022, 51.2206],
+    hCircle({ emoji:'🏛', bg:'#E8DEC8', border:'#8A7A5A', size:42, rot:3 }),
+    pop('Grote Markt', ''));
+
+  addMarker([4.3975, 51.2188],
+    hPhoto({ c1:'#4A6858', c2:'#6A8870', rot:-8 }),
+    pop('Dinner in the Eilandje 🍽', ''));
+
+  addMarker([4.4060, 51.2235],
+    hPhoto({ c1:'#9E7E6A', c2:'#C4A080', w:70, h:55, rot:7 }),
+    pop('Meir Sunday stroll', ''));
+
+  addMarker([4.4038, 51.2178],
+    hPhoto({ c1:'#4A6070', c2:'#6A8898', w:66, h:52, rot:-5 }),
+    pop('MoMu fashion show', ''));
+
+  addMarker([4.4000, 51.2205],
+    hCircle({ emoji:'🧑', bg:'#D4A87A', border:'white', size:54 }),
+    pop('You are here', ''));
+
+  addMarker([4.4018, 51.2196],
+    hCircle({ emoji:'🐹', bg:'#C8B89A', border:'white', size:48, rot:3 }));
+
+  addMarker([4.4048, 51.2220],
+    hCard({ top:'now', main:'nu\nhier', bg:'#2C4830', color:'white', w:66, h:54, rot:6 }),
+    pop('Nu hier 🏠', 'Just arrived'));
+
+  addMarker([4.3990, 51.2240],
+    hBubble({ text:'20 min', bg:'#CEC0A0', color:'#221E14' }), null, 'bottom');
+
+  addMarker([4.4030, 51.2185],
+    hBubble({ text:'5 min', bg:'#CEC0A0', color:'#221E14', tailRight:true }), null, 'bottom');
+
+  addMarker([4.4060, 51.2158],
+    hBubble({ text:'wanna hang out?', bg:'#4A8E8E', color:'white' }), null, 'bottom');
+}
+
+/* ══════════════════════════════════════════════════════════
+   BRANDING
+══════════════════════════════════════════════════════════ */
+class BrandCtrl {
+  onAdd() {
+    this._el = document.createElement('div');
+    this._el.className = 'maplibregl-ctrl';
+    this._el.style.cssText = `
+      background:white;padding:7px 14px;border-radius:22px;
+      font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;
+      color:#28101A;box-shadow:0 2px 10px rgba(0,0,0,.12);
+      letter-spacing:-.3px;pointer-events:none;user-select:none;
+    `;
+    this._el.innerHTML = `MemoMe <span style="font-weight:400;color:#C080A0;font-size:13px">Antwerp</span>`;
+    return this._el;
+  }
+  onRemove() { this._el.parentNode?.removeChild(this._el); }
+}
+map.addControl(new BrandCtrl(), 'top-left');
+</script>
+</body>
+</html>
