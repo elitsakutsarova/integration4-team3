@@ -257,4 +257,18 @@ After our consult, I changed a lot of things in test5 like:
 - Journals ✔️
 - Profile ✔️
 
+# Fixes Test 24:
+
+1. Make the guest flow responsive:
+- Fix journal height ✔️
+- Profile -> CTA should go to bottom ✔️
+- Make Add-memo page responsive ✔️
+- Make it so the user can navigate from Add-memo ✔️
+
+2. General
+- New badge in journal should be green with white text
+- FAQs -> make all the drop-downs have the same font size/style
+- When the user clicks on the map, it should only place the pin on the map, and the user should have to click a second time to open the add-memo form
+- Make the pin the same style as the other pins
+
 ## Deployment

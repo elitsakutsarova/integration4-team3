@@ -823,6 +823,7 @@
     flex: 1 1 0%;
     min-height: 0;
     max-height: 100%;
+    min-width: 25.2rem;
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior-y: contain;
@@ -968,6 +969,11 @@
     overflow: visible;
     border-left: none;
     border-right: none;
+  }
+
+  .main-shell-content--discover-map .journals-page.journals-page--guest-locked {
+    height: 100%;
+    overflow: hidden;
   }
 
   .main-shell-content--discover-map .journal-detail-page--loading {

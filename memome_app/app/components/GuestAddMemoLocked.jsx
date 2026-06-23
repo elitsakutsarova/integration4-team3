@@ -18,9 +18,17 @@ function BackIcon() {
   );
 } */
 
-export default function GuestAddMemoLocked({ onClose }) {
+export default function GuestAddMemoLocked({ onClose, discoverPanel = false }) {
   return (
-    <div className="guest-add-memo-page" role="dialog" aria-labelledby="guest-add-memo-title" aria-modal="true">
+    <div
+      className={[
+        'guest-add-memo-page',
+        discoverPanel ? 'guest-add-memo-page--discover-panel' : '',
+      ].filter(Boolean).join(' ')}
+      role={discoverPanel ? undefined : 'dialog'}
+      aria-labelledby="guest-add-memo-title"
+      aria-modal={discoverPanel ? undefined : true}
+    >
       <div className="guest-add-memo-top">
         <div className="guest-add-memo-hero-deco" aria-hidden="true">
           <img

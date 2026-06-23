@@ -309,6 +309,14 @@ export default function MapView({ savedMemos = [], active = true }) {
     if (user) setGuestCtaRetracted(false);
   }, [user]);
 
+  const guestAddMemoPathRef = useRef(pathname);
+
+  useEffect(() => {
+    if (guestAddMemoPathRef.current === pathname) return;
+    guestAddMemoPathRef.current = pathname;
+    setGuestAddMemoLocked(false);
+  }, [pathname]);
+
   useEffect(() => {
     if (!active || !mapReady || user) return undefined;
 
@@ -733,8 +741,10 @@ export default function MapView({ savedMemos = [], active = true }) {
     exitAddMemoFlow();
   }
 
+  const showGuestAddMemoInDiscoverPanel = Boolean(isDesktopMap && showGuestAddMemoLocked);
   const showAddMemoInDiscoverPanel = Boolean(
-    isDesktopMap && draftMemo && user && !draftMemo.pickLocation,
+    showGuestAddMemoInDiscoverPanel
+    || (isDesktopMap && draftMemo && user && !draftMemo.pickLocation),
   );
   const showDesktopMapFocus = Boolean(isDesktopMap && (selectedMemory || selectedEventId));
 
@@ -840,7 +850,10 @@ export default function MapView({ savedMemos = [], active = true }) {
           </button>
 
           {showGuestAddMemoLocked && (
-            <GuestAddMemoLocked onClose={dismissGuestAddMemoLocked} />
+            <GuestAddMemoLocked
+              onClose={dismissGuestAddMemoLocked}
+              discoverPanel={showGuestAddMemoInDiscoverPanel}
+            />
           )}
 
           {selectedMemory && !isDesktopMap && (

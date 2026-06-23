@@ -52,10 +52,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow-y: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  padding:
-    clamp(0.75rem, 3vw, 1rem) clamp(1.25rem, 5vw, 1.875rem) calc(clamp(0.75rem, 3vw, 1rem) + var(--nav-h-safe));
+  padding: clamp(0.75rem, 3vw, 1rem) clamp(1.25rem, 5vw, 1.875rem) calc(clamp(0.75rem, 3vw, 1rem) + var(--nav-h-safe));
 }
 
 .journals-guest-panel {
@@ -713,7 +712,6 @@
 
 @media (min-width: 32.5rem) {
   .journals-page--guest-locked {
-    max-width: 40rem;
     margin: 0 auto;
   }
 }
@@ -721,6 +719,7 @@
 @media (min-width: 48rem) {
   .journals-page--guest-locked {
     max-width: 24.5625rem;
+    height: 100%;
   }
 }
 

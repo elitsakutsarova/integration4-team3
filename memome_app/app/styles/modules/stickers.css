@@ -618,7 +618,7 @@
     left: 50%;
     right: auto;
     width: 100%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(29%);
   }
 }
 
