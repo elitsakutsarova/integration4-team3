@@ -129,9 +129,20 @@ export function Layout({ children }) {
         <Links />
       </head>
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <noscript>
+          <style>{`#memome-app { display: none !important; }`}</style>
+          <div className="noscript-notice" role="alert">
+            <h1 className="noscript-notice__title">JavaScript is required</h1>
+            <p className="noscript-notice__text">
+              MemoMe needs JavaScript enabled to run. Turn on JavaScript in your browser settings and reload this page.
+            </p>
+          </div>
+        </noscript>
+        <div id="memome-app">
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>

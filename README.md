@@ -1019,6 +1019,7 @@ No, it's mostly css.
 - Make success messages disappear after 1.5 seconds ✔️
 - fix browser errors and warnings ✔️
 - fix unnessecary useEffect cases ✔️
+- added warning for no java script users ✔️
 
 # CSS
 
