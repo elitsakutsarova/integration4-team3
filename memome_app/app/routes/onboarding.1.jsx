@@ -19,7 +19,7 @@ export const clientMiddleware = [
 
 export function meta() {
   return [
-    { title: 'MemMe — Welcome' },
+    { title: 'MemMe - Welcome' },
     { name: 'description', content: 'Discover Antwerp through real memories.' },
   ];
 }

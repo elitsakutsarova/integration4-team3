@@ -1,6 +1,8 @@
 import { deleteWarningAssets } from '../../utils/deleteWarningAssets';
 
-export default function DeleteAccountConfirmModal({ onCancel, onConfirm, busy = false }) {
+export default function DeleteAccountConfirmModal({ onCancel, onConfirm, busy = false, error = null }) {
+  const describedBy = error ? 'delete-account-desc delete-account-error' : 'delete-account-desc';
+
   return (
     <div
       className="delete-account-backdrop"
@@ -15,7 +17,7 @@ export default function DeleteAccountConfirmModal({ onCancel, onConfirm, busy = 
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-account-title"
-        aria-describedby="delete-account-desc"
+        aria-describedby={describedBy}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="delete-account-deco" aria-hidden="true">
@@ -32,6 +34,11 @@ export default function DeleteAccountConfirmModal({ onCancel, onConfirm, busy = 
         <p id="delete-account-desc" className="delete-account-desc">
           Are you sure you want to proceed? You cannot undo this action
         </p>
+        {error ? (
+          <p id="delete-account-error" className="delete-account-error" role="alert">
+            {error}
+          </p>
+        ) : null}
 
         <div className="delete-account-actions">
           <button

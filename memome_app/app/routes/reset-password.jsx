@@ -72,7 +72,7 @@ function ResetPasswordFieldError({ message, id }) {
 
 export function meta() {
   return [
-    { title: 'MemMe — Reset password' },
+    { title: 'MemMe - Reset password' },
     { name: 'description', content: 'Choose a new MemMe password.' },
   ];
 }

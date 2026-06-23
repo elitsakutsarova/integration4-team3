@@ -31,7 +31,7 @@ function TrashIcon() {
 function UploadIdleIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="19" viewBox="0 0 16 19" fill="none">
-      <path fill-rule="evenodd" clip-rule="evenodd" d="M7.47656 0.5C7.62658 0.350028 7.97656 0 7.97656 0C7.97656 0 8.3281 0.365011 8.47812 0.514983C8.62813 0.664955 11.478 3.51488 11.478 3.51488L10.3469 4.64605L8.79971 3.1005V10.2011H7.19976V2.9245L5.47822 4.64605L4.34706 3.51488L7.47656 0.5ZM9.08971e-07 7.00117C9.08971e-07 6.789 1.60933e-06 6.20119 1.60933e-06 6.20119C1.60933e-06 6.20119 0.587808 6.20119 0.799974 6.20119H3.41749V7.80114H1.59995V17.4008H14.3995V7.80114H12.582V6.20119H15.1995C15.4117 6.20119 15.9995 6.20119 15.9995 6.20119C15.9995 6.20119 15.9995 6.789 15.9995 7.00117V18.2008C15.9995 18.413 15.9995 19.0008 15.9995 19.0008C15.9995 19.0008 15.4117 19.0008 15.1995 19.0008H0.799974C0.587808 19.0008 0 19.0008 0 19.0008C0 19.0008 9.08971e-07 18.413 9.08971e-07 18.2008V7.00117Z" fill="#1952FF" />
+      <path fillRule="evenodd" clipRule="evenodd" d="M7.47656 0.5C7.62658 0.350028 7.97656 0 7.97656 0C7.97656 0 8.3281 0.365011 8.47812 0.514983C8.62813 0.664955 11.478 3.51488 11.478 3.51488L10.3469 4.64605L8.79971 3.1005V10.2011H7.19976V2.9245L5.47822 4.64605L4.34706 3.51488L7.47656 0.5ZM9.08971e-07 7.00117C9.08971e-07 6.789 1.60933e-06 6.20119 1.60933e-06 6.20119C1.60933e-06 6.20119 0.587808 6.20119 0.799974 6.20119H3.41749V7.80114H1.59995V17.4008H14.3995V7.80114H12.582V6.20119H15.1995C15.4117 6.20119 15.9995 6.20119 15.9995 6.20119C15.9995 6.20119 15.9995 6.789 15.9995 7.00117V18.2008C15.9995 18.413 15.9995 19.0008 15.9995 19.0008C15.9995 19.0008 15.4117 19.0008 15.1995 19.0008H0.799974C0.587808 19.0008 0 19.0008 0 19.0008C0 19.0008 9.08971e-07 18.413 9.08971e-07 18.2008V7.00117Z" fill="#1952FF" />
     </svg>
   );
 }
@@ -39,8 +39,8 @@ function UploadIdleIcon() {
 function UploadErrorIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12 3L22.22 20.7H1.78L12 3Z" stroke="#797979" stroke-width="2" stroke-linecap="square" />
-      <path d="M12 10.5V14M12 17.5H12.004V17.504H12V17.5Z" stroke="#797979" stroke-width="2" stroke-linecap="square" />
+      <path d="M12 3L22.22 20.7H1.78L12 3Z" stroke="#797979" strokeWidth="2" strokeLinecap="square" />
+      <path d="M12 10.5V14M12 17.5H12.004V17.504H12V17.5Z" stroke="#797979" strokeWidth="2" strokeLinecap="square" />
     </svg>
   );
 }
@@ -49,8 +49,8 @@ function MediaLoadingIcon({ isVideo }) {
   if (isVideo) {
     return (
       <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36" fill="none">
-        <path d="M2 2H33.5V33.5H2V2Z" stroke="#797979" stroke-width="4" />
-        <path d="M24.3125 17.75L12.5 24.5698V10.9303L24.3125 17.75Z" stroke="#797979" stroke-width="4" />
+        <path d="M2 2H33.5V33.5H2V2Z" stroke="#797979" strokeWidth="4" />
+        <path d="M24.3125 17.75L12.5 24.5698V10.9303L24.3125 17.75Z" stroke="#797979" strokeWidth="4" />
       </svg>
     );
   }
@@ -446,7 +446,7 @@ export default function EditMemoPage({ memo, returnToFromLoader = null }) {
                 aria-label="Back to created memos"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
-                  <path d="M25.7886 11.8838H1.78857M12.7886 22.3838L1.78857 11.8838L12.7886 0.883789" stroke="#1952FF" stroke-width="2.5" />
+                  <path d="M25.7886 11.8838H1.78857M12.7886 22.3838L1.78857 11.8838L12.7886 0.883789" stroke="#1952FF" strokeWidth="2.5" />
                 </svg>
               </button>
               <h1 className="memo-form-title">Edit memo</h1>

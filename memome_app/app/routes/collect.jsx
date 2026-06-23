@@ -20,7 +20,7 @@ import { writeLastNewStickerId } from '../utils/collectionNewSticker';
 import { writeStickerReveal } from '../utils/stickerReveal';
 
 export function meta() {
-  return [{ title: 'MemMe — Collect sticker' }];
+  return [{ title: 'MemMe - Collect sticker' }];
 }
 
 /** Read cache only — claiming runs in clientAction so root can revalidate collections. */

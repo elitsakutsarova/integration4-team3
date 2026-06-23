@@ -18,7 +18,7 @@ import { useUserAvatar } from '../hooks/useUserAvatar';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Profile' },
+    { title: 'MemoMe - Profile' },
     { name: 'description', content: 'Your memos, collections, and memories on the map.' },
   ];
 }

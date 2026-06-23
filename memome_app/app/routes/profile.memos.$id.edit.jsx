@@ -11,7 +11,7 @@ import { fetchCreatedMemoById } from '../utils/memoStore';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Edit Memo' },
+    { title: 'MemoMe - Edit Memo' },
     { name: 'description', content: 'Edit a memo you published on the map.' },
   ];
 }

@@ -7,7 +7,7 @@ import { createAccountAssets } from '../utils/createAccountAssets';
 
 export function meta() {
   return [
-    { title: 'MemMe — Terms of Service' },
+    { title: 'MemMe - Terms of Service' },
     { name: 'description', content: 'MemMe terms of service and privacy policy.' },
   ];
 }

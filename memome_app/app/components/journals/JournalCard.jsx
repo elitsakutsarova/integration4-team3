@@ -134,8 +134,8 @@ export function NewJournalCard() {
   return (
     <Link to={paths.journalsCreate} className="journal-card-new" aria-label="Start a new travel diary">
       <svg className="journal-card-new-icon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26" fill="none">
-        <path d="M1.88518 12.875H23.8852" stroke="#1952FF" stroke-width="3.77035" stroke-linecap="square" stroke-linejoin="round" />
-        <path d="M12.8783 1.88477V23.8848" stroke="#1952FF" stroke-width="3.77035" stroke-linecap="square" stroke-linejoin="round" />
+        <path d="M1.88518 12.875H23.8852" stroke="#1952FF" strokeWidth="3.77035" strokeLinecap="square" strokeLinejoin="round" />
+        <path d="M12.8783 1.88477V23.8848" stroke="#1952FF" strokeWidth="3.77035" strokeLinecap="square" strokeLinejoin="round" />
       </svg>
       <span className="journal-card-new-label">New Travel Diary</span>
     </Link>

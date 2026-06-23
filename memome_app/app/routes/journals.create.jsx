@@ -5,7 +5,7 @@ import CreateJournalPage from '../components/journals/CreateJournalPage';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Create Journal' },
+    { title: 'MemoMe - Create Journal' },
     { name: 'description', content: 'Create a new Antwerp travel journal.' },
   ];
 }

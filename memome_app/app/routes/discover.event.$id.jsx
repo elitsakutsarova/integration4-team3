@@ -13,7 +13,7 @@ import { resolveDiscoverPlaceSpot } from '../utils/resolveDiscoverPlaceSpot';
 export function meta({ data: loaderData }) {
   const title = loaderData?.event?.title ?? 'Event';
   return [
-    { title: `MemoMe — ${title}` },
+    { title: `MemoMe - ${title}` },
     { name: 'description', content: `Discover ${title} in Antwerp.` },
   ];
 }

@@ -4,7 +4,7 @@ import LanguagePreferencePage from '../components/settings/LanguagePreferencePag
 
 export function meta() {
   return [
-    { title: 'MemoMe — Language' },
+    { title: 'MemoMe - Language' },
     { name: 'description', content: 'Choose your MemoMe app language.' },
   ];
 }

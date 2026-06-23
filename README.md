@@ -1017,12 +1017,8 @@ No, it's mostly css.
 
 # Last fixes Test 25:
 - Make success messages disappear after 1.5 seconds ✔️
-- remove em dashes from the titles and use a “-” instead
-- fix browser errors and warnings
-- fix useEffect (check figjam)
-- fix what Simon said
-- check for adding a debounce on input cuz can help if someone types fast to not send the api call right away
-- for useEffect on fetcher state write a if statement (if state.ready...)
+- fix browser errors and warnings ✔️
+- fix unnessecary useEffect cases ✔️
 
 # CSS
 

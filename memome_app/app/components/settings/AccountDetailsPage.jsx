@@ -54,9 +54,15 @@ export default function AccountDetailsPage() {
   const [emailSuccessOpen, setEmailSuccessOpen] = useState(false);
   const [passwordSuccessOpen, setPasswordSuccessOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
 
   const deleting = fetcher.state !== 'idle';
+  const deleteModalError =
+    deleteModalOpen &&
+    fetcher.state === 'idle' &&
+    fetcher.data?.error &&
+    !fetcher.data?.success
+      ? fetcher.data.error.message ?? 'Could not delete your account.'
+      : null;
   const updated = searchParams.get('updated');
   const successMessage = SUCCESS_MESSAGES[updated] ?? null;
   const hasCustomAvatar = Boolean(avatarUrl);
@@ -76,19 +82,12 @@ export default function AccountDetailsPage() {
 
     async function finishDelete() {
       setDeleteModalOpen(false);
-      setDeleteError('');
       await signOut();
       navigate(paths.loggedOut, { replace: true });
     }
 
     void finishDelete();
   }, [fetcher.data, navigate, signOut]);
-
-  // Surface delete-account API errors inside the confirmation modal.
-  useEffect(() => {
-    if (!fetcher.data?.error || fetcher.data?.success) return;
-    setDeleteError(fetcher.data.error.message ?? 'Could not delete your account.');
-  }, [fetcher.data]);
 
   function collapseCredentialChangeHistory() {
     if (!consumeAccountCredentialChangeFlag()) return;
@@ -163,7 +162,6 @@ export default function AccountDetailsPage() {
   }
 
   function openDeleteModal() {
-    setDeleteError('');
     setDeleteModalOpen(true);
   }
 
@@ -281,11 +279,6 @@ export default function AccountDetailsPage() {
 </svg>
               <span>Delete account</span>
             </button>
-            {deleteError ? (
-              <p className="account-details-delete-error" role="alert">
-                {deleteError}
-              </p>
-            ) : null}
           </div>
         </section>
       </div>
@@ -313,6 +306,7 @@ export default function AccountDetailsPage() {
       {deleteModalOpen ? (
         <DeleteAccountConfirmModal
           busy={deleting}
+          error={deleteModalError}
           onCancel={() => {
             if (!deleting) setDeleteModalOpen(false);
           }}

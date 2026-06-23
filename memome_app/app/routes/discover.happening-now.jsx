@@ -6,7 +6,7 @@ import { HAPPENING_NOW_ALL } from '../data/discoverContent';
 
 export function meta() {
   return [
-    { title: 'MemoMe — Happening now' },
+    { title: 'MemoMe - Happening now' },
     { name: 'description', content: 'Live events happening now in Antwerp.' },
   ];
 }

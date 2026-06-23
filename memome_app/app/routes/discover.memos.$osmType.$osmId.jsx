@@ -9,7 +9,7 @@ import { loadLocationMemosClient } from '../utils/locationPage';
 export function meta({ data: loaderData }) {
   const title = loaderData?.spotTitle ?? 'Memo Archive';
   return [
-    { title: `MemoMe — ${title} memos` },
+    { title: `MemoMe - ${title} memos` },
     { name: 'description', content: `Browse memos tagged at ${title}.` },
   ];
 }

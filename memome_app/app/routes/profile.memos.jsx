@@ -15,7 +15,7 @@ import { getCreatedMemosSnapshot, setCreatedMemosSnapshot } from '../utils/sessi
 
 export function meta() {
   return [
-    { title: 'MemoMe — Created Memos' },
+    { title: 'MemoMe - Created Memos' },
     { name: 'description', content: 'All memos you have published on the map.' },
   ];
 }

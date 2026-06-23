@@ -44,7 +44,7 @@ function ForgotPasswordFieldError({ message, id }) {
 
 export function meta() {
   return [
-    { title: 'MemMe — Forgot password' },
+    { title: 'MemMe - Forgot password' },
     { name: 'description', content: 'Reset your MemMe password.' },
   ];
 }

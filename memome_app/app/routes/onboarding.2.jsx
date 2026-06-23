@@ -19,7 +19,7 @@ export const clientMiddleware = [
 
 export function meta() {
   return [
-    { title: 'MemMe — Your keepsakes' },
+    { title: 'MemMe - Your keepsakes' },
     {
       name: 'description',
       content: 'Turn every trip into a journal of memories.',

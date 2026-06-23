@@ -120,7 +120,7 @@ function RegisterRoleError({ message }) {
 
 export function meta() {
   return [
-    { title: 'MemMe — Create account' },
+    { title: 'MemMe - Create account' },
     { name: 'description', content: 'Join the MemMe community.' },
   ];
 }
