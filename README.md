@@ -1,19 +1,21 @@
 # integration4-team3
 
-## Team 3
+# Team 3 - MemoMe
 - Elitsa - Completer/Finisher, Monitor/Evaluator, Specialist
 - Irina - **Project manager**, Coordinator, Implementer, The shaper
 - Liviu - Plant, Resorce Investigator, Teamworker
 - Renet - Teamworker, Resorce Investigator, Monitor/Evaluator
 
+## Deployed website: https://memomeantwerp.vercel.app/logged-out
+
 ## Figma Links
-FigJam: https://www.figma.com/board/IEKmtM7v4p5qi0Z23wdyeG/Integration4-FigJam?node-id=0-1&t=Nwge7l5S4S5yKP4O-1
-Design: https://www.figma.com/design/EqHZaGIVXoGFLQ3pnyekZU/Integration4-Design?node-id=0-1&t=JFDmu4sJO09YME8p-1
+FigJam w/ process: https://www.figma.com/board/IEKmtM7v4p5qi0Z23wdyeG/Integration4-FigJam?node-id=0-1&t=Nwge7l5S4S5yKP4O-1
+Wireframes and Microsite: https://www.figma.com/design/EqHZaGIVXoGFLQ3pnyekZU/Integration4-Design?node-id=0-1&t=JFDmu4sJO09YME8p-1
+Marketing Assets: https://www.figma.com/design/agSUYTN2Y7ejtu8fRBVCqh/Integration4_marketingAssets?node-id=0-1&t=rmwax1ImsP9hwb4o-1
+App Design (w/ VD process): https://www.figma.com/design/agSUYTN2Y7ejtu8fRBVCqh/Integration4_marketingAssets?node-id=117-579&t=rmwax1ImsP9hwb4o-1
+GitHub (Process explanations & AI diary is in pull requests): https://github.com/elitsakutsarova/integration4-team3
 
-## Agreements
-sth
-
-first commit
+# Tests
 
 ## Test 1 (Make map, add pins to the map)
 
@@ -155,6 +157,7 @@ After our consult, I changed a lot of things in test5 like:
 - In the search bar, show how many results were found (on top) ✔️
 - In the event detail page when you click on the detail you can add it to your calendar ✔️
 
+# Working on final app code files
 
 ## Test 11 -> Update Profile/Account 
 * From now on we are working only in the folder memome_app -> that folder is the one being deployed to Vercel
@@ -229,20 +232,20 @@ After our consult, I changed a lot of things in test5 like:
 - When the user stops speaking to the microphone, the microphone should automatically stop and already start filtering/showing results, instead of the user having to click on the microphone again ✔️
 - Add “Use current position” button on the add-memo location search ✔️
 
-# Test 20 -> fixed issues in Add a memo
+## Test 20 -> fixed issues in Add a memo
 - Add memo back button always takes you to map page, not the page you came from -> fix that ✔️
 - There should already be a default tag selected when the form is open to avoid an error ✔️
 - In choose location, the map should always be visible ✔️
 - When clicking on map to add memo, the form opens and the user has to manually choose a location - make it so the map already has their coordinates, and the user can choose to change them if they want ✔️
 - You can’t add video from “Open camera” on laptop and overall can’t add video on phone -> fix it ✔️
 
-# Test 21 -> Settings page
+## Test 21 -> Settings page
 - Add the FAQs page before the Feedback form ✔️
 
-# Test 22 -> Discover page
+## Test 22 -> Discover page
 - When a guest tries to add something to favourites, they should get a popup that they need an account for that ✔️
 
-# Test 23 -> Fix problems globally
+## Test 23 -> Fix problems globally
 - add alts to images ✔️
 - add visually hidden titles to sections for semantic purposes ✔️
 - make all px into rem ✔️
@@ -251,7 +254,7 @@ After our consult, I changed a lot of things in test5 like:
 - fix useEffect hooks
 - When the user clicks on an event on the map, it should center it in the viewpoint
 
-# Test 24 -> Desktop design
+## Test 24 -> Desktop design
 - Homepage ✔️
 - Discover ✔️
 - Journals ✔️
@@ -270,4 +273,10 @@ After our consult, I changed a lot of things in test5 like:
 - When the user clicks on the map, it should only place the pin on the map, and the user should have to click a second time to open the add-memo form ✔️
 - Make the pin the same style as the other pins ✔️
 
+# CSS
+
+In the beginning, Figma MCP was used for initial designing. The code was not great, but was an ok start, just to not have to start from plain html. When styling the pages, I just looked at our final designs and recreated them as best as possible, using good practices for responsiveness and resizeability.
+
 ## Deployment
+
+We used vercel to deploy. Here is the link: https://memomeantwerp.vercel.app/logged-out
