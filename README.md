@@ -30,4 +30,3 @@ Full setup guide (system requirements, `.env` variables, step-by-step install, a
 Process diary, tests, and design notes:
 
 → **[process_diary.md](memome_app/process_diary.md)**
-z
