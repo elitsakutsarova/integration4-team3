@@ -59,12 +59,16 @@ export default function OnboardingScreen3() {
 
         <div className="onboarding-content onboarding-screen3__content">
           <div className="onboarding-screen3__scene">
-            <figure className="onboarding-screen3__stickers-pole">
+            <picture className="onboarding-screen3__stickers-pole">
+              <source
+                media="(min-width: 30em)"
+                srcSet={onboardingAssets.screen3.stickersBig}
+              />
               <img
                 src={onboardingAssets.screen3.stickersVisual}
                 alt="A city pole covered in collectible stickers"
               />
-            </figure>
+            </picture>
 
             <figure className="onboarding-screen3__phone-wrap">
               <img
@@ -83,7 +87,7 @@ export default function OnboardingScreen3() {
             </div>
 
             <div className="onboarding-slide__description onboarding-screen3__description">
-              <div className="onboarding-slide__bubble">
+              <div className="onboarding-slide__bubble bubble--three">
                 <svg
                   className="onboarding-slide__bubble-shape"
                   viewBox="0 0 246 92"

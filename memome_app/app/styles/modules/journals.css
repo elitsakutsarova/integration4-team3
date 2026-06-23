@@ -985,7 +985,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .create-journal-wave {
@@ -997,7 +997,7 @@
 
 .create-journal-memories {
   padding: 1rem 1rem 1.5rem;
-  background: #e4eaff;
+  background: var(--blue-5);
   overflow: visible;
 }
 

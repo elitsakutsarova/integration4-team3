@@ -581,7 +581,7 @@ export default function NewMemoForm({ draft, fetcher, hidden = false, onClose })
                   </span>
                 ) : null}
               </div>
-                    <svg class="memo-form-location-chevron" xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
+                    <svg className="memo-form-location-chevron" xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
                       <path d="M0.707031 0.707031L6.70703 6.70703L0.707031 12.707" stroke="#1952FF" stroke-width="2" />
                     </svg>
             </Link>
