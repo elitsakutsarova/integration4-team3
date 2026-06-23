@@ -1015,6 +1015,15 @@ I had to change some of the css.
 No, it's mostly css.
 
 
+# Last fixes Test 25:
+- Make success messages dsappear after 1.5 seconds
+- remove em dashes from the titles and use a “-” instead
+- fix browser errors and warnings
+- fix useEffect (check figjam)
+- fix what Simon said
+- check for adding a debounce on input cuz can help if someone types fast to not send the api call right away
+- for useEffect on fetcher state write a if statement (if state.ready...)
+
 # CSS
 
 In the beginning, Figma MCP was used for initial designing. The code was not great, but was an ok start, just to not have to start from plain html. When styling the pages, I just looked at our final designs and recreated them as best as possible, using good practices for responsiveness and resizeability.
