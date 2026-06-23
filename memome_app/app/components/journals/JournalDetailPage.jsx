@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import { useAutoDismissSuccess } from '../../hooks/useAutoDismissSuccess';
 import DraggableSticker from '../diary/DraggableSticker';
 import RecapSelectView, { RecapChooseStyleView } from '../diary/RecapViews';
 import { diaryPath, paths } from '../../utils/appPaths';
@@ -54,6 +55,8 @@ function memoLayout(index, memo) {
 }
 
 function SuccessToast({ message, onClose }) {
+  useAutoDismissSuccess(onClose, Boolean(message));
+
   if (!message) return null;
   return (
     <div className="share-success-backdrop" onClick={onClose}>

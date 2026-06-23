@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Link, useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
+import { useAutoDismissSuccess } from '../../hooks/useAutoDismissSuccess';
 import { useAuth } from '../../context/AuthContext';
 import { useUserAvatar } from '../../hooks/useUserAvatar';
 import { consumeAccountCredentialChangeFlag, goBack, paths } from '../../utils/appPaths';
@@ -110,6 +111,8 @@ export default function AccountDetailsPage() {
     next.delete('updated');
     setSearchParams(next, { replace: true });
   }
+
+  useAutoDismissSuccess(dismissSuccess, Boolean(successMessage));
 
   function clearSuccessNavigationState() {
     navigate(

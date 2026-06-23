@@ -1,10 +1,12 @@
 import { memoPostSuccessAssets } from '../utils/memoPostSuccessAssets';
+import { useAutoDismissSuccess } from '../hooks/useAutoDismissSuccess';
 
 export default function MemoPostSuccess({
   description = 'Your memo was posted',
   onClose,
   dismissible = true,
 }) {
+  useAutoDismissSuccess(onClose, dismissible && Boolean(onClose));
   return (
     <div
       className="memo-post-success-backdrop"

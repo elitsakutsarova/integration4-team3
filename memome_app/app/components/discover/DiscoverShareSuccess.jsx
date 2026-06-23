@@ -1,3 +1,5 @@
+import { useAutoDismissSuccess } from '../../hooks/useAutoDismissSuccess';
+
 const SUCCESS_ASSETS = {
   decorTop: '/journals/recap/message-success/Frame 15149.svg',
   decorBottom: '/journals/recap/message-success/Frame 15149-1.svg',
@@ -13,6 +15,8 @@ const COPY = {
 
 export default function DiscoverShareSuccess({ variant, onClose }) {
   const copy = COPY[variant] ?? COPY.event;
+
+  useAutoDismissSuccess(onClose);
 
   return (
     <div className="recap-share-success-backdrop" onClick={onClose}>

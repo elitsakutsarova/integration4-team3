@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAutoDismissSuccess } from '../hooks/useAutoDismissSuccess';
+import { SUCCESS_MESSAGE_DISMISS_MS } from '../utils/successMessage';
 import { useBlocker, useFetcher, useLocation, useNavigate } from 'react-router';
 import MemoLocationPicker from './MemoLocationPicker';
 import MemoPostSuccess from './MemoPostSuccess';
@@ -17,7 +19,6 @@ import { useFetcherSubmitSuccess } from '../hooks/useFetcherSubmitSuccess';
 
 const QUOTE_MAX = 100;
 const MEDIA_MAX_BYTES = 10 * 1024 * 1024;
-const SUCCESS_DISPLAY_MS = 2000;
 
 function TrashIcon() {
   return (
@@ -204,7 +205,7 @@ export default function EditMemoPage({ memo, returnToFromLoader = null }) {
 
     const timer = window.setTimeout(() => {
       navigate(returnTo, { replace: true });
-    }, SUCCESS_DISPLAY_MS);
+    }, SUCCESS_MESSAGE_DISMISS_MS);
 
     return () => window.clearTimeout(timer);
   }, [showSuccess, navigate, returnTo]);

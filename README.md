@@ -1016,7 +1016,7 @@ No, it's mostly css.
 
 
 # Last fixes Test 25:
-- Make success messages dsappear after 1.5 seconds
+- Make success messages disappear after 1.5 seconds ✔️
 - remove em dashes from the titles and use a “-” instead
 - fix browser errors and warnings
 - fix useEffect (check figjam)
