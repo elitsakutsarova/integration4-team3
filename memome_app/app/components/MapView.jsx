@@ -157,7 +157,7 @@ export default function MapView({ savedMemos = [], active = true }) {
   const [revealedSticker, setRevealedSticker] = useState(null);
   const [guestAddMemoLocked, setGuestAddMemoLocked] = useState(false);
   const [showPublishSuccess, setShowPublishSuccess] = useState(false);
-  const showGuestAddMemoLocked = guestAddMemoLocked || (!user && (draftMemo || guestAddMemoParam));
+  const showGuestAddMemoLocked = guestAddMemoLocked || (!user && guestAddMemoParam);
   const hideBottomNav = Boolean((draftMemo && user) || showGuestAddMemoLocked);
   const [activeCategory, setActiveCategory] = useState('All');
   const [eventLocationHrefs, setEventLocationHrefs] = useState({});
@@ -180,11 +180,35 @@ export default function MapView({ savedMemos = [], active = true }) {
   }
 
   const draftRestoredRef = useRef(false);
+  const staleAddMemoCheckedRef = useRef(false);
+
+  // Drop stale ?addMemo=1 from a previous session so home opens on the map.
+  useEffect(() => {
+    if (!active || !isHomeRoute || staleAddMemoCheckedRef.current) return;
+    staleAddMemoCheckedRef.current = true;
+
+    const onlyAddMemo = searchParams.get('addMemo') === '1'
+      && !searchParams.get('lat')
+      && !searchParams.get('lng');
+    if (!onlyAddMemo) return;
+
+    const navEntry = performance.getEntriesByType('navigation')[0];
+    const isReload = navEntry?.type === 'reload';
+    if (isReload && user?.id) {
+      const savedParams = memoDraftSearchParamsToUrl(loadNewMemoDraft(user.id)?.searchParams);
+      if (savedParams) return;
+    }
+
+    setSearchParams({}, { replace: true });
+  }, [active, isHomeRoute, searchParams, setSearchParams, user?.id]);
 
   // Re-open the add-memo form after refresh when URL params were lost but draft was saved.
   useEffect(() => {
     if (!user?.id || draftRestoredRef.current) return;
     if (readDraftMemo(searchParams)) return;
+
+    const navEntry = performance.getEntriesByType('navigation')[0];
+    if (navEntry?.type !== 'reload') return;
 
     const saved = loadNewMemoDraft(user.id);
     const params = memoDraftSearchParamsToUrl(saved?.searchParams);
@@ -616,7 +640,6 @@ export default function MapView({ savedMemos = [], active = true }) {
         }
         if (isGuestRef.current) return;
         placePendingPin(L, map, e.latlng, pendingMarkerRef, suppressClickRef, openFormRef);
-        openFormRef.current(e.latlng);
       });
 
       requestAnimationFrame(() => map.invalidateSize());

@@ -2470,6 +2470,28 @@ button.memory-sheet-cta {
   padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0));
 }
 
+.journal-sticker-dock--resizing {
+  contain: layout style;
+}
+
+.journal-sticker-dock--sticker-dragging {
+  transition: height 0.22s ease-out;
+}
+
+body.journal-sticker-drag-active .journal-sticker-dock-grid {
+  overflow: hidden;
+  touch-action: none;
+}
+
+body.journal-sticker-drag-active .journal-sticker-dock-btn {
+  touch-action: none;
+}
+
+body.journal-sticker-drag-active .journal-detail-scroll {
+  overflow: hidden;
+  touch-action: none;
+}
+
 .journal-sticker-dock-handle {
   flex-shrink: 0;
   position: relative;
@@ -2502,6 +2524,8 @@ button.memory-sheet-cta {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
   padding: 0.25rem 0.5rem 0.5rem;
   scrollbar-width: thin;
 }
@@ -2530,7 +2554,7 @@ button.memory-sheet-cta {
   align-items: center;
   justify-content: center;
   cursor: grab;
-  touch-action: none;
+  touch-action: pan-y;
   padding: 0.375rem;
 }
 

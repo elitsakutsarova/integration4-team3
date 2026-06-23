@@ -45,13 +45,14 @@ function safeAssetUrl(url) {
 }
 
 export function addPinHtml() {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="48" viewBox="0 0 34 48" style="cursor:pointer;display:block;filter:drop-shadow(0 0.125rem 0.375rem rgba(0,0,0,.28))">
-    <path d="M17 2C9.82 2 4 7.82 4 15C4 25.5 17 46 17 46C17 46 30 25.5 30 15C30 7.82 24.18 2 17 2Z" fill="#18181F"/>
-    <circle cx="17" cy="15" r="9" fill="white"/>
-    <circle cx="17" cy="15" r="7" fill="none" stroke="#18181F" stroke-width="1.5"/>
-    <line x1="17" y1="11" x2="17" y2="19" stroke="#18181F" stroke-width="2" stroke-linecap="round"/>
-    <line x1="13" y1="15" x2="21" y2="15" stroke="#18181F" stroke-width="2" stroke-linecap="round"/>
-  </svg>`;
+  return `<div class="pin-memory-tag">
+    <svg class="pin-memory-tag-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 267 375" aria-hidden="true">
+      <path d="M133.286 0C213.258 0 266.572 53.5203 266.572 133.801C266.572 214.081 186.601 294.362 133.286 374.642C79.9717 294.362 0 214.081 0 133.801C0 53.5203 53.3145 0 133.286 0ZM133.286 66.9004C115.611 66.9004 98.6604 73.9488 86.1624 86.4951C73.6644 99.0413 66.6431 116.058 66.6431 133.801C66.6431 151.544 73.6644 168.56 86.1624 181.107C98.6604 193.653 115.611 200.701 133.286 200.701C150.961 200.701 167.912 193.653 180.41 181.107C192.908 168.56 199.929 151.544 199.929 133.801C199.929 116.058 192.908 99.0413 180.41 86.4951C167.912 73.9488 150.961 66.9004 133.286 66.9004Z" fill="#1952FF"/>
+      <circle cx="133.287" cy="133.287" r="82.8536" fill="white"/>
+      <path d="M133.287 104.5V162.074" stroke="#202020" stroke-width="14" stroke-linecap="round"/>
+      <path d="M104.5 133.287H162.074" stroke="#202020" stroke-width="14" stroke-linecap="round"/>
+    </svg>
+  </div>`;
 }
 
 function tagPinHtml(pin) {
@@ -400,14 +401,14 @@ export function placePendingPin(L, map, latlng, pendingMarkerRef, suppressClickR
     pendingMarkerRef.current = null;
   }
   const icon = L.divIcon({
-    className: '',
+    className: 'pin-memory-marker',
     html: addPinHtml(),
-    iconSize: [34, 48],
-    iconAnchor: [17, 48],
-    popupAnchor: [0, -52],
+    iconSize: [TAG_PIN_WIDTH, TAG_PIN_HEIGHT],
+    iconAnchor: [TAG_PIN_WIDTH / 2, TAG_PIN_HEIGHT],
   });
   const marker = L.marker(latlng, { icon }).addTo(map);
-  marker.on('click', () => {
+  marker.on('click', (event) => {
+    L.DomEvent.stopPropagation(event);
     suppressNextMapClick(suppressClickRef);
     openFormRef.current(latlng);
   });
