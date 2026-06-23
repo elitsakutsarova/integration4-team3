@@ -1,26 +1,26 @@
 // settings page for sending feedback to us through Subapase
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFetcher, useNavigate } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { goBack, paths } from '../../utils/appPaths';
-import { SettingsBackButton } from './SettingsSubpageHeader';
 import { feedbackErrorToFieldMap } from '../../utils/submitFeedbackAction';
-import { sendFeedbackAssets } from '../../utils/sendFeedbackAssets';
-import { settingsAssets } from '../../utils/settingsAssets';
+import { changeEmailAssets, settingsAssets } from '../../utils/settingsAssets';
+import SettingsChangeSuccessView from './SettingsChangeSuccessView';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 
-function AtIcon() {
-  return <span className="feedback-at-symbol" aria-hidden="true">@</span>;
-}
+const FEEDBACK_SUCCESS_TITLE = 'Thank you for your message!';
+const FEEDBACK_SUCCESS_DESC =
+  'We usually reply in under 24 hours so keep an eye on your e-mail inbox.';
 
 export default function SendFeedbackPage() {
   const navigate = useNavigate();
   const fetcher = useFetcher();
   const { user } = useAuth();
+  const finishHandledRef = useRef(false);
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const submitting = fetcher.state !== 'idle';
-  const submitted = fetcher.data?.success === true;
   const fieldErrors = feedbackErrorToFieldMap(fetcher.data?.error);
   const formError = fieldErrors.form;
   const usernamePlaceholder = user?.username ? `${user.username}` : 'Type your username here';
@@ -34,6 +34,19 @@ export default function SendFeedbackPage() {
 
   const canSubmit = Object.values(formValues).every((value) => value.trim());
 
+  useEffect(() => {
+    if (fetcher.state === 'submitting') {
+      finishHandledRef.current = false;
+    }
+  }, [fetcher.state]);
+
+  useEffect(() => {
+    if (fetcher.state !== 'idle' || fetcher.data?.success !== true) return;
+    if (finishHandledRef.current) return;
+    finishHandledRef.current = true;
+    setSuccessOpen(true);
+  }, [fetcher.state, fetcher.data]);
+
   function handleFieldChange(event) {
     const { name, value } = event.target;
     setFormValues((current) => ({ ...current, [name]: value }));
@@ -43,36 +56,38 @@ export default function SendFeedbackPage() {
     goBack(navigate, paths.profileSettingsSupport);
   }
 
+  function dismissSuccess() {
+    setSuccessOpen(false);
+    goBack(navigate, paths.profileSettingsSupport);
+  }
+
   return (
     <div className="settings-page feedback-page settings-form-page">
       <SettingsSubpageHeader
-              title="Send feedback"
-              onBack={handleBack}
-              backLabel="Back to support"
-              titleIcon={<img src={settingsAssets.supportIcon} alt="Star shape looking like gear" />}
-            />
+        title="Send feedback"
+        onBack={handleBack}
+        backLabel="Back to support"
+        titleIcon={<img src={settingsAssets.supportIcon} alt="Star shape looking like gear" />}
+      />
 
       <div className="settings-form-body feedback-content">
         <div className="settings-form-intro">
-          <h2 className="settings-form-intro-title"><span class="settings-form-intro-title-underline" aria-hidden="true"></span>We’d love to hear from you</h2>
+          <h2 className="settings-form-intro-title">
+            <span className="settings-form-intro-title-underline" aria-hidden="true" />
+            We’d love to hear from you
+          </h2>
           <p className="settings-form-intro-text">
             Need help or have an idea? Send us your feedback so we can make MemoMe better.
           </p>
         </div>
 
-        {submitted ? (
-          <div className="feedback-success" role="status">
-            Thanks for your feedback!
-          </div>
-        ) : (
-        <>
-          {formError ? (
-            <p className="feedback-form-error" role="alert">
-              {formError}
-            </p>
-          ) : null}
+        {formError ? (
+          <p className="feedback-form-error" role="alert">
+            {formError}
+          </p>
+        ) : null}
 
-          <fetcher.Form
+        <fetcher.Form
           method="post"
           action={paths.apiFeedback}
           className="feedback-form"
@@ -108,9 +123,6 @@ export default function SendFeedbackPage() {
               Email:
             </label>
             <div className={`feedback-input-wrap${fieldErrors.email ? ' feedback-input-wrap--error' : ''}`}>
-{/*               <span className="feedback-input-icon">
-                <AtIcon />
-              </span> */}
               <input
                 id="feedback-email"
                 name="email"
@@ -181,9 +193,16 @@ export default function SendFeedbackPage() {
             {submitting ? 'Sending…' : 'Submit'}
           </button>
         </fetcher.Form>
-        </>
-        )}
       </div>
+
+      {successOpen ? (
+        <SettingsChangeSuccessView
+          illustration={changeEmailAssets.illustration}
+          title={FEEDBACK_SUCCESS_TITLE}
+          description={FEEDBACK_SUCCESS_DESC}
+          onDismiss={dismissSuccess}
+        />
+      ) : null}
     </div>
   );
 }

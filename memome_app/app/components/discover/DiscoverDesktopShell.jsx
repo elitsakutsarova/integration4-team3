@@ -1,7 +1,7 @@
 import { createContext, useContext, useLayoutEffect, useState } from 'react';
 import { useLocation } from 'react-router';
 import SearchOpenButton from '../search/SearchOpenButton';
-import { isJournalsPanelRoute, paths } from '../../utils/appPaths';
+import { isJournalsPanelRoute, isProfilePanelRoute, paths } from '../../utils/appPaths';
 import { scrollDiscoverToTop } from '../../utils/discoverScroll';
 
 const DiscoverToolbarContext = createContext(null);
@@ -14,7 +14,8 @@ export default function DiscoverDesktopShell({ children }) {
   const [toolbar, setToolbar] = useState(null);
   const { pathname, search } = useLocation();
   const isDiscoverSearch = pathname === paths.discoverSearch;
-  const showPanelSearch = !isDiscoverSearch && !isJournalsPanelRoute(pathname);
+  const showPanelSearch =
+    !isDiscoverSearch && !isJournalsPanelRoute(pathname) && !isProfilePanelRoute(pathname);
 
   useLayoutEffect(() => {
     scrollDiscoverToTop();

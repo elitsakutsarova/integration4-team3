@@ -12,6 +12,7 @@ import {
 import JournalBackButton from './JournalBackButton';
 import JournalMemoEntry from './JournalMemoEntry';
 import JournalStickerDock from './JournalStickerDock';
+import { isQrCollectedJournalSticker } from '../../data/defaultJournalStickers';
 import { journalAssets } from '../../utils/journalAssets';
 
 const JOURNAL_CANVAS_PAGE = 0;
@@ -146,6 +147,7 @@ export default function JournalDetailPage({
       diaryId={diaryId}
       dropZoneRef={dropZoneRef}
       trayRef={trayRef}
+      className={isQrCollectedJournalSticker(s.stickerId) ? 'journal-placed-sticker--qr-collected' : ''}
       onMove={(uid, x, y) => handleMoveSticker(JOURNAL_CANVAS_PAGE, uid, x, y)}
       onReturnToTray={(uid) => handleReturnToTray(JOURNAL_CANVAS_PAGE, uid)}
     />
@@ -295,6 +297,7 @@ export default function JournalDetailPage({
       </div>
 
       <JournalStickerDock
+        key={diaryId}
         dropZoneRef={dropZoneRef}
         trayRef={trayRef}
         pageIndex={JOURNAL_CANVAS_PAGE}

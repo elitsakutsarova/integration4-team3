@@ -254,7 +254,7 @@ After our consult, I changed a lot of things in test5 like:
 # Test 24 -> Desktop design
 - Homepage ✔️
 - Discover ✔️
-- Journals
-- Profile
+- Journals ✔️
+- Profile ✔️
 
 ## Deployment

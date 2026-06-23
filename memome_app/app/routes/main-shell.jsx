@@ -13,7 +13,7 @@ import MapPixelDeco from '../components/MapPixelDeco';
 import AuthLoading from '../components/auth/AuthLoading';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { fetchMemos } from '../utils/memoStore';
-import { isJournalsPanelRoute, paths } from '../utils/appPaths';
+import { isJournalsPanelRoute, isProfilePanelRoute, paths } from '../utils/appPaths';
 import { shouldRevalidateForFormAction } from '../utils/revalidatePolicy';
 
 export async function clientLoader() {
@@ -42,8 +42,8 @@ export default function MainShell() {
   const { pathname } = useLocation();
   const isHome = pathname === paths.home;
   const isDiscoverRoute = pathname.startsWith('/discover');
-  const isDiscoverMapRoute = isDiscoverRoute || isJournalsPanelRoute(pathname);
-  const isAccountRoute = pathname.startsWith('/profile') || pathname.startsWith('/stickers');
+  const isDiscoverMapRoute =
+    isDiscoverRoute || isJournalsPanelRoute(pathname) || isProfilePanelRoute(pathname);
 
   return (
     <div className="main-shell">
@@ -59,7 +59,6 @@ export default function MainShell() {
           'main-shell-content',
           isHome ? 'main-shell-content--hidden' : '',
           isDiscoverMapRoute ? 'main-shell-content--discover-map' : '',
-          isAccountRoute ? 'main-shell-content--account' : '',
         ].filter(Boolean).join(' ')}
       >
         {!isHome && (

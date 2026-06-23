@@ -8,8 +8,10 @@ import { Await, useLoaderData } from 'react-router';
 import CreatedMemosPage from '../components/profile/CreatedMemosPage';
 import { useCreatedMemos } from '../context/CreatedMemosContext';
 import { useRevalidateOnCount } from '../hooks/useRevalidateOnCount';
+import { getAuthSnapshot, bootstrapAuthSession } from '../utils/authSession';
 import { enrichMemosWithLocationHrefs, enrichMemosWithLocationHrefsSync } from '../utils/memoLocationHrefs';
-import { getCreatedMemosSnapshot } from '../utils/sessionCollectionsSnapshot';
+import { fetchCreatedMemosByUser } from '../utils/memoStore';
+import { getCreatedMemosSnapshot, setCreatedMemosSnapshot } from '../utils/sessionCollectionsSnapshot';
 
 export function meta() {
   return [
@@ -18,14 +20,24 @@ export function meta() {
   ];
 }
 
-export function clientLoader() {
-  const createdMemos = getCreatedMemosSnapshot();
+export async function clientLoader() {
+  await bootstrapAuthSession();
+  const { user } = getAuthSnapshot();
+  const userId = user?.id ?? null;
+
+  let createdMemos = getCreatedMemosSnapshot();
+  if (!createdMemos.length && userId) {
+    createdMemos = await fetchCreatedMemosByUser(userId);
+    setCreatedMemosSnapshot(createdMemos);
+  }
 
   return {
     memosSync: enrichMemosWithLocationHrefsSync(createdMemos),
     memos: enrichMemosWithLocationHrefs(createdMemos),
   };
 }
+
+clientLoader.hydrate = true;
 
 export function shouldRevalidate({ defaultShouldRevalidate }) {
   return defaultShouldRevalidate;

@@ -3,13 +3,49 @@
 import { data } from 'react-router';
 import * as authStore from '../utils/authStore';
 import { bootstrapAuthSession, getAuthSnapshot } from '../utils/authSession';
-import { signInAccount } from '../utils/authActions';
 import { validateAccountFormData } from '../utils/accountFormValidation';
 import { handleAccountAction } from '../utils/accountActions.server';
 import { rateLimitActionError, RATE_LIMITS } from '../utils/rateLimit.server';
 import { createClient } from '../utils/supabase.server';
 import { isSupabaseEnabled } from '../utils/supabase.client';
 import { clearAccountClientData } from '../utils/accountClientCleanup';
+
+function unwrapActionResult(response) {
+  if (!response) return null;
+  if (typeof response === 'object' && response.data !== undefined) {
+    return response.data;
+  }
+  return response;
+}
+
+function isEmailAdminConfigError(error) {
+  const message = String(error?.message ?? '');
+  return error?.field === 'form' && /SUPABASE_SERVICE_ROLE_KEY|not configured/i.test(message);
+}
+
+async function runChangeEmailClientAction(validation, user, serverAction) {
+  const payload = {
+    userId: user.id,
+    oldEmail: validation.payload.oldEmail,
+    newEmail: validation.payload.newEmail,
+    password: validation.payload.password,
+  };
+
+  if (isSupabaseEnabled()) {
+    try {
+      const serverResponse = await serverAction();
+      const result = unwrapActionResult(serverResponse);
+      if (result?.success && result?.kind === 'email') return result;
+      if (result?.error && !isEmailAdminConfigError(result.error)) {
+        return { error: result.error };
+      }
+    } catch {
+      // Fall through to local dev fallback below.
+    }
+  }
+
+  return authStore.changeEmail(payload);
+}
 
 async function runValidatedClientAction(validation, user) {
   const { intent, payload } = validation;
@@ -70,22 +106,9 @@ export async function clientAction({ request, serverAction }) {
   }
 
   if (intent === 'change-email') {
-    const serverResponse = await serverAction();
-    const payload = serverResponse?.data ?? serverResponse;
-    if (payload?.error) return data({ error: payload.error });
-
-    const password = validation.payload?.password;
-    if (payload?.success && payload?.user?.email && password) {
-      const signIn = await signInAccount({
-        email: payload.user.email,
-        password,
-      });
-      if (signIn.user) {
-        return data({ ...payload, user: signIn.user });
-      }
-    }
-
-    return data(payload);
+    const result = await runChangeEmailClientAction(validation, user, serverAction);
+    if (result.error) return data({ error: result.error });
+    return data(result);
   }
 
   const result = await runValidatedClientAction(validation, user);

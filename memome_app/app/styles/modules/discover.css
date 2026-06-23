@@ -772,10 +772,10 @@
     overflow: visible;
   }
 
-  .main-shell-content--discover-map .discover-shell,
-  .main-shell-content--discover-map .discover-page {
+  .main-shell-content--discover-map .discover-shell {
     position: relative;
-    height: 100%;
+    height: auto;
+    min-height: 0;
     max-width: none;
     margin: 0;
     padding-bottom: 0;
@@ -784,8 +784,15 @@
   }
 
   .main-shell-content--discover-map .discover-page {
+    position: relative;
     display: block;
     height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    background: transparent;
+    overflow: visible;
   }
 
   .main-shell-content--discover-map .discover-desktop-panel {
@@ -813,8 +820,9 @@
   }
 
   .main-shell-content--discover-map .discover-desktop-panel-body {
-    flex: 1;
+    flex: 1 1 0%;
     min-height: 0;
+    max-height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior-y: contain;
@@ -951,8 +959,6 @@
   .main-shell-content--discover-map .create-journal-page--loading,
   .main-shell-content--discover-map .edit-journal-page,
   .main-shell-content--discover-map .edit-journal-page--loading,
-  .main-shell-content--discover-map .journal-detail-page,
-  .main-shell-content--discover-map .journal-detail-page--loading,
   .main-shell-content--discover-map .recap-flow-page {
     height: auto;
     min-height: 0;
@@ -964,7 +970,56 @@
     border-right: none;
   }
 
-  .main-shell-content--discover-map .journal-detail-scroll,
+  .main-shell-content--discover-map .journal-detail-page--loading {
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    overflow: visible;
+    border-left: none;
+    border-right: none;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body:has(.journal-detail-page) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body:has(.journal-detail-page) .discover-shell {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-shell-content--discover-map .journal-detail-page {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    border-left: none;
+    border-right: none;
+  }
+
+  .main-shell-content--discover-map .journal-detail-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .main-shell-content--discover-map .journal-detail-page:has(.journal-sticker-dock--resizing) .journal-detail-scroll {
+    overflow: hidden;
+  }
+
   .main-shell-content--discover-map .edit-journal-scroll {
     flex: none;
     min-height: 0;
@@ -995,6 +1050,20 @@
     pointer-events: auto;
   }
 
+  /* Success overlays must stay inside the panel — viewport-centered fixed modals clip off-screen. */
+  body:has(.main-shell-content--discover-map) .avatar-success-backdrop {
+    inset: auto;
+    left: var(--desktop-nav-end);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    width: min(24.5rem, calc(100vw - var(--desktop-nav-end) - var(--desktop-inset) - 8rem));
+    z-index: 1003;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    border-radius: 1.1875rem;
+  }
+
   .main-shell-content--discover-map .recap-share-sheet {
     width: 100%;
     max-width: none;
@@ -1015,6 +1084,73 @@
 
   .main-shell-content--discover-map .journals-guest-main {
     padding-bottom: clamp(0.75rem, 3vw, 1rem);
+  }
+
+  .main-shell-content--discover-map .profile-page,
+  .main-shell-content--discover-map .profile-page--account,
+  .main-shell-content--discover-map .profile-page--guest,
+  .main-shell-content--discover-map .collection-page,
+  .main-shell-content--discover-map .settings-page,
+  .main-shell-content--discover-map .settings-page.settings-form-page {
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .settings-page.settings-form-page {
+    display: block;
+  }
+
+  .main-shell-content--discover-map .settings-form-body {
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .collection-body,
+  .main-shell-content--discover-map .collection-body--favourites {
+    flex: none;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel:has(.stickers-page) {
+    transform: translateZ(0);
+  }
+
+  .main-shell-content--discover-map .stickers-page,
+  .main-shell-content--discover-map .stickers-page--guest {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .stickers-scroll {
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+    padding-bottom: 0.75rem;
+  }
+
+  .main-shell-content--discover-map .stickers-count-row {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .main-shell-content--discover-map .stickers-count-badge {
+    position: fixed;
+    bottom: 15%;
+    left: 65%;
+    pointer-events: auto;
+    z-index: 100;
   }
 
   .main-shell-content--discover-map .discover-list-page,

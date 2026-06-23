@@ -226,6 +226,10 @@ export function isJournalsPanelRoute(pathname) {
   return pathname.startsWith('/journals') || pathname.startsWith('/diary/');
 }
 
+export function isProfilePanelRoute(pathname) {
+  return pathname.startsWith('/profile') || pathname.startsWith('/stickers');
+}
+
 /** Map an invalid pathname to the closest sensible default page. */
 export function getSafeFallbackPath(pathname) {
   const path = pathname.toLowerCase();
@@ -271,4 +275,20 @@ export function goBack(navigate, fallback = paths.home) {
     return;
   }
   navigate(fallback);
+}
+
+const ACCOUNT_CREDENTIAL_CHANGE_FLAG = 'memome-account-credentials-changed';
+
+/** Marks that account details now has a duplicate history entry after a credential change. */
+export function markAccountCredentialChange() {
+  if (typeof sessionStorage === 'undefined') return;
+  sessionStorage.setItem(ACCOUNT_CREDENTIAL_CHANGE_FLAG, '1');
+}
+
+/** Returns true once per credential-change flow and clears the marker. */
+export function consumeAccountCredentialChangeFlag() {
+  if (typeof sessionStorage === 'undefined') return false;
+  if (sessionStorage.getItem(ACCOUNT_CREDENTIAL_CHANGE_FLAG) !== '1') return false;
+  sessionStorage.removeItem(ACCOUNT_CREDENTIAL_CHANGE_FLAG);
+  return true;
 }
