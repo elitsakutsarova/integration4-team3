@@ -17,9 +17,15 @@ export default function StickerVisual({ src, emoji, label, className = '' }) {
 }
 
 /** Build a DOM clone node for GSAP drag-from-tray */
-export function createStickerCloneNode(stickerDef) {
+export function createStickerCloneNode(
+  stickerDef,
+  {
+    cloneClassName = 'diary-sticker-drag-clone',
+    imgClassName = 'diary-sticker-drag-clone-img',
+  } = {},
+) {
   const clone = document.createElement('div');
-  clone.className = 'diary-sticker-drag-clone';
+  clone.className = cloneClassName;
   clone.style.position = 'fixed';
   clone.style.left = '0';
   clone.style.top = '0';
@@ -30,7 +36,7 @@ export function createStickerCloneNode(stickerDef) {
     const img = document.createElement('img');
     img.src = stickerDef.src;
     img.alt = stickerDef.label ?? '';
-    img.className = 'diary-sticker-drag-clone-img';
+    img.className = imgClassName;
     img.draggable = false;
     clone.appendChild(img);
   } else {

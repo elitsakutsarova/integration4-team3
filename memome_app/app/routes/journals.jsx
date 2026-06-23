@@ -1,4 +1,3 @@
-import '../styles/modules/map.css';
 import '../styles/modules/journals.css';
 import { useAuth } from '../context/AuthContext';
 import { useCreatedMemos } from '../context/CreatedMemosContext';

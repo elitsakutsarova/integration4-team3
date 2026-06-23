@@ -27,7 +27,6 @@
   grid-area: 1 / 1 / 3 / 3;
   top: 0;
   right: 0;
-  width: min(100%, 30.25rem);
   height: 10.25rem;
   overflow: hidden;
   pointer-events: none;
@@ -570,6 +569,7 @@
 
 .discover-list-title-row {
   grid-area: 2 / 1 / 3 / 1;
+  margin-top:3rem;
   position: relative;
   z-index: 10;
   display: grid;
@@ -742,20 +742,462 @@
   width: 100%;
 }
 
+.discover-desktop-toolbar {
+  display: none;
+}
+
+.discover-desktop-panel {
+  min-width: 0;
+}
+
+.discover-shell {
+  min-width: 0;
+}
+
+@media (max-width: 47.999rem) {
+  .discover-desktop-panel-head {
+    display: none;
+  }
+
+  .discover-desktop-panel,
+  .discover-desktop-panel-body {
+    display: contents;
+  }
+}
+
 @media (min-width: 48rem) {
+  .main-shell-content--discover-map {
+    background: transparent;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .discover-shell {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .discover-page {
+    position: relative;
+    display: block;
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel {
+    --discover-panel-radius: 1.1875rem;
+    position: fixed;
+    z-index: 1001;
+    left: var(--desktop-nav-end);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    width: min(24.5rem, calc(100vw - var(--desktop-nav-end) - var(--desktop-inset) - 8rem));
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: var(--discover-panel-radius);
+    box-shadow: 0 0.125rem 0.5687rem rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    pointer-events: auto;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-head {
+    flex-shrink: 0;
+    z-index: 2;
+    background: #fff;
+    border-radius: var(--discover-panel-radius) var(--discover-panel-radius) 0 0;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body {
+    flex: 1 1 0%;
+    min-height: 0;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0 0 var(--discover-panel-radius) var(--discover-panel-radius);
+    padding-bottom: 0.75rem;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(32, 32, 32, 0.28) transparent;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body::-webkit-scrollbar-track {
+    background: transparent;
+    margin-block: 0.625rem;
+    margin-inline: 0.125rem 0.375rem;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body::-webkit-scrollbar-thumb {
+    background-color: rgba(32, 32, 32, 0.22);
+    border-radius: 999px;
+    border: 0.125rem solid transparent;
+    background-clip: padding-box;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(32, 32, 32, 0.34);
+  }
+
+  .main-shell-content--discover-map .discover-desktop-toolbar {
+    display: block;
+    position: fixed;
+    z-index: 1001;
+    left: calc(var(--desktop-nav-end) + min(24.5rem, calc(100vw - var(--desktop-nav-end) - var(--desktop-inset) - 8rem)) + 1rem);
+    right: var(--desktop-inset);
+    top: calc(var(--desktop-inset) + 0.875rem);
+    pointer-events: none;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-toolbar-filters {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+    gap: 0.4375rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 0.75rem 0.25rem 0;
+    margin-right: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline-end: 0.75rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-toolbar .map-category-chip {
+    padding: 0.625rem 0.9375rem;
+    font-size: 0.7438rem;
+    border-width: 0.0813rem;
+    white-space: nowrap;
+  }
+
+  .main-shell-content--discover-map .discover-grid-deco,
+  .main-shell-content--discover-map .discover-list-grid-deco {
+    display: none;
+  }
+
+  .main-shell-content--discover-map .discover-page .discover-hero {
+    display: none;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-head .discover-search-container {
+    position: relative;
+    grid-area: unset;
+    padding: 0.75rem 0.875rem 0.625rem;
+    pointer-events: none;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-head .discover-search {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .main-shell-content--discover-map .discover-mobile-categories {
+    display: none;
+  }
+
+  .main-shell-content--discover-map .discover-section {
+    padding-inline: 0.625rem;
+  }
+
+  .main-shell-content--discover-map .discover-carousel {
+    margin-right: 0;
+  }
+
+  .main-shell-content--discover-map .search-page--discover-panel {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding-bottom: 0;
+    max-width: none;
+    margin: 0;
+  }
+
+  .main-shell-content--discover-map .search-page--discover-panel .search-page-shell {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    background: #fff;
+  }
+
+  .main-shell-content--discover-map .search-page--discover-panel .search-page-header {
+    padding: 0.625rem 0.875rem 0.75rem;
+  }
+
+  .main-shell-content--discover-map .search-page--discover-panel .search-page-body {
+    overflow: visible;
+    flex: none;
+  }
+
+  .main-shell--add-memo-panel .discover-desktop-panel,
+  .main-shell--map-focus .discover-desktop-panel {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .main-shell-content--discover-map .journals-page,
+  .main-shell-content--discover-map .journals-page--guest-locked,
+  .main-shell-content--discover-map .create-journal-page,
+  .main-shell-content--discover-map .create-journal-page--pick-memos,
+  .main-shell-content--discover-map .create-journal-page--loading,
+  .main-shell-content--discover-map .edit-journal-page,
+  .main-shell-content--discover-map .edit-journal-page--loading,
+  .main-shell-content--discover-map .recap-flow-page {
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    overflow: visible;
+    border-left: none;
+    border-right: none;
+  }
+
+  .main-shell-content--discover-map .journal-detail-page--loading {
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    overflow: visible;
+    border-left: none;
+    border-right: none;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body:has(.journal-detail-page) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel-body:has(.journal-detail-page) .discover-shell {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-shell-content--discover-map .journal-detail-page {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    border-left: none;
+    border-right: none;
+  }
+
+  .main-shell-content--discover-map .journal-detail-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .main-shell-content--discover-map .journal-detail-page:has(.journal-sticker-dock--resizing) .journal-detail-scroll {
+    overflow: hidden;
+  }
+
+  .main-shell-content--discover-map .edit-journal-scroll {
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .create-journal-footer,
+  .main-shell-content--discover-map .create-journal-pick-footer,
+  .main-shell-content--discover-map .recap-flow-footer {
+    position: sticky;
+    bottom: 0;
+    left: auto;
+    right: auto;
+    width: 100%;
+    max-width: none;
+  }
+
+  .main-shell-content--discover-map .recap-share-backdrop {
+    inset: auto;
+    left: var(--desktop-nav-end);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    width: min(24.5rem, calc(100vw - var(--desktop-nav-end) - var(--desktop-inset) - 8rem));
+    z-index: 1003;
+    background: transparent;
+    align-items: stretch;
+    justify-content: stretch;
+    pointer-events: auto;
+  }
+
+  /* Success overlays must stay inside the panel — viewport-centered fixed modals clip off-screen. */
+  body:has(.main-shell-content--discover-map) .avatar-success-backdrop {
+    inset: auto;
+    left: var(--desktop-nav-end);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    width: min(24.5rem, calc(100vw - var(--desktop-nav-end) - var(--desktop-inset) - 8rem));
+    z-index: 1003;
+    align-items: center;
+    justify-content: center;
+    pointer-events: auto;
+    border-radius: 1.1875rem;
+  }
+
+  .main-shell-content--discover-map .recap-share-sheet {
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1.1875rem;
+    box-shadow: 0 0.125rem 0.5687rem rgba(0, 0, 0, 0.25);
+    animation: none;
+    overflow-y: auto;
+    padding-bottom: 0.75rem;
+  }
+
+  .main-shell-content--discover-map .recap-share-handle {
+    display: none;
+  }
+
+  .main-shell-content--discover-map .journals-guest-main {
+    padding-bottom: clamp(0.75rem, 3vw, 1rem);
+  }
+
+  .main-shell-content--discover-map .profile-page,
+  .main-shell-content--discover-map .profile-page--account,
+  .main-shell-content--discover-map .profile-page--guest,
+  .main-shell-content--discover-map .collection-page,
+  .main-shell-content--discover-map .settings-page,
+  .main-shell-content--discover-map .settings-page.settings-form-page {
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .settings-page.settings-form-page {
+    display: block;
+  }
+
+  .main-shell-content--discover-map .settings-form-body {
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .collection-body,
+  .main-shell-content--discover-map .collection-body--favourites {
+    flex: none;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .discover-desktop-panel:has(.stickers-page) {
+    transform: translateZ(0);
+  }
+
+  .main-shell-content--discover-map .stickers-page,
+  .main-shell-content--discover-map .stickers-page--guest {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    overflow: visible;
+  }
+
+  .main-shell-content--discover-map .stickers-scroll {
+    flex: none;
+    min-height: 0;
+    overflow: visible;
+    padding-bottom: 0.75rem;
+  }
+
+  .main-shell-content--discover-map .stickers-count-row {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .main-shell-content--discover-map .stickers-count-badge {
+    position: fixed;
+    bottom: 15%;
+    left: 65%;
+    pointer-events: auto;
+    z-index: 100;
+  }
+
+  .main-shell-content--discover-map .discover-list-page,
+  .main-shell-content--discover-map .discover-detail-page,
+  .main-shell-content--discover-map .memo-archive-page {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding-bottom: 0;
+    max-width: none;
+    margin: 0;
+  }
+
+  .main-shell-content--discover-map .discover-detail-scroll {
+    height: auto;
+    overflow: visible;
+    max-width: none;
+    margin: 0;
+    padding-bottom: 0;
+  }
+
+  .main-shell-content--discover-map .discover-list-filters-container--mobile {
+    display: none;
+  }
+
+  .main-shell-content--discover-map .discover-list-header {
+    padding-top: 0;
+  }
+
+  .main-shell-content--discover-map .featured-memos-section.discover-detail-section .profile-remember-scroll,
+  .main-shell-content--discover-map .featured-memos-profile-scroll {
+    margin-inline: -0.625rem;
+    padding-inline: 0.625rem;
+  }
+
+  .main-shell-content--discover-map .featured-memos-section .profile-remember-track .created-memo-card {
+    width: min(calc(100% - 0.5rem), 22.5625rem);
+  }
+
+  .main-shell-content--discover-map .featured-memos-section .profile-remember-track {
+    padding-right: 0.5rem;
+  }
+}
+
+@media (max-width: 47.999rem) {
   .discover-page {
-    max-width: 30rem;
-    margin: 0 auto;
-  }
-
-  .discover-list-page {
-    max-width: 30rem;
-    margin: 0 auto;
-  }
-
-  .discover-detail-scroll {
-    max-width: 30rem;
-    margin: 0 auto;
+    height: 100dvh;
   }
 }
 
@@ -1073,6 +1515,7 @@ detail-hero-wave svg {
   flex-direction: column;
   gap: 1rem;
   padding-bottom: 1rem;
+  min-width: 0;
 }
 
 .discover-detail-section-header {
@@ -1428,6 +1871,74 @@ detail-hero-wave svg {
 
 .featured-memos-highlight {
   width: 10rem;
+}
+
+.featured-memos-section.discover-detail-section .profile-remember-scroll,
+.featured-memos-profile-scroll {
+  margin: 0 -1rem;
+  padding: 3.5rem 1rem 0;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.featured-memos-section .profile-remember-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.featured-memos-section .profile-remember-track {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  margin-top: 0;
+  width: max-content;
+  max-width: none;
+  padding-right: 1rem;
+}
+
+.featured-memos-section .profile-remember-track .created-memo-card {
+  flex: 0 0 auto;
+  width: min(calc(100vw - 3rem), 22.5625rem);
+  height: fit-content;
+  margin-bottom: calc(-12rem * (1 - var(--memory-sheet-scale) * var(--memory-sheet-responsive-scale, 1)));
+}
+
+.featured-memos-section .profile-remember-track .memory-sheet--text-only .memory-sheet-body {
+  margin-bottom: 0;
+}
+
+.featured-memos-section .profile-remember-track .memory-sheet--text-only .memory-sheet-text-only-head {
+  margin-bottom: 0.75rem;
+}
+
+.featured-memos-section .profile-remember-track .created-memo-card__toolbar--text-only {
+  margin-bottom: 0.5rem;
+}
+
+.featured-memos-section .profile-remember-track .memory-sheet--with-media .memory-sheet-body {
+  padding-bottom: 8.125rem;
+}
+
+.featured-memos-section .profile-remember-track .memory-sheet-body {
+  min-height: 0;
+}
+
+@media (max-width: 359px) {
+  .featured-memos-section .profile-remember-track .created-memo-card .memory-sheet--with-media:has(.memory-sheet-body--vertical-media) {
+    margin-top: 3.5rem;
+  }
+
+  .featured-memos-section .profile-remember-track .created-memo-card .memory-sheet--with-media:not(:has(.memory-sheet-body--vertical-media)) {
+    margin-top: 2.75rem;
+  }
+
+  .featured-memos-section .profile-remember-track .memory-sheet--with-media .memory-sheet-body--vertical-media {
+    padding-top: 4.5rem;
+  }
 }
 
 .featured-memos-carousel {

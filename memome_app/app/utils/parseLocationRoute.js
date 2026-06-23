@@ -4,15 +4,17 @@ import { isInAntwerpBounds } from './locationHelpers';
 import { fallbackPathFromRequest, isValidOsmRouteParams } from './appPaths';
 import { validateUrlDisplayName } from './validators';
 
-/** Shared param/query parsing for /location/:osmType/:osmId routes. */
+/** Shared param/query parsing for discover location detail routes. */
 export function parseLocationRoute({ params, request }) {
   if (!isValidOsmRouteParams(params.osmType, params.osmId)) {
     throw redirect(fallbackPathFromRequest(request));
   }
 
   const url = new URL(request.url);
-  const lat = Number(url.searchParams.get('lat'));
-  const lng = Number(url.searchParams.get('lng'));
+  const latRaw = url.searchParams.get('spotLat') ?? url.searchParams.get('lat');
+  const lngRaw = url.searchParams.get('spotLng') ?? url.searchParams.get('lng');
+  const lat = Number(latRaw);
+  const lng = Number(lngRaw);
   const locationName = validateUrlDisplayName(url.searchParams.get('name') ?? '');
   const spotTitle = validateUrlDisplayName(url.searchParams.get('title') ?? '') || locationName;
   const osmType = String(params.osmType).toUpperCase();

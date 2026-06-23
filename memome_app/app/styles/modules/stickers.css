@@ -256,6 +256,12 @@
   }
 }
 
+@media (min-width: 48rem) {
+  .stickers-grid--collection {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .stickers-tile {
   aspect-ratio: 1;
   border-radius: 0.875rem;

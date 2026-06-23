@@ -4,9 +4,28 @@ import { clampPercent, updateStickerPosition } from '../../utils/stickerTracker'
 import { getStickerDef } from '../../utils/stickers';
 import { useDiaryStickerCatalog } from '../../hooks/useDiaryStickerCatalog';
 import StickerVisual from './StickerVisual';
+import StickerCollectionFrame from '../stickers/StickerCollectionFrame';
 
 function isInsideRect(x, y, rect) {
   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
+const DISMISS_FADE_DISTANCE_PX = 48;
+
+function getDismissOpacity(centerX, centerY, zoneRect, trayRect) {
+  const inTray = trayRect && isInsideRect(centerX, centerY, trayRect);
+  if (inTray) return 0;
+
+  const pastBottom = centerY - zoneRect.bottom;
+  if (pastBottom <= 0) return 1;
+
+  return Math.max(0, 1 - pastBottom / DISMISS_FADE_DISTANCE_PX);
+}
+
+function shouldDismissSticker(centerX, centerY, zoneRect, trayRect, opacity) {
+  if (opacity <= 0.2) return true;
+  if (trayRect && isInsideRect(centerX, centerY, trayRect)) return true;
+  return centerY > zoneRect.bottom;
 }
 
 export default function DraggableSticker({
@@ -19,6 +38,10 @@ export default function DraggableSticker({
   onReturnToTray,
   onDragStart,
   onDragEnd,
+  collectionOutline = false,
+  collectionFrameClassName = '',
+  collectionFrameStyle,
+  className = '',
 }) {
   const elRef = useRef(null);
   const stickerCatalog = useDiaryStickerCatalog();
@@ -94,20 +117,21 @@ export default function DraggableSticker({
     }
 
     const gsap = getGsapSync();
-
-    gsap.set(el, { scale: 1 });
+    const zoneRect = dropZone.getBoundingClientRect();
+    const tray = trayRef?.current;
+    const trayRect = tray?.getBoundingClientRect() ?? null;
+    const uid = stickerRef.current.uid;
 
     const elRect = el.getBoundingClientRect();
     const centerX = elRect.left + elRect.width / 2;
     const centerY = elRect.top + elRect.height / 2;
-    const uid = stickerRef.current.uid;
+    const dismissOpacity = getDismissOpacity(centerX, centerY, zoneRect, trayRect);
 
-    const tray = trayRef?.current;
-    if (tray && isInsideRect(centerX, centerY, tray.getBoundingClientRect())) {
+    if (tray && shouldDismissSticker(centerX, centerY, zoneRect, trayRect, dismissOpacity)) {
       gsap.to(el, {
         scale: 0.5,
         opacity: 0,
-        duration: 0.22,
+        duration: 0.18,
         ease: 'power2.in',
         onComplete: () => {
           onReturnToTrayRef.current(uid);
@@ -118,7 +142,8 @@ export default function DraggableSticker({
       return;
     }
 
-    const zoneRect = dropZone.getBoundingClientRect();
+    gsap.set(el, { scale: 1, opacity: 1 });
+
     if (!isInsideRect(centerX, centerY, zoneRect)) {
       gsap.to(el, {
         scale: 0.5,
@@ -137,7 +162,7 @@ export default function DraggableSticker({
     const x = clampPercent(((centerX - zoneRect.left) / zoneRect.width) * 100);
     const y = clampPercent(((centerY - zoneRect.top) / zoneRect.height) * 100);
     onMoveRef.current(uid, x, y);
-    gsap.set(el, { x: 0, y: 0 });
+    gsap.set(el, { x: 0, y: 0, opacity: 1 });
     onDragEndRef.current?.();
   };
 
@@ -183,18 +208,36 @@ export default function DraggableSticker({
       const x = ((centerX - zoneRect.left) / zoneRect.width) * 100;
       const y = ((centerY - zoneRect.top) / zoneRect.height) * 100;
 
+      const tray = trayRef?.current;
+      const trayRect = tray?.getBoundingClientRect() ?? null;
+      const dismissOpacity = tray
+        ? getDismissOpacity(centerX, centerY, zoneRect, trayRect)
+        : 1;
+      const visualX = tray ? x : clampPercent(x);
+      const visualY = tray ? y : clampPercent(y);
+
       getGsapSync().set(el, {
-        left: `${clampPercent(x)}%`,
-        top: `${clampPercent(y)}%`,
+        left: `${visualX}%`,
+        top: `${visualY}%`,
         x: 0,
         y: 0,
+        opacity: dismissOpacity,
       });
 
-      if (diaryId != null) {
+      if (diaryId != null && dismissOpacity > 0.5) {
         if (session.persistTimer) clearTimeout(session.persistTimer);
         session.persistTimer = setTimeout(() => {
-          updateStickerPosition(diaryId, pageIndex, stickerRef.current.uid, x, y);
+          updateStickerPosition(
+            diaryId,
+            pageIndex,
+            stickerRef.current.uid,
+            clampPercent(x),
+            clampPercent(y),
+          );
         }, 120);
+      } else if (session.persistTimer) {
+        clearTimeout(session.persistTimer);
+        session.persistTimer = null;
       }
     };
 
@@ -222,18 +265,28 @@ export default function DraggableSticker({
   return (
     <div
       ref={attachRef}
-      className="diary-placed-sticker"
+      className={`diary-placed-sticker ${className}`.trim()}
       style={{ left: `${sticker.x}%`, top: `${sticker.y}%` }}
       onPointerDown={handlePointerDown}
       data-sticker-id={sticker.stickerId}
       data-x={sticker.x}
       data-y={sticker.y}
     >
-      <StickerVisual
-        src={def.src}
-        emoji={def.emoji}
-        label={def.label}
-      />
+      {collectionOutline ? (
+        <StickerCollectionFrame
+          src={def.src}
+          emoji={def.emoji}
+          label={def.label}
+          frameClassName={collectionFrameClassName}
+          style={collectionFrameStyle}
+        />
+      ) : (
+        <StickerVisual
+          src={def.src}
+          emoji={def.emoji}
+          label={def.label}
+        />
+      )}
     </div>
   );
 }

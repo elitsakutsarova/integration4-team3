@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { CategoryIcon, EventCard, PlaceCard } from './discover/DiscoverCards';
+import DiscoverDesktopToolbar from './discover/DiscoverDesktopToolbar';
 import SearchOpenButton from './search/SearchOpenButton';
 import { DISCOVER_CATEGORIES, filterDiscoverItems } from '../data/discoverContent';
 import { useEventVenueHrefs } from '../hooks/useEventVenueHrefs';
@@ -51,39 +52,56 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
   );
   const venueHrefs = useEventVenueHrefs([...happeningNow, ...upcoming]);
 
+  const categoryFilters = useMemo(
+    () => (
+      <div
+        className="map-category-row discover-desktop-toolbar-filters"
+        role="tablist"
+        aria-label="Discover categories"
+      >
+        {DISCOVER_CATEGORIES.map(category => {
+          const isActive = activeCategory === category.id;
+          return (
+            <button
+              key={category.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`map-category-chip${isActive ? ' map-category-chip--active' : ''}`}
+              onClick={() => setActiveCategory(category.id)}
+            >
+              {category.icon && <CategoryIcon name={category.icon} />}
+              {category.label}
+            </button>
+          );
+        })}
+      </div>
+    ),
+    [activeCategory],
+  );
+
   return (
     <div className="discover-page">
+      <DiscoverDesktopToolbar>{categoryFilters}</DiscoverDesktopToolbar>
+
       <header className="discover-hero">
         <div className="discover-grid-deco" aria-hidden="true">
           <img className="discover-grid" src={discoverAssets.topGrid} alt="Decorative pixel grid background" />
-          {/*           <img className="discover-grid-pattern" src={discoverAssets.gridPattern} alt="Decorative grid pattern" />
- */}
           <div className="discover-grid-pattern" />
         </div>
 
         <div className="discover-search-container">
-          <SearchOpenButton className="discover-search discover-search--trigger" variant="discover" />
-
-          <div className="map-category-row" role="tablist" aria-label="Discover categories">
-            {DISCOVER_CATEGORIES.map(category => {
-              const isActive = activeCategory === category.id;
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  className={`map-category-chip${isActive ? ' map-category-chip--active' : ''}`}
-                  onClick={() => setActiveCategory(category.id)}
-                >
-                  {category.icon && <CategoryIcon name={category.icon} />}
-                  {category.label}
-                </button>
-              );
-            })}
+          <SearchOpenButton
+            className="discover-search discover-search--trigger"
+            variant="discover"
+            to={paths.discoverSearch}
+          />
+          <div className="discover-mobile-categories">
+            {categoryFilters}
           </div>
         </div>
       </header>
+
       <section className="discover-section" aria-labelledby="discover-happening-now">
         <SectionHeader
           title="Happening now"
@@ -127,16 +145,8 @@ export default function DiscoverPage({ happeningNow, upcoming, places }) {
           <path d="M170.174 14.1501C246.334 17.7163 350.644 51.2886 397.691 37.5316L397.293 9.89315L-0.57586 1.97479e-05L-1.6738 26.9399C62.5377 30.8851 94.0138 10.584 170.174 14.1501Z" fill="#F1F4FF" />
         </svg>
       </div>
+
       <section className="discover-section discover-section--places" aria-labelledby="discover-places">
-        {/* <div className="discover-pin-deco" aria-hidden="true">
-          <svg className="discover-pin-line" viewBox="0 0 400 70" preserveAspectRatio="none">
-            <path d="M0 55 C120 10, 220 80, 400 20" fill="none" stroke="#1952ff" strokeWidth="2" strokeDasharray="4 6" />
-          </svg>
-          <svg className="discover-pin-icon" width="24" height="32" viewBox="0 0 24 32" fill="none">
-            <path d="M12 1C7.03 1 3 5.03 3 10c0 7.5 9 19 9 19s9-11.5 9-19c0-4.97-4.03-9-9-9z" fill="#00b26f" stroke="#002c1c" strokeWidth="1" />
-            <circle cx="12" cy="10" r="3" fill="#66ebb9" />
-          </svg>
-        </div> */}
         <SectionHeader
           id="discover-places"
           title="Spots worth a memo"

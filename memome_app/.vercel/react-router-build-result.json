@@ -19,6 +19,8 @@
       "routes/discover.places": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/discover.event.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/discover.place.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/discover.location.$osmType.$osmId": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/discover.memos.$osmType.$osmId": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.settings": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/profile.settings.account": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -54,8 +56,8 @@
       "routes/connect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/demo-stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/diary.$id": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/location.$osmType.$osmId.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
-      "routes/location.$osmType.$osmId": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/location.$osmType.$osmId.memos.redirect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
+      "routes/location.$osmType.$osmId.redirect": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.stickers": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.memos": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
       "routes/api.account": "nodejs_eyJydW50aW1lIjoibm9kZWpzIn0",
@@ -143,6 +145,20 @@
         "parentId": "routes/discover-layout",
         "file": "app/routes/discover.place.$id.jsx",
         "path": "place/:id",
+        "config": {}
+      },
+      "routes/discover.location.$osmType.$osmId": {
+        "id": "routes/discover.location.$osmType.$osmId",
+        "parentId": "routes/discover-layout",
+        "file": "app/routes/discover.location.$osmType.$osmId.jsx",
+        "path": "location/:osmType/:osmId",
+        "config": {}
+      },
+      "routes/discover.memos.$osmType.$osmId": {
+        "id": "routes/discover.memos.$osmType.$osmId",
+        "parentId": "routes/discover-layout",
+        "file": "app/routes/discover.memos.$osmType.$osmId.jsx",
+        "path": "memos/:osmType/:osmId",
         "config": {}
       },
       "routes/account-layout.profile": {
@@ -411,17 +427,17 @@
         "path": "diary/:id",
         "config": {}
       },
-      "routes/location.$osmType.$osmId.memos": {
-        "id": "routes/location.$osmType.$osmId.memos",
+      "routes/location.$osmType.$osmId.memos.redirect": {
+        "id": "routes/location.$osmType.$osmId.memos.redirect",
         "parentId": "root",
-        "file": "app/routes/location.$osmType.$osmId.memos.jsx",
+        "file": "app/routes/location.$osmType.$osmId.memos.redirect.jsx",
         "path": "location/:osmType/:osmId/memos",
         "config": {}
       },
-      "routes/location.$osmType.$osmId": {
-        "id": "routes/location.$osmType.$osmId",
+      "routes/location.$osmType.$osmId.redirect": {
+        "id": "routes/location.$osmType.$osmId.redirect",
         "parentId": "root",
-        "file": "app/routes/location.$osmType.$osmId.jsx",
+        "file": "app/routes/location.$osmType.$osmId.redirect.jsx",
         "path": "location/:osmType/:osmId",
         "config": {}
       },
@@ -568,6 +584,18 @@
         "parentId": "routes/discover-layout",
         "file": "routes/discover.place.$id.jsx",
         "path": "place/:id"
+      },
+      "routes/discover.location.$osmType.$osmId": {
+        "id": "routes/discover.location.$osmType.$osmId",
+        "parentId": "routes/discover-layout",
+        "file": "routes/discover.location.$osmType.$osmId.jsx",
+        "path": "location/:osmType/:osmId"
+      },
+      "routes/discover.memos.$osmType.$osmId": {
+        "id": "routes/discover.memos.$osmType.$osmId",
+        "parentId": "routes/discover-layout",
+        "file": "routes/discover.memos.$osmType.$osmId.jsx",
+        "path": "memos/:osmType/:osmId"
       },
       "routes/account-layout.profile": {
         "id": "routes/account-layout.profile",
@@ -797,16 +825,16 @@
         "file": "routes/diary.$id.jsx",
         "path": "diary/:id"
       },
-      "routes/location.$osmType.$osmId.memos": {
-        "id": "routes/location.$osmType.$osmId.memos",
+      "routes/location.$osmType.$osmId.memos.redirect": {
+        "id": "routes/location.$osmType.$osmId.memos.redirect",
         "parentId": "root",
-        "file": "routes/location.$osmType.$osmId.memos.jsx",
+        "file": "routes/location.$osmType.$osmId.memos.redirect.jsx",
         "path": "location/:osmType/:osmId/memos"
       },
-      "routes/location.$osmType.$osmId": {
-        "id": "routes/location.$osmType.$osmId",
+      "routes/location.$osmType.$osmId.redirect": {
+        "id": "routes/location.$osmType.$osmId.redirect",
         "parentId": "root",
-        "file": "routes/location.$osmType.$osmId.jsx",
+        "file": "routes/location.$osmType.$osmId.redirect.jsx",
         "path": "location/:osmType/:osmId"
       },
       "routes/api.stickers": {
@@ -921,6 +949,14 @@
                   {
                     "file": "routes/discover.place.$id.jsx",
                     "path": "place/:id"
+                  },
+                  {
+                    "file": "routes/discover.location.$osmType.$osmId.jsx",
+                    "path": "location/:osmType/:osmId"
+                  },
+                  {
+                    "file": "routes/discover.memos.$osmType.$osmId.jsx",
+                    "path": "memos/:osmType/:osmId"
                   }
                 ],
                 "path": "discover"
@@ -1087,11 +1123,11 @@
             "path": "diary/:id"
           },
           {
-            "file": "routes/location.$osmType.$osmId.memos.jsx",
+            "file": "routes/location.$osmType.$osmId.memos.redirect.jsx",
             "path": "location/:osmType/:osmId/memos"
           },
           {
-            "file": "routes/location.$osmType.$osmId.jsx",
+            "file": "routes/location.$osmType.$osmId.redirect.jsx",
             "path": "location/:osmType/:osmId"
           },
           {

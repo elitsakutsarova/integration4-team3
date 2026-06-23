@@ -9,10 +9,11 @@ import '../styles/modules/bottom-nav.css';
 import { Outlet, useLoaderData, useLocation } from 'react-router';
 import MapView from '../components/MapView';
 import DesktopNav from '../components/DesktopNav';
+import MapPixelDeco from '../components/MapPixelDeco';
 import AuthLoading from '../components/auth/AuthLoading';
 import { bootstrapAuthSession } from '../utils/authSession';
 import { fetchMemos } from '../utils/memoStore';
-import { paths } from '../utils/appPaths';
+import { isJournalsPanelRoute, isProfilePanelRoute, paths } from '../utils/appPaths';
 import { shouldRevalidateForFormAction } from '../utils/revalidatePolicy';
 
 export async function clientLoader() {
@@ -40,19 +41,31 @@ export default function MainShell() {
   const { memos } = useLoaderData();
   const { pathname } = useLocation();
   const isHome = pathname === paths.home;
-  const isAccountRoute = pathname.startsWith('/profile') || pathname.startsWith('/stickers');
+  const isDiscoverRoute = pathname.startsWith('/discover');
+  const isDiscoverMapRoute =
+    isDiscoverRoute || isJournalsPanelRoute(pathname) || isProfilePanelRoute(pathname);
 
   return (
     <div className="main-shell">
       <DesktopNav />
-      <MapView savedMemos={memos} active={isHome} />
+      {isHome && (
+        <div className="main-shell-pixel-deco main-shell-pixel-deco--map" aria-hidden="true">
+          <MapPixelDeco />
+        </div>
+      )}
+      <MapView savedMemos={memos} active={isHome || isDiscoverMapRoute} />
       <div
         className={[
           'main-shell-content',
           isHome ? 'main-shell-content--hidden' : '',
-          isAccountRoute ? 'main-shell-content--account' : '',
+          isDiscoverMapRoute ? 'main-shell-content--discover-map' : '',
         ].filter(Boolean).join(' ')}
       >
+        {!isHome && (
+          <div className="main-shell-pixel-deco main-shell-pixel-deco--content" aria-hidden="true">
+            <MapPixelDeco />
+          </div>
+        )}
         <Outlet />
       </div>
     </div>

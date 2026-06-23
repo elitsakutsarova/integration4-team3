@@ -1,21 +1,25 @@
 import { MAP_CATEGORIES } from '../utils/mapFilters';
 import MemoTagIcon from './MemoTagIcon';
 import SearchOpenButton from './search/SearchOpenButton';
-import { mapAssets } from '../utils/mapAssets';
+import MapPixelDeco from './MapPixelDeco';
+import { paths } from '../utils/appPaths';
 
 export default function MapHomeChrome({
   activeCategory,
   onCategoryChange,
+  searchTo = paths.search,
 }) {
   return (
     <div className="map-home-chrome">
-      <div className="map-pixel-deco" aria-hidden="true">
-        <img className="map-pixel-grid" src={mapAssets.greenGrid} alt="Decorative pixel grid background" />
-      </div>
+      <MapPixelDeco className="map-pixel-deco--home-mobile" />
 
       <div className="map-search-container">
         <div className="map-home-toolbar">
-          <SearchOpenButton className="map-search-bar map-search-bar--trigger" variant="map" />
+          <SearchOpenButton
+            className="map-search-bar map-search-bar--trigger"
+            variant="map"
+            to={searchTo}
+          />
 
           <div className="map-category-row" role="toolbar" aria-label="Map categories">
             {MAP_CATEGORIES.map(category => {

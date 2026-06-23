@@ -12,15 +12,15 @@ export function buildLocationDetailHref({ placeId, lat, lng, name }) {
   if (!parsed) return null;
 
   const params = new URLSearchParams({
-    lat: String(lat),
-    lng: String(lng),
+    spotLat: String(lat),
+    spotLng: String(lng),
   });
   if (name) {
     const safeName = validateUrlDisplayName(name);
     if (safeName) params.set('name', safeName);
   }
 
-  return `${href('/location/:osmType/:osmId', parsed)}?${params.toString()}`;
+  return `${href('/discover/location/:osmType/:osmId', parsed)}?${params.toString()}`;
 }
 
 export function buildMemoArchiveHref({ placeId, lat, lng, name, title }) {
@@ -31,8 +31,8 @@ export function buildMemoArchiveHref({ placeId, lat, lng, name, title }) {
   if (!parsed) return null;
 
   const params = new URLSearchParams({
-    lat: String(lat),
-    lng: String(lng),
+    spotLat: String(lat),
+    spotLng: String(lng),
   });
   if (name) {
     const safeName = validateUrlDisplayName(name);
@@ -43,5 +43,5 @@ export function buildMemoArchiveHref({ placeId, lat, lng, name, title }) {
     if (safeTitle) params.set('title', safeTitle);
   }
 
-  return `${href('/location/:osmType/:osmId/memos', parsed)}?${params.toString()}`;
+  return `${href('/discover/memos/:osmType/:osmId', parsed)}?${params.toString()}`;
 }

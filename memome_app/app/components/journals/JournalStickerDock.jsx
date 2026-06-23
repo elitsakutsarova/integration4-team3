@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getGsapSync, preloadGsap } from '../../utils/gsapClient';
 import { pixelToPercent } from '../../utils/stickerTracker';
-import StickerVisual, { createStickerCloneNode } from '../diary/StickerVisual';
+import { createStickerCloneNode } from '../diary/StickerVisual';
+import StickerCollectionFrame from '../stickers/StickerCollectionFrame';
+import { isQrCollectedJournalSticker } from '../../data/defaultJournalStickers';
 import { useJournalStickerDock } from '../../hooks/useJournalStickerDock';
 
-const DOCK_HEIGHT_KEY = 'journal-sticker-dock-height';
+const DEFAULT_DOCK_HEIGHT_REM = 9;
+const DEFAULT_DOCK_HEIGHT_PX = DEFAULT_DOCK_HEIGHT_REM * 16;
 const MIN_DOCK_HEIGHT = 40;
 const MAX_DOCK_HEIGHT_CAP = 360;
+const DOCK_DRAG_FADE_DISTANCE_PX = 48;
 
 function getMaxDockHeight() {
   if (typeof window === 'undefined') return MAX_DOCK_HEIGHT_CAP;
@@ -14,19 +18,15 @@ function getMaxDockHeight() {
 }
 
 function getDefaultDockHeight() {
-  if (typeof window === 'undefined') return 200;
-  return Math.min(window.innerHeight * 0.42, MAX_DOCK_HEIGHT_CAP);
+  return clampDockHeight(DEFAULT_DOCK_HEIGHT_PX);
 }
 
 function clampDockHeight(height) {
   return Math.max(MIN_DOCK_HEIGHT, Math.min(getMaxDockHeight(), height));
 }
 
-function readStoredDockHeight() {
-  if (typeof window === 'undefined') return getDefaultDockHeight();
-  const stored = Number(localStorage.getItem(DOCK_HEIGHT_KEY));
-  if (!Number.isFinite(stored) || stored <= 0) return getDefaultDockHeight();
-  return clampDockHeight(stored);
+function readInitialDockHeight() {
+  return getDefaultDockHeight();
 }
 
 function clearDragSession(dragRef) {
@@ -80,7 +80,8 @@ export default function JournalStickerDock({
   const onDropRef = useRef(onDropOnPage);
   onDropRef.current = onDropOnPage;
 
-  const [dockHeight, setDockHeight] = useState(readStoredDockHeight);
+  const [dockHeight, setDockHeight] = useState(readInitialDockHeight);
+  const [isResizing, setIsResizing] = useState(false);
   const dockHeightRef = useRef(dockHeight);
   dockHeightRef.current = dockHeight;
 
@@ -103,7 +104,10 @@ export default function JournalStickerDock({
   }, []);
 
   // Tear down an in-progress dock resize if the component unmounts.
-  useEffect(() => () => clearResizeSession(resizeRef), []);
+  useEffect(() => () => {
+    clearResizeSession(resizeRef);
+    setIsResizing(false);
+  }, []);
 
   const attachTrayRef = useCallback((node) => {
     if (trayRef) trayRef.current = node;
@@ -172,16 +176,44 @@ export default function JournalStickerDock({
       /* ignore */
     }
 
-    const clone = createStickerCloneNode(stickerDef);
+    const cloneClassName = [
+      'diary-sticker-drag-clone',
+      'journal-sticker-drag-clone',
+      isQrCollectedJournalSticker(stickerDef.id) ? 'journal-sticker-drag-clone--qr-collected' : '',
+    ].filter(Boolean).join(' ');
+
+    const clone = createStickerCloneNode(stickerDef, {
+      cloneClassName,
+      imgClassName: 'journal-sticker-drag-clone-img',
+    });
     document.body.appendChild(clone);
     const gsap = getGsapSync();
-    gsap.set(clone, { x: e.clientX, y: e.clientY, xPercent: -50, yPercent: -50 });
+    gsap.set(clone, {
+      x: e.clientX,
+      y: e.clientY,
+      xPercent: -50,
+      yPercent: -50,
+      opacity: 1,
+    });
 
     const pointerId = e.pointerId;
+    const startY = e.clientY;
+    const originDropZone = dropZoneRef.current;
 
     const onMove = (ev) => {
       if (ev.pointerId !== pointerId) return;
-      getGsapSync().set(clone, { x: ev.clientX, y: ev.clientY, xPercent: -50, yPercent: -50 });
+      const dragDown = ev.clientY - startY;
+      let opacity = 1;
+      if (dragDown > 8) {
+        opacity = Math.max(0, 1 - (dragDown - 8) / DOCK_DRAG_FADE_DISTANCE_PX);
+      }
+      getGsapSync().set(clone, {
+        x: ev.clientX,
+        y: ev.clientY,
+        xPercent: -50,
+        yPercent: -50,
+        opacity,
+      });
     };
 
     const onEnd = (ev) => {
@@ -198,7 +230,7 @@ export default function JournalStickerDock({
       onMove,
       onEnd,
       originPageIndex: pageIndex,
-      originDropZone: dropZoneRef.current,
+      originDropZone,
     };
 
     btn.addEventListener('pointermove', onMove, { passive: false });
@@ -213,6 +245,8 @@ export default function JournalStickerDock({
 
     if (resizeRef.current) clearResizeSession(resizeRef);
 
+    setIsResizing(true);
+
     const handle = e.currentTarget;
     try {
       handle.setPointerCapture(e.pointerId);
@@ -226,6 +260,7 @@ export default function JournalStickerDock({
 
     const onMove = (ev) => {
       if (ev.pointerId !== pointerId) return;
+      if (ev.cancelable) ev.preventDefault();
       const delta = startY - ev.clientY;
       setDockHeight(clampDockHeight(startHeight + delta));
     };
@@ -233,7 +268,7 @@ export default function JournalStickerDock({
     const onEnd = (ev) => {
       if (ev.pointerId !== pointerId) return;
       clearResizeSession(resizeRef);
-      localStorage.setItem(DOCK_HEIGHT_KEY, String(dockHeightRef.current));
+      setIsResizing(false);
     };
 
     resizeRef.current = { handle, pointerId, onMove, onEnd };
@@ -247,7 +282,7 @@ export default function JournalStickerDock({
   return (
     <div
       ref={attachTrayRef}
-      className={`journal-sticker-dock${isCollapsed ? ' journal-sticker-dock--collapsed' : ''}`}
+      className={`journal-sticker-dock${isCollapsed ? ' journal-sticker-dock--collapsed' : ''}${isResizing ? ' journal-sticker-dock--resizing' : ''}`}
       style={{ height: `${dockHeight / 16}rem` }}
       aria-label="Sticker menu"
     >
@@ -265,19 +300,33 @@ export default function JournalStickerDock({
         {stickers.length === 0 ? (
           <p className="journal-sticker-dock-empty">No stickers available yet</p>
         ) : (
-          stickers.map((sticker) => (
-            <button
-              key={sticker.id}
-              type="button"
-              className="journal-sticker-dock-btn"
-              data-sticker-source
-              data-sticker-id={sticker.id}
-              aria-label={sticker.label}
-              onPointerDown={(ev) => startDrag(sticker, ev)}
-            >
-              <StickerVisual src={sticker.src} emoji={sticker.emoji} label={sticker.label} />
-            </button>
-          ))
+          stickers.map((sticker) => {
+            const isQrCollected = isQrCollectedJournalSticker(sticker.id);
+
+            return (
+              <button
+                key={sticker.id}
+                type="button"
+                className={`journal-sticker-dock-btn${isQrCollected ? ' journal-sticker-dock-btn--qr-collected' : ''}`}
+                data-sticker-source
+                data-sticker-id={sticker.id}
+                aria-label={sticker.label}
+                onPointerDown={(ev) => startDrag(sticker, ev)}
+              >
+                <StickerCollectionFrame
+                  src={sticker.src}
+                  emoji={sticker.emoji}
+                  label={sticker.label}
+                  frameClassName="journal-sticker-dock-frame"
+                  style={{
+                    '--sticker-collection-size': isQrCollected
+                      ? 'var(--journal-sticker-menu-size-qr)'
+                      : 'var(--journal-sticker-menu-size)',
+                  }}
+                />
+              </button>
+            );
+          })
         )}
       </div>
     </div>

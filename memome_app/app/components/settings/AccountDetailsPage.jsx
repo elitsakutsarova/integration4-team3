@@ -1,18 +1,19 @@
 // account details page for account settings
 
 import { useEffect, useRef, useState } from 'react';
-import { Link, useFetcher, useNavigate, useSearchParams } from 'react-router';
+import { Link, useFetcher, useLocation, useNavigate, useSearchParams } from 'react-router';
 import { useAuth } from '../../context/AuthContext';
 import { useUserAvatar } from '../../hooks/useUserAvatar';
-import { goBack, paths } from '../../utils/appPaths';
+import { consumeAccountCredentialChangeFlag, goBack, paths } from '../../utils/appPaths';
 import {
   clearUserAvatar,
   readAvatarDataUrl,
   setUserAvatar,
 } from '../../utils/userAvatarStore';
-import { settingsAssets } from '../../utils/settingsAssets';
+import { changeEmailAssets, changePasswordAssets, settingsAssets } from '../../utils/settingsAssets';
 import AvatarSuccessModal from './AvatarSuccessModal';
 import DeleteAccountConfirmModal from './DeleteAccountConfirmModal';
+import SettingsChangeSuccessView from './SettingsChangeSuccessView';
 import EditPenIcon from './EditPenIcon';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 import VisuallyHiddenTitle from '../VisuallyHiddenTitle';
@@ -35,13 +36,13 @@ function AccountField({ label, value, editTo }) {
 }
 
 const SUCCESS_MESSAGES = {
-  password: 'Your password was updated. Sign in with your new password next time.',
   email: 'Your email was updated successfully.',
   username: 'Your username was updated successfully.',
 };
 
 export default function AccountDetailsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const fetcher = useFetcher();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user, signOut } = useAuth();
@@ -49,6 +50,8 @@ export default function AccountDetailsPage() {
   const avatarUrl = useUserAvatar(user?.id);
   const [avatarError, setAvatarError] = useState('');
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [emailSuccessOpen, setEmailSuccessOpen] = useState(false);
+  const [passwordSuccessOpen, setPasswordSuccessOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteError, setDeleteError] = useState('');
 
@@ -56,6 +59,15 @@ export default function AccountDetailsPage() {
   const updated = searchParams.get('updated');
   const successMessage = SUCCESS_MESSAGES[updated] ?? null;
   const hasCustomAvatar = Boolean(avatarUrl);
+
+  useEffect(() => {
+    if (location.state?.showEmailSuccess) {
+      setEmailSuccessOpen(true);
+    }
+    if (location.state?.showPasswordSuccess) {
+      setPasswordSuccessOpen(true);
+    }
+  }, [location.state?.showEmailSuccess, location.state?.showPasswordSuccess]);
 
   // After account deletion succeeds: sign out and return to the map.
   useEffect(() => {
@@ -77,7 +89,19 @@ export default function AccountDetailsPage() {
     setDeleteError(fetcher.data.error.message ?? 'Could not delete your account.');
   }, [fetcher.data]);
 
+  function collapseCredentialChangeHistory() {
+    if (!consumeAccountCredentialChangeFlag()) return;
+    navigate(-1);
+  }
+
   function handleBack() {
+    if (consumeAccountCredentialChangeFlag()) {
+      setEmailSuccessOpen(false);
+      setPasswordSuccessOpen(false);
+      navigate(-2);
+      return;
+    }
+
     goBack(navigate, paths.profileSettings);
   }
 
@@ -85,6 +109,25 @@ export default function AccountDetailsPage() {
     const next = new URLSearchParams(searchParams);
     next.delete('updated');
     setSearchParams(next, { replace: true });
+  }
+
+  function clearSuccessNavigationState() {
+    navigate(
+      { pathname: location.pathname, search: location.search },
+      { replace: true, state: null },
+    );
+  }
+
+  function dismissEmailSuccess() {
+    setEmailSuccessOpen(false);
+    clearSuccessNavigationState();
+    collapseCredentialChangeHistory();
+  }
+
+  function dismissPasswordSuccess() {
+    setPasswordSuccessOpen(false);
+    clearSuccessNavigationState();
+    collapseCredentialChangeHistory();
   }
 
   function openFilePicker() {
@@ -246,6 +289,22 @@ export default function AccountDetailsPage() {
 
       {successModalOpen ? (
         <AvatarSuccessModal onClose={() => setSuccessModalOpen(false)} />
+      ) : null}
+
+      {emailSuccessOpen ? (
+        <SettingsChangeSuccessView
+          illustration={changeEmailAssets.illustration}
+          description="Your email was successfully changed!"
+          onDismiss={dismissEmailSuccess}
+        />
+      ) : null}
+
+      {passwordSuccessOpen ? (
+        <SettingsChangeSuccessView
+          illustration={changePasswordAssets.illustration}
+          description="Your password was successfully changed!"
+          onDismiss={dismissPasswordSuccess}
+        />
       ) : null}
 
       {deleteModalOpen ? (

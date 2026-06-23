@@ -1,10 +1,16 @@
 // page for viewing all memos shared by user (archive)
 
-import { useNavigate } from 'react-router';
-import BottomNav from '../BottomNav';
-import MemoArchiveCard from './MemoArchiveCard';
+import { useLayoutEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { DiscoverFeaturedMemosList } from './FeaturedMemosSection';
 import { goBack, paths } from '../../utils/appPaths';
+import { discoverAssets } from '../../utils/discoverAssets';
+import { scrollDiscoverToTop } from '../../utils/discoverScroll';
 import BackChevron from '../BackChevron';
+
+function scrollArchiveToTop() {
+  scrollDiscoverToTop();
+}
 
 export default function MemoArchivePage({
   spotTitle,
@@ -13,6 +19,13 @@ export default function MemoArchivePage({
   memoCount,
 }) {
   const navigate = useNavigate();
+  const { pathname, search } = useLocation();
+
+  useLayoutEffect(() => {
+    scrollArchiveToTop();
+    const frame = window.requestAnimationFrame(scrollArchiveToTop);
+    return () => window.cancelAnimationFrame(frame);
+  }, [pathname, search]);
 
   function handleBack() {
     goBack(navigate, paths.discover);
@@ -20,39 +33,56 @@ export default function MemoArchivePage({
 
   return (
     <div className="memo-archive-page">
-      <div className="memo-archive-header">
-        <div className="memo-archive-header-grid" aria-hidden="true" />
-        <div className="memo-archive-header-wave" aria-hidden="true" />
+      <header className="memo-archive-header">
+        <div className="memo-archive-header-deco" aria-hidden="true">
+          <div className="memo-archive-header-grid" />
+          <img
+            className="memo-archive-header-corner"
+            src={discoverAssets.greenGrid}
+            alt=""
+          />
+          <div className="memo-archive-header-doodle" />
+          <img
+            className="memo-archive-header-pin"
+            src={discoverAssets.purple_pin}
+            alt="purple pin"
+          />
+        </div>
 
         <BackChevron className="memo-archive-back" onClick={handleBack} />
 
         <div className="memo-archive-title-banner">
           <h1 className="memo-archive-title">Memo Archive</h1>
         </div>
-      </div>
+      </header>
 
       <div className="memo-archive-intro">
-        <h2 className="memo-archive-spot-title">
-          <span className="memo-archive-spot-highlight">{spotTitle}</span>
-        </h2>
+        <div className="memo-archive-spot-title-wrap">
+          <img
+            className="memo-archive-spot-title-bg"
+            src={discoverAssets.selectedText}
+            alt=""
+            aria-hidden="true"
+          />
+          <h2 className="memo-archive-spot-title">{spotTitle}</h2>
+        </div>
         <p className="memo-archive-count">{memoCount} memos</p>
       </div>
 
       <div className="memo-archive-scroll">
         {memos.length > 0 ? (
-          <div className="memo-archive-list">
-            {memos.map(memo => (
-              <MemoArchiveCard key={memo.id} memo={memo} />
-            ))}
-          </div>
+          <section
+            className="featured-memos-section discover-detail-section memo-archive-memos"
+            aria-label="Archived memos"
+          >
+            <DiscoverFeaturedMemosList memos={memos} orientation="column" />
+          </section>
         ) : (
           <p className="memo-archive-empty">
             No memos at {locationName || spotTitle} yet. Be the first to share one on the map!
           </p>
         )}
       </div>
-
-      <BottomNav />
     </div>
   );
 }

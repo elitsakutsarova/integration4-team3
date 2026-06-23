@@ -1,27 +1,33 @@
 // change e-mail page for account settings
 
 
-import { useEffect, useState } from 'react';
-import { Link, useFetcher, useNavigate, useRevalidator } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { useFetcher, useNavigate, useRevalidator } from 'react-router';
 import { EyeIcon, LockIcon, MailIcon } from '../auth/AuthIcons';
+import { signInAccount } from '../../utils/authActions';
 import { applySignedInUser, getAuthSnapshot } from '../../utils/authSession';
 import { syncSessionProfile } from '../../utils/authStore';
 import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
-import { paths } from '../../utils/appPaths';
-import { goBack } from '../../utils/appPaths';
-import SettingsSubpageHeader from './SettingsSubpageHeader';
+import { goBack, markAccountCredentialChange, paths } from '../../utils/appPaths';
 import { useAuth } from '../../context/AuthContext';
 import { settingsAssets } from '../../utils/settingsAssets';
+import SettingsSubpageHeader from './SettingsSubpageHeader';
 
 function mergeFieldErrors(clientErrors, fetcherData) {
   return { ...accountErrorToFieldMap(fetcherData?.error), ...clientErrors };
 }
 
+function isEmailChangeSuccess(data) {
+  return data?.success === true && data?.kind === 'email';
+}
+
 export default function ChangeEmailPage() {
   const navigate = useNavigate();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher({ key: 'change-email' });
   const { revalidate } = useRevalidator();
   const { user } = useAuth();
+  const passwordRef = useRef('');
+  const finishHandledRef = useRef(false);
   const [showPassword, setShowPassword] = useState(false);
   const [clientErrors, setClientErrors] = useState({});
 
@@ -29,24 +35,41 @@ export default function ChangeEmailPage() {
   const fieldErrors = mergeFieldErrors(clientErrors, fetcher.data);
   const formError = fieldErrors.form;
 
-  // After email change succeeds: sync session, revalidate, return to account page.
   useEffect(() => {
-    if (!fetcher.data?.success || fetcher.data?.kind !== 'email') return;
+    if (fetcher.state === 'submitting') {
+      finishHandledRef.current = false;
+    }
+  }, [fetcher.state]);
 
-    async function finishEmailChange() {
-      if (fetcher.data.user) {
+  useEffect(() => {
+    if (fetcher.state !== 'idle' || !isEmailChangeSuccess(fetcher.data)) return;
+    if (finishHandledRef.current) return;
+    finishHandledRef.current = true;
+
+    const userPatch = fetcher.data.user;
+    const password = passwordRef.current;
+
+    void (async () => {
+      if (password && userPatch?.email) {
+        await signInAccount({ email: userPatch.email, password });
+      }
+
+      if (userPatch) {
         const current = getAuthSnapshot().user;
         if (current) {
-          applySignedInUser({ ...current, ...fetcher.data.user });
+          applySignedInUser({ ...current, ...userPatch });
         }
-        await syncSessionProfile();
       }
-      revalidate();
-      navigate(`${paths.profileSettingsAccount}?updated=email`, { replace: true });
-    }
 
-    void finishEmailChange();
-  }, [fetcher.data, navigate]);
+      await syncSessionProfile();
+      revalidate();
+      markAccountCredentialChange();
+      navigate(paths.profileSettingsAccount, {
+        replace: true,
+        state: { showEmailSuccess: true },
+      });
+    })();
+  }, [fetcher.state, fetcher.data, navigate, revalidate]);
 
   function handleBack() {
     goBack(navigate, paths.profileSettingsAccount);
@@ -60,6 +83,7 @@ export default function ChangeEmailPage() {
       setClientErrors(accountErrorToFieldMap(validation.error));
       return;
     }
+    passwordRef.current = String(formData.get('password') ?? '');
     setClientErrors({});
   }
 

@@ -35,3 +35,17 @@ export const settingsAssets = {
   arrowBack: asset('arrow_back.svg'),
   technicalSupportIcon: asset('technical_support_icon.svg'),
 };
+
+const CHANGE_EMAIL_BASE = '/settings/change-email';
+
+export const changeEmailAssets = {
+  doodle: `${CHANGE_EMAIL_BASE}/doodle.svg`,
+  grid: `${CHANGE_EMAIL_BASE}/grid.svg`,
+  illustration: `${CHANGE_EMAIL_BASE}/change_email_illustration.svg`,
+};
+
+export const changePasswordAssets = {
+  doodle: changeEmailAssets.doodle,
+  grid: changeEmailAssets.grid,
+  illustration: `${CHANGE_EMAIL_BASE}/change_password_illustration.svg`,
+};

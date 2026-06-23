@@ -12,32 +12,61 @@
   position: relative;
   min-height: 9.375rem;
   overflow: hidden;
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+.memo-archive-header-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .memo-archive-header-grid {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(196deg, rgba(209, 220, 255, 0.95) 2%, rgba(209, 220, 255, 0) 52%),
+    linear-gradient(196deg, rgba(255, 255, 255, 0.95) 2%, rgba(209, 220, 255, 0) 52%),
     repeating-linear-gradient(0deg, rgba(25, 82, 255, 0.06) 0 0.0625rem, transparent 0.0625rem 1.5rem),
     repeating-linear-gradient(90deg, rgba(25, 82, 255, 0.06) 0 0.0625rem, transparent 0.0625rem 1.5rem);
 }
 
-.memo-archive-header-wave {
+.memo-archive-header-corner {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  width: 7.5rem;
-  height: 5rem;
-  border: 0.125rem dashed #1952ff;
-  border-radius: 62.4375rem 62.4375rem 0 0;
-  transform: rotate(8deg);
-  opacity: 0.55;
+  top: 0;
+  left: 0;
+  width: 5.5rem;
+  height: auto;
+}
+
+.memo-archive-header-doodle {
+  position: relative;
+  top: 2rem;
+  left: 7rem;
+  width: 11.8125rem;
+  aspect-ratio: 183 / 95;
+  background-color: #a3baff;
+  -webkit-mask-image: url(/discover/doodle.svg);
+  mask-image: url(/discover/doodle.svg);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.memo-archive-header-pin {
+  position: relative;
+  top: -2.65rem;
+  right: -18rem;
+  width: 3rem;
+  height: auto;
+  z-index: 2;
 }
 
 .memo-archive-back {
   position: absolute;
-  top: 5.9375rem;
+  top: calc(5.9375rem + env(safe-area-inset-top, 0));
   left: 1rem;
   z-index: 2;
   width: 3.3125rem;
@@ -54,8 +83,9 @@
 
 .memo-archive-title-banner {
   position: absolute;
-  top: 5.375rem;
+  top: calc(5.375rem + env(safe-area-inset-top, 0));
   left: 0;
+  z-index: 1;
   width: min(100%, 19.9375rem);
   padding: 1.4375rem 1rem 1.4375rem 5.4375rem;
   background: #f9ff75;
@@ -71,53 +101,128 @@
 
 .memo-archive-intro {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.75rem 1rem 1.25rem;
 }
 
-.memo-archive-spot-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #000;
+.memo-archive-spot-title-wrap {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  flex: 1;
+  min-width: 0;
+  max-width: calc(100% - 5.5rem);
 }
 
-.memo-archive-spot-highlight {
-  background: #d1dcff;
-  padding: 0.125rem 0.375rem;
-  box-decoration-break: clone;
+.memo-archive-spot-title-bg {
+  grid-area: 1 / 1 / 1 / 1;
+  width: min(100%, 14.975rem);
+  height: auto;
+  align-self: center;
+}
+
+.memo-archive-spot-title {
+  grid-area: 1 / 1 / 1 / 1;
+  margin: 0;
+  padding: 0.625rem 1.125rem 0.625rem 0.875rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #1e1e1e;
+  align-self: center;
+  z-index: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .memo-archive-count {
-  margin: 0.5rem 0 0;
+  margin: 0;
   flex-shrink: 0;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 300;
   color: #6b7280;
   white-space: nowrap;
+  padding-bottom: 0.25rem;
 }
 
 .memo-archive-scroll {
   padding: 0 1rem 1.5rem;
 }
 
-.memo-archive-list {
+.memo-archive-memos.featured-memos-section {
+  padding-bottom: 0;
+}
+
+/* Column layout — override horizontal carousel rules from discover.css */
+.memo-archive-memos.featured-memos-section.discover-detail-section .profile-remember-scroll,
+.memo-archive-memos.featured-memos-section .featured-memos-profile-scroll,
+.memo-archive-memos.featured-memos-section .memo-archive-memos-scroll {
+  margin: 0;
+  padding: 3.5rem 0 0;
+  overflow: visible;
+  max-width: 100%;
+}
+
+.memo-archive-memos.featured-memos-section .profile-remember-track,
+.memo-archive-memos.featured-memos-section .memo-archive-memos-track {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-}
-
-.memory-sheet--archive {
+  flex-wrap: nowrap;
+  align-items: center;
   width: 100%;
   max-width: none;
-  animation: none;
+  margin-top: 0;
+  padding-right: 0;
+  gap: 2rem;
 }
 
-.memory-sheet--archive::after {
-  display: none;
+.memo-archive-memos.featured-memos-section .profile-remember-track .created-memo-card {
+  flex: 0 0 auto;
+  width: min(calc(100vw - 3rem), 22.5625rem);
+  margin-bottom: 0;
+}
+
+.memo-archive-memos.featured-memos-section .profile-remember-track .memory-sheet--text-only .memory-sheet-body {
+  margin-bottom: 0;
+}
+
+.memo-archive-memos.featured-memos-section .profile-remember-track .memory-sheet--text-only .memory-sheet-text-only-head {
+  margin-bottom: 0.75rem;
+}
+
+.memo-archive-memos.featured-memos-section .profile-remember-track .created-memo-card__toolbar--text-only {
+  margin-bottom: 0.5rem;
+}
+
+.memo-archive-memos.featured-memos-section .profile-remember-track .memory-sheet--with-media .memory-sheet-body {
+  padding-bottom: 8.125rem;
+}
+
+.memo-archive-memos.featured-memos-section .profile-remember-track .memory-sheet-body {
+  min-height: 0;
+}
+
+@media (max-width: 359px) {
+  .memo-archive-memos.featured-memos-section .profile-remember-track .created-memo-card .memory-sheet--with-media:has(.memory-sheet-body--vertical-media) {
+    margin-top: 3.5rem;
+  }
+
+  .memo-archive-memos.featured-memos-section .profile-remember-track .created-memo-card .memory-sheet--with-media:not(:has(.memory-sheet-body--vertical-media)) {
+    margin-top: 2.75rem;
+  }
+
+  .memo-archive-memos.featured-memos-section .profile-remember-track .memory-sheet--with-media .memory-sheet-body--vertical-media {
+    padding-top: 4.5rem;
+  }
+}
+
+@media (min-width: 48rem) {
+  .main-shell-content--discover-map .memo-archive-memos.featured-memos-section .profile-remember-track .created-memo-card {
+    width: min(calc(100% - 0.5rem), 22.5625rem);
+  }
 }
 
 .memo-archive-empty {
@@ -126,15 +231,4 @@
   font-size: 0.9375rem;
   color: #6b7280;
   text-align: center;
-}
-
-@media (min-width: 48rem) {
-  .featured-memos-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .memo-archive-page {
-    max-width: 30rem;
-    margin: 0 auto;
-  }
 }

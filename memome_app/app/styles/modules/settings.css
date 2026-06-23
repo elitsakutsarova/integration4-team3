@@ -38,9 +38,9 @@
 
 .settings-hero-grid-pattern {
   background-image: linear-gradient(#aabfff 0.0625rem, #0000 0.0625rem), linear-gradient(90deg, #aabfff 0.0625rem, #0000 0.0625rem);
-    background-size: 1.25rem 1.25rem;
-    grid-area: 1 / 1 / 1 / 1;
-    mask-image: linear-gradient(200deg, #fff 0%, #fff0 60%);
+  background-size: 1.25rem 1.25rem;
+  grid-area: 1 / 1 / 1 / 1;
+  mask-image: linear-gradient(200deg, #fff 0%, #fff0 60%);
 }
 
 .settings-hero-wave {
@@ -60,12 +60,12 @@
 
 .settings-titles {
   grid-area: 1 / 1 / 1 / 1;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.5rem 1rem;
-    background: var(--yellow-400);
-    max-width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--yellow-400);
+  max-width: fit-content;
 }
 
 .settings-back-btn {
@@ -88,34 +88,34 @@
 }
 
 .settings-title {
-    position: relative;
-      flex: 1;
-      min-width: 0;
-      font-size: 1.75rem;
-      font-weight: 400;
-      letter-spacing: 0.0437rem;
-      color: #1e1e1e;
-      line-height: 1;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  font-size: 1.75rem;
+  font-weight: 400;
+  letter-spacing: 0.0437rem;
+  color: #1e1e1e;
+  line-height: 1;
 }
 
 .settings-title-icon {
   grid-area: 1 / 1 / 1 / 1;
-    justify-self: end;
-    align-self: start;
-    pointer-events: none;
-    z-index: 0;
-    margin-top: -3rem;
-    margin-right: -3.5rem;
+  justify-self: end;
+  align-self: start;
+  pointer-events: none;
+  z-index: 0;
+  margin-top: -3rem;
+  margin-right: -3.5rem;
 }
 
 .settings-title-icon--subpage {
   grid-area: 1 / 1 / 1 / 1;
-    justify-self: end;
-    align-self: start;
-    pointer-events: none;
-    z-index: 0;
-    margin-top: -2rem;
-    margin-right: -2rem;
+  justify-self: end;
+  align-self: start;
+  pointer-events: none;
+  z-index: 0;
+  margin-top: -2rem;
+  margin-right: -2rem;
 }
 
 .settings-content {
@@ -129,10 +129,11 @@
 }
 
 .content-section-intro {
-    display: flex;
-      flex-direction: column;
-      gap: 0.375rem;
-      margin: 1rem 1rem 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 1rem 1rem 2rem 1rem;
+  align-items: center;
 }
 
 .settings-section-label {
@@ -141,57 +142,57 @@
   padding: 0 0.25rem;
   font-size: 0.75rem;
   color: var(--grey-300, #202020);
-    font-feature-settings: 'dlig' on;
-    font-family: SunAntwerpen;
-    font-size: 1rem;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 1rem;
+  font-feature-settings: 'dlig' on;
+  font-family: SunAntwerpen;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1rem;
   position: relative;
-    display: inline-block;
-    z-index: 5;
-  }
+  display: inline-block;
+  z-index: 5;
+}
 
-  .settings-section-title {
-    color: var(--grey-300, #202020);
-    margin: 0 auto;
-    padding: 0 .5rem;
-    display: inline-block;
-    position: relative;
-    text-align: center;
-    font-feature-settings: 'dlig' on;
-    font-family: SunAntwerpen;
-    font-size: 1.25rem;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 120%;
-    z-index: 5;
-  }
+.settings-section-title {
+  color: var(--grey-300, #202020);
+  margin: 0 auto;
+  padding: 0 .5rem;
+  display: inline-block;
+  position: relative;
+  text-align: center;
+  font-feature-settings: 'dlig' on;
+  font-family: SunAntwerpen;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%;
+  z-index: 5;
+}
 
-  .settings-section-title-underline {
-position: absolute;
+.settings-section-title-underline {
+  position: absolute;
   inset-inline: 0;
   bottom: 0.125rem;
   height: 0.55em;
   background: var(--yellow-400);
   z-index: -1;
 
-  }
-  
-    .settings-section-text {
-      max-width: 17rem;
-      color: var(--grey-350, #4B5563);
-      text-align: center;
-      font-feature-settings: 'dlig' on;
-      font-family: SunAntwerpen;
-      font-size: 0.875rem;
-      font-style: normal;
-      font-weight: 400;
-      line-height: 140%;
-    }
+}
+
+.settings-section-text {
+  max-width: 17rem;
+  color: var(--grey-350, #4B5563);
+  text-align: center;
+  font-feature-settings: 'dlig' on;
+  font-family: SunAntwerpen;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+}
 
 .settings-section-underline {
-position: absolute;
+  position: absolute;
   inset-inline: 0;
   bottom: 0.125rem;
   height: 0.55em;
@@ -201,11 +202,11 @@ position: absolute;
 
 .settings-section-underline--short {
   position: absolute;
-    inset-inline: 0;
-    bottom: 0.125rem;
-    height: 0.55em;
-    background: var(--yellow-400);
-    z-index: -1;
+  inset-inline: 0;
+  bottom: 0.125rem;
+  height: 0.55em;
+  background: var(--yellow-400);
+  z-index: -1;
 }
 
 .settings-section-box {
@@ -257,12 +258,12 @@ position: absolute;
 
 .settings-row-label {
   color: var(--grey-300, #202020);
-    font-feature-settings: 'dlig' on;
-    font-family: SunAntwerpen;
-    font-size: 1rem;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 1.25rem;
+  font-feature-settings: 'dlig' on;
+  font-family: SunAntwerpen;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.25rem;
 }
 
 .settings-row--danger .settings-row-label {
@@ -632,7 +633,102 @@ position: absolute;
   z-index: -1;
 }
 
+/* ─── Change email success view ────────────────────── */
+.change-email-success-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 16000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.change-email-success-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 24.5625rem;
+}
+
+.change-email-success-stack {
+  position: relative;
+  width: min(22.5625rem, 100%);
+  padding-top: 5.5rem;
+}
+
+.change-email-success-illustration {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 2;
+  width: 8.625rem;
+  height: auto;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.change-email-success-card {
+  position: relative;
+  width: 100%;
+  min-height: 17.8125rem;
+  padding: 5.5rem 1.5rem 2.5rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 0 0.5rem rgba(43, 43, 44, 0.1);
+  text-align: center;
+  overflow: hidden;
+}
+
+.change-email-success-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.change-email-success-deco-doodle {
+  position: absolute;
+  left: 0.125rem;
+  top: 0.25rem;
+  width: 11.375rem;
+  height: auto;
+  transform-origin: center center;
+}
+
+.change-email-success-deco-grid {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 8.25rem;
+  height: 8.25rem;
+  transform-origin: center center;
+}
+
+.change-email-success-title {
+  position: relative;
+  margin: 0 0 0.625rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #202020;
+}
+
+.change-email-success-desc {
+  position: relative;
+  margin: 0 auto;
+  max-width: 14.8125rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: #202020;
+}
+
 @media (min-width: 48rem) {
+  .change-email-success-backdrop {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
   .settings-page {
     max-width: 30rem;
     margin: 0 auto;
@@ -657,20 +753,20 @@ position: absolute;
 
 .settings-section-underline--details {
   position: absolute;
-    inset-inline: 0;
-    bottom: 0.125rem;
-    height: 0.55em;
-    background: var(--yellow-400);
-    z-index: -1;
+  inset-inline: 0;
+  bottom: 0.125rem;
+  height: 0.55em;
+  background: var(--yellow-400);
+  z-index: -1;
 }
 
 .settings-section-underline--actions {
   position: absolute;
-    inset-inline: 0;
-    bottom: 0.125rem;
-    height: 0.55em;
-    background: var(--yellow-400);
-    z-index: -1;
+  inset-inline: 0;
+  bottom: 0.125rem;
+  height: 0.55em;
+  background: var(--yellow-400);
+  z-index: -1;
 }
 
 .account-details-content {
@@ -747,20 +843,20 @@ position: absolute;
   background: none;
   padding: 0;
   color: var(--grey-200, #797979);
-    text-align: center;
-    font-feature-settings: 'dlig' on;
-    font-family: SunAntwerpen;
-    font-size: 1.125rem;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 120%;
-    cursor: pointer;
-    text-decoration-line: underline;
-    text-decoration-style: solid;
-    text-decoration-skip-ink: none;
-    text-decoration-thickness: auto;
-    text-underline-offset: auto;
-    text-underline-position: from-font;
+  text-align: center;
+  font-feature-settings: 'dlig' on;
+  font-family: SunAntwerpen;
+  font-size: 1.125rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  cursor: pointer;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
 }
 
 .account-details-avatar-remove {
@@ -848,7 +944,7 @@ position: absolute;
 .account-details-field-label {
   font-size: 0.875rem;
   font-weight: 700;
-color: var(--grey-150, #9CA3AF);
+  color: var(--grey-150, #9CA3AF);
 }
 
 .account-details-field-value {
@@ -903,7 +999,7 @@ color: var(--grey-150, #9CA3AF);
 }
 
 .account-details-card--actions {
-border: 0.0625rem solid var(--red-400, #F40);
+  border: 0.0625rem solid var(--red-400, #F40);
   padding: 0;
 }
 
@@ -955,6 +1051,7 @@ border: 0.0625rem solid var(--red-400, #F40);
   flex-direction: column;
   gap: 0.375rem;
   margin: 1rem 1rem 2rem 1rem;
+  align-items: center;
 }
 
 .settings-form-intro-title {
@@ -962,15 +1059,15 @@ border: 0.0625rem solid var(--red-400, #F40);
   margin: 0 auto;
   padding: 0 .5rem;
   display: inline-block;
-    position: relative;
-    text-align: center;
-    font-feature-settings: 'dlig' on;
-    font-family: SunAntwerpen;
-    font-size: 1.25rem;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 120%;
-    z-index: 5;
+  position: relative;
+  text-align: center;
+  font-feature-settings: 'dlig' on;
+  font-family: SunAntwerpen;
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%;
+  z-index: 5;
 }
 
 .settings-form-intro-title {
@@ -1003,13 +1100,13 @@ border: 0.0625rem solid var(--red-400, #F40);
 
 .settings-form-intro-text {
   color: var(--grey-350, #4B5563);
-    text-align: center;
-    font-feature-settings: 'dlig' on;
-    font-family: SunAntwerpen;
-    font-size: 0.875rem;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 140%;
+  text-align: center;
+  font-feature-settings: 'dlig' on;
+  font-family: SunAntwerpen;
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
 }
 
 .settings-section-label {
@@ -1042,7 +1139,6 @@ border: 0.0625rem solid var(--red-400, #F40);
 
 .settings-form-actions {
   display: grid;
-  grid-template-columns: minmax(7.5rem, 8.625rem) 1fr;
   gap: 0.6875rem;
   margin-top: auto;
   padding-top: 1.5rem;
@@ -1074,11 +1170,11 @@ border: 0.0625rem solid var(--red-400, #F40);
   border: none;
   color: #fff;
   border-radius: 0.5rem;
-    background: var(--brand-blue-400, #1952FF);
-    min-width: 17rem;
-    align-self: center;
-    justify-self: center;
-    padding: 0.75rem 0;
+  background: var(--brand-blue-400, #1952FF);
+  min-width: 17rem;
+  align-self: center;
+  justify-self: center;
+  padding: 0.75rem 0;
 }
 
 .settings-form-btn--primary:not(:disabled):hover {
@@ -1164,7 +1260,7 @@ border: 0.0625rem solid var(--red-400, #F40);
 .language-content {
   position: relative;
   z-index: 1;
-      padding: 0.5rem 1rem 2rem 1rem;
+  padding: 0.5rem 1rem 2rem 1rem;
 }
 
 .language-intro {
@@ -1278,14 +1374,14 @@ border: 0.0625rem solid var(--red-400, #F40);
   margin: 0 0 0.75rem;
   padding: 0 0.25rem;
   color: var(--grey-300, #202020);
-    font-feature-settings: 'dlig' on;
-    font-family: SunAntwerpen;
-    font-size: 1rem;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 1rem;
+  font-feature-settings: 'dlig' on;
+  font-family: SunAntwerpen;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1rem;
   position: relative;
-    display: inline-block;
+  display: inline-block;
 }
 
 
@@ -1466,8 +1562,8 @@ border: 0.0625rem solid var(--red-400, #F40);
   font-size: 1rem;
   font-weight: 700;
   color: var(--grey-200, #797979);
-    font-family: SunAntwerpen;
-    font-style: normal;
+  font-family: SunAntwerpen;
+  font-style: normal;
 }
 
 .feedback-input-wrap {
@@ -1475,10 +1571,10 @@ border: 0.0625rem solid var(--red-400, #F40);
   align-items: center;
   padding: 0 0.8125rem;
   position: relative;
-    border-radius: 0.75rem;
-    border: 0.0625rem solid var(--grey-150, #9CA3AF);
-    background: var(--grey-0, #FFF);
-    transition: border-color .15s, background .15s;
+  border-radius: 0.75rem;
+  border: 0.0625rem solid var(--grey-150, #9CA3AF);
+  background: var(--grey-0, #FFF);
+  transition: border-color .15s, background .15s;
   background: #fff;
 }
 
@@ -1530,7 +1626,7 @@ border: 0.0625rem solid var(--red-400, #F40);
 
 .feedback-submit {
   align-self: center;
- min-width: 17rem;
+  min-width: 17rem;
   padding: 0.94rem 0;
   border: none;
   border-radius: 0.625rem;
@@ -1736,7 +1832,7 @@ border: 0.0625rem solid var(--red-400, #F40);
   background: #fff;
 }
 
-.support-faq-item + .support-faq-item {
+.support-faq-item+.support-faq-item {
   border-top: 0.0625rem solid var(--grey-50, #e9e9e9);
 }
 
@@ -1801,7 +1897,7 @@ border: 0.0625rem solid var(--red-400, #F40);
   font: inherit;
 }
 
-.support-help-row + .support-help-row {
+.support-help-row+.support-help-row {
   border-top: 0.0625rem solid #f3f4f6;
 }
 

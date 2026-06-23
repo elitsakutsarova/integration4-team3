@@ -1,12 +1,12 @@
 // change password page for account settings
 
-import { useEffect, useState } from 'react';
-import { Link, useFetcher, useNavigate, useRevalidator } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { useFetcher, useNavigate, useRevalidator } from 'react-router';
 import { EyeIcon, LockIcon } from '../auth/AuthIcons';
 import { accountErrorToFieldMap, validateAccountFormData } from '../../utils/accountFormValidation';
 import SettingsSubpageHeader from './SettingsSubpageHeader';
 import PasswordStrengthFeedback from './PasswordStrengthFeedback';
-import { goBack, paths } from '../../utils/appPaths';
+import { goBack, markAccountCredentialChange, paths } from '../../utils/appPaths';
 import { syncSessionProfile } from '../../utils/authStore';
 import { settingsAssets } from '../../utils/settingsAssets';
 
@@ -14,10 +14,15 @@ function mergeFieldErrors(clientErrors, fetcherData) {
   return { ...accountErrorToFieldMap(fetcherData?.error), ...clientErrors };
 }
 
+function isPasswordChangeSuccess(data) {
+  return data?.success === true && data?.kind === 'password';
+}
+
 export default function ChangePasswordPage() {
   const navigate = useNavigate();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher({ key: 'change-password' });
   const { revalidate } = useRevalidator();
+  const finishHandledRef = useRef(false);
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -28,18 +33,27 @@ export default function ChangePasswordPage() {
   const fieldErrors = mergeFieldErrors(clientErrors, fetcher.data);
   const formError = fieldErrors.form;
 
-  // After password change succeeds: sync session, revalidate, return to account page.
   useEffect(() => {
-    if (!fetcher.data?.success || fetcher.data?.kind !== 'password') return;
+    if (fetcher.state === 'submitting') {
+      finishHandledRef.current = false;
+    }
+  }, [fetcher.state]);
 
-    async function finishPasswordChange() {
+  useEffect(() => {
+    if (fetcher.state !== 'idle' || !isPasswordChangeSuccess(fetcher.data)) return;
+    if (finishHandledRef.current) return;
+    finishHandledRef.current = true;
+
+    void (async () => {
       await syncSessionProfile();
       revalidate();
-      navigate(`${paths.profileSettingsAccount}?updated=password`, { replace: true });
-    }
-
-    void finishPasswordChange();
-  }, [fetcher.data, navigate]);
+      markAccountCredentialChange();
+      navigate(paths.profileSettingsAccount, {
+        replace: true,
+        state: { showPasswordSuccess: true },
+      });
+    })();
+  }, [fetcher.state, fetcher.data, navigate, revalidate]);
 
   function handleBack() {
     goBack(navigate, paths.profileSettingsAccount);

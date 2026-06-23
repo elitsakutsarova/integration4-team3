@@ -1,8 +1,6 @@
-// route for the memo archive page at a location
+// memo archive for a location — rendered inside discover desktop panel
 
 import '../styles/modules/memo-archive.css';
-import '../styles/modules/map.css';
-import '../styles/modules/bottom-nav.css';
 import { useLoaderData } from 'react-router';
 import AuthLoading from '../components/auth/AuthLoading';
 import MemoArchivePage from '../components/memos/MemoArchivePage';
@@ -30,7 +28,7 @@ export function shouldRevalidate({ currentParams, nextParams }) {
   return currentParams.osmType !== nextParams.osmType || currentParams.osmId !== nextParams.osmId;
 }
 
-export default function LocationMemoArchiveRoute() {
+export default function DiscoverMemoArchiveRoute() {
   const { spotTitle, locationName, memos, memoCount } = useLoaderData();
   return (
     <MemoArchivePage

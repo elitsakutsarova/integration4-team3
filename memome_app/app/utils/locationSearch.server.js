@@ -98,6 +98,7 @@ function photonToPlace(feature) {
     lng,
     address: formatPhotonAddress(props),
     category: props.osm_value || props.type || 'place',
+    osmKey: props.osm_key ?? null,
   };
 }
 
