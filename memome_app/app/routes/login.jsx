@@ -22,6 +22,23 @@ import { guestOnlyMiddleware } from '../middleware/clientAuth';
 import { loginAssets } from '../utils/loginAssets';
 
 export const clientMiddleware = guestOnlyMiddleware;
+export function guestHomePath() {
+  return paths.home;
+}
+
+function ExploreArrowIcon() {
+  return (
+    <svg width="18" height="16" viewBox="0 0 18 16" fill="none" aria-hidden="true" className="login-register__explore-arrow">
+      <path
+        d="M1 8h14M10 2l6 6-6 6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function clientLoginFieldError(field, value) {
   if (field === 'email') {
@@ -322,6 +339,10 @@ export default function Login() {
           <span className="login-register-prompt__lead">Don&apos;t have an account?</span>{' '}
           <Link to={paths.register} className="login-register-link">Sign up</Link>
         </p>
+        <Link to={guestHomePath()} replace className="login-register__explore-link">
+          Explore map without account
+          <ExploreArrowIcon />
+        </Link>
       </div>
     </div>
   );
