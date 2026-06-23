@@ -10,7 +10,13 @@ const DEFAULT_DOCK_HEIGHT_REM = 9;
 const DEFAULT_DOCK_HEIGHT_PX = DEFAULT_DOCK_HEIGHT_REM * 16;
 const MIN_DOCK_HEIGHT = 40;
 const MAX_DOCK_HEIGHT_CAP = 360;
-const DOCK_DRAG_FADE_DISTANCE_PX = 48;
+const DRAG_MOVE_THRESHOLD_PX = 8;
+const DRAG_LONG_PRESS_MS = 180;
+const DOCK_DRAG_EXIT_INSET_PX = 8;
+const DRAG_COOLDOWN_MS = 100;
+const DOCK_COLLAPSE_HOLD_MS = 2000;
+const DOCK_COLLAPSE_ANIMATION_MS = 220;
+const DRAG_BODY_CLASS = 'journal-sticker-drag-active';
 
 function getMaxDockHeight() {
   if (typeof window === 'undefined') return MAX_DOCK_HEIGHT_CAP;
@@ -25,6 +31,11 @@ function clampDockHeight(height) {
   return Math.max(MIN_DOCK_HEIGHT, Math.min(getMaxDockHeight(), height));
 }
 
+function applyDockHeight(node, heightPx) {
+  node.style.height = `${heightPx}px`;
+  node.classList.toggle('journal-sticker-dock--collapsed', heightPx <= MIN_DOCK_HEIGHT + 8);
+}
+
 function readInitialDockHeight() {
   return getDefaultDockHeight();
 }
@@ -33,20 +44,19 @@ function clearDragSession(dragRef) {
   const session = dragRef.current;
   if (!session) return;
 
-  const { btn, onMove, onEnd, clone, pointerId } = session;
-  if (btn) {
-    btn.removeEventListener('pointermove', onMove);
-    btn.removeEventListener('pointerup', onEnd);
-    btn.removeEventListener('pointercancel', onEnd);
-    if (pointerId != null) {
-      try {
-        btn.releasePointerCapture(pointerId);
-      } catch {
-        /* ignore */
-      }
+  const { captureTarget, onMove, onEnd, clone, pointerId } = session;
+  document.removeEventListener('pointermove', onMove);
+  document.removeEventListener('pointerup', onEnd);
+  document.removeEventListener('pointercancel', onEnd);
+  if (captureTarget && pointerId != null) {
+    try {
+      captureTarget.releasePointerCapture(pointerId);
+    } catch {
+      /* ignore */
     }
   }
   clone?.remove();
+  document.body.classList.remove(DRAG_BODY_CLASS);
   dragRef.current = null;
 }
 
@@ -82,11 +92,16 @@ export default function JournalStickerDock({
 
   const [dockHeight, setDockHeight] = useState(readInitialDockHeight);
   const [isResizing, setIsResizing] = useState(false);
+  const [isStickerDragging, setIsStickerDragging] = useState(false);
   const dockHeightRef = useRef(dockHeight);
   dockHeightRef.current = dockHeight;
+  const preDragDockHeightRef = useRef(null);
+  const stickerDockCollapseTimerRef = useRef(null);
+  const stickerDragRestoreTimerRef = useRef(null);
 
   const dragRef = useRef(null);
   const resizeRef = useRef(null);
+  const dockRef = useRef(null);
   const lastStartRef = useRef(0);
 
   // Warm up dynamic GSAP import before the first drag interaction.
@@ -107,9 +122,69 @@ export default function JournalStickerDock({
   useEffect(() => () => {
     clearResizeSession(resizeRef);
     setIsResizing(false);
+    if (stickerDragRestoreTimerRef.current) {
+      window.clearTimeout(stickerDragRestoreTimerRef.current);
+    }
+    if (stickerDockCollapseTimerRef.current) {
+      window.clearTimeout(stickerDockCollapseTimerRef.current);
+    }
   }, []);
 
+  const cancelScheduledDockCollapse = useCallback(() => {
+    if (!stickerDockCollapseTimerRef.current) return;
+    window.clearTimeout(stickerDockCollapseTimerRef.current);
+    stickerDockCollapseTimerRef.current = null;
+  }, []);
+
+  const collapseDockForStickerDrag = useCallback(() => {
+    if (preDragDockHeightRef.current != null) return;
+
+    preDragDockHeightRef.current = dockHeightRef.current;
+    dockHeightRef.current = MIN_DOCK_HEIGHT;
+    setIsStickerDragging(true);
+    setDockHeight(MIN_DOCK_HEIGHT);
+
+    const dock = dockRef.current;
+    if (dock) applyDockHeight(dock, MIN_DOCK_HEIGHT);
+  }, []);
+
+  const scheduleDockCollapseForStickerDrag = useCallback(() => {
+    cancelScheduledDockCollapse();
+    stickerDockCollapseTimerRef.current = window.setTimeout(() => {
+      stickerDockCollapseTimerRef.current = null;
+      if (!dragRef.current) return;
+      collapseDockForStickerDrag();
+    }, DOCK_COLLAPSE_HOLD_MS);
+  }, [cancelScheduledDockCollapse, collapseDockForStickerDrag]);
+
+  const restoreDockAfterStickerDrag = useCallback(() => {
+    cancelScheduledDockCollapse();
+
+    const restoreHeight = preDragDockHeightRef.current;
+    preDragDockHeightRef.current = null;
+
+    if (restoreHeight == null) {
+      setIsStickerDragging(false);
+      return;
+    }
+
+    dockHeightRef.current = restoreHeight;
+    setDockHeight(restoreHeight);
+
+    const dock = dockRef.current;
+    if (dock) applyDockHeight(dock, restoreHeight);
+
+    if (stickerDragRestoreTimerRef.current) {
+      window.clearTimeout(stickerDragRestoreTimerRef.current);
+    }
+    stickerDragRestoreTimerRef.current = window.setTimeout(() => {
+      setIsStickerDragging(false);
+      stickerDragRestoreTimerRef.current = null;
+    }, DOCK_COLLAPSE_ANIMATION_MS);
+  }, [cancelScheduledDockCollapse]);
+
   const attachTrayRef = useCallback((node) => {
+    dockRef.current = node;
     if (trayRef) trayRef.current = node;
     if (!node) clearDragSession(dragRef);
   }, [trayRef]);
@@ -121,6 +196,7 @@ export default function JournalStickerDock({
 
     const { clone, originDropZone } = session;
     clearDragSession(dragRef);
+    restoreDockAfterStickerDrag();
 
     if (!clone || !originDropZone) {
       clone?.remove();
@@ -157,86 +233,153 @@ export default function JournalStickerDock({
         onComplete: () => clone.remove(),
       });
     }
-  }, []);
+  }, [restoreDockAfterStickerDrag]);
 
   const startDrag = useCallback((stickerDef, e) => {
     const now = Date.now();
-    if (now - lastStartRef.current < 350) return;
-    lastStartRef.current = now;
+    if (now - lastStartRef.current < DRAG_COOLDOWN_MS) return;
 
     if (dragRef.current) clearDragSession(dragRef);
     if (e.button !== 0 && e.pointerType === 'mouse') return;
-    e.stopPropagation();
-    if (e.cancelable) e.preventDefault();
+    if (e.pointerType === 'mouse') e.stopPropagation();
 
     const btn = e.currentTarget;
-    try {
-      btn.setPointerCapture(e.pointerId);
-    } catch {
-      /* ignore */
-    }
-
-    const cloneClassName = [
-      'diary-sticker-drag-clone',
-      'journal-sticker-drag-clone',
-      isQrCollectedJournalSticker(stickerDef.id) ? 'journal-sticker-drag-clone--qr-collected' : '',
-    ].filter(Boolean).join(' ');
-
-    const clone = createStickerCloneNode(stickerDef, {
-      cloneClassName,
-      imgClassName: 'journal-sticker-drag-clone-img',
-    });
-    document.body.appendChild(clone);
-    const gsap = getGsapSync();
-    gsap.set(clone, {
-      x: e.clientX,
-      y: e.clientY,
-      xPercent: -50,
-      yPercent: -50,
-      opacity: 1,
-    });
-
     const pointerId = e.pointerId;
+    const startX = e.clientX;
     const startY = e.clientY;
     const originDropZone = dropZoneRef.current;
+    const useLongPress = e.pointerType === 'touch' || e.pointerType === 'pen';
+    let longPressTimer = null;
+    let started = false;
 
-    const onMove = (ev) => {
-      if (ev.pointerId !== pointerId) return;
-      const dragDown = ev.clientY - startY;
-      let opacity = 1;
-      if (dragDown > 8) {
-        opacity = Math.max(0, 1 - (dragDown - 8) / DOCK_DRAG_FADE_DISTANCE_PX);
+    const clearPendingInteraction = (cancelCollapse = false) => {
+      if (cancelCollapse) cancelScheduledDockCollapse();
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
       }
-      getGsapSync().set(clone, {
+      document.removeEventListener('pointermove', onPendingMove);
+      document.removeEventListener('pointerup', onPendingEnd);
+      document.removeEventListener('pointercancel', onPendingEnd);
+    };
+
+    const beginDrag = (ev) => {
+      if (started) return;
+      started = true;
+      lastStartRef.current = Date.now();
+      clearPendingInteraction(false);
+      scheduleDockCollapseForStickerDrag();
+      if (ev?.cancelable) ev.preventDefault();
+
+      try {
+        btn.setPointerCapture(pointerId);
+      } catch {
+        /* ignore */
+      }
+
+      const cloneClassName = [
+        'diary-sticker-drag-clone',
+        'journal-sticker-drag-clone',
+        isQrCollectedJournalSticker(stickerDef.id) ? 'journal-sticker-drag-clone--qr-collected' : '',
+      ].filter(Boolean).join(' ');
+
+      const clone = createStickerCloneNode(stickerDef, {
+        cloneClassName,
+        imgClassName: 'journal-sticker-drag-clone-img',
+      });
+      document.body.appendChild(clone);
+      document.body.classList.add(DRAG_BODY_CLASS);
+      const gsap = getGsapSync();
+      gsap.set(clone, {
         x: ev.clientX,
         y: ev.clientY,
         xPercent: -50,
         yPercent: -50,
-        opacity,
+        opacity: 1,
       });
+
+      const onMove = (moveEv) => {
+        if (moveEv.pointerId !== pointerId) return;
+        if (moveEv.cancelable) moveEv.preventDefault();
+        getGsapSync().set(clone, {
+          x: moveEv.clientX,
+          y: moveEv.clientY,
+          xPercent: -50,
+          yPercent: -50,
+          opacity: 1,
+        });
+      };
+
+      const onEnd = (endEv) => {
+        if (endEv.pointerId !== pointerId) return;
+        endDrag(endEv.clientX, endEv.clientY);
+      };
+
+      dragRef.current = {
+        stickerDef,
+        clone,
+        captureTarget: btn,
+        pointerId,
+        settled: false,
+        onMove,
+        onEnd,
+        originPageIndex: pageIndex,
+        originDropZone,
+      };
+
+      document.addEventListener('pointermove', onMove, { passive: false });
+      document.addEventListener('pointerup', onEnd);
+      document.addEventListener('pointercancel', onEnd);
     };
 
-    const onEnd = (ev) => {
+    const onPendingMove = (ev) => {
+      if (ev.pointerId !== pointerId || started) return;
+
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      const adx = Math.abs(dx);
+      const ady = Math.abs(dy);
+      const dockRect = dockRef.current?.getBoundingClientRect();
+
+      if (useLongPress) {
+        // Lift the sticker out through the top of the menu — start dragging immediately.
+        if (dockRect && ev.clientY < dockRect.top + DOCK_DRAG_EXIT_INSET_PX) {
+          beginDrag(ev);
+          return;
+        }
+
+        if (adx < DRAG_MOVE_THRESHOLD_PX && ady < DRAG_MOVE_THRESHOLD_PX) return;
+
+        // Still inside the menu — keep scrolling, cancel pick-up.
+        if (
+          dockRect
+          && ev.clientX >= dockRect.left
+          && ev.clientX <= dockRect.right
+          && ev.clientY >= dockRect.top
+          && ev.clientY <= dockRect.bottom
+        ) {
+          clearPendingInteraction(true);
+        }
+        return;
+      }
+
+      if (adx < DRAG_MOVE_THRESHOLD_PX && ady < DRAG_MOVE_THRESHOLD_PX) return;
+      beginDrag(ev);
+    };
+
+    const onPendingEnd = (ev) => {
       if (ev.pointerId !== pointerId) return;
-      endDrag(ev.clientX, ev.clientY);
+      clearPendingInteraction(true);
     };
 
-    dragRef.current = {
-      stickerDef,
-      clone,
-      btn,
-      pointerId,
-      settled: false,
-      onMove,
-      onEnd,
-      originPageIndex: pageIndex,
-      originDropZone,
-    };
+    if (useLongPress) {
+      longPressTimer = setTimeout(() => beginDrag(e), DRAG_LONG_PRESS_MS);
+    }
 
-    btn.addEventListener('pointermove', onMove, { passive: false });
-    btn.addEventListener('pointerup', onEnd);
-    btn.addEventListener('pointercancel', onEnd);
-  }, [endDrag, pageIndex, dropZoneRef]);
+    document.addEventListener('pointermove', onPendingMove, { passive: true });
+    document.addEventListener('pointerup', onPendingEnd);
+    document.addEventListener('pointercancel', onPendingEnd);
+  }, [cancelScheduledDockCollapse, endDrag, pageIndex, dropZoneRef, scheduleDockCollapseForStickerDrag]);
 
   const startResize = useCallback((e) => {
     if (e.button !== 0 && e.pointerType === 'mouse') return;
@@ -245,9 +388,10 @@ export default function JournalStickerDock({
 
     if (resizeRef.current) clearResizeSession(resizeRef);
 
+    const dock = dockRef.current;
+    const handle = e.currentTarget;
     setIsResizing(true);
 
-    const handle = e.currentTarget;
     try {
       handle.setPointerCapture(e.pointerId);
     } catch {
@@ -258,16 +402,23 @@ export default function JournalStickerDock({
     const startY = e.clientY;
     const startHeight = dockHeightRef.current;
 
+    if (dock) {
+      applyDockHeight(dock, startHeight);
+    }
+
     const onMove = (ev) => {
       if (ev.pointerId !== pointerId) return;
       if (ev.cancelable) ev.preventDefault();
       const delta = startY - ev.clientY;
-      setDockHeight(clampDockHeight(startHeight + delta));
+      const height = clampDockHeight(startHeight + delta);
+      dockHeightRef.current = height;
+      if (dock) applyDockHeight(dock, height);
     };
 
     const onEnd = (ev) => {
       if (ev.pointerId !== pointerId) return;
       clearResizeSession(resizeRef);
+      setDockHeight(dockHeightRef.current);
       setIsResizing(false);
     };
 
@@ -282,8 +433,8 @@ export default function JournalStickerDock({
   return (
     <div
       ref={attachTrayRef}
-      className={`journal-sticker-dock${isCollapsed ? ' journal-sticker-dock--collapsed' : ''}${isResizing ? ' journal-sticker-dock--resizing' : ''}`}
-      style={{ height: `${dockHeight / 16}rem` }}
+      className={`journal-sticker-dock${isCollapsed ? ' journal-sticker-dock--collapsed' : ''}${isResizing ? ' journal-sticker-dock--resizing' : ''}${isStickerDragging ? ' journal-sticker-dock--sticker-dragging' : ''}`}
+      style={{ height: `${dockHeight}px` }}
       aria-label="Sticker menu"
     >
       <div

@@ -1860,10 +1860,6 @@
   color: var(--grey-300, #202020);
 }
 
-.support-faq-item:nth-child(n + 4) .support-faq-question-text {
-  font-size: 0.875rem;
-}
-
 .support-faq-chevron {
   flex-shrink: 0;
   transform: rotate(90deg);

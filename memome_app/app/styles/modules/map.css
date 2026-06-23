@@ -1959,9 +1959,7 @@ grid-template-rows: 1fr;
   }
 
   .map-container--bottom {
-    left: var(--desktop-nav-end);
-    right: var(--desktop-inset);
-    bottom: var(--desktop-inset);
+    z-index: 0;
   }
 
   .map-guest-cta {
@@ -2000,6 +1998,25 @@ grid-template-rows: 1fr;
     display: block;
     image-rendering: pixelated;
     pointer-events: none;
+  }
+
+  .guest-add-memo-page.guest-add-memo-page--discover-panel {
+    inset: auto;
+    left: var(--desktop-nav-end);
+    top: var(--desktop-inset);
+    bottom: var(--desktop-inset);
+    width: min(24.5rem, calc(100vw - var(--desktop-nav-end) - var(--desktop-inset) - 8rem));
+    z-index: 1002;
+    min-height: 0;
+    height: auto;
+    overflow: hidden;
+    border-radius: 1.1875rem;
+    box-shadow: 0 0.125rem 0.5687rem rgba(0, 0, 0, 0.25);
+  }
+
+  .guest-add-memo-page--discover-panel .guest-add-memo-main {
+    overflow-y: auto;
+    padding-bottom: 0.75rem;
   }
 
   .memory-sheet-scrim {
