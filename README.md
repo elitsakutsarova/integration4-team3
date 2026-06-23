@@ -9,11 +9,11 @@
 ## Deployed website: https://memomeantwerp.vercel.app/logged-out
 
 ## Figma Links
-FigJam w/ process: https://www.figma.com/board/IEKmtM7v4p5qi0Z23wdyeG/Integration4-FigJam?node-id=0-1&t=Nwge7l5S4S5yKP4O-1
-Wireframes and Microsite: https://www.figma.com/design/EqHZaGIVXoGFLQ3pnyekZU/Integration4-Design?node-id=0-1&t=JFDmu4sJO09YME8p-1
-Marketing Assets: https://www.figma.com/design/agSUYTN2Y7ejtu8fRBVCqh/Integration4_marketingAssets?node-id=0-1&t=rmwax1ImsP9hwb4o-1
-App Design (w/ VD process): https://www.figma.com/design/agSUYTN2Y7ejtu8fRBVCqh/Integration4_marketingAssets?node-id=117-579&t=rmwax1ImsP9hwb4o-1
-GitHub: https://github.com/elitsakutsarova/integration4-team3
+- FigJam w/ process: https://www.figma.com/board/IEKmtM7v4p5qi0Z23wdyeG/Integration4-FigJam?node-id=0-1&t=Nwge7l5S4S5yKP4O-1
+- Wireframes and Microsite: https://www.figma.com/design/EqHZaGIVXoGFLQ3pnyekZU/Integration4-Design?node-id=0-1&t=JFDmu4sJO09YME8p-1
+- Marketing Assets: https://www.figma.com/design/agSUYTN2Y7ejtu8fRBVCqh/Integration4_marketingAssets?node-id=0-1&t=rmwax1ImsP9hwb4o-1
+- App Design (w/ VD process): https://www.figma.com/design/agSUYTN2Y7ejtu8fRBVCqh/Integration4_marketingAssets?node-id=117-579&t=rmwax1ImsP9hwb4o-1
+- GitHub: https://github.com/elitsakutsarova/integration4-team3
 
 # Tests
 
